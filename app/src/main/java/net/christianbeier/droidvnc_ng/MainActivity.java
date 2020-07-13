@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        vncStartServer();
     }
 
     @Override
@@ -236,5 +237,8 @@ public class MainActivity extends AppCompatActivity {
         }
         return null;
     }
+
+
+    private native boolean vncStartServer();
 
 }
