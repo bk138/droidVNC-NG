@@ -29,8 +29,6 @@
  * Modeled after rfbDefaultLog:
  *  - with Android log functions
  *  - without time stamping as the Android logging does this already
- * There's no per-connection log since we cannot find out which client
- * called the logger function :-(
  */
 static void logcat_logger(const char *format, ...)
 {
