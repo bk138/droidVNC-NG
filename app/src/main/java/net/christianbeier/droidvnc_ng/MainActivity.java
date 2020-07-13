@@ -66,6 +66,12 @@ public class MainActivity extends AppCompatActivity {
     private MediaProjection mMediaProjection;
     private MediaProjectionManager mMediaProjectionManager;
 
+    static {
+        // order is important here
+        System.loadLibrary("vncserver");
+        System.loadLibrary("droidvnc-ng");
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
