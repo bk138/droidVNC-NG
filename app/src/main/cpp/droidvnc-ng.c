@@ -43,7 +43,7 @@ static void logcat_logger(const char *format, ...)
 /*
  * The VM calls JNI_OnLoad when the native library is loaded (for example, through System.loadLibrary).
  * JNI_OnLoad must return the JNI version needed by the native library.
- *  We use this to wire up LibVNCServer logging to logcat.
+ * We use this to wire up LibVNCServer logging to logcat.
  */
 JNIEXPORT jint JNI_OnLoad(JavaVM __unused * vm, void __unused * reserved) {
 
