@@ -11,6 +11,14 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                // exclude the other LibVNCServer targets
+                targets "turbojpeg-static", "vncserver", "droidvnc-ng"
+            }
+        }
+
     }
 
     buildTypes {
@@ -19,6 +27,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    externalNativeBuild {
+        cmake {
+            version '3.10.2'
+            path 'src/main/cpp/CMakeLists.txt'
+        }
+    }
+
 }
 
 dependencies {
