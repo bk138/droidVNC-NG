@@ -21,12 +21,14 @@
 
 package net.christianbeier.droidvnc_ng;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
@@ -40,6 +42,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -92,7 +95,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        vncStartServer();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getMetrics(displayMetrics);
+        vncStartServer(displayMetrics.widthPixels, displayMetrics.heightPixels);
     }
 
     @Override
@@ -124,6 +130,21 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         tearDownMediaProjection();
+    }
+
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Log.d(TAG, "onConfigurationChanged");
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getMetrics(displayMetrics);
+
+        Log.d(TAG, "onConfigurationChanged: width: " + displayMetrics.widthPixels + " height: " + displayMetrics.heightPixels);
+
+        vncNewFramebuffer(displayMetrics.widthPixels, displayMetrics.heightPixels);
     }
 
     private void setUpMediaProjection() {
@@ -239,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private native boolean vncStartServer();
+    private native boolean vncStartServer(int width, int height);
+    private native void vncNewFramebuffer(int width, int height);
 
 }
