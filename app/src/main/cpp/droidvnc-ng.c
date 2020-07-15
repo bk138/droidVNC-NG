@@ -21,6 +21,7 @@
 
 #include <jni.h>
 #include <android/log.h>
+#include <time.h>
 #include "rfb/rfb.h"
 
 #define TAG "droidvnc-ng (native)"
@@ -39,6 +40,19 @@ static void logcat_logger(const char *format, ...)
     va_start(args, format);
     __android_log_vprint(ANDROID_LOG_INFO, TAG, format, args);
     va_end(args);
+}
+
+
+/**
+ * @return Current time in floating point seconds.
+ */
+static double getTime()
+{
+    struct timeval tv;
+    if (gettimeofday(&tv, NULL) < 0)
+        return 0.0;
+    else
+        return (double) tv.tv_sec + ((double) tv.tv_usec / 1000000.);
 }
 
 
@@ -89,4 +103,21 @@ JNIEXPORT void JNICALL Java_net_christianbeier_droidvnc_1ng_MainActivity_vncNewF
 
     free(oldfb);
     __android_log_print(ANDROID_LOG_INFO, TAG, "vncNewFramebuffer: allocated new framebuffer, %dx%d", width, height);
+}
+
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainActivity_vncUpdateFramebuffer(JNIEnv *env, jobject  __unused thiz, jobject buf)
+{
+    void *cBuf = (*env)->GetDirectBufferAddress(env, buf);
+    jlong bufSize = (*env)->GetDirectBufferCapacity(env, buf);
+
+    if(!cBuf || bufSize < 0)
+        return JNI_FALSE;
+
+    double t0 = getTime();
+    memcpy(theScreen->frameBuffer, cBuf, bufSize);
+    __android_log_print(ANDROID_LOG_DEBUG, TAG, "vncUpdateFramebuffer: copy took %.3f ms", (getTime()-t0)*1000);
+
+    rfbMarkRectAsModified(theScreen, 0, 0, theScreen->width, theScreen->height);
+
+    return JNI_TRUE;
 }
