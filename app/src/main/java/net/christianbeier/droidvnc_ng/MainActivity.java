@@ -46,8 +46,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 
 public class MainActivity extends AppCompatActivity {
@@ -194,20 +192,8 @@ public class MainActivity extends AppCompatActivity {
 
                 final Image.Plane[] planes = image.getPlanes();
                 final ByteBuffer buffer = planes[0].getBuffer();
-                int pixelStride = planes[0].getPixelStride();
-                int rowStride = planes[0].getRowStride();
-                int rowPadding = rowStride - pixelStride * mWidth;
-                int w = mWidth + rowPadding / pixelStride;
 
-
-                // Create Bitmap
-                if (mBmp == null) {
-                    mBmp = Bitmap.createBitmap(w, mHeight, Bitmap.Config.ARGB_8888);
-                }
-                buffer.rewind();
-                mBmp.copyPixelsFromBuffer(buffer);
-
-                saveBitmapToFile(mBmp, "vncbitmap.png", getFilesDir().getAbsolutePath(), false);
+                vncUpdateFramebuffer(buffer);
 
                 image.close();
             }
@@ -234,33 +220,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public static File saveBitmapToFile(Bitmap bitmap, String filename, String path, boolean recycle) {
-        FileOutputStream out = null;
-        try {
-            File f = new File(path, filename);
-            if (!f.exists()) {
-                f.createNewFile();
-            }
-            out = new FileOutputStream(f);
-            if (bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)) {
-                return f;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Could not save bitmap", e);
-        } finally {
-            try {
-                out.close();
-            } catch (Throwable ignore) {
-            }
-            if (recycle) {
-                bitmap.recycle();
-            }
-        }
-        return null;
-    }
-
-
     private native boolean vncStartServer(int width, int height);
     private native void vncNewFramebuffer(int width, int height);
+    private native boolean vncUpdateFramebuffer(ByteBuffer buf);
 
 }
