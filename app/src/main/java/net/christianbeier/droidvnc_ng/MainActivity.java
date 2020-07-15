@@ -190,6 +190,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "image available");
                 Image image = imageReader.acquireLatestImage();
 
+                if(image == null)
+                    return;
+
                 final Image.Plane[] planes = image.getPlanes();
                 final ByteBuffer buffer = planes[0].getBuffer();
 
