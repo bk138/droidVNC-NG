@@ -58,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
     private int mResultCode;
     private Intent mResultData;
 
-    public static Bitmap mBmp;
-
     private ImageReader mImageReader;
     private int mWidth;
     private int mHeight;
@@ -142,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "onConfigurationChanged: width: " + displayMetrics.widthPixels + " height: " + displayMetrics.heightPixels);
 
+        setUpVirtualDisplay();
         vncNewFramebuffer(displayMetrics.widthPixels, displayMetrics.heightPixels);
     }
 
@@ -174,6 +173,14 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("WrongConstant")
     private void setUpVirtualDisplay() {
+
+        if(mMediaProjection == null)
+            return;
+
+        if (mImageReader != null)
+            mImageReader.close();
+        if (mVirtualDisplay != null)
+            mVirtualDisplay.release();
 
         DisplayMetrics metrics = new DisplayMetrics();
         Point size = new Point();
