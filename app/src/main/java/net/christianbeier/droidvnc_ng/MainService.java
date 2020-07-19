@@ -154,7 +154,10 @@ public class MainService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
+        tearDownMediaProjection();
     }
+
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
@@ -176,6 +179,7 @@ public class MainService extends Service {
         if(ACTION_STOP.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: stop");
             stopScreenCapture();
+            stopSelf();
         }
 
         return START_STICKY;

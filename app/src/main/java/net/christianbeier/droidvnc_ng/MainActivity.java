@@ -21,6 +21,7 @@
 
 package net.christianbeier.droidvnc_ng;
 
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private Button mButtonToggle;
-    private boolean mIsToggleEnabled;
+    private boolean mIsMainServiceRunning;
 
 
     @Override
@@ -43,18 +44,34 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mButtonToggle = (Button) findViewById(R.id.toggle);
+
+        mIsMainServiceRunning = false;
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (MainService.class.getName().equals(service.service.getClassName())) {
+                mIsMainServiceRunning = true;
+                break;
+            }
+        }
+        if(mIsMainServiceRunning)
+            mButtonToggle.setText(R.string.stop);
+        else
+            mButtonToggle.setText(R.string.start);
+
         mButtonToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 Intent intent = new Intent(MainActivity.this, MainService.class);
-                if(mIsToggleEnabled) {
+                if(mIsMainServiceRunning) {
                     intent.setAction(MainService.ACTION_STOP);
                     mButtonToggle.setText(R.string.start);
+                    mIsMainServiceRunning = false;
                 }
                 else {
                     intent.setAction(MainService.ACTION_START);
                     mButtonToggle.setText(R.string.stop);
+                    mIsMainServiceRunning = true;
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -63,28 +80,11 @@ public class MainActivity extends AppCompatActivity {
                     startService(intent);
                 }
 
-                mIsToggleEnabled = !mIsToggleEnabled;
-
             }
         });
 
 
     }
-
-
-    @Override
-    public void onPause() {
-        super.onPause();
-       // stopScreenCapture();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        //tearDownMediaProjection();
-    }
-
-
 
 
 }
