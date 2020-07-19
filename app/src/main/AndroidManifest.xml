@@ -25,7 +25,8 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/main_activity_title">
+            android:label="@string/main_activity_title"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
