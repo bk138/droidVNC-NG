@@ -37,6 +37,7 @@ public class OnBootReceiver extends BroadcastReceiver {
     {
         Log.i(TAG, "onReceive");
         Intent intent = new Intent(context, MainService.class);
+        intent.setAction(MainService.ACTION_START);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent);
         } else {

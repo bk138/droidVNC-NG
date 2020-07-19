@@ -72,7 +72,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM __unused * vm, void __unused * reserved) {
 }
 
 
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainActivity_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height) {
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height) {
 
     int argc = 0;
 
@@ -88,7 +88,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainActivity_vnc
     return JNI_TRUE;
 }
 
-JNIEXPORT void JNICALL Java_net_christianbeier_droidvnc_1ng_MainActivity_vncNewFramebuffer(JNIEnv *env, jobject thiz, jint width, jint height)
+JNIEXPORT void JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncNewFramebuffer(JNIEnv *env, jobject thiz, jint width, jint height)
 {
     rfbClientIteratorPtr iterator;
     rfbClientPtr cl;
@@ -122,7 +122,7 @@ JNIEXPORT void JNICALL Java_net_christianbeier_droidvnc_1ng_MainActivity_vncNewF
     __android_log_print(ANDROID_LOG_INFO, TAG, "vncNewFramebuffer: allocated new framebuffer, %dx%d", width, height);
 }
 
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainActivity_vncUpdateFramebuffer(JNIEnv *env, jobject  __unused thiz, jobject buf)
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncUpdateFramebuffer(JNIEnv *env, jobject  __unused thiz, jobject buf)
 {
     void *cBuf = (*env)->GetDirectBufferAddress(env, buf);
     jlong bufSize = (*env)->GetDirectBufferCapacity(env, buf);

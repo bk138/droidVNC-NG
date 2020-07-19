@@ -21,55 +21,20 @@
 
 package net.christianbeier.droidvnc_ng;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.PixelFormat;
-import android.graphics.Point;
-import android.hardware.display.DisplayManager;
-import android.hardware.display.VirtualDisplay;
-import android.media.Image;
-import android.media.ImageReader;
-import android.media.projection.MediaProjection;
-import android.media.projection.MediaProjectionManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.Toast;
 
-import java.nio.ByteBuffer;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    private static final int REQUEST_MEDIA_PROJECTION = 42;
 
     private Button mButtonToggle;
-
-    private int mResultCode;
-    private Intent mResultData;
-
-    private ImageReader mImageReader;
-    private int mWidth;
-    private int mHeight;
-    private VirtualDisplay mVirtualDisplay;
-    private MediaProjection mMediaProjection;
-    private MediaProjectionManager mMediaProjectionManager;
-
-    static {
-        // order is important here
-        System.loadLibrary("vncserver");
-        System.loadLibrary("droidvnc-ng");
-    }
+    private boolean mIsToggleEnabled;
 
 
     @Override
@@ -77,161 +42,49 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mMediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-
         mButtonToggle = (Button) findViewById(R.id.toggle);
         mButtonToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mVirtualDisplay == null) {
-                    startScreenCapture();
-                } else {
-                    stopScreenCapture();
+
+                Intent intent = new Intent(MainActivity.this, MainService.class);
+                if(mIsToggleEnabled) {
+                    intent.setAction(MainService.ACTION_STOP);
+                    mButtonToggle.setText(R.string.start);
                 }
+                else {
+                    intent.setAction(MainService.ACTION_START);
+                    mButtonToggle.setText(R.string.stop);
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intent);
+                } else {
+                    startService(intent);
+                }
+
+                mIsToggleEnabled = !mIsToggleEnabled;
+
             }
         });
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getMetrics(displayMetrics);
-        vncStartServer(displayMetrics.widthPixels, displayMetrics.heightPixels);
+
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_MEDIA_PROJECTION) {
-            if (resultCode != Activity.RESULT_OK) {
-                Log.i(TAG, "User cancelled");
-                Toast.makeText(this, R.string.user_cancelled, Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Log.i(TAG, "Starting screen capture");
-            mResultCode = resultCode;
-            mResultData = data;
-            setUpMediaProjection();
-            setUpVirtualDisplay();
-        }
-    }
 
     @Override
     public void onPause() {
         super.onPause();
-        stopScreenCapture();
+       // stopScreenCapture();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        tearDownMediaProjection();
+        //tearDownMediaProjection();
     }
 
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        Log.d(TAG, "onConfigurationChanged");
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getMetrics(displayMetrics);
-
-        Log.d(TAG, "onConfigurationChanged: width: " + displayMetrics.widthPixels + " height: " + displayMetrics.heightPixels);
-
-        setUpVirtualDisplay();
-        vncNewFramebuffer(displayMetrics.widthPixels, displayMetrics.heightPixels);
-    }
-
-    private void setUpMediaProjection() {
-        mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mResultData);
-    }
-
-    private void tearDownMediaProjection() {
-        if (mMediaProjection != null) {
-            mMediaProjection.stop();
-            mMediaProjection = null;
-        }
-    }
-
-    private void startScreenCapture() {
-
-        if (mMediaProjection != null) {
-            setUpVirtualDisplay();
-        } else if (mResultCode != 0 && mResultData != null) {
-            setUpMediaProjection();
-            setUpVirtualDisplay();
-        } else {
-            Log.i(TAG, "Requesting confirmation");
-            // This initiates a prompt dialog for the user to confirm screen projection.
-            startActivityForResult(
-                    mMediaProjectionManager.createScreenCaptureIntent(),
-                    REQUEST_MEDIA_PROJECTION);
-        }
-    }
-
-    @SuppressLint("WrongConstant")
-    private void setUpVirtualDisplay() {
-
-        if(mMediaProjection == null)
-            return;
-
-        if (mImageReader != null)
-            mImageReader.close();
-        if (mVirtualDisplay != null)
-            mVirtualDisplay.release();
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        Point size = new Point();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        getWindowManager().getDefaultDisplay().getSize(size);
-
-        mWidth = size.x;
-        mHeight = size.y;
-
-        mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
-        mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
-            @Override
-            public void onImageAvailable(ImageReader imageReader) {
-                Log.d(TAG, "image available");
-                Image image = imageReader.acquireLatestImage();
-
-                if(image == null)
-                    return;
-
-                final Image.Plane[] planes = image.getPlanes();
-                final ByteBuffer buffer = planes[0].getBuffer();
-
-                vncUpdateFramebuffer(buffer);
-
-                image.close();
-            }
-        }, null);
-
-        mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
-                mWidth, mHeight, metrics.densityDpi,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                mImageReader.getSurface(), null, null);
-
-        mButtonToggle.setText(R.string.stop);
-    }
-
-    private void stopScreenCapture() {
-        if (mVirtualDisplay == null) {
-            return;
-        }
-        mVirtualDisplay.release();
-        mVirtualDisplay = null;
-
-        tearDownMediaProjection();
-
-        mButtonToggle.setText(R.string.start);
-    }
-
-
-    private native boolean vncStartServer(int width, int height);
-    private native void vncNewFramebuffer(int width, int height);
-    private native boolean vncUpdateFramebuffer(ByteBuffer buf);
 
 }
