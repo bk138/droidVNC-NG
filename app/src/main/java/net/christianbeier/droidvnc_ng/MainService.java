@@ -77,6 +77,7 @@ public class MainService extends Service {
     }
 
     private native boolean vncStartServer(int width, int height);
+    private native boolean vncStopServer();
     private native void vncNewFramebuffer(int width, int height);
     private native boolean vncUpdateFramebuffer(ByteBuffer buf);
 
@@ -155,6 +156,7 @@ public class MainService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
         tearDownMediaProjection();
+        vncStopServer();
     }
 
 
