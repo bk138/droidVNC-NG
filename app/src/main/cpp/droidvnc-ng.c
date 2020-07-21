@@ -76,6 +76,9 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 
     int argc = 0;
 
+    if(theScreen)
+        return JNI_FALSE;
+
     theScreen=rfbGetScreen(&argc, NULL, width, height, 8, 3, 4);
     if(!theScreen)
         return JNI_FALSE;
@@ -84,6 +87,24 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 
     rfbInitServer(theScreen);
     rfbRunEventLoop(theScreen, -1, TRUE);
+
+    __android_log_print(ANDROID_LOG_INFO, TAG, "vncStartServer: successfully started");
+
+    return JNI_TRUE;
+}
+
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(JNIEnv *env, jobject thiz) {
+
+    if(!theScreen)
+        return JNI_FALSE;
+
+    rfbShutdownServer(theScreen, TRUE);
+    free(theScreen->frameBuffer);
+    theScreen->frameBuffer = NULL;
+    rfbScreenCleanup(theScreen);
+    theScreen = NULL;
+
+    __android_log_print(ANDROID_LOG_INFO, TAG, "vncStopServer: successfully stopped");
 
     return JNI_TRUE;
 }
@@ -127,7 +148,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
     void *cBuf = (*env)->GetDirectBufferAddress(env, buf);
     jlong bufSize = (*env)->GetDirectBufferCapacity(env, buf);
 
-    if(!cBuf || bufSize < 0)
+    if(!theScreen || !theScreen->frameBuffer || !cBuf || bufSize < 0)
         return JNI_FALSE;
 
     double t0 = getTime();
