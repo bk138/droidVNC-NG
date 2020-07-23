@@ -23,8 +23,7 @@
             android:name=".MainService"
             android:enabled="true" />
 
-        <activity
-            android:name=".MainActivity"
+        <activity android:name=".MainActivity"
             android:label="@string/main_activity_title"
             android:launchMode="singleTask">
             <intent-filter>
