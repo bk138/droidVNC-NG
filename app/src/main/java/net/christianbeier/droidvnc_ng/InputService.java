@@ -58,6 +58,18 @@ public class InputService extends AccessibilityService {
 		Log.i(TAG, "onServiceConnected");
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		instance = null;
+		Log.i(TAG, "onDestroy");
+	}
+
+	public static boolean isEnabled()
+	{
+		return instance != null;
+	}
+
 	public static void tap( int x, int y )
 	{
 		if( instance != null )
