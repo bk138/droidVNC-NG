@@ -61,13 +61,13 @@ public class InputService extends AccessibilityService {
 	public static void tap( int x, int y )
 	{
 		if( instance != null )
-			instance.dispatchGesture( createClick( x, y, ViewConfiguration.getTapTimeout() + 50 ), null, null );
+			instance.dispatchGesture( createClick( x, y, ViewConfiguration.getTapTimeout()), null, null );
 	}
 
 	public static void longPress( int x, int y )
 	{
 		if( instance != null )
-			instance.dispatchGesture( createClick( x, y, ViewConfiguration.getLongPressTimeout() + 200 ), null, null );
+			instance.dispatchGesture( createClick( x, y, ViewConfiguration.getTapTimeout() + ViewConfiguration.getLongPressTimeout()), null, null );
 	}
 
 	public static void scroll( int x, int y, int scrollAmount )
