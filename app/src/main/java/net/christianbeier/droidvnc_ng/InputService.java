@@ -23,7 +23,7 @@ public class InputService extends AccessibilityService {
 	/**
 	 * This globally tracks gesture completion status and is _not_ per gesture.
 	 */
-	private class GestureCallback extends AccessibilityService.GestureResultCallback {
+	private static class GestureCallback extends AccessibilityService.GestureResultCallback {
 		private boolean mCompleted = true; // initially true so we can actually dispatch something
 
 		@Override
