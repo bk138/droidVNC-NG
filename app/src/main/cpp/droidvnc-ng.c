@@ -27,6 +27,8 @@
 #define TAG "droidvnc-ng (native)"
 
 rfbScreenInfoPtr theScreen;
+jclass theInputService;
+JavaVM *theVM;
 
 /*
  * Modeled after rfbDefaultLog:
@@ -56,14 +58,70 @@ static double getTime()
 }
 
 
+static void onPointerEvent(int buttonMask,int x,int y,rfbClientPtr cl)
+{
+    if (buttonMask) {
+
+        JNIEnv *env = NULL;
+        if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "onPointerEvent: could not attach thread, there will be no input");
+            return;
+        }
+
+        // left mouse button
+        if (buttonMask & (1 << 0)) {
+            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "tap", "(II)V");
+            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y);
+        }
+
+        // right mouse button
+        if (buttonMask & (1 << 2)) {
+            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "longPress", "(II)V");
+            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y);
+        }
+
+        // scroll up
+        if (buttonMask & (1 << 3)) {
+            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "swipeDown", "(II)V");
+            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y);
+        }
+
+        // scroll down
+        if (buttonMask & (1 << 4)) {
+            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "swipeUp", "(II)V");
+            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y);
+        }
+
+        if ((*env)->ExceptionCheck(env))
+            (*env)->ExceptionDescribe(env);
+
+        (*theVM)->DetachCurrentThread(theVM);
+
+    }
+
+}
+
+
+
 /*
  * The VM calls JNI_OnLoad when the native library is loaded (for example, through System.loadLibrary).
  * JNI_OnLoad must return the JNI version needed by the native library.
  * We use this to wire up LibVNCServer logging to logcat.
  */
-JNIEXPORT jint JNI_OnLoad(JavaVM __unused * vm, void __unused * reserved) {
+JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void __unused * reserved) {
 
     __android_log_print(ANDROID_LOG_INFO, TAG, "loading, using LibVNCServer %s\n", LIBVNCSERVER_VERSION);
+
+    theVM = vm;
+
+    /*
+     * https://developer.android.com/training/articles/perf-jni#faq_FindClass
+     * and
+     * https://stackoverflow.com/a/17449108/361413
+    */
+    JNIEnv *env = NULL;
+    (*theVM)->GetEnv(theVM, &env, JNI_VERSION_1_6); // this will always succeed in JNI_OnLoad()
+    theInputService = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "net/christianbeier/droidvnc_ng/InputService"));
 
     rfbLog = logcat_logger;
     rfbErr = logcat_logger;
@@ -84,6 +142,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
         return JNI_FALSE;
 
     theScreen->frameBuffer=(char*)malloc(width * height * 4);
+    theScreen->ptrAddEvent = onPointerEvent;
 
     rfbInitServer(theScreen);
     rfbRunEventLoop(theScreen, -1, TRUE);

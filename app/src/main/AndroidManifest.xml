@@ -23,6 +23,20 @@
             android:name=".MainService"
             android:enabled="true" />
 
+        <service
+            android:name=".InputService"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/input_service_config"/>
+        </service>
+
         <activity android:name=".MainActivity"
             android:label="@string/main_activity_title"
             android:launchMode="singleTask">

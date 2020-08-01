@@ -4,4 +4,5 @@
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="user_cancelled">User denied screen sharing permission</string>
+    <string name="text_accessibility_service_description">This allows droidVNC-NG to post input events to the Android operating system, thus allowing remote control from a connected VNC viewer. All entered input is directly posted to Android, no input is logged, saved or shared.</string>
 </resources>
