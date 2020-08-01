@@ -82,14 +82,14 @@ static void onPointerEvent(int buttonMask,int x,int y,rfbClientPtr cl)
 
         // scroll up
         if (buttonMask & (1 << 3)) {
-            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "swipeDown", "(II)V");
-            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y);
+            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "scroll", "(III)V");
+            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y, -cl->screen->height/2);
         }
 
         // scroll down
         if (buttonMask & (1 << 4)) {
-            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "swipeUp", "(II)V");
-            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y);
+            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "scroll", "(III)V");
+            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y, cl->screen->height/2);
         }
 
         if ((*env)->ExceptionCheck(env))
