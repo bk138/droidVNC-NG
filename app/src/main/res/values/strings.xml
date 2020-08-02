@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">droidVNC-NG</string>
     <string name="main_activity_title">droidVNC-NG Admin Panel</string>
+    <string name="main_activity_permissions_dashboard">Permissions Dashboard</string>
+    <string name="main_activity_colon">:</string>
+    <string name="main_activity_screen_capturing">Screen Capturing</string>
+    <string name="main_activity_unknown">unknown</string>
+    <string name="main_activity_file_access">File Access</string>
+    <string name="main_activity_input">Input</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="user_cancelled">User denied screen sharing permission</string>
