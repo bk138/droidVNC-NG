@@ -122,6 +122,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        /*
+           Update Screen Capturing permission display.
+        */
+        TextView screenCapturingStatus = findViewById(R.id.permission_status_screen_capturing);
+        if(MainService.isMediaProjectionEnabled() == 1) {
+            screenCapturingStatus.setText(R.string.main_activity_granted);
+            screenCapturingStatus.setTextColor(getColor(android.R.color.holo_green_dark));
+        }
+        if(MainService.isMediaProjectionEnabled() == 0) {
+            screenCapturingStatus.setText(R.string.main_activity_denied);
+            screenCapturingStatus.setTextColor(getColor(android.R.color.holo_red_dark));
+        }
+
+
     }
 
 
