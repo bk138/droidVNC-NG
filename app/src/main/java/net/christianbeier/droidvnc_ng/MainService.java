@@ -58,7 +58,8 @@ public class MainService extends Service {
     final static String ACTION_HANDLE_RESULT = "handle_result";
     final static String EXTRA_RESULTDATA = "resultdata";
     final static String EXTRA_RESULTCODE = "resultcode";
-
+    final static String ACTION_HANDLE_INPUT_RESULT = "handle_a11y_result";
+    final static String EXTRA_INPUT_RESULT = "result_a11y";
 
     private int mResultCode;
     private Intent mResultData;
@@ -164,18 +165,25 @@ public class MainService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        Log.d(TAG, "onStartCommand");
-
         if(ACTION_HANDLE_RESULT.equals(intent.getAction())) {
+            Log.d(TAG, "onStartCommand: handle media projection result");
+            // Step 3 (optional): coming back from capturing permission check, now starting capturing machinery
             mResultCode = intent.getIntExtra(EXTRA_RESULTCODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_RESULTDATA);
             setUpMediaProjection();
             setUpVirtualDisplay();
         }
 
+        if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
+            Log.d(TAG, "onStartCommand: handle input result");
+            // Step 2: coming back from input permission check, now ask for capturing permission
+            startScreenCapture();
+        }
+
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
-            startScreenCapture();
+            // Step 1: check input permission
+            checkInputPermission();
         }
 
         if(ACTION_STOP.equals(intent.getAction())) {
@@ -271,4 +279,7 @@ public class MainService extends Service {
         tearDownMediaProjection();
     }
 
+    private void checkInputPermission() {
+        startActivity(new Intent(this, InputRequestActivity.class));
+    }
 }

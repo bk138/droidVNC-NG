@@ -52,6 +52,11 @@
             android:excludeFromRecents="true"
             />
 
+        <activity android:name=".InputRequestActivity"
+            android:theme="@style/TransparentTheme"
+            android:excludeFromRecents="true"
+            />
+
     </application>
 
 </manifest>
