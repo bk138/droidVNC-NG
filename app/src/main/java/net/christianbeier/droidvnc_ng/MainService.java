@@ -60,6 +60,8 @@ public class MainService extends Service {
     final static String EXTRA_RESULTCODE = "resultcode";
     final static String ACTION_HANDLE_INPUT_RESULT = "handle_a11y_result";
     final static String EXTRA_INPUT_RESULT = "result_a11y";
+    final static String ACTION_HANDLE_WRITE_STORAGE_RESULT = "handle_write_storage_result";
+    final static String EXTRA_WRITE_STORAGE_RESULT = "result_write_storage";
 
     private int mResultCode;
     private Intent mResultData;
@@ -167,17 +169,23 @@ public class MainService extends Service {
     {
         if(ACTION_HANDLE_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle media projection result");
-            // Step 3 (optional): coming back from capturing permission check, now starting capturing machinery
+            // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
             mResultCode = intent.getIntExtra(EXTRA_RESULTCODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_RESULTDATA);
             setUpMediaProjection();
             setUpVirtualDisplay();
         }
 
+        if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction())) {
+            Log.d(TAG, "onStartCommand: handle write storage result");
+            // Step 3: coming back from write storage permission check, now ask for capturing permission
+            startScreenCapture();
+        }
+
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle input result");
-            // Step 2: coming back from input permission check, now ask for capturing permission
-            startScreenCapture();
+            // Step 2: coming back from input permission check, now ask for write storage permission
+            checkWriteStoragePermission();
         }
 
         if(ACTION_START.equals(intent.getAction())) {
@@ -281,5 +289,9 @@ public class MainService extends Service {
 
     private void checkInputPermission() {
         startActivity(new Intent(this, InputRequestActivity.class));
+    }
+
+    private void checkWriteStoragePermission() {
+        startActivity(new Intent(this, WriteStorageRequestActivity.class));
     }
 }
