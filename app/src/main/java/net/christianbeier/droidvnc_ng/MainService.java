@@ -72,6 +72,7 @@ public class MainService extends Service {
     private MediaProjection mMediaProjection;
     private MediaProjectionManager mMediaProjectionManager;
 
+    private static MainService instance;
 
     static {
         // order is important here
@@ -95,6 +96,8 @@ public class MainService extends Service {
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate");
+
+        instance = this;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             /*
@@ -160,6 +163,7 @@ public class MainService extends Service {
         Log.d(TAG, "onDestroy");
         tearDownMediaProjection();
         vncStopServer();
+        instance = null;
     }
 
 
@@ -293,5 +297,18 @@ public class MainService extends Service {
 
     private void checkWriteStoragePermission() {
         startActivity(new Intent(this, WriteStorageRequestActivity.class));
+    }
+
+    /**
+     * Get whether Media Projection was granted by the user.
+     * @return -1 if unknown, 0 if denied, 1 if granted
+     */
+    public static int isMediaProjectionEnabled() {
+        if(instance == null)
+            return -1;
+        if(instance.mResultCode == 0 || instance.mResultData == null)
+            return 0;
+
+        return 1;
     }
 }
