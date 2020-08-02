@@ -21,12 +21,15 @@
 
 package net.christianbeier.droidvnc_ng;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -44,20 +47,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mButtonToggle = (Button) findViewById(R.id.toggle);
-
-        mIsMainServiceRunning = false;
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (MainService.class.getName().equals(service.service.getClassName())) {
-                mIsMainServiceRunning = true;
-                break;
-            }
-        }
-        if(mIsMainServiceRunning)
-            mButtonToggle.setText(R.string.stop);
-        else
-            mButtonToggle.setText(R.string.start);
-
         mButtonToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -82,6 +71,55 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        /*
+            Update Toggle button.
+         */
+        mIsMainServiceRunning = false;
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (MainService.class.getName().equals(service.service.getClassName())) {
+                mIsMainServiceRunning = true;
+                break;
+            }
+        }
+        if (mIsMainServiceRunning)
+            mButtonToggle.setText(R.string.stop);
+        else
+            mButtonToggle.setText(R.string.start);
+
+
+        /*
+            Update Input permission display.
+         */
+        TextView inputStatus = findViewById(R.id.permission_status_input);
+        if(InputService.isEnabled()) {
+            inputStatus.setText(R.string.main_activity_granted);
+            inputStatus.setTextColor(getColor(android.R.color.holo_green_dark));
+        } else {
+            inputStatus.setText(R.string.main_activity_denied);
+            inputStatus.setTextColor(getColor(android.R.color.holo_red_dark));
+        }
+
+
+        /*
+            Update File Access permission display.
+         */
+        TextView fileAccessStatus = findViewById(R.id.permission_status_file_access);
+        if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            fileAccessStatus.setText(R.string.main_activity_granted);
+            fileAccessStatus.setTextColor(getColor(android.R.color.holo_green_dark));
+        } else {
+            fileAccessStatus.setText(R.string.main_activity_denied);
+            fileAccessStatus.setTextColor(getColor(android.R.color.holo_red_dark));
+        }
 
 
     }
