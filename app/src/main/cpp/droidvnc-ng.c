@@ -144,6 +144,8 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     theScreen->frameBuffer=(char*)calloc(width * height * 4, 1);
     theScreen->ptrAddEvent = onPointerEvent;
 
+    rfbRegisterTightVNCFileTransferExtension();
+
     rfbInitServer(theScreen);
     rfbRunEventLoop(theScreen, -1, TRUE);
 
