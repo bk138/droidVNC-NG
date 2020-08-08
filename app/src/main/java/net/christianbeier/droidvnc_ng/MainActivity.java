@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         final EditText port = findViewById(R.id.settings_port);
-        port.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900)));
+        port.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, Constants.DEFAULT_PORT)));
         port.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -105,10 +105,10 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable editable) {
                 if(port.getText().length() == 0) {
                     // hint that default is set
-                    port.setHint("5900");
+                    port.setHint(String.valueOf(Constants.DEFAULT_PORT));
                     // and set default
                     SharedPreferences.Editor ed = prefs.edit();
-                    ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900);
+                    ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, Constants.DEFAULT_PORT);
                     ed.commit();
                 }
             }

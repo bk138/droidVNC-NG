@@ -23,6 +23,7 @@ package net.christianbeier.droidvnc_ng;
 
 public class Constants {
 
+    public static final int DEFAULT_PORT = 5900;
     public static final String PREFS_KEY_SETTINGS_PORT = "settings_port";
 
 }
