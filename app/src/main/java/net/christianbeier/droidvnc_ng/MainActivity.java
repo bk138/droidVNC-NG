@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        EditText port = findViewById(R.id.settings_port);
+        final EditText port = findViewById(R.id.settings_port);
         port.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900)));
         port.addTextChangedListener(new TextWatcher() {
             @Override
@@ -91,13 +91,26 @@ public class MainActivity extends AppCompatActivity {
             @SuppressLint("ApplySharedPref")
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                SharedPreferences.Editor ed = prefs.edit();
-                ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, Integer.parseInt(charSequence.toString()));
-                ed.commit();
+                try {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, Integer.parseInt(charSequence.toString()));
+                    ed.commit();
+                } catch(NumberFormatException e) {
+                    // nop
+                }
             }
 
+            @SuppressLint("ApplySharedPref")
             @Override
             public void afterTextChanged(Editable editable) {
+                if(port.getText().length() == 0) {
+                    // hint that default is set
+                    port.setHint("5900");
+                    // and set default
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900);
+                    ed.commit();
+                }
             }
         });
     }
