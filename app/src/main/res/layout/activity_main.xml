@@ -16,6 +16,52 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/main_activity_settings"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:padding="10dp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_settings_port" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_colon" />
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:padding="10dp"
+                    android:layout_weight="1"
+                    android:inputType="number"
+                    android:id="@+id/settings_port"/>
+            </TableRow>
+
+
+
+        </TableLayout>
+
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/main_activity_permissions_dashboard"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
