@@ -113,6 +113,29 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        final EditText password = findViewById(R.id.settings_password);
+        password.setText(prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, ""));
+        password.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @SuppressLint("ApplySharedPref")
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                SharedPreferences.Editor ed = prefs.edit();
+                ed.putString(Constants.PREFS_KEY_SETTINGS_PASSWORD, charSequence.toString());
+                ed.commit();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
     }
 
     @Override
