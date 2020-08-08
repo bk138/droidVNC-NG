@@ -29,6 +29,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
@@ -40,6 +41,7 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
@@ -80,7 +82,7 @@ public class MainService extends Service {
         System.loadLibrary("droidvnc-ng");
     }
 
-    private native boolean vncStartServer(int width, int height);
+    private native boolean vncStartServer(int width, int height, int port);
     private native boolean vncStopServer();
     private native void vncNewFramebuffer(int width, int height);
     private native boolean vncUpdateFramebuffer(ByteBuffer buf);
@@ -134,12 +136,16 @@ public class MainService extends Service {
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 
         /*
-            Start the server
+            Start the server FIXME move this to intent handling?
          */
         DisplayMetrics displayMetrics = new DisplayMetrics();
         WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getMetrics(displayMetrics);
-        vncStartServer(displayMetrics.widthPixels, displayMetrics.heightPixels);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if(!vncStartServer(displayMetrics.widthPixels, displayMetrics.heightPixels, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900)))
+            stopSelf();
     }
 
 
