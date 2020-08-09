@@ -82,7 +82,7 @@ public class MainService extends Service {
         System.loadLibrary("droidvnc-ng");
     }
 
-    private native boolean vncStartServer(int width, int height, int port);
+    private native boolean vncStartServer(int width, int height, int port, String password);
     private native boolean vncStopServer();
     private native void vncNewFramebuffer(int width, int height);
     private native boolean vncUpdateFramebuffer(ByteBuffer buf);
@@ -144,7 +144,10 @@ public class MainService extends Service {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if(!vncStartServer(displayMetrics.widthPixels, displayMetrics.heightPixels, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900)))
+        if (!vncStartServer(displayMetrics.widthPixels,
+                displayMetrics.heightPixels,
+                prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900),
+                prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "")))
             stopSelf();
     }
 
