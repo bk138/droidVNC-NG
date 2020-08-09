@@ -131,7 +131,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void __unused * reserved) {
 }
 
 
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jint port) {
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jint port, jstring password) {
 
     int argc = 0;
 
@@ -147,6 +147,16 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     theScreen->desktopName = "Android";
     theScreen->port = port;
     theScreen->ipv6port = port;
+
+    if(password && (*env)->GetStringLength(env, password)) { // string arg to GetStringUTFChars() must not be NULL and also do not set an empty password
+        char **passwordList = malloc(sizeof(char **) * 2);
+        const char *cPassword = (*env)->GetStringUTFChars(env, password, NULL);
+        passwordList[0] = strdup(cPassword);
+        passwordList[1] = NULL;
+        theScreen->authPasswdData = (void *) passwordList;
+        theScreen->passwordCheck = rfbCheckPasswordByList;
+        (*env)->ReleaseStringUTFChars(env, password, cPassword);
+    }
 
     rfbRegisterTightVNCFileTransferExtension();
 
@@ -177,6 +187,11 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     rfbShutdownServer(theScreen, TRUE);
     free(theScreen->frameBuffer);
     theScreen->frameBuffer = NULL;
+    if(theScreen->authPasswdData) { // if this is set, it was malloc'ed by us and has one password in there
+        char **passwordList = theScreen->authPasswdData;
+        free(passwordList[0]); // free the password created by strdup()
+        free(theScreen->authPasswdData); // and free the malloc'ed list, theScreen->authPasswdData is NULLed by rfbGetScreen()
+    }
     rfbScreenCleanup(theScreen);
     theScreen = NULL;
 
