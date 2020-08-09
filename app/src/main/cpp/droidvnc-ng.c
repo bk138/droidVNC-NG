@@ -36,12 +36,21 @@ JavaVM *theVM;
  *  - with Android log functions
  *  - without time stamping as the Android logging does this already
  */
-static void logcat_logger(const char *format, ...)
+static void logcat_info(const char *format, ...)
 {
     va_list args;
 
     va_start(args, format);
     __android_log_vprint(ANDROID_LOG_INFO, TAG, format, args);
+    va_end(args);
+}
+
+static void logcat_err(const char *format, ...)
+{
+    va_list args;
+
+    va_start(args, format);
+    __android_log_vprint(ANDROID_LOG_ERROR, TAG, format, args);
     va_end(args);
 }
 
@@ -124,8 +133,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void __unused * reserved) {
     (*theVM)->GetEnv(theVM, &env, JNI_VERSION_1_6); // this will always succeed in JNI_OnLoad()
     theInputService = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "net/christianbeier/droidvnc_ng/InputService"));
 
-    rfbLog = logcat_logger;
-    rfbErr = logcat_logger;
+    rfbLog = logcat_info;
+    rfbErr = logcat_err;
 
     return JNI_VERSION_1_6;
 }
