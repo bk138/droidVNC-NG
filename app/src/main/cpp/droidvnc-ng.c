@@ -131,54 +131,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void __unused * reserved) {
 }
 
 
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jint port, jstring password) {
-
-    int argc = 0;
-
-    if(theScreen)
-        return JNI_FALSE;
-
-    theScreen=rfbGetScreen(&argc, NULL, width, height, 8, 3, 4);
-    if(!theScreen)
-        return JNI_FALSE;
-
-    theScreen->frameBuffer=(char*)calloc(width * height * 4, 1);
-    theScreen->ptrAddEvent = onPointerEvent;
-    theScreen->desktopName = "Android";
-    theScreen->port = port;
-    theScreen->ipv6port = port;
-
-    if(password && (*env)->GetStringLength(env, password)) { // string arg to GetStringUTFChars() must not be NULL and also do not set an empty password
-        char **passwordList = malloc(sizeof(char **) * 2);
-        const char *cPassword = (*env)->GetStringUTFChars(env, password, NULL);
-        passwordList[0] = strdup(cPassword);
-        passwordList[1] = NULL;
-        theScreen->authPasswdData = (void *) passwordList;
-        theScreen->passwordCheck = rfbCheckPasswordByList;
-        (*env)->ReleaseStringUTFChars(env, password, cPassword);
-    }
-
-    rfbRegisterTightVNCFileTransferExtension();
-
-    rfbInitServer(theScreen);
-
-    if(theScreen->listenSock == RFB_INVALID_SOCKET || theScreen->listen6Sock == RFB_INVALID_SOCKET) {
-        __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed starting (%s)", strerror(errno));
-        rfbShutdownServer(theScreen, TRUE);
-        free(theScreen->frameBuffer);
-        theScreen->frameBuffer = NULL;
-        rfbScreenCleanup(theScreen);
-        theScreen = NULL;
-        return JNI_FALSE;
-    }
-
-    rfbRunEventLoop(theScreen, -1, TRUE);
-
-    __android_log_print(ANDROID_LOG_INFO, TAG, "vncStartServer: successfully started");
-
-    return JNI_TRUE;
-}
-
 JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(JNIEnv *env, jobject thiz) {
 
     if(!theScreen)
@@ -199,6 +151,70 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 
     return JNI_TRUE;
 }
+
+
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jint port, jstring password) {
+
+    int argc = 0;
+
+    if(theScreen)
+        return JNI_FALSE;
+
+    theScreen=rfbGetScreen(&argc, NULL, width, height, 8, 3, 4);
+    if(!theScreen) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed allocating rfb screen");
+        return JNI_FALSE;
+    }
+
+    theScreen->frameBuffer=(char*)calloc(width * height * 4, 1);
+    if(!theScreen->frameBuffer) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed allocating framebuffer");
+        Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
+        return JNI_FALSE;
+    }
+    theScreen->ptrAddEvent = onPointerEvent;
+    theScreen->desktopName = "Android";
+    theScreen->port = port;
+    theScreen->ipv6port = port;
+
+    if(password && (*env)->GetStringLength(env, password)) { // string arg to GetStringUTFChars() must not be NULL and also do not set an empty password
+        char **passwordList = malloc(sizeof(char **) * 2);
+        if(!passwordList) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed allocating password list");
+            Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
+            return JNI_FALSE;
+        }
+        const char *cPassword = (*env)->GetStringUTFChars(env, password, NULL);
+        if(!cPassword) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed getting password from JNI");
+            Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
+            return JNI_FALSE;
+        }
+        passwordList[0] = strdup(cPassword);
+        passwordList[1] = NULL;
+        theScreen->authPasswdData = (void *) passwordList;
+        theScreen->passwordCheck = rfbCheckPasswordByList;
+        (*env)->ReleaseStringUTFChars(env, password, cPassword);
+    }
+
+    rfbRegisterTightVNCFileTransferExtension();
+
+    rfbInitServer(theScreen);
+
+    if(theScreen->listenSock == RFB_INVALID_SOCKET || theScreen->listen6Sock == RFB_INVALID_SOCKET) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed starting (%s)", strerror(errno));
+        Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
+        return JNI_FALSE;
+    }
+
+    rfbRunEventLoop(theScreen, -1, TRUE);
+
+    __android_log_print(ANDROID_LOG_INFO, TAG, "vncStartServer: successfully started");
+
+    return JNI_TRUE;
+}
+
+
 
 JNIEXPORT void JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncNewFramebuffer(JNIEnv *env, jobject thiz, jint width, jint height)
 {
