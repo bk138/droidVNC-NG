@@ -68,8 +68,6 @@ public class MainService extends Service {
     private int mResultCode;
     private Intent mResultData;
     private ImageReader mImageReader;
-    private int mWidth;
-    private int mHeight;
     private VirtualDisplay mVirtualDisplay;
     private MediaProjection mMediaProjection;
     private MediaProjectionManager mMediaProjectionManager;
@@ -140,7 +138,7 @@ public class MainService extends Service {
          */
         DisplayMetrics displayMetrics = new DisplayMetrics();
         WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getMetrics(displayMetrics);
+        wm.getDefaultDisplay().getRealMetrics(displayMetrics);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -158,7 +156,7 @@ public class MainService extends Service {
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getMetrics(displayMetrics);
+        wm.getDefaultDisplay().getRealMetrics(displayMetrics);
 
         Log.d(TAG, "onConfigurationChanged: width: " + displayMetrics.widthPixels + " height: " + displayMetrics.heightPixels);
 
@@ -256,15 +254,10 @@ public class MainService extends Service {
             mVirtualDisplay.release();
 
         DisplayMetrics metrics = new DisplayMetrics();
-        Point size = new Point();
         WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getMetrics(metrics);
-        wm.getDefaultDisplay().getSize(size);
+        wm.getDefaultDisplay().getRealMetrics(metrics);
 
-        mWidth = size.x;
-        mHeight = size.y;
-
-        mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
+        mImageReader = ImageReader.newInstance(metrics.widthPixels, metrics.heightPixels, PixelFormat.RGBA_8888, 2);
         mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
             public void onImageAvailable(ImageReader imageReader) {
@@ -284,7 +277,7 @@ public class MainService extends Service {
         }, null);
 
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
-                mWidth, mHeight, metrics.densityDpi,
+                metrics.widthPixels, metrics.heightPixels, metrics.densityDpi,
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
                 mImageReader.getSurface(), null, null);
 
