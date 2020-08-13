@@ -9,6 +9,9 @@ package net.christianbeier.droidvnc_ng;
  * Original author is Tobias Junghans <tobydox@veyon.io>
  *
  * Licensed under GPL-2.0 as per https://github.com/anyvnc/anyvnc/blob/master/COPYING.
+ *
+ * Swipe fixes and gesture handling by Christian Beier <info@christianbeier.net>.
+ *
  */
 
 import android.accessibilityservice.AccessibilityService;
@@ -44,6 +47,10 @@ public class InputService extends AccessibilityService {
 
 	private static InputService instance;
 
+	private boolean mIsButtonOneDown;
+	private Path mPath;
+	private long mLastGestureStartTime;
+
 	private GestureCallback mGestureCallback = new GestureCallback();
 
 
@@ -77,10 +84,27 @@ public class InputService extends AccessibilityService {
 	public static void onPointerEvent(int buttonMask,int x,int y, long client) {
 
 		try {
-			// left mouse button
-			if ((buttonMask & (1 << 0)) != 0) {
-				instance.tap(x, y);
+			/*
+			    left mouse button
+			 */
+
+			// down, was up
+			if ((buttonMask & (1 << 0)) != 0 && !instance.mIsButtonOneDown) {
+				instance.startGesture(x, y);
+				instance.mIsButtonOneDown = true;
 			}
+
+			// down, was down
+			if ((buttonMask & (1 << 0)) != 0 && instance.mIsButtonOneDown) {
+				instance.continueGesture(x, y);
+			}
+
+			// up, was down
+			if ((buttonMask & (1 << 0)) == 0 && instance.mIsButtonOneDown) {
+				instance.endGesture(x, y);
+				instance.mIsButtonOneDown = false;
+			}
+
 
 			// right mouse button
 			if ((buttonMask & (1 << 2)) != 0) {
@@ -107,15 +131,29 @@ public class InputService extends AccessibilityService {
 				instance.scroll(x, y, displayMetrics.heightPixels / 2);
 			}
 		} catch (Exception e) {
-			// nop, instance probably null
+			// instance probably null
+			Log.e(TAG, "onPointerEvent: failed: " + e.toString());
 		}
 	}
 
-
-	private void tap( int x, int y )
-	{
-			dispatchGesture( createClick( x, y, ViewConfiguration.getTapTimeout()), null, null );
+	private void startGesture(int x, int y) {
+		mPath = new Path();
+		mPath.moveTo( x, y );
+		mLastGestureStartTime = System.currentTimeMillis();
 	}
+
+	private void continueGesture(int x, int y) {
+		mPath.lineTo( x, y );
+	}
+
+	private void endGesture(int x, int y) {
+		mPath.lineTo( x, y );
+		GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription( mPath, 0, System.currentTimeMillis() - mLastGestureStartTime);
+		GestureDescription.Builder builder = new GestureDescription.Builder();
+		builder.addStroke(stroke);
+		dispatchGesture(builder.build(), null, null);
+	}
+
 
 	private  void longPress( int x, int y )
 	{
