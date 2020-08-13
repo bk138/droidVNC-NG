@@ -13,7 +13,10 @@ package net.christianbeier.droidvnc_ng;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
+import android.content.Context;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.ViewConfiguration;
 import android.graphics.Path;
@@ -70,33 +73,68 @@ public class InputService extends AccessibilityService {
 		return instance != null;
 	}
 
-	public static void tap( int x, int y )
-	{
-		if( instance != null )
-			instance.dispatchGesture( createClick( x, y, ViewConfiguration.getTapTimeout()), null, null );
+
+	public static void onPointerEvent(int buttonMask,int x,int y, long client) {
+
+		try {
+			// left mouse button
+			if ((buttonMask & (1 << 0)) != 0) {
+				instance.tap(x, y);
+			}
+
+			// right mouse button
+			if ((buttonMask & (1 << 2)) != 0) {
+				instance.longPress(x, y);
+			}
+
+			// scroll up
+			if ((buttonMask & (1 << 3)) != 0) {
+
+				DisplayMetrics displayMetrics = new DisplayMetrics();
+				WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+				wm.getDefaultDisplay().getRealMetrics(displayMetrics);
+
+				instance.scroll(x, y, -displayMetrics.heightPixels / 2);
+			}
+
+			// scroll down
+			if ((buttonMask & (1 << 4)) != 0) {
+
+				DisplayMetrics displayMetrics = new DisplayMetrics();
+				WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+				wm.getDefaultDisplay().getRealMetrics(displayMetrics);
+
+				instance.scroll(x, y, displayMetrics.heightPixels / 2);
+			}
+		} catch (Exception e) {
+			// nop, instance probably null
+		}
 	}
 
-	public static void longPress( int x, int y )
+
+	private void tap( int x, int y )
 	{
-		if( instance != null )
-			instance.dispatchGesture( createClick( x, y, ViewConfiguration.getTapTimeout() + ViewConfiguration.getLongPressTimeout()), null, null );
+			dispatchGesture( createClick( x, y, ViewConfiguration.getTapTimeout()), null, null );
 	}
 
-	public static void scroll( int x, int y, int scrollAmount )
+	private  void longPress( int x, int y )
 	{
-		if( instance != null ) {
+			dispatchGesture( createClick( x, y, ViewConfiguration.getTapTimeout() + ViewConfiguration.getLongPressTimeout()), null, null );
+	}
+
+	private void scroll( int x, int y, int scrollAmount )
+	{
 			/*
 			   Ignore if another gesture is still ongoing. Especially true for scroll events:
 			   These mouse button 4,5 events come per each virtual scroll wheel click, an incoming
 			   event would cancel the preceding one, only actually scrolling when the user stopped
 			   scrolling.
 			 */
-			if(!instance.mGestureCallback.mCompleted)
+			if(!mGestureCallback.mCompleted)
 				return;
 
-			instance.mGestureCallback.mCompleted = false;
-			instance.dispatchGesture(createSwipe(x, y, x, y - scrollAmount, ViewConfiguration.getScrollDefaultDelay()), instance.mGestureCallback, null);
-		}
+			mGestureCallback.mCompleted = false;
+			dispatchGesture(createSwipe(x, y, x, y - scrollAmount, ViewConfiguration.getScrollDefaultDelay()), mGestureCallback, null);
 	}
 
 	private static GestureDescription createClick( int x, int y, int duration )

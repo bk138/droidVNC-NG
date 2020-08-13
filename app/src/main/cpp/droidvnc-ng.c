@@ -70,45 +70,19 @@ static double getTime()
 
 static void onPointerEvent(int buttonMask,int x,int y,rfbClientPtr cl)
 {
-    if (buttonMask) {
-
-        JNIEnv *env = NULL;
-        if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
-            __android_log_print(ANDROID_LOG_ERROR, TAG, "onPointerEvent: could not attach thread, there will be no input");
-            return;
-        }
-
-        // left mouse button
-        if (buttonMask & (1 << 0)) {
-            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "tap", "(II)V");
-            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y);
-        }
-
-        // right mouse button
-        if (buttonMask & (1 << 2)) {
-            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "longPress", "(II)V");
-            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y);
-        }
-
-        // scroll up
-        if (buttonMask & (1 << 3)) {
-            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "scroll", "(III)V");
-            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y, -cl->screen->height/2);
-        }
-
-        // scroll down
-        if (buttonMask & (1 << 4)) {
-            jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "scroll", "(III)V");
-            (*env)->CallStaticVoidMethod(env, theInputService, mid, x, y, cl->screen->height/2);
-        }
-
-        if ((*env)->ExceptionCheck(env))
-            (*env)->ExceptionDescribe(env);
-
-        (*theVM)->DetachCurrentThread(theVM);
-
+    JNIEnv *env = NULL;
+    if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "onPointerEvent: could not attach thread, there will be no input");
+        return;
     }
 
+    jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "onPointerEvent", "(IIIJ)V");
+    (*env)->CallStaticVoidMethod(env, theInputService, mid, buttonMask, x, y, (jlong)cl);
+
+    if ((*env)->ExceptionCheck(env))
+        (*env)->ExceptionDescribe(env);
+
+    (*theVM)->DetachCurrentThread(theVM);
 }
 
 
