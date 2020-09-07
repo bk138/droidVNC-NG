@@ -249,3 +249,19 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
 
     return JNI_TRUE;
 }
+
+JNIEXPORT jint JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetFramebufferWidth(JNIEnv *env, jobject __unused thiz)
+{
+    if(!theScreen || !theScreen->frameBuffer)
+        return -1;
+
+    return theScreen->width;
+}
+
+JNIEXPORT jint JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetFramebufferHeight(JNIEnv *env, jobject __unused thiz)
+{
+    if(!theScreen || !theScreen->frameBuffer)
+        return -1;
+
+    return theScreen->height;
+}
