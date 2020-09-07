@@ -84,6 +84,9 @@ public class MainService extends Service {
     private native boolean vncStopServer();
     private native void vncNewFramebuffer(int width, int height);
     private native boolean vncUpdateFramebuffer(ByteBuffer buf);
+    private native int vncGetFramebufferWidth();
+    private native int vncGetFramebufferHeight();
+
 
     public MainService() {
     }
@@ -161,7 +164,6 @@ public class MainService extends Service {
         Log.d(TAG, "onConfigurationChanged: width: " + displayMetrics.widthPixels + " height: " + displayMetrics.heightPixels);
 
         setUpVirtualDisplay();
-        vncNewFramebuffer(displayMetrics.widthPixels, displayMetrics.heightPixels);
     }
 
 
@@ -253,7 +255,7 @@ public class MainService extends Service {
         if (mVirtualDisplay != null)
             mVirtualDisplay.release();
 
-        DisplayMetrics metrics = new DisplayMetrics();
+        final DisplayMetrics metrics = new DisplayMetrics();
         WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(metrics);
 
@@ -269,6 +271,16 @@ public class MainService extends Service {
 
                 final Image.Plane[] planes = image.getPlanes();
                 final ByteBuffer buffer = planes[0].getBuffer();
+                int pixelStride = planes[0].getPixelStride();
+                int rowStride = planes[0].getRowStride();
+                int rowPadding = rowStride - pixelStride * metrics.widthPixels;
+                int w = metrics.widthPixels + rowPadding / pixelStride;
+
+                // if needed, setup a new VNC framebuffer that matches the image plane's parameters
+                if(w != vncGetFramebufferWidth() || metrics.heightPixels != vncGetFramebufferHeight())
+                     vncNewFramebuffer(w, metrics.heightPixels);
+
+                buffer.rewind();
 
                 vncUpdateFramebuffer(buffer);
 
