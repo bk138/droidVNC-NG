@@ -82,7 +82,7 @@ public class MainService extends Service {
 
     private native boolean vncStartServer(int width, int height, int port, String password);
     private native boolean vncStopServer();
-    private native void vncNewFramebuffer(int width, int height);
+    private native boolean vncNewFramebuffer(int width, int height);
     private native boolean vncUpdateFramebuffer(ByteBuffer buf);
     private native int vncGetFramebufferWidth();
     private native int vncGetFramebufferHeight();

@@ -199,7 +199,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 
 
 
-JNIEXPORT void JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncNewFramebuffer(JNIEnv *env, jobject thiz, jint width, jint height)
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncNewFramebuffer(JNIEnv *env, jobject thiz, jint width, jint height)
 {
     rfbClientIteratorPtr iterator;
     rfbClientPtr cl;
@@ -207,13 +207,13 @@ JNIEXPORT void JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncNewFr
     char *oldfb, *newfb;
 
     if(!theScreen || !theScreen->frameBuffer)
-        return;
+        return JNI_FALSE;
 
     oldfb = theScreen->frameBuffer;
     newfb = calloc(width * height * 4, 1);
     if(!newfb) {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "vncNewFramebuffer: failed allocating new framebuffer");
-        return;
+        return JNI_FALSE;
     }
 
     /* Lock out client reads. */
@@ -234,6 +234,8 @@ JNIEXPORT void JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncNewFr
 
     free(oldfb);
     __android_log_print(ANDROID_LOG_INFO, TAG, "vncNewFramebuffer: allocated new framebuffer, %dx%d", width, height);
+
+    return JNI_TRUE;
 }
 
 JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncUpdateFramebuffer(JNIEnv *env, jobject  __unused thiz, jobject buf)
