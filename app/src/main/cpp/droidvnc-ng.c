@@ -206,6 +206,9 @@ JNIEXPORT void JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncNewFr
 
     char *oldfb, *newfb;
 
+    if(!theScreen || !theScreen->frameBuffer)
+        return;
+
     oldfb = theScreen->frameBuffer;
     newfb = calloc(width * height * 4, 1);
     if(!newfb) {
