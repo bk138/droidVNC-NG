@@ -17,6 +17,7 @@ package net.christianbeier.droidvnc_ng;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
 import android.content.Context;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
@@ -157,8 +158,16 @@ public class InputService extends AccessibilityService {
 			if(keysym == 0xFFFF)
 				instance.mIsKeyDelDown = down != 0;
 
-			if(instance.mIsKeyCtrlDown && instance.mIsKeyAltDown && instance.mIsKeyDelDown)
+			if(instance.mIsKeyCtrlDown && instance.mIsKeyAltDown && instance.mIsKeyDelDown) {
 				Log.i(TAG, "onKeyEvent: got Ctrl-Alt-Del");
+				Handler mainHandler = new Handler(instance.getMainLooper());
+				mainHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						MainService.togglePortraitInLandscapeWorkaround();
+					}
+				});
+			}
 
 		} catch (Exception e) {
 			// instance probably null
