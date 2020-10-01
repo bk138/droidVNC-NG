@@ -72,6 +72,9 @@ public class MainService extends Service {
     private MediaProjection mMediaProjection;
     private MediaProjectionManager mMediaProjectionManager;
 
+    private boolean mHasPortraitInLandscapeWorkaroundApplied;
+    private boolean mHasPortraitInLandscapeWorkaroundSet;
+
     private static MainService instance;
 
     static {
@@ -259,8 +262,14 @@ public class MainService extends Service {
         WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(metrics);
 
-        if(Build.FINGERPRINT.contains("rk3288") && metrics.widthPixels < metrics.heightPixels && metrics.widthPixels > 800) {
-            Log.w(TAG, "detected >10in rk3288 and portrait mode, applying workaround");
+        // only set this by detecting quirky hardware if the user has not set manually
+        if(!mHasPortraitInLandscapeWorkaroundSet && Build.FINGERPRINT.contains("rk3288")  && metrics.widthPixels > 800) {
+            Log.w(TAG, "detected >10in rk3288 applying workaround for portrait-in-landscape quirk");
+            mHasPortraitInLandscapeWorkaroundApplied = true;
+        }
+
+        // use workaround if flag set and in actual portrait mode
+        if(mHasPortraitInLandscapeWorkaroundApplied && metrics.widthPixels < metrics.heightPixels) {
 
             final float portraitInsideLandscapeScaleFactor = (float)metrics.widthPixels/metrics.heightPixels;
 
@@ -384,5 +393,19 @@ public class MainService extends Service {
             return 0;
 
         return 1;
+    }
+
+    public static void togglePortraitInLandscapeWorkaround() {
+        try {
+            // set
+            instance.mHasPortraitInLandscapeWorkaroundSet = true;
+            instance.mHasPortraitInLandscapeWorkaroundApplied = !instance.mHasPortraitInLandscapeWorkaroundApplied;
+            // apply
+            instance.setUpVirtualDisplay();
+        }
+        catch (NullPointerException e) {
+            //unused
+        }
+
     }
 }
