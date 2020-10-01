@@ -136,6 +136,12 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
+	public static void onKeyEvent(int down, long keysym, long client) {
+		Log.d(TAG, "onKeyEvent: keysym " + keysym + " down " + down + " by client " + client);
+
+	}
+
+
 	private void startGesture(int x, int y) {
 		mPath = new Path();
 		mPath.moveTo( x, y );
