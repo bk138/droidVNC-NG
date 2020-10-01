@@ -85,7 +85,22 @@ static void onPointerEvent(int buttonMask,int x,int y,rfbClientPtr cl)
     (*theVM)->DetachCurrentThread(theVM);
 }
 
+static void onKeyEvent(rfbBool down, rfbKeySym key, rfbClientPtr cl)
+{
+    JNIEnv *env = NULL;
+    if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "onKeyEvent: could not attach thread, there will be no input");
+        return;
+    }
 
+    jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "onKeyEvent", "(IJJ)V");
+    (*env)->CallStaticVoidMethod(env, theInputService, mid, down, (jlong)key, (jlong)cl);
+
+    if ((*env)->ExceptionCheck(env))
+        (*env)->ExceptionDescribe(env);
+
+    (*theVM)->DetachCurrentThread(theVM);
+}
 
 /*
  * The VM calls JNI_OnLoad when the native library is loaded (for example, through System.loadLibrary).
@@ -156,6 +171,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
         return JNI_FALSE;
     }
     theScreen->ptrAddEvent = onPointerEvent;
+    theScreen->kbdAddEvent = onKeyEvent;
     theScreen->desktopName = "Android";
     theScreen->port = port;
     theScreen->ipv6port = port;
