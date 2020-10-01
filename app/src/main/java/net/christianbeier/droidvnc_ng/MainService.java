@@ -31,8 +31,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
-import android.graphics.Point;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.Image;
@@ -259,6 +259,66 @@ public class MainService extends Service {
         WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(metrics);
 
+        if(Build.FINGERPRINT.contains("rk3288") && metrics.widthPixels < metrics.heightPixels && metrics.widthPixels > 800) {
+            Log.w(TAG, "detected >10in rk3288 and portrait mode, applying workaround");
+
+            final float portraitInsideLandscapeScaleFactor = (float)metrics.widthPixels/metrics.heightPixels;
+
+            // width and height are swapped here
+            final int quirkyLandscapeWidth = (int)((float)metrics.heightPixels/portraitInsideLandscapeScaleFactor);
+            final int quirkyLandscapeHeight = (int)((float)metrics.widthPixels/portraitInsideLandscapeScaleFactor);
+
+            mImageReader = ImageReader.newInstance(quirkyLandscapeWidth, quirkyLandscapeHeight, PixelFormat.RGBA_8888, 2);
+            mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+                @Override
+                public void onImageAvailable(ImageReader imageReader) {
+                    Log.d(TAG, "image available");
+                    Image image = imageReader.acquireLatestImage();
+
+                    if(image == null)
+                        return;
+
+                    final Image.Plane[] planes = image.getPlanes();
+                    final ByteBuffer buffer = planes[0].getBuffer();
+                    int pixelStride = planes[0].getPixelStride();
+                    int rowStride = planes[0].getRowStride();
+                    int rowPadding = rowStride - pixelStride * quirkyLandscapeWidth;
+                    int w = quirkyLandscapeWidth + rowPadding / pixelStride;
+
+                    // create destination Bitmap
+                    Bitmap dest =  Bitmap.createBitmap(w, quirkyLandscapeHeight, Bitmap.Config.ARGB_8888);
+
+                    // copy landscape buffer to dest bitmap
+                    buffer.rewind();
+                    dest.copyPixelsFromBuffer(buffer);
+
+                    // get the portrait portion that's in the center of the landscape bitmap
+                    Bitmap croppedDest = Bitmap.createBitmap(dest, quirkyLandscapeWidth/2 - metrics.widthPixels/2, 0, metrics.widthPixels, metrics.heightPixels);
+
+                    ByteBuffer croppedBuffer = ByteBuffer.allocateDirect(metrics.widthPixels * metrics.heightPixels * 4);
+                    croppedDest.copyPixelsToBuffer(croppedBuffer);
+
+                    // if needed, setup a new VNC framebuffer that matches the new buffer's dimensions
+                    if(metrics.widthPixels != vncGetFramebufferWidth() || metrics.heightPixels != vncGetFramebufferHeight())
+                        vncNewFramebuffer(metrics.widthPixels, metrics.heightPixels);
+
+                    vncUpdateFramebuffer(croppedBuffer);
+
+                    image.close();
+                }
+            }, null);
+
+            mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
+                    quirkyLandscapeWidth, quirkyLandscapeHeight, metrics.densityDpi,
+                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                    mImageReader.getSurface(), null, null);
+
+            return;
+        }
+
+        /*
+            This is the default behaviour.
+         */
         mImageReader = ImageReader.newInstance(metrics.widthPixels, metrics.heightPixels, PixelFormat.RGBA_8888, 2);
         mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
