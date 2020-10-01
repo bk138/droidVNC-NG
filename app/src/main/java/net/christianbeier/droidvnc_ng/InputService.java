@@ -51,6 +51,11 @@ public class InputService extends AccessibilityService {
 	private Path mPath;
 	private long mLastGestureStartTime;
 
+	private boolean mIsKeyCtrlDown;
+	private boolean mIsKeyAltDown;
+	private boolean mIsKeyDelDown;
+
+
 	private GestureCallback mGestureCallback = new GestureCallback();
 
 
@@ -138,6 +143,28 @@ public class InputService extends AccessibilityService {
 
 	public static void onKeyEvent(int down, long keysym, long client) {
 		Log.d(TAG, "onKeyEvent: keysym " + keysym + " down " + down + " by client " + client);
+
+		/*
+			handle ctrl-alt-del
+		 */
+		try {
+			if(keysym == 0xFFE3)
+				instance.mIsKeyCtrlDown = down != 0;
+
+			if(keysym == 0xFFE9 || keysym == 0xFF7E) // MacOS clients send Alt as 0xFF7E
+				instance.mIsKeyAltDown = down != 0;
+
+			if(keysym == 0xFFFF)
+				instance.mIsKeyDelDown = down != 0;
+
+			if(instance.mIsKeyCtrlDown && instance.mIsKeyAltDown && instance.mIsKeyDelDown)
+				Log.i(TAG, "onKeyEvent: got Ctrl-Alt-Del");
+
+		} catch (Exception e) {
+			// instance probably null
+			Log.e(TAG, "onKeyEvent: failed: " + e.toString());
+		}
+
 
 	}
 
