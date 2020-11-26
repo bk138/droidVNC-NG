@@ -25,7 +25,9 @@ package net.christianbeier.droidvnc_ng;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 
@@ -35,13 +37,18 @@ public class OnBootReceiver extends BroadcastReceiver {
 
     public void onReceive(Context context, Intent arg1)
     {
-        Log.i(TAG, "onReceive");
-        Intent intent = new Intent(context, MainService.class);
-        intent.setAction(MainService.ACTION_START);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent);
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, true)) {
+            Log.i(TAG, "onReceive: configured to start");
+            Intent intent = new Intent(context, MainService.class);
+            intent.setAction(MainService.ACTION_START);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent);
+            } else {
+                context.startService(intent);
+            }
         } else {
-            context.startService(intent);
+            Log.i(TAG, "onReceive: configured NOT to start");
         }
     }
 
