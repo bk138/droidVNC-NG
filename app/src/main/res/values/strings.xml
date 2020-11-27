@@ -13,6 +13,7 @@
     <string name="main_activity_denied">denied</string>
     <string name="main_activity_file_access">File Access</string>
     <string name="main_activity_input">Input</string>
+    <string name="main_activity_connect_to">Connect to</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="user_cancelled">User denied screen sharing permission</string>

@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private Button mButtonToggle;
+    private TextView mAddress;
     private boolean mIsMainServiceRunning;
 
 
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         mButtonToggle = (Button) findViewById(R.id.toggle);
         mButtonToggle.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View view) {
 
@@ -63,11 +65,13 @@ public class MainActivity extends AppCompatActivity {
                 if(mIsMainServiceRunning) {
                     intent.setAction(MainService.ACTION_STOP);
                     mButtonToggle.setText(R.string.start);
+                    mAddress.setText("");
                     mIsMainServiceRunning = false;
                 }
                 else {
                     intent.setAction(MainService.ACTION_START);
                     mButtonToggle.setText(R.string.stop);
+                    mAddress.setText(getString(R.string.main_activity_connect_to) + " " + MainService.getIPv4AndPort());
                     mIsMainServiceRunning = true;
                 }
 
@@ -80,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mAddress = findViewById(R.id.address);
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -152,12 +157,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onResume() {
         super.onResume();
 
         /*
-            Update Toggle button.
+            Update Toggle button and address display.
          */
         mIsMainServiceRunning = false;
         ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
@@ -167,10 +173,14 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
-        if (mIsMainServiceRunning)
+        if (mIsMainServiceRunning) {
             mButtonToggle.setText(R.string.stop);
-        else
+            mAddress.setText(getString(R.string.main_activity_connect_to) + " " + MainService.getIPv4AndPort());
+        }
+        else {
             mButtonToggle.setText(R.string.start);
+            mAddress.setText("");
+        }
 
 
         /*
