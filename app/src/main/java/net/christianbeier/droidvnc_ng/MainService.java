@@ -49,7 +49,12 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.Enumeration;
 
 public class MainService extends Service {
 
@@ -407,5 +412,43 @@ public class MainService extends Service {
             //unused
         }
 
+    }
+
+    /**
+     * Get first non-loopback IPv4 address together with the port the user specified.
+     * While this is not per definition the Wifi interface's IP, this should work for most users.
+     * @return A string in the form IP:port.
+     */
+    public static String getIPv4AndPort() {
+
+        int port = 5900;
+
+        try {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(instance);
+            port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900);
+        } catch (NullPointerException e) {
+            //unused
+        }
+
+        try {
+            // thanks go to https://stackoverflow.com/a/20103869/361413
+            Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
+            NetworkInterface ni;
+            while (nis.hasMoreElements()) {
+                ni = nis.nextElement();
+                if (!ni.isLoopback()/*not loopback*/ && ni.isUp()/*it works now*/) {
+                    for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
+                        //filter for ipv4/ipv6
+                        if (ia.getAddress().getAddress().length == 4) {
+                            //4 for ipv4, 16 for ipv6
+                            return ia.getAddress().toString().replaceAll("/", "") + ":" + port;
+                        }
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            //unused
+        }
+        return null;
     }
 }
