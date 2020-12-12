@@ -214,7 +214,7 @@ public class MainService extends Service {
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle input result");
             // Step 2: coming back from input permission check, now ask for write storage permission
-            checkWriteStoragePermission();
+            startActivity(new Intent(this, WriteStorageRequestActivity.class));
         }
 
         if(ACTION_START.equals(intent.getAction())) {
@@ -365,10 +365,6 @@ public class MainService extends Service {
 
     private void checkInputPermission() {
         startActivity(new Intent(this, InputRequestActivity.class));
-    }
-
-    private void checkWriteStoragePermission() {
-        startActivity(new Intent(this, WriteStorageRequestActivity.class));
     }
 
     /**
