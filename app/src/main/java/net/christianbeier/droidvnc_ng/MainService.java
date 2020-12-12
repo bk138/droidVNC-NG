@@ -350,11 +350,12 @@ public class MainService extends Service {
     }
 
     private void stopScreenCapture() {
-        if (mVirtualDisplay == null) {
-            return;
+        try {
+            mVirtualDisplay.release();
+            mVirtualDisplay = null;
+        } catch (Exception e) {
+            //unused
         }
-        mVirtualDisplay.release();
-        mVirtualDisplay = null;
 
         if (mMediaProjection != null) {
             mMediaProjection.stop();
