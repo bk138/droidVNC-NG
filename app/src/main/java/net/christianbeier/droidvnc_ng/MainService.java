@@ -195,7 +195,6 @@ public class MainService extends Service {
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
-            setUpMediaProjection();
             startScreenCapture();
         }
 
@@ -203,10 +202,7 @@ public class MainService extends Service {
             Log.d(TAG, "onStartCommand: handle write storage result");
             // Step 3: coming back from write storage permission check, start capturing
             // or ask for ask for capturing permission first (then going in step 4)
-            if (mMediaProjection != null) {
-                startScreenCapture();
-            } else if (mResultCode != 0 && mResultData != null) {
-                setUpMediaProjection();
+            if (mResultCode != 0 && mResultData != null) {
                 startScreenCapture();
             } else {
                 Log.i(TAG, "Requesting confirmation");
@@ -238,11 +234,6 @@ public class MainService extends Service {
 
 
 
-
-    private void setUpMediaProjection() {
-        mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mResultData);
-    }
-
     private void tearDownMediaProjection() {
         if (mMediaProjection != null) {
             mMediaProjection.stop();
@@ -254,7 +245,7 @@ public class MainService extends Service {
     private void startScreenCapture() {
 
         if(mMediaProjection == null)
-            return;
+            mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mResultData);
 
         if (mImageReader != null)
             mImageReader.close();
