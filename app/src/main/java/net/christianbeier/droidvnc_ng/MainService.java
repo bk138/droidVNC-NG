@@ -180,10 +180,7 @@ public class MainService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
-        if (mMediaProjection != null) {
-            mMediaProjection.stop();
-            mMediaProjection = null;
-        }
+        stopScreenCapture();
         vncStopServer();
         instance = null;
     }
@@ -228,7 +225,6 @@ public class MainService extends Service {
 
         if(ACTION_STOP.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: stop");
-            stopScreenCapture();
             stopSelf();
         }
 
