@@ -173,7 +173,7 @@ public class MainService extends Service {
 
         Log.d(TAG, "onConfigurationChanged: width: " + displayMetrics.widthPixels + " height: " + displayMetrics.heightPixels);
 
-        setUpVirtualDisplay();
+        startScreenCapture();
     }
 
 
@@ -196,7 +196,7 @@ public class MainService extends Service {
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
             setUpMediaProjection();
-            setUpVirtualDisplay();
+            startScreenCapture();
         }
 
         if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction())) {
@@ -204,10 +204,10 @@ public class MainService extends Service {
             // Step 3: coming back from write storage permission check, start capturing
             // or ask for ask for capturing permission first (then going in step 4)
             if (mMediaProjection != null) {
-                setUpVirtualDisplay();
+                startScreenCapture();
             } else if (mResultCode != 0 && mResultData != null) {
                 setUpMediaProjection();
-                setUpVirtualDisplay();
+                startScreenCapture();
             } else {
                 Log.i(TAG, "Requesting confirmation");
                 // This initiates a prompt dialog for the user to confirm screen projection.
@@ -251,7 +251,7 @@ public class MainService extends Service {
     }
 
     @SuppressLint("WrongConstant")
-    private void setUpVirtualDisplay() {
+    private void startScreenCapture() {
 
         if(mMediaProjection == null)
             return;
@@ -404,7 +404,7 @@ public class MainService extends Service {
             instance.mHasPortraitInLandscapeWorkaroundSet = true;
             instance.mHasPortraitInLandscapeWorkaroundApplied = !instance.mHasPortraitInLandscapeWorkaroundApplied;
             // apply
-            instance.setUpVirtualDisplay();
+            instance.startScreenCapture();
         }
         catch (NullPointerException e) {
             //unused
