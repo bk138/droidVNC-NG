@@ -180,7 +180,10 @@ public class MainService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
-        tearDownMediaProjection();
+        if (mMediaProjection != null) {
+            mMediaProjection.stop();
+            mMediaProjection = null;
+        }
         vncStopServer();
         instance = null;
     }
@@ -232,14 +235,6 @@ public class MainService extends Service {
         return START_STICKY;
     }
 
-
-
-    private void tearDownMediaProjection() {
-        if (mMediaProjection != null) {
-            mMediaProjection.stop();
-            mMediaProjection = null;
-        }
-    }
 
     @SuppressLint("WrongConstant")
     private void startScreenCapture() {
@@ -365,7 +360,10 @@ public class MainService extends Service {
         mVirtualDisplay.release();
         mVirtualDisplay = null;
 
-        tearDownMediaProjection();
+        if (mMediaProjection != null) {
+            mMediaProjection.stop();
+            mMediaProjection = null;
+        }
     }
 
     private void checkInputPermission() {
