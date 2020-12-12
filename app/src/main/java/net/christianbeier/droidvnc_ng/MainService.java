@@ -220,7 +220,7 @@ public class MainService extends Service {
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
             // Step 1: check input permission
-            checkInputPermission();
+            startActivity(new Intent(this, InputRequestActivity.class));
         }
 
         if(ACTION_STOP.equals(intent.getAction())) {
@@ -361,10 +361,6 @@ public class MainService extends Service {
             mMediaProjection.stop();
             mMediaProjection = null;
         }
-    }
-
-    private void checkInputPermission() {
-        startActivity(new Intent(this, InputRequestActivity.class));
     }
 
     /**
