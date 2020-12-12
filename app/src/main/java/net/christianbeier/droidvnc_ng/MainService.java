@@ -49,7 +49,6 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
-import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -62,12 +61,15 @@ public class MainService extends Service {
     private static final int NOTIFICATION_ID = 11;
     final static String ACTION_START = "start";
     final static String ACTION_STOP = "stop";
-    final static String ACTION_HANDLE_RESULT = "handle_result";
-    final static String EXTRA_RESULTDATA = "resultdata";
-    final static String EXTRA_RESULTCODE = "resultcode";
-    final static String ACTION_HANDLE_INPUT_RESULT = "handle_a11y_result";
+
+    final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
+    final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
+    final static String EXTRA_MEDIA_PROJECTION_RESULT_CODE = "result_code_media_projection";
+
+    final static String ACTION_HANDLE_INPUT_RESULT = "action_handle_a11y_result";
     final static String EXTRA_INPUT_RESULT = "result_a11y";
-    final static String ACTION_HANDLE_WRITE_STORAGE_RESULT = "handle_write_storage_result";
+
+    final static String ACTION_HANDLE_WRITE_STORAGE_RESULT = "action_handle_write_storage_result";
     final static String EXTRA_WRITE_STORAGE_RESULT = "result_write_storage";
 
     private int mResultCode;
@@ -188,11 +190,11 @@ public class MainService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        if(ACTION_HANDLE_RESULT.equals(intent.getAction())) {
+        if(ACTION_HANDLE_MEDIA_PROJECTION_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle media projection result");
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
-            mResultCode = intent.getIntExtra(EXTRA_RESULTCODE, 0);
-            mResultData = intent.getParcelableExtra(EXTRA_RESULTDATA);
+            mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
+            mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
             setUpMediaProjection();
             setUpVirtualDisplay();
         }

@@ -60,9 +60,9 @@ public class MediaProjectionRequestActivity extends AppCompatActivity {
                 Log.i(TAG, "User acknowledged");
 
             Intent intent = new Intent(this, MainService.class);
-            intent.setAction(MainService.ACTION_HANDLE_RESULT);
-            intent.putExtra(MainService.EXTRA_RESULTCODE, resultCode);
-            intent.putExtra(MainService.EXTRA_RESULTDATA, data);
+            intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
+            intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_CODE, resultCode);
+            intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_DATA, data);
             startService(intent);
             finish();
         }
