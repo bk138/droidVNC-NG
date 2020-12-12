@@ -201,8 +201,18 @@ public class MainService extends Service {
 
         if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle write storage result");
-            // Step 3: coming back from write storage permission check, now ask for capturing permission
-            startScreenCapture();
+            // Step 3: coming back from write storage permission check, start capturing
+            // or ask for ask for capturing permission first (then going in step 4)
+            if (mMediaProjection != null) {
+                setUpVirtualDisplay();
+            } else if (mResultCode != 0 && mResultData != null) {
+                setUpMediaProjection();
+                setUpVirtualDisplay();
+            } else {
+                Log.i(TAG, "Requesting confirmation");
+                // This initiates a prompt dialog for the user to confirm screen projection.
+                startActivity(new Intent(this, MediaProjectionRequestActivity.class));
+            }
         }
 
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
@@ -237,20 +247,6 @@ public class MainService extends Service {
         if (mMediaProjection != null) {
             mMediaProjection.stop();
             mMediaProjection = null;
-        }
-    }
-
-    private void startScreenCapture() {
-
-        if (mMediaProjection != null) {
-            setUpVirtualDisplay();
-        } else if (mResultCode != 0 && mResultData != null) {
-            setUpMediaProjection();
-            setUpVirtualDisplay();
-        } else {
-            Log.i(TAG, "Requesting confirmation");
-            // This initiates a prompt dialog for the user to confirm screen projection.
-            startActivity(new Intent(this, MediaProjectionRequestActivity.class));
         }
     }
 
