@@ -207,20 +207,26 @@ public class MainService extends Service {
             } else {
                 Log.i(TAG, "Requesting confirmation");
                 // This initiates a prompt dialog for the user to confirm screen projection.
-                startActivity(new Intent(this, MediaProjectionRequestActivity.class));
+                Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
+                mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(mediaProjectionRequestIntent);
             }
         }
 
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle input result");
             // Step 2: coming back from input permission check, now ask for write storage permission
-            startActivity(new Intent(this, WriteStorageRequestActivity.class));
+            Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
+            writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(writeStorageRequestIntent);
         }
 
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
             // Step 1: check input permission
-            startActivity(new Intent(this, InputRequestActivity.class));
+            Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
+            inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(inputRequestIntent);
         }
 
         if(ACTION_STOP.equals(intent.getAction())) {
