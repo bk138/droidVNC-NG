@@ -221,7 +221,10 @@ public class MainActivity extends AppCompatActivity {
             screenCapturingStatus.setText(R.string.main_activity_denied);
             screenCapturingStatus.setTextColor(getColor(android.R.color.holo_red_dark));
         }
-
+        if(MainService.isMediaProjectionEnabled() == -1) {
+            screenCapturingStatus.setText(R.string.main_activity_unknown);
+            screenCapturingStatus.setTextColor(getColor(android.R.color.darker_gray));
+        }
 
     }
 
