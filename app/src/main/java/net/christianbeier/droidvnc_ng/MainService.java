@@ -244,6 +244,11 @@ public class MainService extends Service {
         if(mMediaProjection == null)
             mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mResultData);
 
+        if (mMediaProjection == null) {
+            Log.e(TAG, "startScreenCapture: did not get a media projection, probably user denied");
+            return;
+        }
+
         if (mImageReader != null)
             mImageReader.close();
         if (mVirtualDisplay != null)
