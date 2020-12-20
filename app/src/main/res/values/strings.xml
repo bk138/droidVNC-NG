@@ -20,7 +20,7 @@
     <string name="error">Error</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="text_accessibility_service_description">This allows droidVNC-NG to post input events to the Android operating system, thus allowing remote control from a connected VNC viewer. All entered input is directly posted to Android, no input is logged, saved or shared.</string>
+    <string name="input_a11y_service_description">This allows droidVNC-NG to post input events to the Android operating system, thus allowing remote control from a connected VNC viewer. All entered input is directly posted to Android, no input is logged, saved or shared.</string>
     <string name="input_a11y_title">Accessibility disabled</string>
     <string name="input_a11y_msg">To be able to remotely control your device, you need to enable accessibility for droidVNC-NG. Do you want to enable accessibility now?</string>
     <string name="input_a11y_act_not_found_msg">Could not find the default accessibility settings activity. Please configure accessibility settings manually.</string>
