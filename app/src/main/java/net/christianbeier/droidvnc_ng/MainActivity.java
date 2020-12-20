@@ -155,6 +155,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        TextView about = findViewById(R.id.about);
+        about.setText(getString(R.string.main_activity_about, BuildConfig.VERSION_NAME));
     }
 
     @SuppressLint("SetTextI18n")

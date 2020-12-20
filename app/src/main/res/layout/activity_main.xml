@@ -236,8 +236,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="20dp"
             android:padding="10dp"
-            android:autoLink="web"
-            android:text="@string/main_activity_about" />
+            android:autoLink="web" />
 
     </LinearLayout>
 
