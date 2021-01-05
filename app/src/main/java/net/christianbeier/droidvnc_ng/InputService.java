@@ -54,7 +54,9 @@ public class InputService extends AccessibilityService {
 
 	private boolean mIsKeyCtrlDown;
 	private boolean mIsKeyAltDown;
+	private boolean mIsKeyShiftDown;
 	private boolean mIsKeyDelDown;
+	private boolean mIsKeyEscDown;
 
 
 	private GestureCallback mGestureCallback = new GestureCallback();
@@ -173,6 +175,30 @@ public class InputService extends AccessibilityService {
 			// instance probably null
 			Log.e(TAG, "onKeyEvent: failed: " + e.toString());
 		}
+
+		/*
+			handle ctrl-shift-esc
+		 */
+		try {
+			if(keysym == 0xFFE3)
+				instance.mIsKeyCtrlDown = down != 0;
+
+			if(keysym == 0xFFE1)
+				instance.mIsKeyShiftDown = down != 0;
+
+			if(keysym == 0xFF1B)
+				instance.mIsKeyEscDown = down != 0;
+
+			if(instance.mIsKeyCtrlDown && instance.mIsKeyShiftDown && instance.mIsKeyEscDown) {
+				Log.i(TAG, "onKeyEvent: got Ctrl-Shift-Esc");
+				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
+			}
+
+		} catch (Exception e) {
+			// instance probably null
+			Log.e(TAG, "onKeyEvent: failed: " + e.toString());
+		}
+
 
 
 	}
