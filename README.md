@@ -6,6 +6,7 @@ is is called droidVNC-NG.
 
 * Network export of device frame buffer.
 * Injection of remote pointer events.
+* Handling of special keys to trigger 'Recent Apps' overview, Home button and Back button.
 * Android permission handling.
 * Screen rotation handling.
 * File transfer via the local network, assuming TightVNC viewer for Windows version 1.3.x is used.
