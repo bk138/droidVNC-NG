@@ -199,6 +199,31 @@ public class InputService extends AccessibilityService {
 			Log.e(TAG, "onKeyEvent: failed: " + e.toString());
 		}
 
+		/*
+			handle Home/Pos1
+		 */
+		try {
+			if(keysym == 0xFF50 && down != 0)  {
+				Log.i(TAG, "onKeyEvent: got Home/Pos1");
+				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
+			}
+		} catch (Exception e) {
+			// instance probably null
+			Log.e(TAG, "onKeyEvent: failed: " + e.toString());
+		}
+
+		/*
+			handle Esc
+		 */
+		try {
+			if(keysym == 0xFF1B && down != 0)  {
+				Log.i(TAG, "onKeyEvent: got Home/Pos1");
+				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+			}
+		} catch (Exception e) {
+			// instance probably null
+			Log.e(TAG, "onKeyEvent: failed: " + e.toString());
+		}
 
 
 	}
