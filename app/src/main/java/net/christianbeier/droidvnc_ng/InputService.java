@@ -89,7 +89,7 @@ public class InputService extends AccessibilityService {
 	}
 
 
-	public static void onPointerEvent(int buttonMask,int x,int y, long client) {
+	public static void onPointerEvent(int buttonMask, int x, int y, long client) {
 
 		try {
 			/*
@@ -148,18 +148,30 @@ public class InputService extends AccessibilityService {
 		Log.d(TAG, "onKeyEvent: keysym " + keysym + " down " + down + " by client " + client);
 
 		/*
-			handle ctrl-alt-del
+			Special key handling.
 		 */
 		try {
+			/*
+				Save states of some keys for combo handling.
+			 */
 			if(keysym == 0xFFE3)
 				instance.mIsKeyCtrlDown = down != 0;
 
 			if(keysym == 0xFFE9 || keysym == 0xFF7E) // MacOS clients send Alt as 0xFF7E
 				instance.mIsKeyAltDown = down != 0;
 
+			if(keysym == 0xFFE1)
+				instance.mIsKeyShiftDown = down != 0;
+
 			if(keysym == 0xFFFF)
 				instance.mIsKeyDelDown = down != 0;
 
+			if(keysym == 0xFF1B)
+				instance.mIsKeyEscDown = down != 0;
+
+			/*
+				Ctrl-Alt-Del combo.
+		 	*/
 			if(instance.mIsKeyCtrlDown && instance.mIsKeyAltDown && instance.mIsKeyDelDown) {
 				Log.i(TAG, "onKeyEvent: got Ctrl-Alt-Del");
 				Handler mainHandler = new Handler(instance.getMainLooper());
@@ -171,61 +183,34 @@ public class InputService extends AccessibilityService {
 				});
 			}
 
-		} catch (Exception e) {
-			// instance probably null
-			Log.e(TAG, "onKeyEvent: failed: " + e.toString());
-		}
-
-		/*
-			handle ctrl-shift-esc
-		 */
-		try {
-			if(keysym == 0xFFE3)
-				instance.mIsKeyCtrlDown = down != 0;
-
-			if(keysym == 0xFFE1)
-				instance.mIsKeyShiftDown = down != 0;
-
-			if(keysym == 0xFF1B)
-				instance.mIsKeyEscDown = down != 0;
-
+			/*
+				Ctrl-Shift-Esc combo.
+		 	*/
 			if(instance.mIsKeyCtrlDown && instance.mIsKeyShiftDown && instance.mIsKeyEscDown) {
 				Log.i(TAG, "onKeyEvent: got Ctrl-Shift-Esc");
 				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
 			}
 
-		} catch (Exception e) {
-			// instance probably null
-			Log.e(TAG, "onKeyEvent: failed: " + e.toString());
-		}
-
-		/*
-			handle Home/Pos1
-		 */
-		try {
-			if(keysym == 0xFF50 && down != 0)  {
+			/*
+				Home/Pos1
+		 	*/
+			if (keysym == 0xFF50 && down != 0) {
 				Log.i(TAG, "onKeyEvent: got Home/Pos1");
 				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
 			}
-		} catch (Exception e) {
-			// instance probably null
-			Log.e(TAG, "onKeyEvent: failed: " + e.toString());
-		}
 
-		/*
-			handle Esc
-		 */
-		try {
+			/*
+				Esc
+			 */
 			if(keysym == 0xFF1B && down != 0)  {
 				Log.i(TAG, "onKeyEvent: got Home/Pos1");
 				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
 			}
+
 		} catch (Exception e) {
 			// instance probably null
 			Log.e(TAG, "onKeyEvent: failed: " + e.toString());
 		}
-
-
 	}
 
 
