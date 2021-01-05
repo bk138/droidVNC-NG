@@ -230,11 +230,18 @@
             android:padding="10dp"/>
 
         <TextView
+            android:id="@+id/special_key_reference"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:padding="10dp"
+            android:text="@string/main_activity_special_key_reference"/>
+
+        <TextView
             android:id="@+id/about"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="20dp"
             android:padding="10dp"
             android:autoLink="web" />
 
