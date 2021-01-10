@@ -3,6 +3,13 @@ cmake_minimum_required(VERSION 3.4.1)
 
 project (droidVNC-NG C)
 
+# Requred to enable SIMD support
+if (CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
+    set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} --target=aarch64-linux-android${ANDROID_VERSION}")
+elseif (CMAKE_ANDROID_ARCH_ABI MATCHES "^armeabi.*")  # armeabi-v7a || armeabi-v6 || armeabi
+    set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} --target=arm-linux-androideabi${ANDROID_VERSION}")
+endif ()
+
 # build libJPEG
 set(libjpeg_src_DIR ../../../../libjpeg-turbo)
 set(libjpeg_build_DIR ${CMAKE_BINARY_DIR}/libjpeg)
