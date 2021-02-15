@@ -234,7 +234,7 @@ public class MainService extends Service {
             stopSelf();
         }
 
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
 
