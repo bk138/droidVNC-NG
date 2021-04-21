@@ -414,28 +414,9 @@ public class MainService extends Service {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(instance);
             port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900);
         } catch (NullPointerException e) {
-            //unused
         }
 
-        try {
-            // thanks go to https://stackoverflow.com/a/20103869/361413
-            Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
-            NetworkInterface ni;
-            while (nis.hasMoreElements()) {
-                ni = nis.nextElement();
-                if (!ni.isLoopback()/*not loopback*/ && ni.isUp()/*it works now*/) {
-                    for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
-                        //filter for ipv4/ipv6
-                        if (ia.getAddress().getAddress().length == 4) {
-                            //4 for ipv4, 16 for ipv6
-                            return ia.getAddress().toString().replaceAll("/", "") + ":" + port;
-                        }
-                    }
-                }
-            }
-        } catch (SocketException e) {
-            //unused
-        }
-        return null;
+        return "0.0.0.0:" + port;
+
     }
 }
