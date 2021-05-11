@@ -14,3 +14,7 @@ is is called droidVNC-NG.
 * Ability to specify the port used.
 * Start of background service on device boot.
 
+# Notes
+
+[Since Android 10](https://developer.android.com/about/versions/10/privacy/changes#screen-contents),
+the permission to access the screen contents has to be given on each start and is not saved.
