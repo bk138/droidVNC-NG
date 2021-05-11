@@ -53,6 +53,7 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Enumeration;
 
 public class MainService extends Service {
@@ -402,11 +403,10 @@ public class MainService extends Service {
     }
 
     /**
-     * Get first non-loopback IPv4 address together with the port the user specified.
-     * While this is not per definition the Wifi interface's IP, this should work for most users.
-     * @return A string in the form IP:port.
+     * Get non-loopback IPv4 addresses together with the port the user specified.
+     * @return A list of strings in the form IP:port.
      */
-    public static String getIPv4AndPort() {
+    public static ArrayList<String> getIPv4sAndPorts() {
 
         int port = 5900;
 
@@ -417,6 +417,7 @@ public class MainService extends Service {
             //unused
         }
 
+        ArrayList<String> hostsAndPorts = new ArrayList<>();
         try {
             // thanks go to https://stackoverflow.com/a/20103869/361413
             Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
@@ -428,7 +429,7 @@ public class MainService extends Service {
                         //filter for ipv4/ipv6
                         if (ia.getAddress().getAddress().length == 4) {
                             //4 for ipv4, 16 for ipv6
-                            return ia.getAddress().toString().replaceAll("/", "") + ":" + port;
+                            hostsAndPorts.add(ia.getAddress().toString().replaceAll("/", "") + ":" + port);
                         }
                     }
                 }
@@ -436,6 +437,7 @@ public class MainService extends Service {
         } catch (SocketException e) {
             //unused
         }
-        return null;
+
+        return hostsAndPorts;
     }
 }
