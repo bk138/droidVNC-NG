@@ -41,6 +41,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -71,7 +73,15 @@ public class MainActivity extends AppCompatActivity {
                 else {
                     intent.setAction(MainService.ACTION_START);
                     mButtonToggle.setText(R.string.stop);
-                    mAddress.setText(getString(R.string.main_activity_connect_to) + " " + MainService.getIPv4AndPort());
+                    // uhh there must be a nice functional way for this
+                    ArrayList<String> hostsAndPorts = MainService.getIPv4sAndPorts();
+                    StringBuilder sb = new StringBuilder();
+                    for(int i=0; i < hostsAndPorts.size(); ++i) {
+                        sb.append(hostsAndPorts.get(i));
+                        if(i != hostsAndPorts.size() -1)
+                            sb.append(" ").append(getString(R.string.or)).append(" ");
+                    }
+                    mAddress.setText(getString(R.string.main_activity_connect_to) + " " + sb);
                     mIsMainServiceRunning = true;
                 }
 
@@ -177,7 +187,15 @@ public class MainActivity extends AppCompatActivity {
         }
         if (mIsMainServiceRunning) {
             mButtonToggle.setText(R.string.stop);
-            mAddress.setText(getString(R.string.main_activity_connect_to) + " " + MainService.getIPv4AndPort());
+            // uhh there must be a nice functional way for this
+            ArrayList<String> hostsAndPorts = MainService.getIPv4sAndPorts();
+            StringBuilder sb = new StringBuilder();
+            for(int i=0; i < hostsAndPorts.size(); ++i) {
+                sb.append(hostsAndPorts.get(i));
+                if(i != hostsAndPorts.size() -1)
+                    sb.append(" ").append(getString(R.string.or)).append(" ");
+            }
+            mAddress.setText(getString(R.string.main_activity_connect_to) + " " + sb);
         }
         else {
             mButtonToggle.setText(R.string.start);
