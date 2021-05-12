@@ -42,6 +42,7 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
@@ -91,7 +92,7 @@ public class MainService extends Service {
         System.loadLibrary("droidvnc-ng");
     }
 
-    private native boolean vncStartServer(int width, int height, int port, String password);
+    private native boolean vncStartServer(int width, int height, int port, String desktopname, String password);
     private native boolean vncStopServer();
     private native boolean vncNewFramebuffer(int width, int height);
     private native boolean vncUpdateFramebuffer(ByteBuffer buf);
@@ -159,6 +160,7 @@ public class MainService extends Service {
         if (!vncStartServer(displayMetrics.widthPixels,
                 displayMetrics.heightPixels,
                 prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900),
+                Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
                 prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "")))
             stopSelf();
     }
