@@ -137,6 +137,8 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     rfbShutdownServer(theScreen, TRUE);
     free(theScreen->frameBuffer);
     theScreen->frameBuffer = NULL;
+    free(theScreen->desktopName); // always malloc'ed by us
+    theScreen->desktopName = NULL;
     if(theScreen->authPasswdData) { // if this is set, it was malloc'ed by us and has one password in there
         char **passwordList = theScreen->authPasswdData;
         free(passwordList[0]); // free the password created by strdup()
@@ -151,7 +153,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 }
 
 
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jint port, jstring password) {
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jint port, jstring desktopname, jstring password) {
 
     int argc = 0;
 
@@ -172,9 +174,22 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     }
     theScreen->ptrAddEvent = onPointerEvent;
     theScreen->kbdAddEvent = onKeyEvent;
-    theScreen->desktopName = "Android";
+
     theScreen->port = port;
     theScreen->ipv6port = port;
+
+    if(desktopname) { // string arg to GetStringUTFChars() must not be NULL
+        const char *cDesktopName = (*env)->GetStringUTFChars(env, desktopname, NULL);
+        if(!cDesktopName) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed getting desktop name from JNI");
+            theScreen->desktopName = strdup("Android"); // vncStopServer() must have something to correctly free()
+            Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
+            return JNI_FALSE;
+        }
+        theScreen->desktopName = strdup(cDesktopName);
+        (*env)->ReleaseStringUTFChars(env, desktopname, cDesktopName);
+    } else
+        theScreen->desktopName = strdup("Android");
 
     if(password && (*env)->GetStringLength(env, password)) { // string arg to GetStringUTFChars() must not be NULL and also do not set an empty password
         char **passwordList = malloc(sizeof(char **) * 2);
