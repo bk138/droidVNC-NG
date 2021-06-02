@@ -57,6 +57,10 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
+import io.reactivex.rxjava3.subjects.Subject;
+
 public class MainService extends Service {
 
     private static final String TAG = "MainService";
@@ -86,6 +90,12 @@ public class MainService extends Service {
 
     private static MainService instance;
 
+    private static final Subject<StatusEvent> mStatusEventStream = BehaviorSubject.createDefault(StatusEvent.STOPPED).toSerialized();
+    public enum StatusEvent {
+        STARTED,
+        STOPPED,
+    }
+
     static {
         // order is important here
         System.loadLibrary("vncserver");
@@ -103,6 +113,10 @@ public class MainService extends Service {
     public MainService() {
     }
 
+    public static Observable<StatusEvent> getStatusEventStream() {
+        return mStatusEventStream;
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -111,6 +125,8 @@ public class MainService extends Service {
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate");
+
+        mStatusEventStream.onNext(StatusEvent.STARTED);
 
         instance = this;
 
@@ -185,6 +201,7 @@ public class MainService extends Service {
         Log.d(TAG, "onDestroy");
         stopScreenCapture();
         vncStopServer();
+        mStatusEventStream.onNext(StatusEvent.STOPPED);
         instance = null;
     }
 
