@@ -23,7 +23,6 @@ package net.christianbeier.droidvnc_ng;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -32,6 +31,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -43,6 +43,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
+import io.reactivex.rxjava3.disposables.Disposable;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mButtonToggle;
     private TextView mAddress;
     private boolean mIsMainServiceRunning;
+    private Disposable mMainServiceStatusEventStreamConnection;
 
 
     @Override
@@ -66,24 +69,11 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, MainService.class);
                 if(mIsMainServiceRunning) {
                     intent.setAction(MainService.ACTION_STOP);
-                    mButtonToggle.setText(R.string.start);
-                    mAddress.setText("");
-                    mIsMainServiceRunning = false;
                 }
                 else {
                     intent.setAction(MainService.ACTION_START);
-                    mButtonToggle.setText(R.string.stop);
-                    // uhh there must be a nice functional way for this
-                    ArrayList<String> hostsAndPorts = MainService.getIPv4sAndPorts();
-                    StringBuilder sb = new StringBuilder();
-                    for(int i=0; i < hostsAndPorts.size(); ++i) {
-                        sb.append(hostsAndPorts.get(i));
-                        if(i != hostsAndPorts.size() -1)
-                            sb.append(" ").append(getString(R.string.or)).append(" ");
-                    }
-                    mAddress.setText(getString(R.string.main_activity_connect_to) + " " + sb);
-                    mIsMainServiceRunning = true;
                 }
+                mButtonToggle.setEnabled(false);
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(intent);
@@ -167,41 +157,51 @@ public class MainActivity extends AppCompatActivity {
 
         TextView about = findViewById(R.id.about);
         about.setText(getString(R.string.main_activity_about, BuildConfig.VERSION_NAME));
+
+        mMainServiceStatusEventStreamConnection = MainService.getStatusEventStream().subscribe(event -> {
+
+            if(event == MainService.StatusEvent.STARTED) {
+                Log.d(TAG, "got MainService started event");
+                mButtonToggle.post(() -> {
+                    mButtonToggle.setText(R.string.stop);
+                    mButtonToggle.setEnabled(true);
+                });
+
+                // uhh there must be a nice functional way for this
+                ArrayList<String> hostsAndPorts = MainService.getIPv4sAndPorts();
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hostsAndPorts.size(); ++i) {
+                    sb.append(hostsAndPorts.get(i));
+                    if (i != hostsAndPorts.size() - 1)
+                        sb.append(" ").append(getString(R.string.or)).append(" ");
+                }
+                mAddress.post(() -> {
+                    mAddress.setText(getString(R.string.main_activity_connect_to) + " " + sb);
+                });
+
+                mIsMainServiceRunning = true;
+            }
+
+            if(event == MainService.StatusEvent.STOPPED) {
+                Log.d(TAG, "got MainService stopped event");
+                mButtonToggle.post(() -> {
+                    mButtonToggle.setText(R.string.start);
+                    mButtonToggle.setEnabled(true);
+                });
+                mAddress.post(() -> {
+                    mAddress.setText("");
+                });
+
+                mIsMainServiceRunning = false;
+            }
+
+        });
     }
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onResume() {
         super.onResume();
-
-        /*
-            Update Toggle button and address display.
-         */
-        mIsMainServiceRunning = false;
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (MainService.class.getName().equals(service.service.getClassName())) {
-                mIsMainServiceRunning = true;
-                break;
-            }
-        }
-        if (mIsMainServiceRunning) {
-            mButtonToggle.setText(R.string.stop);
-            // uhh there must be a nice functional way for this
-            ArrayList<String> hostsAndPorts = MainService.getIPv4sAndPorts();
-            StringBuilder sb = new StringBuilder();
-            for(int i=0; i < hostsAndPorts.size(); ++i) {
-                sb.append(hostsAndPorts.get(i));
-                if(i != hostsAndPorts.size() -1)
-                    sb.append(" ").append(getString(R.string.or)).append(" ");
-            }
-            mAddress.setText(getString(R.string.main_activity_connect_to) + " " + sb);
-        }
-        else {
-            mButtonToggle.setText(R.string.start);
-            mAddress.setText("");
-        }
-
 
         /*
             Update Input permission display.
@@ -246,6 +246,13 @@ public class MainActivity extends AppCompatActivity {
             screenCapturingStatus.setTextColor(getColor(android.R.color.darker_gray));
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+        mMainServiceStatusEventStreamConnection.dispose();
     }
 
 
