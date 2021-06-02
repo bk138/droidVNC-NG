@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                         sb.append(" ").append(getString(R.string.or)).append(" ");
                 }
                 mAddress.post(() -> {
-                    mAddress.setText(getString(R.string.main_activity_connect_to) + " " + sb);
+                    mAddress.setText(getString(R.string.main_activity_address) + " " + sb);
                 });
 
                 mIsMainServiceRunning = true;
