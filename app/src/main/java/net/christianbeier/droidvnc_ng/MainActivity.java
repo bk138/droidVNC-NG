@@ -26,19 +26,25 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
@@ -50,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private Button mButtonToggle;
+    private Button mButtonReverseVNC;
     private TextView mAddress;
     private boolean mIsMainServiceRunning;
     private Disposable mMainServiceStatusEventStreamConnection;
@@ -85,6 +92,39 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mAddress = findViewById(R.id.address);
+
+        mButtonReverseVNC = (Button) findViewById(R.id.reverse_vnc);
+        mButtonReverseVNC.setOnClickListener(view -> {
+
+            final EditText inputText = new EditText(this);
+            inputText.setInputType(InputType.TYPE_CLASS_TEXT);
+            inputText.setHint(getString(R.string.main_activity_reverse_vnc_hint));
+            inputText.requestFocus();
+            inputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+            LinearLayout inputLayout = new LinearLayout(this);
+            inputLayout.setPadding(
+                    (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, Resources.getSystem().getDisplayMetrics()),
+                    (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()),
+                    (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, Resources.getSystem().getDisplayMetrics()),
+                    0
+            );
+            inputLayout.addView(inputText);
+
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setView(inputLayout)
+                    .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
+                        // parse host and port parts
+                        String[] parts = inputText.getText().toString().split("\\:");
+                        String host = parts[0];
+                        int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 5500;
+                        Log.d(TAG, "reverse vnc " + host + ":" + port);
+                    })
+                    .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
+                    .create();
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            dialog.show();
+        });
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -178,6 +218,9 @@ public class MainActivity extends AppCompatActivity {
                 mAddress.post(() -> {
                     mAddress.setText(getString(R.string.main_activity_address) + " " + sb);
                 });
+                mButtonReverseVNC.post(() -> {
+                    mButtonReverseVNC.setVisibility(View.VISIBLE);
+                });
 
                 mIsMainServiceRunning = true;
             }
@@ -190,6 +233,9 @@ public class MainActivity extends AppCompatActivity {
                 });
                 mAddress.post(() -> {
                     mAddress.setText("");
+                });
+                mButtonReverseVNC.post(() -> {
+                    mButtonReverseVNC.setVisibility(View.INVISIBLE);
                 });
 
                 mIsMainServiceRunning = false;

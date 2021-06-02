@@ -229,6 +229,14 @@
             android:layout_gravity="center_horizontal"
             android:padding="10dp"/>
 
+        <Button
+            android:id="@+id/reverse_vnc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/main_activity_reverse_vnc_button"
+            android:visibility="invisible"/>
+
         <TextView
             android:id="@+id/special_key_reference"
             android:layout_width="wrap_content"

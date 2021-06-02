@@ -14,6 +14,8 @@
     <string name="main_activity_file_access">File Access</string>
     <string name="main_activity_input">Input</string>
     <string name="main_activity_address">The server is now reachable at</string>
+    <string name="main_activity_reverse_vnc_button">Connect to a listening viewer</string>
+    <string name="main_activity_reverse_vnc_hint">Host:Port</string>
     <string name="main_activity_special_key_reference">From a VNC viewer, <b>Ctrl-Shift-Esc</b> triggers \'Recent Apps\' overview, <b>Home/Pos1</b> acts as Home button, <b>Escape</b> acts as Back button.</string>
     <string name="main_activity_about">This is droidVNC-NG %1$s. Please note that more features are still being added to droidVNC-NG. In particular, most keyboard strokes as of now can only be input via the Android soft keyboard, there is only limited support for keyboard events from VNC viewers (yet). Please report any issues and feature requests at https://github.com/bk138/droidVNC-NG</string>
     <string name="start">Start</string>
