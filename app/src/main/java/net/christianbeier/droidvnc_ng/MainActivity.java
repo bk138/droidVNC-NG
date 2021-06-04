@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                         // parse host and port parts
                         String[] parts = inputText.getText().toString().split("\\:");
                         String host = parts[0];
-                        int port = parts.length > 1 ? Integer.parseInt(parts[1]) : 5500;
+                        int port = parts.length > 1 ? Integer.parseInt(parts[1]) : Constants.DEFAULT_PORT_REVERSE;
                         Log.d(TAG, "reverse vnc " + host + ":" + port);
                     })
                     .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
