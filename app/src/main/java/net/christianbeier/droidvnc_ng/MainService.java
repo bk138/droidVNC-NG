@@ -104,6 +104,7 @@ public class MainService extends Service {
 
     private native boolean vncStartServer(int width, int height, int port, String desktopname, String password);
     private native boolean vncStopServer();
+    private native boolean vncConnectReverse(String host, int port);
     private native boolean vncNewFramebuffer(int width, int height);
     private native boolean vncUpdateFramebuffer(ByteBuffer buf);
     private native int vncGetFramebufferWidth();
@@ -458,5 +459,14 @@ public class MainService extends Service {
         }
 
         return hostsAndPorts;
+    }
+
+    public static boolean connectReverse(String host, int port) {
+        try {
+            return instance.vncConnectReverse(host, port);
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
     }
 }
