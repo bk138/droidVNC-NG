@@ -228,6 +228,24 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     return JNI_TRUE;
 }
 
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncConnectReverse(JNIEnv *env, jobject thiz, jstring host, jint port)
+{
+    if(!theScreen || !theScreen->frameBuffer)
+        return JNI_FALSE;
+
+    if(host) { // string arg to GetStringUTFChars() must not be NULL
+        char *cHost = (*env)->GetStringUTFChars(env, host, NULL);
+        if(!cHost) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "vncConnectReverse: failed getting desktop name from JNI");
+            return JNI_FALSE;
+        }
+        rfbClientPtr cl = rfbReverseConnection(theScreen, cHost, port);
+        (*env)->ReleaseStringUTFChars(env, host, cHost);
+        return cl != NULL;
+    }
+    return JNI_FALSE;
+}
+
 
 
 JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncNewFramebuffer(JNIEnv *env, jobject thiz, jint width, jint height)
