@@ -43,6 +43,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -119,6 +120,10 @@ public class MainActivity extends AppCompatActivity {
                         String host = parts[0];
                         int port = parts.length > 1 ? Integer.parseInt(parts[1]) : Constants.DEFAULT_PORT_REVERSE;
                         Log.d(TAG, "reverse vnc " + host + ":" + port);
+                        if(MainService.connectReverse(host,port))
+                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_reverse_vnc_success, host, port), Toast.LENGTH_LONG).show();
+                        else
+                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_reverse_vnc_fail, host, port), Toast.LENGTH_LONG).show();
                     })
                     .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                     .create();
