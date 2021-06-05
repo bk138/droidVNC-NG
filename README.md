@@ -13,6 +13,7 @@ is is called droidVNC-NG.
 * Password protection for secure-in-terms-of-VNC connection.
 * Ability to specify the port used.
 * Start of background service on device boot.
+* Reverse VNC.
 
 # Notes
 
