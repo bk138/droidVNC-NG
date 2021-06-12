@@ -17,5 +17,7 @@ is is called droidVNC-NG.
 
 # Notes
 
+Requires at least Android 7.
+
 [Since Android 10](https://developer.android.com/about/versions/10/privacy/changes#screen-contents),
 the permission to access the screen contents has to be given on each start and is not saved.
