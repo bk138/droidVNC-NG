@@ -20,4 +20,7 @@ is is called droidVNC-NG.
 Requires at least Android 7.
 
 [Since Android 10](https://developer.android.com/about/versions/10/privacy/changes#screen-contents),
-the permission to access the screen contents has to be given on each start and is not saved.
+the permission to access the screen contents has to be given on each start and is not saved. You can,
+however, work around this by installing [adb](https://developer.android.com/studio/command-line/adb)
+(or simply Android Studio) on a PC, connecting the device running droidVNC-NG to that PC and running
+`adb shell cmd appops set net.christianbeier.droidvnc_ng PROJECT_MEDIA allow` once.
