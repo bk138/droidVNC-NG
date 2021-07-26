@@ -1,20 +1,5 @@
 This is an Android VNC server using contemporary Android 5+ APIs. It therefore does not require root access. In reverence to the venerable <a href='https://github.com/oNaiPs/droidVncServer'>droid-VNC-server</a> is is called droidVNC-NG.
 
-<h3>Features</h3>
-
-<ul>
-<li>Network export of device frame buffer.</li>
-<li>Injection of remote pointer events.</li>
-<li>Handling of special keys to trigger 'Recent Apps' overview, Home button and Back button.</li>
-<li>Android permission handling.</li>
-<li>Screen rotation handling.</li>
-<li>File transfer via the local network, assuming TightVNC viewer for Windows version 1.3.x is used.</li>
-<li>Password protection for secure-in-terms-of-VNC connection.</li>
-<li>Ability to specify the port used.</li>
-<li>Start of background service on device boot.</li>
-<li>Reverse VNC.</li>
-</ul>
-
 <h3>Notes</h3>
 
 Requires at least Android 7.
