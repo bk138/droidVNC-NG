@@ -1,7 +1,1 @@
 This is an Android VNC server using contemporary Android 5+ APIs. It therefore does not require root access. In reverence to the venerable <a href='https://github.com/oNaiPs/droidVncServer'>droid-VNC-server</a> is is called droidVNC-NG.
-
-<h3>Notes</h3>
-
-Requires at least Android 7.
-
-Since Android 10, the permission to access the screen contents has to be given on each start and is not saved. You can, however, work around this by installing adb (or simply Android Studio) on a PC, connecting the device running droidVNC-NG to that PC and running <code>adb shell cmd appops set net.christianbeier.droidvnc_ng PROJECT_MEDIA</code> allow once.
