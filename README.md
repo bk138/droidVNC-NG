@@ -1,6 +1,8 @@
 This is an Android VNC server using contemporary Android 5+ APIs. It therefore does not require
-root access. In reverence to the venerable [droid-VNC-server](https://github.com/oNaiPs/droidVncServer)
+root access. In reference to the venerable [droid-VNC-server](https://github.com/oNaiPs/droidVncServer)
 is is called droidVNC-NG.
+
+[![get it on playstore](playstore-badge.png)](https://play.google.com/store/apps/details?id=net.christianbeier.droidvnc_ng)
 
 # Features
 
