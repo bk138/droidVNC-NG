@@ -58,6 +58,7 @@ public class InputService extends AccessibilityService {
 	private boolean mIsKeyDelDown;
 	private boolean mIsKeyEscDown;
 
+	private float mScaling;
 
 	private GestureCallback mGestureCallback = new GestureCallback();
 
@@ -88,10 +89,28 @@ public class InputService extends AccessibilityService {
 		return instance != null;
 	}
 
+	/**
+	 * Set scaling factor that's applied to incoming pointer events by dividing coordinates by
+	 * the given factor.
+	 * @param scaling
+	 * @return
+	 */
+	public static boolean setScaling(float scaling) {
+		try {
+			instance.mScaling = scaling;
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 
 	public static void onPointerEvent(int buttonMask, int x, int y, long client) {
 
 		try {
+			x /= instance.mScaling;
+			y /= instance.mScaling;
+
 			/*
 			    left mouse button
 			 */
