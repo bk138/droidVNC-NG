@@ -23,7 +23,6 @@ package net.christianbeier.droidvnc_ng;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -56,21 +55,13 @@ public class WriteStorageRequestActivity extends AppCompatActivity {
                         .setCancelable(false)
                         .setTitle(R.string.write_storage_title)
                         .setMessage(R.string.write_storage_msg)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
-                                SharedPreferences.Editor ed = prefs.edit();
-                                ed.putBoolean(PREFS_KEY_PERMISSION_ASKED_BEFORE, true);
-                                ed.commit();
-                            }
+                        .setPositiveButton(R.string.yes, (dialog, which) -> {
+                            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+                            SharedPreferences.Editor ed = prefs.edit();
+                            ed.putBoolean(PREFS_KEY_PERMISSION_ASKED_BEFORE, true);
+                            ed.commit();
                         })
-                        .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                postResultAndFinish(false);
-                            }
-                        })
+                        .setNegativeButton(getString(R.string.no), (dialog, which) -> postResultAndFinish(false))
                         .show();
             } else {
                 postResultAndFinish(false);
