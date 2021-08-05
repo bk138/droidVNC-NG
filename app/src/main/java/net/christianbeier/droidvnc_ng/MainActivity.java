@@ -41,16 +41,14 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.slider.LabelFormatter;
 import com.google.android.material.slider.Slider;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.ArrayList;
 
@@ -192,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final Switch startOnBoot = findViewById(R.id.settings_start_on_boot);
+        final SwitchMaterial startOnBoot = findViewById(R.id.settings_start_on_boot);
         startOnBoot.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, true));
         startOnBoot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @SuppressLint("ApplySharedPref")

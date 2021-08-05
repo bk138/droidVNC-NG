@@ -100,7 +100,7 @@
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
-                <Switch
+                <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/settings_start_on_boot"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
