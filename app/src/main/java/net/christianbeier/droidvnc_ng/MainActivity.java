@@ -45,8 +45,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.slider.LabelFormatter;
+import com.google.android.material.slider.Slider;
 
 import java.util.ArrayList;
 
@@ -198,6 +202,15 @@ public class MainActivity extends AppCompatActivity {
                 ed.putBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, b);
                 ed.commit();
             }
+        });
+
+        Slider scaling = findViewById(R.id.settings_scaling);
+        scaling.setValue(prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, Constants.DEFAULT_SCALING)*100);
+        scaling.setLabelFormatter(value -> Math.round(value) + " %");
+        scaling.addOnChangeListener((slider, value, fromUser) -> {
+            SharedPreferences.Editor ed = prefs.edit();
+            ed.putFloat(Constants.PREFS_KEY_SETTINGS_SCALING, value/100);
+            ed.apply();
         });
 
         TextView about = findViewById(R.id.about);

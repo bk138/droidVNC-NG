@@ -110,6 +110,37 @@
 
             </TableRow>
 
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_settings_scaling" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_colon" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/settings_scaling"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:stepSize="5"
+                    android:value="100"
+                    android:valueFrom="10"
+                    android:valueTo="100" />
+
+            </TableRow>
 
         </TableLayout>
 
