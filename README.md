@@ -6,6 +6,8 @@ is is called droidVNC-NG.
 
 * Network export of device frame buffer with optional server-side scaling.
 * Injection of remote pointer events.
+* Handling of client-to-server text copy & paste. Note that server-to-client copy & paste does not
+  work in a generic way due to [Android security restrictions](https://developer.android.com/about/versions/10/privacy/changes#clipboard-data).
 * Handling of special keys to trigger 'Recent Apps' overview, Home button and Back button.
 * Android permission handling.
 * Screen rotation handling.
