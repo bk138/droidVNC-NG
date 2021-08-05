@@ -22,7 +22,6 @@
 package net.christianbeier.droidvnc_ng;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -45,25 +44,17 @@ public class InputRequestActivity extends AppCompatActivity {
                     .setCancelable(false)
                     .setTitle(R.string.input_a11y_title)
                     .setMessage(R.string.input_a11y_msg)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                            if (intent.resolveActivity(getPackageManager()) != null)
-                                startActivityForResult(intent, REQUEST_INPUT);
-                            else
-                                new AlertDialog.Builder(InputRequestActivity.this)
-                                        .setTitle(R.string.error)
-                                        .setMessage(R.string.input_a11y_act_not_found_msg)
-                                        .show();
-                        }
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
+                        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                        if (intent.resolveActivity(getPackageManager()) != null)
+                            startActivityForResult(intent, REQUEST_INPUT);
+                        else
+                            new AlertDialog.Builder(InputRequestActivity.this)
+                                    .setTitle(R.string.error)
+                                    .setMessage(R.string.input_a11y_act_not_found_msg)
+                                    .show();
                     })
-                    .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            postResultAndFinish(false);
-                        }
-                    })
+                    .setNegativeButton(getString(R.string.no), (dialog, which) -> postResultAndFinish(false))
                     .show();
         } else {
             postResultAndFinish(true);
