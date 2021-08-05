@@ -37,6 +37,7 @@ public class OnBootReceiver extends BroadcastReceiver {
 
     public void onReceive(Context context, Intent arg1)
     {
+        if(Intent.ACTION_BOOT_COMPLETED.equals(arg1.getAction())) {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, true)) {
             Log.i(TAG, "onReceive: configured to start");
@@ -49,6 +50,7 @@ public class OnBootReceiver extends BroadcastReceiver {
             }
         } else {
             Log.i(TAG, "onReceive: configured NOT to start");
+        }
         }
     }
 
