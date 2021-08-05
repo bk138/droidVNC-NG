@@ -4,7 +4,7 @@ is is called droidVNC-NG.
 
 # Features
 
-* Network export of device frame buffer.
+* Network export of device frame buffer with optional server-side scaling.
 * Injection of remote pointer events.
 * Handling of special keys to trigger 'Recent Apps' overview, Home button and Back button.
 * Android permission handling.
