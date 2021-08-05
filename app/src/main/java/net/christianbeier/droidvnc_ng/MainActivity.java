@@ -38,7 +38,6 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -71,27 +70,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mButtonToggle = (Button) findViewById(R.id.toggle);
-        mButtonToggle.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onClick(View view) {
+        mButtonToggle.setOnClickListener(view -> {
 
-                Intent intent = new Intent(MainActivity.this, MainService.class);
-                if(mIsMainServiceRunning) {
-                    intent.setAction(MainService.ACTION_STOP);
-                }
-                else {
-                    intent.setAction(MainService.ACTION_START);
-                }
-                mButtonToggle.setEnabled(false);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(intent);
-                } else {
-                    startService(intent);
-                }
-
+            Intent intent = new Intent(MainActivity.this, MainService.class);
+            if(mIsMainServiceRunning) {
+                intent.setAction(MainService.ACTION_STOP);
             }
+            else {
+                intent.setAction(MainService.ACTION_START);
+            }
+            mButtonToggle.setEnabled(false);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            } else {
+                startService(intent);
+            }
+
         });
 
         mAddress = findViewById(R.id.address);
@@ -192,14 +187,10 @@ public class MainActivity extends AppCompatActivity {
 
         final SwitchMaterial startOnBoot = findViewById(R.id.settings_start_on_boot);
         startOnBoot.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, true));
-        startOnBoot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @SuppressLint("ApplySharedPref")
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                SharedPreferences.Editor ed = prefs.edit();
-                ed.putBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, b);
-                ed.commit();
-            }
+        startOnBoot.setOnCheckedChangeListener((compoundButton, b) -> {
+            SharedPreferences.Editor ed = prefs.edit();
+            ed.putBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, b);
+            ed.commit();
         });
 
         Slider scaling = findViewById(R.id.settings_scaling);
