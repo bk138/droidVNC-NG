@@ -16,6 +16,8 @@ package net.christianbeier.droidvnc_ng;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -232,6 +234,16 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
+	public static void onCutText(String text, long client) {
+		Log.d(TAG, "onCutText: text '" + text + "' by client " + client);
+
+		try {
+			((ClipboardManager)instance.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText(text, text));
+		} catch (Exception e) {
+			// instance probably null
+			Log.e(TAG, "onCutText: failed: " + e.toString());
+		}
+	}
 
 	private void startGesture(int x, int y) {
 		mPath = new Path();
