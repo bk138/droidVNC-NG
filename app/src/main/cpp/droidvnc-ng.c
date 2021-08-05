@@ -102,6 +102,24 @@ static void onKeyEvent(rfbBool down, rfbKeySym key, rfbClientPtr cl)
     (*theVM)->DetachCurrentThread(theVM);
 }
 
+static void onCutText(char *text, int len, rfbClientPtr cl)
+{
+    JNIEnv *env = NULL;
+    if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "onCutText: could not attach thread, there will be no input");
+        return;
+    }
+
+    jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "onCutText", "(Ljava/lang/String;J)V");
+    jstring jText = (*env)->NewStringUTF(env, text);
+    (*env)->CallStaticVoidMethod(env, theInputService, mid, jText, (jlong)cl);
+
+    if ((*env)->ExceptionCheck(env))
+        (*env)->ExceptionDescribe(env);
+
+    (*theVM)->DetachCurrentThread(theVM);
+}
+
 /*
  * The VM calls JNI_OnLoad when the native library is loaded (for example, through System.loadLibrary).
  * JNI_OnLoad must return the JNI version needed by the native library.
@@ -174,6 +192,8 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     }
     theScreen->ptrAddEvent = onPointerEvent;
     theScreen->kbdAddEvent = onKeyEvent;
+    theScreen->setXCutText = onCutText;
+    theScreen->setXCutTextUTF8 = onCutText;
 
     theScreen->port = port;
     theScreen->ipv6port = port;
