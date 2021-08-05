@@ -236,7 +236,8 @@ public class MainService extends Service {
 
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle input result");
-            // Step 2: coming back from input permission check, now ask for write storage permission
+            // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission
+            InputService.setScaling(PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, Constants.DEFAULT_SCALING));
             Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
             writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(writeStorageRequestIntent);
@@ -279,6 +280,11 @@ public class MainService extends Service {
         WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(metrics);
 
+        // apply scaling preference
+        float scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, Constants.DEFAULT_SCALING);
+        int scaledWidth = (int) (metrics.widthPixels * scaling);
+        int scaledHeight = (int) (metrics.heightPixels * scaling);
+
         // only set this by detecting quirky hardware if the user has not set manually
         if(!mHasPortraitInLandscapeWorkaroundSet && Build.FINGERPRINT.contains("rk3288")  && metrics.widthPixels > 800) {
             Log.w(TAG, "detected >10in rk3288 applying workaround for portrait-in-landscape quirk");
@@ -286,13 +292,13 @@ public class MainService extends Service {
         }
 
         // use workaround if flag set and in actual portrait mode
-        if(mHasPortraitInLandscapeWorkaroundApplied && metrics.widthPixels < metrics.heightPixels) {
+        if(mHasPortraitInLandscapeWorkaroundApplied && scaledWidth < scaledHeight) {
 
-            final float portraitInsideLandscapeScaleFactor = (float)metrics.widthPixels/metrics.heightPixels;
+            final float portraitInsideLandscapeScaleFactor = (float)scaledWidth/scaledHeight;
 
             // width and height are swapped here
-            final int quirkyLandscapeWidth = (int)((float)metrics.heightPixels/portraitInsideLandscapeScaleFactor);
-            final int quirkyLandscapeHeight = (int)((float)metrics.widthPixels/portraitInsideLandscapeScaleFactor);
+            final int quirkyLandscapeWidth = (int)((float)scaledHeight/portraitInsideLandscapeScaleFactor);
+            final int quirkyLandscapeHeight = (int)((float)scaledWidth/portraitInsideLandscapeScaleFactor);
 
             mImageReader = ImageReader.newInstance(quirkyLandscapeWidth, quirkyLandscapeHeight, PixelFormat.RGBA_8888, 2);
             mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
@@ -319,14 +325,14 @@ public class MainService extends Service {
                     dest.copyPixelsFromBuffer(buffer);
 
                     // get the portrait portion that's in the center of the landscape bitmap
-                    Bitmap croppedDest = Bitmap.createBitmap(dest, quirkyLandscapeWidth/2 - metrics.widthPixels/2, 0, metrics.widthPixels, metrics.heightPixels);
+                    Bitmap croppedDest = Bitmap.createBitmap(dest, quirkyLandscapeWidth/2 - scaledWidth/2, 0, scaledWidth, scaledHeight);
 
-                    ByteBuffer croppedBuffer = ByteBuffer.allocateDirect(metrics.widthPixels * metrics.heightPixels * 4);
+                    ByteBuffer croppedBuffer = ByteBuffer.allocateDirect(scaledWidth * scaledHeight * 4);
                     croppedDest.copyPixelsToBuffer(croppedBuffer);
 
                     // if needed, setup a new VNC framebuffer that matches the new buffer's dimensions
-                    if(metrics.widthPixels != vncGetFramebufferWidth() || metrics.heightPixels != vncGetFramebufferHeight())
-                        vncNewFramebuffer(metrics.widthPixels, metrics.heightPixels);
+                    if(scaledWidth != vncGetFramebufferWidth() || scaledHeight != vncGetFramebufferHeight())
+                        vncNewFramebuffer(scaledWidth, scaledHeight);
 
                     vncUpdateFramebuffer(croppedBuffer);
 
@@ -345,7 +351,7 @@ public class MainService extends Service {
         /*
             This is the default behaviour.
          */
-        mImageReader = ImageReader.newInstance(metrics.widthPixels, metrics.heightPixels, PixelFormat.RGBA_8888, 2);
+        mImageReader = ImageReader.newInstance(scaledWidth, scaledHeight, PixelFormat.RGBA_8888, 2);
         mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
             public void onImageAvailable(ImageReader imageReader) {
@@ -359,12 +365,12 @@ public class MainService extends Service {
                 final ByteBuffer buffer = planes[0].getBuffer();
                 int pixelStride = planes[0].getPixelStride();
                 int rowStride = planes[0].getRowStride();
-                int rowPadding = rowStride - pixelStride * metrics.widthPixels;
-                int w = metrics.widthPixels + rowPadding / pixelStride;
+                int rowPadding = rowStride - pixelStride * scaledWidth;
+                int w = scaledWidth + rowPadding / pixelStride;
 
                 // if needed, setup a new VNC framebuffer that matches the image plane's parameters
-                if(w != vncGetFramebufferWidth() || metrics.heightPixels != vncGetFramebufferHeight())
-                     vncNewFramebuffer(w, metrics.heightPixels);
+                if(w != vncGetFramebufferWidth() || scaledHeight != vncGetFramebufferHeight())
+                     vncNewFramebuffer(w, scaledHeight);
 
                 buffer.rewind();
 
@@ -375,7 +381,7 @@ public class MainService extends Service {
         }, null);
 
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
-                metrics.widthPixels, metrics.heightPixels, metrics.densityDpi,
+                scaledWidth, scaledHeight, metrics.densityDpi,
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
                 mImageReader.getSurface(), null, null);
 
