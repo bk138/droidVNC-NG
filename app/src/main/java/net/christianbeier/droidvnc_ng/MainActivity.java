@@ -115,7 +115,14 @@ public class MainActivity extends AppCompatActivity {
                         // parse host and port parts
                         String[] parts = inputText.getText().toString().split("\\:");
                         String host = parts[0];
-                        int port = parts.length > 1 ? Integer.parseInt(parts[1]) : Constants.DEFAULT_PORT_REVERSE;
+                        int port = Constants.DEFAULT_PORT_REVERSE;
+                        if (parts.length > 1) {
+                            try {
+                                port = Integer.parseInt(parts[1]);
+                            } catch(NumberFormatException unused) {
+                                // stays at default reverse port
+                            }
+                        }
                         Log.d(TAG, "reverse vnc " + host + ":" + port);
                         if(MainService.connectReverse(host,port))
                             Toast.makeText(MainActivity.this, getString(R.string.main_activity_reverse_vnc_success, host, port), Toast.LENGTH_LONG).show();
