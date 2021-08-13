@@ -1,5 +1,4 @@
-droidVNC-NG
------------
+# droidVNC-NG
 
 This is an Android VNC server using contemporary Android 5+ APIs. It therefore does not require
 root access. In reverence to the venerable [droid-VNC-server](https://github.com/oNaiPs/droidVncServer)
@@ -12,7 +11,7 @@ is is called droidVNC-NG.
      alt="Get it on Google Play"
      height="80">](https://play.google.com/store/apps/details?id=net.christianbeier.droidvnc_ng)
 
-# Features
+## Features
 
 * Network export of device frame buffer with optional server-side scaling.
 * Injection of remote pointer events.
@@ -27,7 +26,7 @@ is is called droidVNC-NG.
 * Start of background service on device boot.
 * Reverse VNC.
 
-# Notes
+## Notes
 
 Requires at least Android 7.
 
