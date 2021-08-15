@@ -26,6 +26,18 @@ is is called droidVNC-NG.
 * Start of background service on device boot.
 * Reverse VNC.
 
+## Contributing
+
+Contributions to the project are very welcome and encouraged! They can come in many forms.
+You can:
+
+  * Submit a feature request or bug report as an [issue](https://github.com/bk138/droidVNC-NG/issues).
+  * Provide info for [issues that require feedback](https://github.com/bk138/droidVNC-NG/labels/answer-needed).
+  * Add features or fix bugs via [pull requests](https://github.com/bk138/droidVNC-NG/pulls).
+    Please note [there's a list of issues](https://github.com/bk138/droidVNC-NG/labels/help%20wanted)
+	where contributions are especially welcome. Also, please adhere to the [contribution guidelines](CONTRIBUTING.md).
+
+
 ## Notes
 
 Requires at least Android 7.
