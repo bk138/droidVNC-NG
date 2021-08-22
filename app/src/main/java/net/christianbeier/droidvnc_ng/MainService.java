@@ -303,38 +303,37 @@ public class MainService extends Service {
             mImageReader = ImageReader.newInstance(quirkyLandscapeWidth, quirkyLandscapeHeight, PixelFormat.RGBA_8888, 2);
             mImageReader.setOnImageAvailableListener(imageReader -> {
                 Log.d(TAG, "image available");
-                Image image = imageReader.acquireLatestImage();
+                try (Image image = imageReader.acquireLatestImage()) {
 
-                if(image == null)
-                    return;
+                    if (image == null)
+                        return;
 
-                final Image.Plane[] planes = image.getPlanes();
-                final ByteBuffer buffer = planes[0].getBuffer();
-                int pixelStride = planes[0].getPixelStride();
-                int rowStride = planes[0].getRowStride();
-                int rowPadding = rowStride - pixelStride * quirkyLandscapeWidth;
-                int w = quirkyLandscapeWidth + rowPadding / pixelStride;
+                    final Image.Plane[] planes = image.getPlanes();
+                    final ByteBuffer buffer = planes[0].getBuffer();
+                    int pixelStride = planes[0].getPixelStride();
+                    int rowStride = planes[0].getRowStride();
+                    int rowPadding = rowStride - pixelStride * quirkyLandscapeWidth;
+                    int w = quirkyLandscapeWidth + rowPadding / pixelStride;
 
-                // create destination Bitmap
-                Bitmap dest =  Bitmap.createBitmap(w, quirkyLandscapeHeight, Bitmap.Config.ARGB_8888);
+                    // create destination Bitmap
+                    Bitmap dest = Bitmap.createBitmap(w, quirkyLandscapeHeight, Bitmap.Config.ARGB_8888);
 
-                // copy landscape buffer to dest bitmap
-                buffer.rewind();
-                dest.copyPixelsFromBuffer(buffer);
+                    // copy landscape buffer to dest bitmap
+                    buffer.rewind();
+                    dest.copyPixelsFromBuffer(buffer);
 
-                // get the portrait portion that's in the center of the landscape bitmap
-                Bitmap croppedDest = Bitmap.createBitmap(dest, quirkyLandscapeWidth/2 - scaledWidth/2, 0, scaledWidth, scaledHeight);
+                    // get the portrait portion that's in the center of the landscape bitmap
+                    Bitmap croppedDest = Bitmap.createBitmap(dest, quirkyLandscapeWidth / 2 - scaledWidth / 2, 0, scaledWidth, scaledHeight);
 
-                ByteBuffer croppedBuffer = ByteBuffer.allocateDirect(scaledWidth * scaledHeight * 4);
-                croppedDest.copyPixelsToBuffer(croppedBuffer);
+                    ByteBuffer croppedBuffer = ByteBuffer.allocateDirect(scaledWidth * scaledHeight * 4);
+                    croppedDest.copyPixelsToBuffer(croppedBuffer);
 
-                // if needed, setup a new VNC framebuffer that matches the new buffer's dimensions
-                if(scaledWidth != vncGetFramebufferWidth() || scaledHeight != vncGetFramebufferHeight())
-                    vncNewFramebuffer(scaledWidth, scaledHeight);
+                    // if needed, setup a new VNC framebuffer that matches the new buffer's dimensions
+                    if (scaledWidth != vncGetFramebufferWidth() || scaledHeight != vncGetFramebufferHeight())
+                        vncNewFramebuffer(scaledWidth, scaledHeight);
 
-                vncUpdateFramebuffer(croppedBuffer);
-
-                image.close();
+                    vncUpdateFramebuffer(croppedBuffer);
+                }
             }, null);
 
             mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
@@ -351,27 +350,26 @@ public class MainService extends Service {
         mImageReader = ImageReader.newInstance(scaledWidth, scaledHeight, PixelFormat.RGBA_8888, 2);
         mImageReader.setOnImageAvailableListener(imageReader -> {
             Log.d(TAG, "image available");
-            Image image = imageReader.acquireLatestImage();
+            try (Image image = imageReader.acquireLatestImage()) {
 
-            if(image == null)
-                return;
+                if (image == null)
+                    return;
 
-            final Image.Plane[] planes = image.getPlanes();
-            final ByteBuffer buffer = planes[0].getBuffer();
-            int pixelStride = planes[0].getPixelStride();
-            int rowStride = planes[0].getRowStride();
-            int rowPadding = rowStride - pixelStride * scaledWidth;
-            int w = scaledWidth + rowPadding / pixelStride;
+                final Image.Plane[] planes = image.getPlanes();
+                final ByteBuffer buffer = planes[0].getBuffer();
+                int pixelStride = planes[0].getPixelStride();
+                int rowStride = planes[0].getRowStride();
+                int rowPadding = rowStride - pixelStride * scaledWidth;
+                int w = scaledWidth + rowPadding / pixelStride;
 
-            // if needed, setup a new VNC framebuffer that matches the image plane's parameters
-            if(w != vncGetFramebufferWidth() || scaledHeight != vncGetFramebufferHeight())
-                 vncNewFramebuffer(w, scaledHeight);
+                // if needed, setup a new VNC framebuffer that matches the image plane's parameters
+                if (w != vncGetFramebufferWidth() || scaledHeight != vncGetFramebufferHeight())
+                    vncNewFramebuffer(w, scaledHeight);
 
-            buffer.rewind();
+                buffer.rewind();
 
-            vncUpdateFramebuffer(buffer);
-
-            image.close();
+                vncUpdateFramebuffer(buffer);
+            }
         }, null);
 
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
