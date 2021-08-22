@@ -336,10 +336,18 @@ public class MainService extends Service {
                 }
             }, null);
 
-            mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
-                    quirkyLandscapeWidth, quirkyLandscapeHeight, metrics.densityDpi,
-                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                    mImageReader.getSurface(), null, null);
+            try {
+                mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
+                        quirkyLandscapeWidth, quirkyLandscapeHeight, metrics.densityDpi,
+                        DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                        mImageReader.getSurface(), null, null);
+            } catch (SecurityException e) {
+                Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
+                // This initiates a prompt dialog for the user to confirm screen projection.
+                Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
+                mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(mediaProjectionRequestIntent);
+            }
 
             return;
         }
@@ -372,10 +380,18 @@ public class MainService extends Service {
             }
         }, null);
 
-        mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
-                scaledWidth, scaledHeight, metrics.densityDpi,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                mImageReader.getSurface(), null, null);
+        try {
+            mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
+                    scaledWidth, scaledHeight, metrics.densityDpi,
+                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                    mImageReader.getSurface(), null, null);
+        } catch (SecurityException e) {
+            Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
+            // This initiates a prompt dialog for the user to confirm screen projection.
+            Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
+            mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(mediaProjectionRequestIntent);
+        }
 
     }
 
