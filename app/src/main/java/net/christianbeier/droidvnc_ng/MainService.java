@@ -264,7 +264,16 @@ public class MainService extends Service {
     private void startScreenCapture() {
 
         if(mMediaProjection == null)
-            mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mResultData);
+            try {
+                mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mResultData);
+            } catch (SecurityException e) {
+                Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
+                // This initiates a prompt dialog for the user to confirm screen projection.
+                Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
+                mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(mediaProjectionRequestIntent);
+                return;
+            }
 
         if (mMediaProjection == null) {
             Log.e(TAG, "startScreenCapture: did not get a media projection, probably user denied");
