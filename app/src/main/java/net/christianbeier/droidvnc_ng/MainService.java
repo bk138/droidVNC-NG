@@ -333,6 +333,7 @@ public class MainService extends Service {
                         vncNewFramebuffer(scaledWidth, scaledHeight);
 
                     vncUpdateFramebuffer(croppedBuffer);
+                } catch (Exception ignored) {
                 }
             }, null);
 
@@ -377,6 +378,7 @@ public class MainService extends Service {
                 buffer.rewind();
 
                 vncUpdateFramebuffer(buffer);
+            } catch (Exception ignored) {
             }
         }, null);
 
