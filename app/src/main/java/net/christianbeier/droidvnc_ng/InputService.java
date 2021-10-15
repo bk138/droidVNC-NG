@@ -162,6 +162,11 @@ public class InputService extends AccessibilityService {
 		} catch (Exception e) {
 			// instance probably null
 			Log.e(TAG, "onPointerEvent: failed: " + e.toString());
+                       
+                        // force init of state of onPointerEvent's instance.mIsButtonOneDown.
+                        if ( instance.mIsButtonOneDown == true ) {
+                            instance.mIsButtonOneDown = false;
+                        }
 		}
 	}
 
