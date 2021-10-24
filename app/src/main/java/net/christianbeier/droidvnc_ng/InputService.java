@@ -119,8 +119,8 @@ public class InputService extends AccessibilityService {
 
 			// down, was up
 			if ((buttonMask & (1 << 0)) != 0 && !instance.mIsButtonOneDown) {
-				instance.startGesture(x, y);
 				instance.mIsButtonOneDown = true;
+				instance.startGesture(x, y);
 			}
 
 			// down, was down
@@ -130,8 +130,8 @@ public class InputService extends AccessibilityService {
 
 			// up, was down
 			if ((buttonMask & (1 << 0)) == 0 && instance.mIsButtonOneDown) {
-				instance.endGesture(x, y);
 				instance.mIsButtonOneDown = false;
+				instance.endGesture(x, y);
 			}
 
 
