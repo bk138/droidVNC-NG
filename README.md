@@ -1,5 +1,7 @@
 # droidVNC-NG
 
+[![Join the chat at https://gitter.im/droidVNC-NG/community](https://badges.gitter.im/droidVNC-NG/community.svg)](https://gitter.im/droidVNC-NG/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is an Android VNC server using contemporary Android 5+ APIs. It therefore does not require
 root access. In reverence to the venerable [droid-VNC-server](https://github.com/oNaiPs/droidVncServer)
 is is called droidVNC-NG.
