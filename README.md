@@ -50,5 +50,8 @@ however, work around this by installing [adb](https://developer.android.com/stud
 (or simply Android Studio) on a PC, connecting the device running droidVNC-NG to that PC and running
 `adb shell cmd appops set net.christianbeier.droidvnc_ng PROJECT_MEDIA allow` once.
 
+You can also use adb to manually give input permission prior to app start via `adb shell settings
+put secure enabled_accessibility_services net.christianbeier.droidvnc_ng/.InputService`.
+
 If you are using droidVNC-NG on [Android-x86](https://www.android-x86.org), it might be the case that
 screen recording does not work at all and you only see a black screen in a connected VNC viewer.
