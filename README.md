@@ -53,5 +53,8 @@ however, work around this by installing [adb](https://developer.android.com/stud
 * You can also use adb to manually give input permission prior to app start via `adb shell settings
 put secure enabled_accessibility_services net.christianbeier.droidvnc_ng/.InputService`.
 
-* If you are using droidVNC-NG on [Android-x86](https://www.android-x86.org), it might be the case that
-screen recording does not work at all and you only see a black screen in a connected VNC viewer.
+* If you are getting a black screen in a connected VNC viewer despite having given all permissions, it
+might be that your device does not support Android's MediaProjection API correctly. To find out, you can
+try screen recording with another app, [ScreenRecorder](https://gitlab.com/vijai/screenrecorder). If it
+fails as well, your device most likely does not support screen recording via MediaProjection. This is
+known to be the case for [Android-x86](https://www.android-x86.org).
