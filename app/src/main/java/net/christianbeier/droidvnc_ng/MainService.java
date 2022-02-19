@@ -127,9 +127,9 @@ public class MainService extends Service {
     public void onCreate() {
         Log.d(TAG, "onCreate");
 
-        mStatusEventStream.onNext(StatusEvent.STARTED);
-
         instance = this;
+
+        mStatusEventStream.onNext(StatusEvent.STARTED);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             /*
