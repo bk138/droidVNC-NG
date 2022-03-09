@@ -49,7 +49,7 @@ You can:
 
 ### For accepting connections from outside
 
-1. You should allow Port Forwarding in your router's Firewall settings. Login to your router's settings (usually open 192.168.1.1 in your browser, some routers have password written on them).
+1. You should allow [Port Forwarding](https://en.wikipedia.org/wiki/Port_forwarding) in your router's Firewall settings. Login to your router's settings (usually open 192.168.1.1 in your browser, some routers have password written on them).
 2. Find Port Forwarding, usually it's somewhere in **Network - Firewall - Port Forwards**.
 3. Create a new rule, this is an example from OpenWRT firmware.
    
