@@ -50,7 +50,7 @@ You can:
 ### For accepting connections from outside
 
 1. You should allow Port Forwarding in your router's Firewall settings. Login to your router's settings (usually open 192.168.1.1 in your browser, some routers have password written on them).
-2. Find Port Forwarding, usually it's somewhere in **Network - Firewall - Port Forwards**. Create a new rule.
+2. Find Port Forwarding, usually it's somewhere in **Network - Firewall - Port Forwards**.
 3. Create a new rule, this is an example from OpenWRT firmware.
    
    Name: **VNC forwarding**
@@ -69,7 +69,7 @@ You can:
 
 4. Apply the settings, sometimes it requires rebooting a router.
 5. Figure out your public adress i.e. <https://www.hashemian.com/whoami/>.
-6. Use this address and port to connect to your device.
+6. Use this address and port from above to connect to your device.
 
 ## Notes
 
