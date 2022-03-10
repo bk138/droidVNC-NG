@@ -39,6 +39,37 @@ You can:
     Please note [there's a list of issues](https://github.com/bk138/droidVNC-NG/labels/help%20wanted)
 	where contributions are especially welcome. Also, please adhere to the [contribution guidelines](CONTRIBUTING.md).
 
+## How to use
+
+1. Install the app from either marketplace.
+2. Get it all the permissions required.
+3. Set a good password and consider turning the `Start on Boot` off.
+4. Connect to your local Wi-Fi. For accepting a connection your device should be connected to some Local Area Network that you can control, normally it is a router. Connections via data networks (i.e. your mobile provider) are not supported.
+5. Click `Start` and connect to your device.
+
+### For accepting connections from outside
+
+1. You should allow [Port Forwarding](https://en.wikipedia.org/wiki/Port_forwarding) in your router's Firewall settings. Login to your router's settings (usually open 192.168.1.1 in your browser, some routers have password written on them).
+2. Find Port Forwarding, usually it's somewhere in **Network - Firewall - Port Forwards**.
+3. Create a new rule, this is an example from OpenWRT firmware.
+   
+   Name: **VNC forwarding**
+   
+   Protocol: **TCP**
+   
+   Source zone: **wan** may be "internet", "modem", something that suggests the external source.
+   
+   External port: **5900** by default or whatever you specified in the app.
+   
+   Destination zone: **lan** something that suggests local network.
+   
+   Internal IP address: your device's local IP address, leaving **any** is less secure. The device's address may change over time! You can look it up in your routers' connected clients info.
+   
+   Internal port: same as external port.
+
+4. Apply the settings, sometimes it requires rebooting a router.
+5. Figure out your public adress i.e. <https://www.hashemian.com/whoami/>.
+6. Use this address and port from above to connect to your device.
 
 ## Notes
 
