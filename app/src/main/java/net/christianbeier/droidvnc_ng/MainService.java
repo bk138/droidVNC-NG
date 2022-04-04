@@ -217,6 +217,8 @@ public class MainService extends Service {
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
             startScreenCapture();
+            // if we got here, we want to restart if we were killed
+            return START_REDELIVER_INTENT;
         }
 
         if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction())) {
@@ -225,6 +227,8 @@ public class MainService extends Service {
             // or ask for ask for capturing permission first (then going in step 4)
             if (mResultCode != 0 && mResultData != null) {
                 startScreenCapture();
+                // if we got here, we want to restart if we were killed
+                return START_REDELIVER_INTENT;
             } else {
                 Log.i(TAG, "Requesting confirmation");
                 // This initiates a prompt dialog for the user to confirm screen projection.
@@ -256,7 +260,9 @@ public class MainService extends Service {
             stopSelf();
         }
 
-        return START_REDELIVER_INTENT;
+        // if screen capturing was not started, we don't want a restart if we were killed
+        // especially, we don't want the permission asking to replay.
+        return START_NOT_STICKY;
     }
 
 
