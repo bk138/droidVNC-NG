@@ -29,6 +29,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputType;
@@ -280,7 +281,15 @@ public class MainActivity extends AppCompatActivity {
             Update File Access permission display.
          */
         TextView fileAccessStatus = findViewById(R.id.permission_status_file_access);
-        if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        boolean hasFileAccess;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11 and newer
+            hasFileAccess = Environment.isExternalStorageManager();
+        } else {
+            // Android 10 and older
+            hasFileAccess = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        }
+        if(hasFileAccess) {
             fileAccessStatus.setText(R.string.main_activity_granted);
             fileAccessStatus.setTextColor(getColor(android.R.color.holo_green_dark));
         } else {
