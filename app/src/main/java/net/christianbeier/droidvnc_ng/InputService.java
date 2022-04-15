@@ -254,7 +254,10 @@ public class InputService extends AccessibilityService {
 
 	private void endGesture(int x, int y) {
 		mPath.lineTo( x, y );
-		GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription( mPath, 0, System.currentTimeMillis() - mLastGestureStartTime);
+		long duration = System.currentTimeMillis() - mLastGestureStartTime;
+		// gesture ended very very shortly after start (< 1ms). make it 1ms to get dispatched to the system
+		if (duration == 0) duration = 1;
+		GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription( mPath, 0, duration);
 		GestureDescription.Builder builder = new GestureDescription.Builder();
 		builder.addStroke(stroke);
 		dispatchGesture(builder.build(), null, null);
