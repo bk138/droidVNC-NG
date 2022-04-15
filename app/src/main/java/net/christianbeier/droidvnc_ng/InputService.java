@@ -64,7 +64,7 @@ public class InputService extends AccessibilityService {
 
 	private float mScaling;
 
-	private GestureCallback mGestureCallback = new GestureCallback();
+	private final GestureCallback mGestureCallback = new GestureCallback();
 
 
 	@Override
@@ -97,8 +97,8 @@ public class InputService extends AccessibilityService {
 	/**
 	 * Set scaling factor that's applied to incoming pointer events by dividing coordinates by
 	 * the given factor.
-	 * @param scaling
-	 * @return
+	 * @param scaling The scaling factor as a real number.
+	 * @return Whether scaling was applied or not.
 	 */
 	public static boolean setScaling(float scaling) {
 		try {
@@ -109,7 +109,7 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
-
+	@SuppressWarnings("unused")
 	public static void onPointerEvent(int buttonMask, int x, int y, long client) {
 
 		try {
@@ -164,7 +164,7 @@ public class InputService extends AccessibilityService {
 			}
 		} catch (Exception e) {
 			// instance probably null
-			Log.e(TAG, "onPointerEvent: failed: " + e.toString());
+			Log.e(TAG, "onPointerEvent: failed: " + e);
 		}
 	}
 
@@ -198,12 +198,7 @@ public class InputService extends AccessibilityService {
 		 	*/
 			if(instance.mIsKeyCtrlDown && instance.mIsKeyAltDown && instance.mIsKeyDelDown) {
 				Log.i(TAG, "onKeyEvent: got Ctrl-Alt-Del");
-				instance.mMainHandler.post(new Runnable() {
-					@Override
-					public void run() {
-						MainService.togglePortraitInLandscapeWorkaround();
-					}
-				});
+				instance.mMainHandler.post(MainService::togglePortraitInLandscapeWorkaround);
 			}
 
 			/*
@@ -232,7 +227,7 @@ public class InputService extends AccessibilityService {
 
 		} catch (Exception e) {
 			// instance probably null
-			Log.e(TAG, "onKeyEvent: failed: " + e.toString());
+			Log.e(TAG, "onKeyEvent: failed: " + e);
 		}
 	}
 
@@ -243,7 +238,7 @@ public class InputService extends AccessibilityService {
 			instance.mMainHandler.post(() -> ((ClipboardManager) instance.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText(text, text)));
 		} catch (Exception e) {
 			// instance probably null
-			Log.e(TAG, "onCutText: failed: " + e.toString());
+			Log.e(TAG, "onCutText: failed: " + e);
 		}
 	}
 
