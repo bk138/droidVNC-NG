@@ -164,7 +164,7 @@ public class InputService extends AccessibilityService {
 			}
 		} catch (Exception e) {
 			// instance probably null
-			Log.e(TAG, "onPointerEvent: failed: " + e);
+			Log.e(TAG, "onPointerEvent: failed: " + Log.getStackTraceString(e));
 		}
 	}
 
