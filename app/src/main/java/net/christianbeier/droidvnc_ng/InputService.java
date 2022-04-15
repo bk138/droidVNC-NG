@@ -50,6 +50,8 @@ public class InputService extends AccessibilityService {
 
 	private static InputService instance;
 
+	private Handler mMainHandler;
+
 	private boolean mIsButtonOneDown;
 	private Path mPath;
 	private long mLastGestureStartTime;
@@ -76,6 +78,7 @@ public class InputService extends AccessibilityService {
 	{
 		super.onServiceConnected();
 		instance = this;
+		mMainHandler = new Handler(instance.getMainLooper());
 		Log.i(TAG, "onServiceConnected");
 	}
 
@@ -195,8 +198,7 @@ public class InputService extends AccessibilityService {
 		 	*/
 			if(instance.mIsKeyCtrlDown && instance.mIsKeyAltDown && instance.mIsKeyDelDown) {
 				Log.i(TAG, "onKeyEvent: got Ctrl-Alt-Del");
-				Handler mainHandler = new Handler(instance.getMainLooper());
-				mainHandler.post(new Runnable() {
+				instance.mMainHandler.post(new Runnable() {
 					@Override
 					public void run() {
 						MainService.togglePortraitInLandscapeWorkaround();
