@@ -41,6 +41,7 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -87,6 +88,8 @@ public class MainService extends Service {
 
     private boolean mHasPortraitInLandscapeWorkaroundApplied;
     private boolean mHasPortraitInLandscapeWorkaroundSet;
+
+    private PowerManager.WakeLock mWakeLock;
 
     private static MainService instance;
 
@@ -164,6 +167,12 @@ public class MainService extends Service {
             Get the MediaProjectionManager
          */
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+
+        /*
+            Get a wake lock
+         */
+        //noinspection deprecation
+        mWakeLock = ((PowerManager) instance.getSystemService(Context.POWER_SERVICE)).newWakeLock((PowerManager.SCREEN_DIM_WAKE_LOCK| PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE), TAG + ":clientsConnected");
 
         /*
             Start the server FIXME move this to intent handling?
@@ -265,6 +274,28 @@ public class MainService extends Service {
         return START_NOT_STICKY;
     }
 
+    @SuppressLint("WakelockTimeout")
+    public static void onClientConnected(long client) {
+        Log.d(TAG, "onClientConnected: client " + client);
+
+        try {
+            instance.mWakeLock.acquire();
+        } catch (Exception e) {
+            // instance probably null
+            Log.e(TAG, "onClientConnected: wake lock acquiring failed: " + e);
+        }
+    }
+
+    public static void onClientDisconnected(long client) {
+        Log.d(TAG, "onClientDisconnected: client " + client);
+
+        try {
+            instance.mWakeLock.release();
+        } catch (Exception e) {
+            // instance probably null
+            Log.e(TAG, "onClientDisconnected: wake lock releasing failed: " + e);
+        }
+    }
 
     @SuppressLint("WrongConstant")
     private void startScreenCapture() {

@@ -29,6 +29,7 @@
 
 rfbScreenInfoPtr theScreen;
 jclass theInputService;
+jclass theMainService;
 JavaVM *theVM;
 
 /*
@@ -120,6 +121,45 @@ static void onCutText(char *text, int len, rfbClientPtr cl)
     (*theVM)->DetachCurrentThread(theVM);
 }
 
+void onClientDisconnected(rfbClientPtr cl)
+{
+    JNIEnv *env = NULL;
+    if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "onClientDisconnected: could not attach thread, not calling MainService.onClientDisconnected()");
+        return;
+    }
+
+    jmethodID mid = (*env)->GetStaticMethodID(env, theMainService, "onClientDisconnected", "(J)V");
+    (*env)->CallStaticVoidMethod(env, theMainService, mid, (jlong)cl);
+
+    if ((*env)->ExceptionCheck(env))
+        (*env)->ExceptionDescribe(env);
+
+    (*theVM)->DetachCurrentThread(theVM);
+}
+
+static enum rfbNewClientAction onClientConnected(rfbClientPtr cl)
+{
+    // connect clientGoneHook
+    cl->clientGoneHook = onClientDisconnected;
+
+    // call the managed version of this function
+    JNIEnv *env = NULL;
+    if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "onClientConnected: could not attach thread, not calling MainService.onClientConnected()");
+        return RFB_CLIENT_ACCEPT;
+    }
+
+    jmethodID mid = (*env)->GetStaticMethodID(env, theMainService, "onClientConnected", "(J)V");
+    (*env)->CallStaticVoidMethod(env, theMainService, mid, (jlong)cl);
+
+    if ((*env)->ExceptionCheck(env))
+        (*env)->ExceptionDescribe(env);
+
+    (*theVM)->DetachCurrentThread(theVM);
+    return RFB_CLIENT_ACCEPT;
+}
+
 /*
  * The VM calls JNI_OnLoad when the native library is loaded (for example, through System.loadLibrary).
  * JNI_OnLoad must return the JNI version needed by the native library.
@@ -139,6 +179,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void __unused * reserved) {
     JNIEnv *env = NULL;
     (*theVM)->GetEnv(theVM, &env, JNI_VERSION_1_6); // this will always succeed in JNI_OnLoad()
     theInputService = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "net/christianbeier/droidvnc_ng/InputService"));
+    theMainService = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "net/christianbeier/droidvnc_ng/MainService"));
 
     rfbLog = logcat_info;
     rfbErr = logcat_err;
@@ -196,6 +237,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     theScreen->kbdAddEvent = onKeyEvent;
     theScreen->setXCutText = onCutText;
     theScreen->setXCutTextUTF8 = onCutText;
+    theScreen->newClientHook = onClientConnected;
 
     theScreen->port = port;
     theScreen->ipv6port = port;
