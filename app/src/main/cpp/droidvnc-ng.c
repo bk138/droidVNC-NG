@@ -143,8 +143,14 @@ static enum rfbNewClientAction onClientConnected(rfbClientPtr cl)
     // connect clientGoneHook
     cl->clientGoneHook = onClientDisconnected;
 
-    // call the managed version of this function
+    /*
+     * call the managed version of this function
+     */
     JNIEnv *env = NULL;
+    // check if already attached. happens on reverse connections
+    (*theVM)->GetEnv(theVM, &env, JNI_VERSION_1_6);
+    int wasAlreadyAttached = env != NULL;
+    // AttachCurrentThread() on an already attached thread is a no-op. https://developer.android.com/training/articles/perf-jni#threads
     if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "onClientConnected: could not attach thread, not calling MainService.onClientConnected()");
         return RFB_CLIENT_ACCEPT;
@@ -156,7 +162,9 @@ static enum rfbNewClientAction onClientConnected(rfbClientPtr cl)
     if ((*env)->ExceptionCheck(env))
         (*env)->ExceptionDescribe(env);
 
-    (*theVM)->DetachCurrentThread(theVM);
+    // only detach if not attached before
+    if(!wasAlreadyAttached)
+        (*theVM)->DetachCurrentThread(theVM);
     return RFB_CLIENT_ACCEPT;
 }
 
