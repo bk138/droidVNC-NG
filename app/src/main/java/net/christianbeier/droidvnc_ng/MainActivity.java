@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         mButtonToggle = (Button) findViewById(R.id.toggle);
         mButtonToggle.setOnClickListener(view -> {
 
@@ -97,7 +99,14 @@ public class MainActivity extends AppCompatActivity {
 
             final EditText inputText = new EditText(this);
             inputText.setInputType(InputType.TYPE_CLASS_TEXT);
-            inputText.setHint(getString(R.string.main_activity_reverse_vnc_hint));
+            String lastHost = prefs.getString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST, null);
+            if(lastHost != null) {
+                inputText.setText(lastHost);
+                // select all to make new input quicker
+                inputText.setSelectAllOnFocus(true);
+            } else {
+                inputText.setHint(getString(R.string.main_activity_reverse_vnc_hint));
+            }
             inputText.requestFocus();
             inputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
@@ -125,9 +134,12 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         Log.d(TAG, "reverse vnc " + host + ":" + port);
-                        if(MainService.connectReverse(host,port))
+                        if(MainService.connectReverse(host,port)) {
                             Toast.makeText(MainActivity.this, getString(R.string.main_activity_reverse_vnc_success, host, port), Toast.LENGTH_LONG).show();
-                        else
+                            SharedPreferences.Editor ed = prefs.edit();
+                            ed.putString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST, inputText.getText().toString());
+                            ed.apply();
+                        } else
                             Toast.makeText(MainActivity.this, getString(R.string.main_activity_reverse_vnc_fail, host, port), Toast.LENGTH_LONG).show();
                     })
                     .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
@@ -135,8 +147,6 @@ public class MainActivity extends AppCompatActivity {
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             dialog.show();
         });
-
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         final EditText port = findViewById(R.id.settings_port);
         port.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, Constants.DEFAULT_PORT)));
