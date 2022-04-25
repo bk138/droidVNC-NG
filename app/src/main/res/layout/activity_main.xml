@@ -49,8 +49,8 @@
                     android:layout_column="2"
                     android:padding="10dp"
                     android:layout_weight="1"
-                    android:inputType="number"
-                    android:id="@+id/settings_port"/>
+                    android:inputType="numberSigned"
+                    android:id="@+id/settings_port" />
             </TableRow>
 
             <TableRow

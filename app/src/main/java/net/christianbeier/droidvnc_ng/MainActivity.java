@@ -297,8 +297,18 @@ public class MainActivity extends AppCompatActivity {
                     if (i != hostsAndPorts.size() - 1)
                         sb.append(" ").append(getString(R.string.or)).append(" ");
                 }
+
+                int sPort = Constants.DEFAULT_PORT;
+                try {
+                    sPort = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, Constants.DEFAULT_PORT);
+                } catch (NullPointerException e) {
+                    //unused
+                }
+                String message = (sPort == -1)
+                        ? getString(R.string.main_activity_no_listening)
+                        : getString(R.string.main_activity_address) + " " + sb;
                 mAddress.post(() -> {
-                    mAddress.setText(getString(R.string.main_activity_address) + " " + sb);
+                    mAddress.setText(message);
                 });
                 mButtonReverseVNC.post(() -> {
                     mButtonReverseVNC.setVisibility(View.VISIBLE);
