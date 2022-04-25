@@ -168,6 +168,49 @@ static enum rfbNewClientAction onClientConnected(rfbClientPtr cl)
     return RFB_CLIENT_ACCEPT;
 }
 
+static void clientGone(rfbClientPtr cl)
+{
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Repeater connection closed.");
+}
+
+rfbClientPtr
+repeaterConnection(rfbScreenInfoPtr rfbScreen,
+                   char *repeaterHost,
+                   int repeaterPort,
+                   const char* repeaterIdentifier)
+{
+    rfbSocket sock;
+    rfbClientPtr cl;
+    char id[250];
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Connecting to a repeater Host: %s:%d.", repeaterHost, repeaterPort);
+
+    if ((sock = rfbConnect(rfbScreen, repeaterHost, repeaterPort)) < 0)
+        return (rfbClientPtr)NULL;
+
+    memset(id, 0, sizeof(id));
+    if(snprintf(id, sizeof(id), "ID:%s", repeaterIdentifier) >= (int)sizeof(id)) {
+        /* truncated! */
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "Error, given ID is too long.\n");
+        return (rfbClientPtr)NULL;
+    }
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Sending a repeater ID: %s.\n", id);
+    if (send(sock, id, sizeof(id),0) != sizeof(id)) {
+        rfbLog("writing id failed\n");
+        return (rfbClientPtr)NULL;
+    }
+    cl = rfbNewClient(rfbScreen, sock);
+    if (!cl) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "New client failed\n");
+        return (rfbClientPtr)NULL;
+    }
+
+    cl->reverseConnection = 0;
+    cl->clientGoneHook = clientGone;
+    if (!cl->onHold)
+        rfbStartOnHoldClient(cl);
+    return cl;
+}
+
 /*
  * The VM calls JNI_OnLoad when the native library is loaded (for example, through System.loadLibrary).
  * JNI_OnLoad must return the JNI version needed by the native library.
@@ -317,6 +360,29 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncC
     return JNI_FALSE;
 }
 
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncConnectRepeater(JNIEnv *env, jobject thiz, jstring host, jint port, jstring repeaterIdentifier)
+{
+    if(!theScreen || !theScreen->frameBuffer)
+        return JNI_FALSE;
+
+    if(host) { // string arg to GetStringUTFChars() must not be NULL
+        char *cHost = (*env)->GetStringUTFChars(env, host, NULL);
+        if(!cHost) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "vncConnectRepeater: failed getting desktop name from JNI");
+            return JNI_FALSE;
+        }
+        char *cRepeaterIdentifier = (*env)->GetStringUTFChars(env, repeaterIdentifier, NULL);
+        if(!cRepeaterIdentifier) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "vncConnectRepeater: failed getting repeater ID from JNI");
+            return JNI_FALSE;
+        }
+        rfbClientPtr cl = repeaterConnection(theScreen, cHost, port, cRepeaterIdentifier);
+        (*env)->ReleaseStringUTFChars(env, host, cHost);
+        (*env)->ReleaseStringUTFChars(env, repeaterIdentifier, cRepeaterIdentifier);
+        return cl != NULL;
+    }
+    return JNI_FALSE;
+}
 
 
 JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncNewFramebuffer(JNIEnv *env, jobject thiz, jint width, jint height)
