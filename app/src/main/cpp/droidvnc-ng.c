@@ -168,11 +168,6 @@ static enum rfbNewClientAction onClientConnected(rfbClientPtr cl)
     return RFB_CLIENT_ACCEPT;
 }
 
-static void clientGone(rfbClientPtr cl)
-{
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Repeater connection closed.");
-}
-
 rfbClientPtr
 repeaterConnection(rfbScreenInfoPtr rfbScreen,
                    char *repeaterHost,
@@ -205,7 +200,6 @@ repeaterConnection(rfbScreenInfoPtr rfbScreen,
     }
 
     cl->reverseConnection = 0;
-    cl->clientGoneHook = clientGone;
     if (!cl->onHold)
         rfbStartOnHoldClient(cl);
     return cl;
