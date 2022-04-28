@@ -23,7 +23,6 @@ package net.christianbeier.droidvnc_ng;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -35,6 +34,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -102,14 +102,10 @@ public class WriteStorageRequestActivity extends AppCompatActivity {
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         if (requestCode == REQUEST_WRITE_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                postResultAndFinish(true);
-            } else {
-                postResultAndFinish(false);
-            }
+            postResultAndFinish(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         }
     }
 
