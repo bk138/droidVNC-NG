@@ -359,7 +359,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncC
     if(!theScreen || !theScreen->frameBuffer)
         return JNI_FALSE;
 
-    if(host) { // string arg to GetStringUTFChars() must not be NULL
+    if(host && repeaterIdentifier) { // string arg to GetStringUTFChars() must not be NULL
         char *cHost = (*env)->GetStringUTFChars(env, host, NULL);
         if(!cHost) {
             __android_log_print(ANDROID_LOG_ERROR, TAG, "vncConnectRepeater: failed getting desktop name from JNI");
