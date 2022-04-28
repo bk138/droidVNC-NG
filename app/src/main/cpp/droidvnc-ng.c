@@ -180,23 +180,23 @@ repeaterConnection(rfbScreenInfoPtr rfbScreen,
     __android_log_print(ANDROID_LOG_INFO, TAG, "Connecting to a repeater Host: %s:%d.", repeaterHost, repeaterPort);
 
     if ((sock = rfbConnect(rfbScreen, repeaterHost, repeaterPort)) < 0)
-        return (rfbClientPtr)NULL;
+        return NULL;
 
     memset(id, 0, sizeof(id));
     if(snprintf(id, sizeof(id), "ID:%s", repeaterIdentifier) >= (int)sizeof(id)) {
         /* truncated! */
         __android_log_print(ANDROID_LOG_ERROR, TAG, "Error, given ID is too long.\n");
-        return (rfbClientPtr)NULL;
+        return NULL;
     }
     __android_log_print(ANDROID_LOG_INFO, TAG, "Sending a repeater ID: %s.\n", id);
     if (send(sock, id, sizeof(id),0) != sizeof(id)) {
         rfbLog("writing id failed\n");
-        return (rfbClientPtr)NULL;
+        return NULL;
     }
     cl = rfbNewClient(rfbScreen, sock);
     if (!cl) {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "New client failed\n");
-        return (rfbClientPtr)NULL;
+        return NULL;
     }
 
     cl->reverseConnection = 0;
