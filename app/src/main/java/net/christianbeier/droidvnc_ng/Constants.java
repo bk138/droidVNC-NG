@@ -25,11 +25,12 @@ public class Constants {
 
     public static final int DEFAULT_PORT = 5900;
     public static final int DEFAULT_PORT_REVERSE = 5500;
+    public static final int DEFAULT_PORT_REPEATER = 5500;
     public static final float DEFAULT_SCALING = 1.0f;
     public static final String PREFS_KEY_SETTINGS_PORT = "settings_port";
     public static final String PREFS_KEY_SETTINGS_PASSWORD = "settings_password" ;
     public static final String PREFS_KEY_SETTINGS_START_ON_BOOT = "settings_start_on_boot" ;
     public static final String PREFS_KEY_SETTINGS_SCALING = "settings_scaling" ;
     public static final String PREFS_KEY_REVERSE_VNC_LAST_HOST = "reverse_vnc_last_host" ;
-
+    public static final String PREFS_KEY_REPEATER_VNC_LAST_CONNECTION_STRING = "repeater_vnc_last_connection_string" ;
 }
