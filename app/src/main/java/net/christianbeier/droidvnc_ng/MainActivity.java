@@ -307,6 +307,11 @@ public class MainActivity extends AppCompatActivity {
                     mButtonRepeaterVNC.setVisibility(View.VISIBLE);
                 });
 
+                // indicate that changing these settings does not have an effect when the server is running
+                findViewById(R.id.settings_port).setEnabled(false);
+                findViewById(R.id.settings_password).setEnabled(false);
+                findViewById(R.id.settings_scaling).setEnabled(false);
+
                 mIsMainServiceRunning = true;
             }
 
@@ -325,6 +330,11 @@ public class MainActivity extends AppCompatActivity {
                 mButtonRepeaterVNC.post(() -> {
                     mButtonRepeaterVNC.setVisibility(View.INVISIBLE);
                 });
+
+                // indicate that changing these settings does have an effect when the server is stopped
+                findViewById(R.id.settings_port).setEnabled(true);
+                findViewById(R.id.settings_password).setEnabled(true);
+                findViewById(R.id.settings_scaling).setEnabled(true);
 
                 mIsMainServiceRunning = false;
             }
