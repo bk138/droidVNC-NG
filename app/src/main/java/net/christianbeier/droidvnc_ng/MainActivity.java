@@ -300,12 +300,10 @@ public class MainActivity extends AppCompatActivity {
                 mAddress.post(() -> {
                     mAddress.setText(getString(R.string.main_activity_address) + " " + sb);
                 });
-                mButtonReverseVNC.post(() -> {
-                    mButtonReverseVNC.setVisibility(View.VISIBLE);
-                });
-                mButtonRepeaterVNC.post(() -> {
-                    mButtonRepeaterVNC.setVisibility(View.VISIBLE);
-                });
+
+                // show outbound connection interface
+                findViewById(R.id.outbound_text).setVisibility(View.VISIBLE);
+                findViewById(R.id.outbound_buttons).setVisibility(View.VISIBLE);
 
                 // indicate that changing these settings does not have an effect when the server is running
                 findViewById(R.id.settings_port).setEnabled(false);
@@ -324,12 +322,10 @@ public class MainActivity extends AppCompatActivity {
                 mAddress.post(() -> {
                     mAddress.setText("");
                 });
-                mButtonReverseVNC.post(() -> {
-                    mButtonReverseVNC.setVisibility(View.INVISIBLE);
-                });
-                mButtonRepeaterVNC.post(() -> {
-                    mButtonRepeaterVNC.setVisibility(View.INVISIBLE);
-                });
+
+                // hide outbound connection interface
+                findViewById(R.id.outbound_text).setVisibility(View.GONE);
+                findViewById(R.id.outbound_buttons).setVisibility(View.GONE);
 
                 // indicate that changing these settings does have an effect when the server is stopped
                 findViewById(R.id.settings_port).setEnabled(true);

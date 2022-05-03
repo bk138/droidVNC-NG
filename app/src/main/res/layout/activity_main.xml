@@ -257,24 +257,39 @@
             android:id="@+id/address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:padding="10dp"/>
 
-        <Button
-            android:id="@+id/reverse_vnc"
+        <TextView
+            android:id="@+id/outbound_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/main_activity_reverse_vnc_button"
-            android:visibility="invisible"/>
+            android:text="@string/main_activity_outbound_text"
+            android:padding="10dp"/>
 
-        <Button
-            android:id="@+id/repeater_vnc"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/outbound_buttons"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/main_activity_repeater_vnc_button"
-            android:visibility="invisible" />
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <Button
+                android:id="@+id/reverse_vnc"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/main_activity_reverse_vnc_button"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/repeater_vnc"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/main_activity_repeater_vnc_button"
+                style="?android:attr/buttonBarButtonStyle" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/special_key_reference"

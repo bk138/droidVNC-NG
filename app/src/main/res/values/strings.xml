@@ -15,11 +15,12 @@
     <string name="main_activity_file_access">File Access</string>
     <string name="main_activity_input">Input</string>
     <string name="main_activity_address">The server is now reachable at</string>
+    <string name="main_activity_outbound_text">You can also make outbound connections:</string>
     <string name="main_activity_reverse_vnc_button">Connect to a listening viewer</string>
     <string name="main_activity_reverse_vnc_hint">Host:Port</string>
     <string name="main_activity_reverse_vnc_success">Connection to %1$s:%2$d succeeded</string>
     <string name="main_activity_reverse_vnc_fail">Connection to %1$s:%2$d failed</string>
-    <string name="main_activity_repeater_vnc_button">Connect to a viewer using a repeater</string>
+    <string name="main_activity_repeater_vnc_button">Connect to a repeater</string>
     <string name="main_activity_repeater_vnc_hint">Host:Port:Id</string>
     <string name="main_activity_repeater_vnc_success">Connection to %1$s:%2$d:%3$s succeeded</string>
     <string name="main_activity_repeater_vnc_fail">Connection to %1$s:%2$d:%3$s failed</string>
