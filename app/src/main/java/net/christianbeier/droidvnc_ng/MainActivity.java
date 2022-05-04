@@ -100,13 +100,12 @@ public class MainActivity extends AppCompatActivity {
 
             final EditText inputText = new EditText(this);
             inputText.setInputType(InputType.TYPE_CLASS_TEXT);
+            inputText.setHint(getString(R.string.main_activity_reverse_vnc_hint));
             String lastHost = prefs.getString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST, null);
             if(lastHost != null) {
                 inputText.setText(lastHost);
                 // select all to make new input quicker
                 inputText.setSelectAllOnFocus(true);
-            } else {
-                inputText.setHint(getString(R.string.main_activity_reverse_vnc_hint));
             }
             inputText.requestFocus();
             inputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
