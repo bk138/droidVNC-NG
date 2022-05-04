@@ -152,13 +152,20 @@ public class MainActivity extends AppCompatActivity {
         mButtonRepeaterVNC = (Button) findViewById(R.id.repeater_vnc);
         mButtonRepeaterVNC.setOnClickListener(view -> {
 
-            final EditText inputText = new EditText(this);
-            inputText.setInputType(InputType.TYPE_CLASS_TEXT);
-            inputText.setHint(getString(R.string.main_activity_repeater_vnc_hint));
-            String lastHost = prefs.getString(Constants.PREFS_KEY_REPEATER_VNC_LAST_CONNECTION_STRING, "");
-            inputText.setText(lastHost); //host:port:id
-            inputText.requestFocus();
-            inputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            final EditText hostInputText = new EditText(this);
+            hostInputText.setInputType(InputType.TYPE_CLASS_TEXT);
+            hostInputText.setHint(getString(R.string.main_activity_repeater_vnc_hint));
+            String lastHost = prefs.getString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST, "");
+            hostInputText.setText(lastHost); //host:port
+            hostInputText.requestFocus();
+            hostInputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+            final EditText idInputText = new EditText(this);
+            idInputText.setInputType(InputType.TYPE_CLASS_NUMBER);
+            idInputText.setHint(getString(R.string.main_activity_repeater_vnc_hint_id));
+            String lastID = prefs.getString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID, "");
+            idInputText.setText(lastID); //host:port
+            idInputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
             LinearLayout inputLayout = new LinearLayout(this);
             inputLayout.setPadding(
@@ -167,33 +174,39 @@ public class MainActivity extends AppCompatActivity {
                     (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, Resources.getSystem().getDisplayMetrics()),
                     0
             );
-            inputLayout.addView(inputText);
+            inputLayout.setOrientation(LinearLayout.VERTICAL);
+            inputLayout.addView(hostInputText);
+            inputLayout.addView(idInputText);
 
             AlertDialog dialog = new AlertDialog.Builder(this)
                     .setView(inputLayout)
                     .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
                         // parse host and port parts
-                        String[] parts = inputText.getText().toString().split("\\:");
+                        String[] parts = hostInputText.getText().toString().split("\\:");
                         String host = parts[0];
-                        if (parts.length != 3) {
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_invalid_input), Toast.LENGTH_LONG).show();
+                        int port = Constants.DEFAULT_PORT_REPEATER;
+                        if (parts.length > 1) {
+                            try {
+                                port = Integer.parseInt(parts[1]);
+                            } catch(NumberFormatException unused) {
+                                // stays at default repeater port
+                            }
+                        }
+                        // parse ID
+                        String repeaterId = idInputText.getText().toString();
+                        // sanity-check
+                        if (host.isEmpty() || repeaterId.isEmpty()) {
+                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_repeater_vnc_input_missing), Toast.LENGTH_LONG).show();
                             return;
                         }
-                        int port = Constants.DEFAULT_PORT_REPEATER;
-                        try {
-                            port = Integer.parseInt(parts[1]);
-                        } catch(NumberFormatException unused) {
-                            // stays at default repeater port
-                        }
-                        String repeaterId = parts[2];
+                        // done
                         Log.d(TAG, "repeater vnc " + host + ":" + port + ":" + repeaterId);
-                        if(MainService.connectRepeater(host, port, /*"ID:" +*/ repeaterId))
-                        {
+                        if(MainService.connectRepeater(host, port, /*"ID:" +*/ repeaterId)) {
                             Toast.makeText(MainActivity.this, getString(R.string.main_activity_repeater_vnc_success, host, port, repeaterId), Toast.LENGTH_LONG).show();
                             SharedPreferences.Editor ed = prefs.edit();
-                            ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_CONNECTION_STRING, host + ":" + port + ":" + repeaterId);
+                            ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST, host + ":" + port);
+                            ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID, repeaterId);
                             ed.apply();
-
                         }
                         else
                             Toast.makeText(MainActivity.this, getString(R.string.main_activity_repeater_vnc_fail, host, port, repeaterId), Toast.LENGTH_LONG).show();
