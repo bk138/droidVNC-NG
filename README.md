@@ -27,6 +27,7 @@ is is called droidVNC-NG.
 * Ability to specify the port used.
 * Start of background service on device boot.
 * Reverse VNC.
+* Ability to connect to a UltraVNC-style Mode-2 repeater.
 
 ## Contributing
 
