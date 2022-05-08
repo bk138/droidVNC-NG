@@ -82,8 +82,7 @@ however, work around this by installing [adb](https://developer.android.com/stud
 (or simply Android Studio) on a PC, connecting the device running droidVNC-NG to that PC and running
 `adb shell cmd appops set net.christianbeier.droidvnc_ng PROJECT_MEDIA allow` once.
 
-* You can also use adb to manually give input permission prior to app start via `adb shell settings
-put secure enabled_accessibility_services net.christianbeier.droidvnc_ng/.InputService`.
+* You can also use adb to manually give input permission prior to app start via `adb shell settings put secure enabled_accessibility_services net.christianbeier.droidvnc_ng/.InputService:$(adb shell settings get secure enabled_accessibility_services)`.
 
 * If you are getting a black screen in a connected VNC viewer despite having given all permissions, it
 might be that your device does not support Android's MediaProjection API correctly. To find out, you can
