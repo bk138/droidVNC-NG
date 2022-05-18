@@ -8,6 +8,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <permission
+        android:name="net.christianbeier.droidvnc_ng.VNC_IPC_CONTROL"
+        android:label="@string/permlab_vncIpcControl"
+        android:description="@string/permdesc_vncIpcControl"
+        android:protectionLevel="dangerous" />
+
     <application
         android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
@@ -21,6 +27,12 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".ControlService"
+            android:permission="net.christianbeier.droidvnc_ng.VNC_IPC_CONTROL"
+            android:enabled="true"
+            android:exported="true" />
 
         <service
             android:name=".MainService"
