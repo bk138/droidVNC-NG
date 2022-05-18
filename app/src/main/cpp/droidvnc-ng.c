@@ -326,10 +326,12 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 
     rfbInitServer(theScreen);
 
-    if(theScreen->listenSock == RFB_INVALID_SOCKET || theScreen->listen6Sock == RFB_INVALID_SOCKET) {
-        __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed starting (%s)", strerror(errno));
-        Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
-        return JNI_FALSE;
+    if (port != -1) {
+        if (theScreen->listenSock == RFB_INVALID_SOCKET || theScreen->listen6Sock == RFB_INVALID_SOCKET) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed starting (%s)", strerror(errno));
+            Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
+            return JNI_FALSE;
+        }
     }
 
     rfbRunEventLoop(theScreen, -1, TRUE);
