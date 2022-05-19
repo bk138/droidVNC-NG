@@ -29,14 +29,10 @@
         </receiver>
 
         <service
-            android:name=".ControlService"
+            android:name=".MainService"
             android:permission="net.christianbeier.droidvnc_ng.VNC_IPC_CONTROL"
             android:enabled="true"
-            android:exported="true" />
-
-        <service
-            android:name=".MainService"
-            android:enabled="true"
+            android:exported="true"
             android:foregroundServiceType="mediaProjection" />
 
         <service

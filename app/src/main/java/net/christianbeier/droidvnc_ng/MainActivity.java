@@ -75,21 +75,13 @@ public class MainActivity extends AppCompatActivity {
         mButtonToggle = (Button) findViewById(R.id.toggle);
         mButtonToggle.setOnClickListener(view -> {
 
-            Intent intent = new Intent(MainActivity.this, MainService.class);
             if(mIsMainServiceRunning) {
-                intent.setAction(MainService.ACTION_STOP);
+                MainService.stopService(MainActivity.this);
             }
             else {
-                intent.setAction(MainService.ACTION_START);
+                MainService.startService(MainActivity.this);
             }
             mButtonToggle.setEnabled(false);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent);
-            } else {
-                startService(intent);
-            }
-
         });
 
         mAddress = findViewById(R.id.address);

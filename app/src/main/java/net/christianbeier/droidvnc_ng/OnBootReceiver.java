@@ -41,13 +41,7 @@ public class OnBootReceiver extends BroadcastReceiver {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, true)) {
             Log.i(TAG, "onReceive: configured to start");
-            Intent intent = new Intent(context, MainService.class);
-            intent.setAction(MainService.ACTION_START);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent);
-            } else {
-                context.startService(intent);
-            }
+            MainService.startService(context);
         } else {
             Log.i(TAG, "onReceive: configured NOT to start");
         }

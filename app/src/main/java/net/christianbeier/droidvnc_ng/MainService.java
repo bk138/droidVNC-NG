@@ -68,6 +68,8 @@ public class MainService extends Service {
     private static final int NOTIFICATION_ID = 11;
     final static String ACTION_START = "start";
     final static String ACTION_STOP = "stop";
+    final static String ACTION_START_REPEATER_CONNECTION = "start_repeater_connection";
+    final static String ACTION_START_REVERSE_CONNECTION = "start_reverse_connection";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
@@ -269,6 +271,24 @@ public class MainService extends Service {
             Log.d(TAG, "onStartCommand: stop");
             stopSelf();
         }
+
+        if (ACTION_START_REPEATER_CONNECTION.equals(intent.getAction())) {
+            Log.d(TAG, "onStartCommand: repeater connection required");
+
+            String host = intent.getStringExtra("HOST");
+            int port = intent.getIntExtra("PORT", Constants.DEFAULT_PORT_REPEATER);
+            String id = intent.getStringExtra("REPEATER_ID");
+            vncConnectRepeater(host, port, id);
+        }
+
+        if (ACTION_START_REVERSE_CONNECTION.equals(intent.getAction())) {
+            Log.d(TAG, "onStartCommand: reverse connection required");
+
+            int port = intent.getIntExtra("PORT", Constants.DEFAULT_PORT_REVERSE);
+            String host = intent.getStringExtra("HOST");
+            vncConnectReverse(host, port);
+        }
+
 
         // if screen capturing was not started, we don't want a restart if we were killed
         // especially, we don't want the permission asking to replay.
@@ -539,6 +559,29 @@ public class MainService extends Service {
         }
         catch (NullPointerException e) {
             return false;
+        }
+    }
+
+    public static void startService(Context context)
+    {
+        Intent intent = new Intent(context, MainService.class);
+        intent.setAction(MainService.ACTION_START);
+        sendIntent(context, intent);
+    }
+
+    public static void stopService(Context context)
+    {
+        Intent intent = new Intent(context, MainService.class);
+        intent.setAction(MainService.ACTION_STOP);
+        sendIntent(context, intent);
+    }
+
+    private static void sendIntent(Context context, Intent intent)
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent);
+        } else {
+            context.startService(intent);
         }
     }
 }
