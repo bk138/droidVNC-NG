@@ -261,6 +261,10 @@ public class MainService extends Service {
 
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
+
+            Context context = getApplicationContext();
+            tryUpdateVncServerSettings(context, intent);
+
             // Step 1: check input permission
             Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
             inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -562,26 +566,39 @@ public class MainService extends Service {
         }
     }
 
-    public static void startService(Context context)
-    {
+    public static void startService(Context context) {
         Intent intent = new Intent(context, MainService.class);
         intent.setAction(MainService.ACTION_START);
         sendIntent(context, intent);
     }
 
-    public static void stopService(Context context)
-    {
+    public static void stopService(Context context) {
         Intent intent = new Intent(context, MainService.class);
         intent.setAction(MainService.ACTION_STOP);
         sendIntent(context, intent);
     }
 
-    private static void sendIntent(Context context, Intent intent)
-    {
+    private static void sendIntent(Context context, Intent intent) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent);
         } else {
             context.startService(intent);
         }
+    }
+
+    public static void tryUpdateVncServerSettings(Context context, Intent intent) {
+        int port = intent.getIntExtra("PORT", 0);
+        String password = intent.getStringExtra("PASSWORD");
+        if (port != 0 && password != null) {
+            setVncServerSettings(context, port, password);
+        }
+    }
+
+    private static void setVncServerSettings(Context context, int port, String password) {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor ed = prefs.edit();
+        ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, port);
+        ed.putString(Constants.PREFS_KEY_SETTINGS_PASSWORD, password);
+        ed.apply();
     }
 }
