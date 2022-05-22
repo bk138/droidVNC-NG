@@ -501,6 +501,16 @@ public class MainService extends Service {
         }
 
         ArrayList<String> hostsAndPorts = new ArrayList<>();
+
+        // if running on Chrome OS, this prop is set and contains the device's IPv4 address,
+        // see https://chromeos.dev/en/games/optimizing-games-networking
+        String prop = Utils.getProp("arc.net.ipv4.host_address");
+        if(!prop.isEmpty()) {
+            hostsAndPorts.add(prop + ":" + port);
+            return hostsAndPorts;
+        }
+
+        // not running on Chrome OS
         try {
             // thanks go to https://stackoverflow.com/a/20103869/361413
             Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
