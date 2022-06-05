@@ -26,8 +26,10 @@ If you'd like to put out an incentive for fixing this bug, you can do so at http
 <!-- If applicable, add log output and/or debugger backtraces to help explain your problem. -->
 
 **Your environment (please complete the following information):**
- - OS and version:
- - VNC viewer and version:
+ - droidVNC-NG version:
+ - Android version:
+ - Client-side OS and version:
+ - VNC client and version:
 
 **Additional context**
 <!-- Add any other context about the problem here. -->
