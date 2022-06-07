@@ -262,8 +262,7 @@ public class MainService extends Service {
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
 
-            Context context = getApplicationContext();
-            tryUpdateVncServerSettings(context, intent);
+            tryUpdateVncServerSettings(this, intent);
 
             // Step 1: check input permission
             Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
