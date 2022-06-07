@@ -41,6 +41,6 @@
     <string name="write_storage_title">File access disabled</string>
     <string name="write_storage_msg">To be able to transfer files to and from your device, you need to enable file access for droidVNC-NG. Do you want to enable file access now?</string>
     <string name="write_storage_msg_android_11">To be able to transfer files to and from your device, you need to enable file access for droidVNC-NG. Please note that saving files will only be possible in the \'Download\' and \'Documents\' directories. Do you want to enable file access now?</string>
-    <string name="permlab_vncIpcControl">Access to VNC server</string>
-    <string name="permdesc_vncIpcControl">Allow to start a remove session to this device through a VNC connection</string>
+    <string name="application_remote_control_permission_label">Access to VNC server</string>
+    <string name="application_remote_control_permission_description">Allow to start a remove session to this device through a VNC connection</string>
 </resources>
