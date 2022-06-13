@@ -218,10 +218,8 @@ public class MainService extends Service {
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
 
-            // stop the existing instance
-            vncStopServer();
+            if (startVncServer(intent)) { // restarted or has not be restarted
 
-            if (startVncServer(intent)) {
                 boolean outgoingConnectionRequired = startRepeaterConnection(intent) || startReverseConnection(intent);
 
                 // Step 1: check input permission
@@ -344,15 +342,21 @@ public class MainService extends Service {
         int port = intent.getIntExtra(EXTRA_PORT, 0);
         String password = intent.getStringExtra(EXTRA_PASSWORD);
 
-        if (port == 0 || password == null) {
+        if (port == 0 ^ password == null) {
             Log.d(TAG, "onStartCommand: failed to start VNC server, some arguments missing.");
             return false;
         }
 
-        if (!startVncServer(port, password)) {
-            Log.d(TAG, "onStartCommand: failed to start VNC server");
-            return false;
+        if (port != 0 && password != null) {
+            // stop the existing instance
+            vncStopServer();
+
+            if (!startVncServer(port, password)) {
+                Log.d(TAG, "onStartCommand: failed to start VNC server");
+                return false;
+            }
         }
+
         return true;
     }
 
@@ -552,14 +556,12 @@ public class MainService extends Service {
         catch (NullPointerException e) {
             //unused
         }
-
     }
-
     public static void startService(Context context, int port, String password) {
         Intent intent = new Intent(context, MainService.class);
         intent.setAction(MainService.ACTION_START);
-        intent.putExtra(EXTRA_PORT, port);
-        intent.putExtra(EXTRA_PASSWORD, password);
+        intent.putExtra(MainService.EXTRA_PORT, port);
+        intent.putExtra(MainService.EXTRA_PASSWORD, password);
         IntentHelper.sendIntent(context, intent);
     }
 

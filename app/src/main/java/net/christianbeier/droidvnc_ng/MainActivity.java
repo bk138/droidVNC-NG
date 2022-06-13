@@ -27,7 +27,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             }
             else {
                 int port = readServerPort(prefs);
-                String password = readServerPassword(prefs);
+                String password = prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
                 MainService.startService(MainActivity.this, port, password);
             }
             mButtonToggle.setEnabled(false);
@@ -415,17 +414,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connectRepeater(String repeaterHost, int repeaterPort, String repeaterId) {
-        /*
-        * Fix me to fetch data from the input elements?
-        */
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int port = readServerPort(prefs);
-        String password = readServerPassword(prefs);
 
         Intent intent = new Intent(this, MainService.class);
         intent.setAction(MainService.ACTION_START);
-        intent.putExtra(MainService.EXTRA_PORT, port);
-        intent.putExtra(MainService.EXTRA_PASSWORD, password);
         intent.putExtra(MainService.EXTRA_REPEATER_HOST, repeaterHost);
         intent.putExtra(MainService.EXTRA_REPEATER_PORT, repeaterPort);
         intent.putExtra(MainService.EXTRA_REPEATER_ID, repeaterId);
@@ -434,17 +425,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connectReverse(String reverseHost, int reversePort) {
-         /*
-         * Fix me to fetch data from the input elements?
-         */
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int port = readServerPort(prefs);
-        String password = readServerPassword(prefs);
 
         Intent intent = new Intent(this, MainService.class);
         intent.setAction(MainService.ACTION_START);
-        intent.putExtra(MainService.EXTRA_PORT, port);
-        intent.putExtra(MainService.EXTRA_PASSWORD, password);
         intent.putExtra(MainService.EXTRA_REPEATER_HOST, reverseHost);
         intent.putExtra(MainService.EXTRA_REPEATER_PORT, reversePort);
 
@@ -517,10 +500,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return hostsAndPorts;
-    }
-
-    private String readServerPassword(SharedPreferences prefs) {
-        return prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
     }
 
     private int readServerPort(SharedPreferences prefs) {
