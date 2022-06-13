@@ -137,34 +137,7 @@ public class MainService extends Service {
 
         mStatusEventStream.onNext(StatusEvent.STARTED);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            /*
-                Create notification channel
-             */
-            NotificationChannel serviceChannel = new NotificationChannel(
-                    getPackageName(),
-                    "Foreground Service Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
-            );
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(serviceChannel);
-
-            /*
-                Create the notification
-             */
-            Intent notificationIntent = new Intent(this, MainActivity.class);
-
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-                    notificationIntent, 0);
-
-            Notification notification = new NotificationCompat.Builder(this, getPackageName())
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setContentText("Doing some work...")
-                    .setContentIntent(pendingIntent).build();
-
-            startForeground(NOTIFICATION_ID, notification);
-        }
+        startForegroundWithNotification();
 
         /*
             Get the MediaProjectionManager
@@ -180,20 +153,9 @@ public class MainService extends Service {
         /*
             Start the server FIXME move this to intent handling?
          */
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getRealMetrics(displayMetrics);
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (!vncStartServer(displayMetrics.widthPixels,
-                displayMetrics.heightPixels,
-                prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900),
-                Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-                prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "")))
+        if (!startVncServer())
             stopSelf();
     }
-
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
@@ -208,7 +170,6 @@ public class MainService extends Service {
         startScreenCapture();
     }
 
-
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
@@ -217,8 +178,6 @@ public class MainService extends Service {
         mStatusEventStream.onNext(StatusEvent.STOPPED);
         instance = null;
     }
-
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
@@ -319,6 +278,51 @@ public class MainService extends Service {
             // instance probably null
             Log.e(TAG, "onClientDisconnected: wake lock releasing failed: " + e);
         }
+    }
+
+    private void startForegroundWithNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            /*
+                Create notification channel
+             */
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    getPackageName(),
+                    "Foreground Service Channel",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
+
+            /*
+                Create the notification
+             */
+            Intent notificationIntent = new Intent(this, MainActivity.class);
+
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                    notificationIntent, 0);
+
+            Notification notification = new NotificationCompat.Builder(this, getPackageName())
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(getString(R.string.app_name))
+                    .setContentText("Doing some work...")
+                    .setContentIntent(pendingIntent).build();
+
+            startForeground(NOTIFICATION_ID, notification);
+        }
+    }
+
+    private boolean startVncServer() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getRealMetrics(displayMetrics);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        return vncStartServer(displayMetrics.widthPixels,
+            displayMetrics.heightPixels,
+            prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900),
+            Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
+            prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, ""));
     }
 
     @SuppressLint("WrongConstant")
@@ -518,7 +522,7 @@ public class MainService extends Service {
 
         try {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(instance);
-            port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900);
+            port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, Constants.DEFAULT_PORT);
         } catch (NullPointerException e) {
             //unused
         }
