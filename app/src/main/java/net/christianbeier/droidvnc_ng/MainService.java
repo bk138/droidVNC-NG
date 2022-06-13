@@ -153,7 +153,11 @@ public class MainService extends Service {
         /*
             Start the server FIXME move this to intent handling?
          */
-        if (!startVncServer())
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT,Constants.DEFAULT_PORT);
+        String password = prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
+
+        if (!startVncServer(port, password))
             stopSelf();
     }
 
@@ -311,18 +315,16 @@ public class MainService extends Service {
         }
     }
 
-    private boolean startVncServer() {
+    private boolean startVncServer(int port, String password) {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(displayMetrics);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
         return vncStartServer(displayMetrics.widthPixels,
             displayMetrics.heightPixels,
-            prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900),
+            port,
             Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-            prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, ""));
+            password);
     }
 
     @SuppressLint("WrongConstant")
