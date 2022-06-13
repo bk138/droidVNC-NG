@@ -79,7 +79,9 @@ public class MainActivity extends AppCompatActivity {
                 MainService.stopService(MainActivity.this);
             }
             else {
-                MainService.startService(MainActivity.this);
+                int port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT,Constants.DEFAULT_PORT);
+                String password = prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
+                MainService.startService(MainActivity.this, port, password);
             }
             mButtonToggle.setEnabled(false);
         });
@@ -125,13 +127,10 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         Log.d(TAG, "reverse vnc " + host + ":" + port);
-                        if(MainService.connectReverse(host,port)) {
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_reverse_vnc_success, host, port), Toast.LENGTH_LONG).show();
-                            SharedPreferences.Editor ed = prefs.edit();
-                            ed.putString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST, inputText.getText().toString());
-                            ed.apply();
-                        } else
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_reverse_vnc_fail, host, port), Toast.LENGTH_LONG).show();
+                        SharedPreferences.Editor ed = prefs.edit();
+                        ed.putString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST, inputText.getText().toString());
+                        ed.apply();
+                        connectReverse(host,port);
                     })
                     .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                     .create();
@@ -191,15 +190,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                         // done
                         Log.d(TAG, "repeater vnc " + host + ":" + port + ":" + repeaterId);
-                        if(MainService.connectRepeater(host, port, /*"ID:" +*/ repeaterId)) {
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_repeater_vnc_success, host, port, repeaterId), Toast.LENGTH_LONG).show();
-                            SharedPreferences.Editor ed = prefs.edit();
-                            ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST, host + ":" + port);
-                            ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID, repeaterId);
-                            ed.apply();
-                        }
-                        else
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_repeater_vnc_fail, host, port, repeaterId), Toast.LENGTH_LONG).show();
+                        SharedPreferences.Editor ed = prefs.edit();
+                        ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST, host + ":" + port);
+                        ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID, repeaterId);
+                        ed.apply();
+                        connectRepeater(host, port, /*"ID:" +*/ repeaterId);
                     })
                     .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                     .create();
@@ -338,8 +333,26 @@ public class MainActivity extends AppCompatActivity {
                 mIsMainServiceRunning = false;
             }
 
+            if (event == MainService.StatusEvent.REPEATER_CONNECTED) {
+                String text = getExpandedRepeaterString(R.string.main_activity_repeater_vnc_success);
+                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
+            }
+            if (event == MainService.StatusEvent.REPEATER_FAILED) {
+                String text = getExpandedRepeaterString(R.string.main_activity_repeater_vnc_fail);
+                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
+            }
+            if (event == MainService.StatusEvent.REVERSE_CONNECTED) {
+                String text = getExpandedReverseString(R.string.main_activity_reverse_vnc_success);
+                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
+
+            }
+            if (event == MainService.StatusEvent.REVERSE_FAILED) {
+                String text = getExpandedReverseString(R.string.main_activity_reverse_vnc_fail);
+                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
+            }
         });
     }
+
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -398,5 +411,77 @@ public class MainActivity extends AppCompatActivity {
         mMainServiceStatusEventStreamConnection.dispose();
     }
 
+    private void connectRepeater(String repeaterHost, int repeaterPort, String repeaterId) {
+        /*
+        * Fix me to fetch data from the input elements?
+        */
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT,Constants.DEFAULT_PORT);
+        String password = prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
 
+
+        Intent intent = new Intent(this, MainService.class);
+        intent.setAction(MainService.ACTION_START);
+        intent.putExtra(MainService.EXTRA_PORT, port);
+        intent.putExtra(MainService.EXTRA_PASSWORD, password);
+        intent.putExtra(MainService.EXTRA_REPEATER_HOST, repeaterHost);
+        intent.putExtra(MainService.EXTRA_REPEATER_PORT, repeaterPort);
+        intent.putExtra(MainService.EXTRA_REPEATER_ID, repeaterId);
+
+        IntentHelper.sendIntent(this, intent);
+    }
+
+    private void connectReverse(String reverseHost, int reversePort) {
+         /*
+         * Fix me to fetch data from the input elements?
+         */
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT,Constants.DEFAULT_PORT);
+        String password = prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
+
+        Intent intent = new Intent(this, MainService.class);
+        intent.setAction(MainService.ACTION_START);
+        intent.putExtra(MainService.EXTRA_PORT, port);
+        intent.putExtra(MainService.EXTRA_PASSWORD, password);
+        intent.putExtra(MainService.EXTRA_REPEATER_HOST, reverseHost);
+        intent.putExtra(MainService.EXTRA_REPEATER_PORT, reversePort);
+
+        IntentHelper.sendIntent(this, intent);
+    }
+
+    private String getExpandedRepeaterString(int resId) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String lastHostAndPort = prefs.getString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST, "");
+        String[] parts = lastHostAndPort.split("\\:");
+        String repeaterHost = parts[0];
+        int repeaterPort = Constants.DEFAULT_PORT_REPEATER;
+        if (parts.length > 1) {
+            try {
+                repeaterPort = Integer.parseInt(parts[1]);
+            } catch(NumberFormatException unused) {
+                // stays at default repeater port
+            }
+        }
+        String repeaterId = prefs.getString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID, "");
+        return getString(resId, repeaterHost, repeaterPort, repeaterId);
+    }
+
+    private String getExpandedReverseString(int resId) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String lastHostAndPort = prefs.getString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST, "");
+        String[] parts = lastHostAndPort.split("\\:");
+        String host = parts[0];
+        int port = Constants.DEFAULT_PORT_REVERSE;
+        if (parts.length > 1) {
+            try {
+                port = Integer.parseInt(parts[1]);
+            } catch(NumberFormatException unused) {
+                // stays at default repeater port
+            }
+        }
+        String repeaterId = prefs.getString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID, "");
+        return getString(resId, host, port);
+    }
 }

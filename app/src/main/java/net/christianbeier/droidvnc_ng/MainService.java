@@ -68,8 +68,13 @@ public class MainService extends Service {
     private static final int NOTIFICATION_ID = 11;
     final static String ACTION_START = "start";
     final static String ACTION_STOP = "stop";
-    final static String ACTION_START_REPEATER_CONNECTION = "start_repeater_connection";
-    final static String ACTION_START_REVERSE_CONNECTION = "start_reverse_connection";
+    final static String EXTRA_PORT = "port";
+    final static String EXTRA_PASSWORD = "password";
+    final static String EXTRA_REVERSE_HOST = "reverse_host";
+    final static String EXTRA_REVERSE_PORT = "reverse_port";
+    final static String EXTRA_REPEATER_HOST = "repeater_host";
+    final static String EXTRA_REPEATER_PORT = "repeater_port";
+    final static String EXTRA_REPEATER_ID = "repeater_id";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
@@ -99,6 +104,10 @@ public class MainService extends Service {
     public enum StatusEvent {
         STARTED,
         STOPPED,
+        REPEATER_CONNECTED,
+        REPEATER_FAILED,
+        REVERSE_CONNECTED,
+        REVERSE_FAILED
     }
 
     static {
@@ -149,16 +158,6 @@ public class MainService extends Service {
          */
         //noinspection deprecation
         mWakeLock = ((PowerManager) instance.getSystemService(Context.POWER_SERVICE)).newWakeLock((PowerManager.SCREEN_DIM_WAKE_LOCK| PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE), TAG + ":clientsConnected");
-
-        /*
-            Start the server FIXME move this to intent handling?
-         */
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT,Constants.DEFAULT_PORT);
-        String password = prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
-
-        if (!startVncServer(port, password))
-            stopSelf();
     }
 
     @Override
@@ -225,36 +224,27 @@ public class MainService extends Service {
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
 
-            tryUpdateVncServerSettings(this, intent);
+            // stop the existing instance
+            vncStopServer();
 
-            // Step 1: check input permission
-            Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
-            inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(inputRequestIntent);
+            if (startVncServer(intent)) {
+                boolean outgoingConnectionRequired = startRepeaterConnection(intent) || startReverseConnection(intent);
+
+                // Step 1: check input permission
+                Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
+                inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(inputRequestIntent);
+            }
+            else {
+                stopSelf();
+            }
+            
         }
 
         if(ACTION_STOP.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: stop");
             stopSelf();
         }
-
-        if (ACTION_START_REPEATER_CONNECTION.equals(intent.getAction())) {
-            Log.d(TAG, "onStartCommand: repeater connection required");
-
-            String host = intent.getStringExtra("HOST");
-            int port = intent.getIntExtra("PORT", Constants.DEFAULT_PORT_REPEATER);
-            String id = intent.getStringExtra("REPEATER_ID");
-            vncConnectRepeater(host, port, id);
-        }
-
-        if (ACTION_START_REVERSE_CONNECTION.equals(intent.getAction())) {
-            Log.d(TAG, "onStartCommand: reverse connection required");
-
-            int port = intent.getIntExtra("PORT", Constants.DEFAULT_PORT_REVERSE);
-            String host = intent.getStringExtra("HOST");
-            vncConnectReverse(host, port);
-        }
-
 
         // if screen capturing was not started, we don't want a restart if we were killed
         // especially, we don't want the permission asking to replay.
@@ -315,16 +305,73 @@ public class MainService extends Service {
         }
     }
 
+    /**
+     * Start a repeater connection if specified EXTRAS are set in the intent.
+     * @return true if the repeater's EXTRAS are available.
+     */
+    private boolean startRepeaterConnection(Intent intent) {
+        String host = intent.getStringExtra(EXTRA_REPEATER_HOST);
+        int port = intent.getIntExtra(EXTRA_REPEATER_PORT, Constants.DEFAULT_PORT_REPEATER);
+        String id = intent.getStringExtra(EXTRA_REPEATER_ID);
+        if (host == null || id == null)
+            return false;
+
+        Log.d(TAG, "onStartCommand: repeater connection required");
+        boolean success = vncConnectRepeater(host, port, id);
+        mStatusEventStream.onNext(success ? StatusEvent.REPEATER_CONNECTED : StatusEvent.REPEATER_FAILED);
+
+        return true;
+    }
+
+    /**
+     * Start a reverse connection if specified EXTRAS are set in the intent.
+     * @return true if the EXTRAS are available.
+     */
+    private boolean startReverseConnection(Intent intent) {
+        Log.d(TAG, "onStartCommand: reverse connection required");
+
+        int port = intent.getIntExtra(EXTRA_REVERSE_PORT, Constants.DEFAULT_PORT_REVERSE);
+        String host = intent.getStringExtra(EXTRA_REVERSE_HOST);
+        if (host == null)
+            return false;
+
+        Log.d(TAG, "onStartCommand: reverse connection required");
+        boolean success = vncConnectReverse(host, port);
+        mStatusEventStream.onNext(success ? StatusEvent.REVERSE_CONNECTED : StatusEvent.REVERSE_FAILED);
+
+        return true;
+    }
+
+    /**
+     * Start the VNC server if specified EXTRAS are set in the intent.
+     * @return true if the EXTRAS have been set and the VNC server can be start successfully.
+     */
+    private boolean startVncServer(Intent intent) {
+        int port = intent.getIntExtra(EXTRA_PORT, 0);
+        String password = intent.getStringExtra(EXTRA_PASSWORD);
+
+        if (port == 0 || password == null) {
+            Log.d(TAG, "onStartCommand: failed to start VNC server, some arguments missing.");
+            return false;
+        }
+
+        if (!startVncServer(port, password)) {
+            Log.d(TAG, "onStartCommand: failed to start VNC server");
+            return false;
+        }
+        return true;
+    }
+
     private boolean startVncServer(int port, String password) {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getRealMetrics(displayMetrics);
 
         return vncStartServer(displayMetrics.widthPixels,
-            displayMetrics.heightPixels,
-            port,
-            Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-            password);
+                displayMetrics.heightPixels,
+                port,
+                Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
+                password);
     }
 
     @SuppressLint("WrongConstant")
@@ -553,57 +600,17 @@ public class MainService extends Service {
         return hostsAndPorts;
     }
 
-    public static boolean connectReverse(String host, int port) {
-        try {
-            return instance.vncConnectReverse(host, port);
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    public static boolean connectRepeater(String host, int port, String repeaterIdentifier) {
-        try {
-            return instance.vncConnectRepeater(host, port, repeaterIdentifier);
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    public static void startService(Context context) {
+    public static void startService(Context context, int port, String password) {
         Intent intent = new Intent(context, MainService.class);
         intent.setAction(MainService.ACTION_START);
-        sendIntent(context, intent);
+        intent.putExtra(EXTRA_PORT, port);
+        intent.putExtra(EXTRA_PASSWORD, password);
+        IntentHelper.sendIntent(context, intent);
     }
 
     public static void stopService(Context context) {
         Intent intent = new Intent(context, MainService.class);
         intent.setAction(MainService.ACTION_STOP);
-        sendIntent(context, intent);
-    }
-
-    private static void sendIntent(Context context, Intent intent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent);
-        } else {
-            context.startService(intent);
-        }
-    }
-
-    public static void tryUpdateVncServerSettings(Context context, Intent intent) {
-        int port = intent.getIntExtra("PORT", 0);
-        String password = intent.getStringExtra("PASSWORD");
-        if (port != 0 && password != null) {
-            setVncServerSettings(context, port, password);
-        }
-    }
-
-    private static void setVncServerSettings(Context context, int port, String password) {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor ed = prefs.edit();
-        ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, port);
-        ed.putString(Constants.PREFS_KEY_SETTINGS_PASSWORD, password);
-        ed.apply();
+        IntentHelper.sendIntent(context, intent);
     }
 }

@@ -41,7 +41,10 @@ public class OnBootReceiver extends BroadcastReceiver {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         if(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, true)) {
             Log.i(TAG, "onReceive: configured to start");
-            MainService.startService(context);
+
+            int port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT,Constants.DEFAULT_PORT);
+            String password = prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
+            MainService.startService(context, port, password);
         } else {
             Log.i(TAG, "onReceive: configured NOT to start");
         }
