@@ -29,7 +29,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
@@ -51,12 +50,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Enumeration;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
@@ -559,45 +553,6 @@ public class MainService extends Service {
             //unused
         }
 
-    }
-
-    /**
-     * Get non-loopback IPv4 addresses together with the port the user specified.
-     * @return A list of strings in the form IP:port.
-     */
-    public static ArrayList<String> getIPv4sAndPorts() {
-
-        int port = 5900;
-
-        try {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(instance);
-            port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, Constants.DEFAULT_PORT);
-        } catch (NullPointerException e) {
-            //unused
-        }
-
-        ArrayList<String> hostsAndPorts = new ArrayList<>();
-        try {
-            // thanks go to https://stackoverflow.com/a/20103869/361413
-            Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
-            NetworkInterface ni;
-            while (nis.hasMoreElements()) {
-                ni = nis.nextElement();
-                if (!ni.isLoopback()/*not loopback*/ && ni.isUp()/*it works now*/) {
-                    for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
-                        //filter for ipv4/ipv6
-                        if (ia.getAddress().getAddress().length == 4) {
-                            //4 for ipv4, 16 for ipv6
-                            hostsAndPorts.add(ia.getAddress().toString().replaceAll("/", "") + ":" + port);
-                        }
-                    }
-                }
-            }
-        } catch (SocketException e) {
-            //unused
-        }
-
-        return hostsAndPorts;
     }
 
     public static void startService(Context context, int port, String password) {

@@ -49,7 +49,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 import io.reactivex.rxjava3.disposables.Disposable;
 
@@ -79,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
                 MainService.stopService(MainActivity.this);
             }
             else {
-                int port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT,Constants.DEFAULT_PORT);
-                String password = prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
+                int port = readServerPort(prefs);
+                String password = readServerPassword(prefs);
                 MainService.startService(MainActivity.this, port, password);
             }
             mButtonToggle.setEnabled(false);
@@ -288,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 // uhh there must be a nice functional way for this
-                ArrayList<String> hostsAndPorts = MainService.getIPv4sAndPorts();
+                ArrayList<String> hostsAndPorts = getIPv4sAndPorts();
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < hostsAndPorts.size(); ++i) {
                     sb.append(hostsAndPorts.get(i));
@@ -353,7 +357,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
     @SuppressLint("SetTextI18n")
     @Override
     protected void onResume() {
@@ -416,9 +419,8 @@ public class MainActivity extends AppCompatActivity {
         * Fix me to fetch data from the input elements?
         */
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT,Constants.DEFAULT_PORT);
-        String password = prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
-
+        int port = readServerPort(prefs);
+        String password = readServerPassword(prefs);
 
         Intent intent = new Intent(this, MainService.class);
         intent.setAction(MainService.ACTION_START);
@@ -436,8 +438,8 @@ public class MainActivity extends AppCompatActivity {
          * Fix me to fetch data from the input elements?
          */
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT,Constants.DEFAULT_PORT);
-        String password = prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
+        int port = readServerPort(prefs);
+        String password = readServerPassword(prefs);
 
         Intent intent = new Intent(this, MainService.class);
         intent.setAction(MainService.ACTION_START);
@@ -483,5 +485,52 @@ public class MainActivity extends AppCompatActivity {
         }
         String repeaterId = prefs.getString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID, "");
         return getString(resId, host, port);
+    }
+
+    /**
+     * Get non-loopback IPv4 addresses together with the port the user specified.
+     * @return A list of strings in the form IP:port.
+     */
+    public ArrayList<String> getIPv4sAndPorts() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int port = readServerPort(prefs);
+
+        ArrayList<String> hostsAndPorts = new ArrayList<>();
+        try {
+            // thanks go to https://stackoverflow.com/a/20103869/361413
+            Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
+            NetworkInterface ni;
+            while (nis.hasMoreElements()) {
+                ni = nis.nextElement();
+                if (!ni.isLoopback()/*not loopback*/ && ni.isUp()/*it works now*/) {
+                    for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
+                        //filter for ipv4/ipv6
+                        if (ia.getAddress().getAddress().length == 4) {
+                            //4 for ipv4, 16 for ipv6
+                            hostsAndPorts.add(ia.getAddress().toString().replaceAll("/", "") + ":" + port);
+                        }
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            //unused
+        }
+
+        return hostsAndPorts;
+    }
+
+    private String readServerPassword(SharedPreferences prefs) {
+        return prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "");
+    }
+
+    private int readServerPort(SharedPreferences prefs) {
+        int port = Constants.DEFAULT_PORT;
+
+        try {
+            port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, Constants.DEFAULT_PORT);
+        } catch (NullPointerException e) {
+            //unused
+        }
+        return port;
     }
 }
