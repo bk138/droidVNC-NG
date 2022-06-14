@@ -112,6 +112,7 @@ public class MainService extends Service {
 
     private native boolean vncStartServer(int width, int height, int port, String desktopname, String password);
     private native boolean vncStopServer();
+    private native boolean isVncServerStarted();
     private native boolean vncConnectReverse(String host, int port);
     private native boolean vncConnectRepeater(String host, int port, String repeaterIdentifier);
     private native boolean vncNewFramebuffer(int width, int height);
@@ -218,7 +219,7 @@ public class MainService extends Service {
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
 
-            if (startVncServer(intent)) { // restarted or has not be restarted
+            if (startVncServer(intent)) { // restarted or an old instance is available
 
                 boolean outgoingConnectionRequired = startRepeaterConnection(intent) || startReverseConnection(intent);
 
@@ -228,9 +229,9 @@ public class MainService extends Service {
                 startActivity(inputRequestIntent);
             }
             else {
+                Log.d(TAG, "onStartCommand: stop service. VNC server is not available or cannot be started.");
                 stopSelf();
             }
-            
         }
 
         if(ACTION_STOP.equals(intent.getAction())) {
@@ -336,7 +337,7 @@ public class MainService extends Service {
 
     /**
      * Start the VNC server if specified EXTRAS are set in the intent.
-     * @return true if the EXTRAS have been set and the VNC server can be start successfully.
+     * @return true if a vnc server instance is available.
      */
     private boolean startVncServer(Intent intent) {
         int port = intent.getIntExtra(EXTRA_PORT, 0);
@@ -357,7 +358,7 @@ public class MainService extends Service {
             }
         }
 
-        return true;
+        return isVncServerStarted();
     }
 
     private boolean startVncServer(int port, String password) {

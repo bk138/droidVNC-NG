@@ -339,6 +339,11 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     return JNI_TRUE;
 }
 
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_isVncServerStarted(JNIEnv *env, __unused jobject thiz)
+{
+    return theScreen ? JNI_TRUE : JNI_FALSE;
+}
+
 JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncConnectReverse(JNIEnv *env, __unused jobject thiz, jstring host, jint port)
 {
     if(!theScreen || !theScreen->frameBuffer)
