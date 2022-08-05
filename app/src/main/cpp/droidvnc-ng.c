@@ -401,21 +401,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncN
         return JNI_FALSE;
     }
 
-    /* Lock out client reads. */
-    iterator = rfbGetClientIterator(theScreen);
-    while ((cl = rfbClientIteratorNext(iterator))) {
-        LOCK(cl->sendMutex);
-    }
-    rfbReleaseClientIterator(iterator);
-
     rfbNewFramebuffer(theScreen, (char*)newfb, width, height, 8, 3, 4);
-
-    /* Swapping frame buffers finished, re-enable client reads. */
-    iterator=rfbGetClientIterator(theScreen);
-    while((cl=rfbClientIteratorNext(iterator))) {
-        UNLOCK(cl->sendMutex);
-    }
-    rfbReleaseClientIterator(iterator);
 
     free(oldfb);
     __android_log_print(ANDROID_LOG_INFO, TAG, "vncNewFramebuffer: allocated new framebuffer, %dx%d", width, height);
