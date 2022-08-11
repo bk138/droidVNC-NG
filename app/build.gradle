@@ -8,8 +8,8 @@ android {
         applicationId "net.christianbeier.droidvnc_ng"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 15
-        versionName "1.3.2"
+        versionCode 16
+        versionName "1.3.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
