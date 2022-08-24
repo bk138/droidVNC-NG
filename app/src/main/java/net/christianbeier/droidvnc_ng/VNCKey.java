@@ -66,7 +66,7 @@ public enum VNCKey {
     }
 
     public static String[] toStringsArray() {
-        String[] result = new String[KeyRegistrar.size()-1];
+        String[] result = new String[KeyRegistrar.size()];
         VNCKey[] values = VNCKey.values();
         for (int i = 0; i < result.length; i++) {
             result[i] = values[i].name();

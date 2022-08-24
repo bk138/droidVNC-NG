@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayout hotkeysEditPanel = findViewById(R.id.hotkeysEditPanel);
 
-        for (HotkeyBinding handler : InputService.getShortcutHandlers()) {
+        for (HotkeyBinding handler : InputService.HOTKEY_BINDINGS) {
 
             LinearLayout mainVComposer = new LinearLayout(this);
             mainVComposer.setOrientation(LinearLayout.VERTICAL);
