@@ -36,10 +36,14 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,6 +75,77 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        /*---------------- start of hotkey editor logic ----------------*/
+
+        LinearLayout hotkeysEditPanel = findViewById(R.id.hotkeysEditPanel);
+
+        for (HotkeyBinding handler : InputService.getShortcutHandlers()) {
+
+            LinearLayout mainVComposer = new LinearLayout(this);
+            mainVComposer.setOrientation(LinearLayout.VERTICAL);
+
+            TextView nameLabel = new TextView(this);
+            nameLabel.setText(handler.friendlyName);
+            mainVComposer.addView(nameLabel);
+
+            // loading saved hotkeys settings
+            LinearLayout horizontalComposer = new LinearLayout(this);
+            horizontalComposer.setOrientation(LinearLayout.HORIZONTAL);
+            for (int i = 0; i < 3; i++) {
+                VNCKey key = VNCKey.getKeyByName(prefs.getString(handler.PREFS_NAME + i, handler.getKey(i).toString()));
+                handler.setKey(i, key);
+            }
+
+            // Used to evenly place selectors on a view
+            LinearLayout.LayoutParams keySelectorLayout = new LinearLayout.LayoutParams (
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    1.0f
+            );
+
+            for (int i = 0; i < 3; i++) {
+                Spinner keySelector = new Spinner(this);
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, VNCKey.toStringsArray());
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+                keySelector.setAdapter(adapter);
+                keySelector.setLayoutParams(keySelectorLayout);
+                keySelector.setTag(i);
+
+                int selectionPosition = adapter.getPosition(handler.getKey((int) keySelector.getTag()).toString());
+                keySelector.setSelection(selectionPosition);
+
+                keySelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                        int keyIndex = (int) keySelector.getTag();
+                        String keyName = keySelector.getSelectedItem().toString();
+                        SharedPreferences.Editor ed = prefs.edit();
+                        ed.putString(handler.PREFS_NAME + keyIndex, keyName);
+                        ed.apply();
+
+                        VNCKey selectedKey = VNCKey.getKeyByName(keyName);
+                        handler.setKey(keyIndex, selectedKey);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> adapterView) {
+
+                    }
+                });
+                horizontalComposer.addView(keySelector);
+            }
+            mainVComposer.addView(horizontalComposer);
+            hotkeysEditPanel.addView(mainVComposer);
+        }
+
+        SwitchMaterial showEditPanel = findViewById(R.id.showEditPanel);
+
+        showEditPanel.setOnCheckedChangeListener((v, checked) -> {
+            hotkeysEditPanel.setVisibility(checked ? View.VISIBLE : View.GONE );
+        });
+
+        /*---------------- end of hotkey editor logic ----------------*/
 
         mButtonToggle = (Button) findViewById(R.id.toggle);
         mButtonToggle.setOnClickListener(view -> {
