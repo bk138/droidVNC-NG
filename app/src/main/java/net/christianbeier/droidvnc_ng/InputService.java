@@ -66,6 +66,8 @@ public class InputService extends AccessibilityService {
 
 	private final GestureCallback mGestureCallback = new GestureCallback();
 
+    private static final StringBuffer sb = new StringBuffer();
+    private static int bufferPivot = 0;
 
 	@Override
 	public void onAccessibilityEvent( AccessibilityEvent event ) { }
@@ -170,6 +172,45 @@ public class InputService extends AccessibilityService {
 
 	public static void onKeyEvent(int down, long keysym, long client) {
 		Log.d(TAG, "onKeyEvent: keysym " + keysym + " down " + down + " by client " + client);
+
+        /*
+            Handle alpha numeric keyboard
+         */
+        if (keysym >= 32 && keysym <= 127 && down == 0) {
+            sb.insert(bufferPivot, (char) keysym);
+            bufferPivot += 1;
+            System.out.println("bufferPivot: " + bufferPivot);
+            System.out.println(sb);
+        }
+
+        /*
+            Handle backspace
+         */
+        if (keysym == 65288 && down == 0) {
+            if (sb.length() > 0) {
+                if (bufferPivot > 0) {
+                    sb.deleteCharAt(bufferPivot - 1);
+                    bufferPivot -= 1;
+                }
+            }
+            System.out.println("bufferPivot: " + bufferPivot);
+            System.out.println(sb);
+        }
+        /*
+            Handle keyboard arrows
+         */
+        if (keysym >= 65361 && keysym <= 65364 && down == 0) {
+            // Left arrow 65361
+            // Up arrow 65362
+            // Right arrow 65363
+            // Down arrow 65364
+            if (bufferPivot > 0 && keysym == 65361) {
+                bufferPivot -= 1;
+            } else if (bufferPivot < sb.length() && keysym == 65363) {
+                bufferPivot += 1;
+            }
+            System.out.println("bufferPivot: " + bufferPivot);
+        }
 
 		/*
 			Special key handling.
