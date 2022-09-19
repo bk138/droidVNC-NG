@@ -20,6 +20,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -213,7 +214,16 @@ public class InputService extends AccessibilityService {
     private static void commitBufferToView() {
         // Commit remoteBuffer to actual view
         instance.mMainHandler.post(() -> {
-            //
+            Bundle args = new Bundle();
+            args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, remoteBuffer);
+            boolean performAction = instance.viewUnderFocus.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args);
+            if (performAction) {
+                Bundle args2 = new Bundle();
+                args2.putInt("ACTION_ARGUMENT_SELECTION_START_INT", bufferPivot);
+                args2.putInt("ACTION_ARGUMENT_SELECTION_END_INT", bufferPivot);
+                instance.viewUnderFocus.refresh();
+                instance.viewUnderFocus.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, args2);
+            }
         });
     }
 
