@@ -19,6 +19,7 @@ import android.accessibilityservice.GestureDescription;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -26,6 +27,7 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.ViewConfiguration;
 import android.graphics.Path;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 public class InputService extends AccessibilityService {
 
@@ -66,11 +68,49 @@ public class InputService extends AccessibilityService {
 
 	private final GestureCallback mGestureCallback = new GestureCallback();
 
-    private static final StringBuffer sb = new StringBuffer();
+    private AccessibilityNodeInfo viewUnderFocus;
+
+    private static final StringBuffer remoteBuffer = new StringBuffer();
     private static int bufferPivot = 0;
 
 	@Override
-	public void onAccessibilityEvent( AccessibilityEvent event ) { }
+	public void onAccessibilityEvent( AccessibilityEvent event ) {
+        // Detect when focus or text selection change when user click a edittext view
+        String eventType = AccessibilityEvent.eventTypeToString(event.getEventType());
+        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_FOCUSED ||
+            event.getEventType() == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED
+        ) {
+            // If detected event view class name is EditText
+            if (event.getClassName().equals("android.widget.EditText")) {
+                viewUnderFocus = event.getSource();
+
+                if (viewUnderFocus.getText() != null) {
+                    String currBuff = viewUnderFocus.getText().toString();
+                    int start = viewUnderFocus.getTextSelectionStart();
+                    if (start == -1) start = 0;
+                    int end = viewUnderFocus.getTextSelectionEnd();
+                    if (end == -1) end = 0;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        if (viewUnderFocus.getHintText() != null) {
+                            if (currBuff.equals(viewUnderFocus.getHintText().toString()))
+                                currBuff = "";
+                        }
+                    }
+
+                    remoteBuffer.replace(0, remoteBuffer.length(), currBuff);
+                    bufferPivot = start;
+
+                } else { /*Do nothing*/ }
+
+            } else {
+                // Do something else
+            }
+        } else if (eventType.equals("TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY")) {
+            //
+        } else {
+            // System.out.println(eventType);
+        }
+    }
 
 	@Override
 	public void onInterrupt() { }
@@ -170,6 +210,13 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
+    private static void commitBufferToView() {
+        // Commit remoteBuffer to actual view
+        instance.mMainHandler.post(() -> {
+            //
+        });
+    }
+
 	public static void onKeyEvent(int down, long keysym, long client) {
 		Log.d(TAG, "onKeyEvent: keysym " + keysym + " down " + down + " by client " + client);
 
@@ -177,24 +224,26 @@ public class InputService extends AccessibilityService {
             Handle alpha numeric keyboard
          */
         if (keysym >= 32 && keysym <= 127 && down == 0) {
-            sb.insert(bufferPivot, (char) keysym);
+            remoteBuffer.insert(bufferPivot, (char) keysym);
             bufferPivot += 1;
             System.out.println("bufferPivot: " + bufferPivot);
-            System.out.println(sb);
+            System.out.println(remoteBuffer);
+            commitBufferToView();
         }
 
         /*
             Handle backspace
          */
         if (keysym == 65288 && down == 0) {
-            if (sb.length() > 0) {
+            if (remoteBuffer.length() > 0) {
                 if (bufferPivot > 0) {
-                    sb.deleteCharAt(bufferPivot - 1);
+                    remoteBuffer.deleteCharAt(bufferPivot - 1);
                     bufferPivot -= 1;
                 }
             }
             System.out.println("bufferPivot: " + bufferPivot);
-            System.out.println(sb);
+            System.out.println(remoteBuffer);
+            commitBufferToView();
         }
         /*
             Handle keyboard arrows
@@ -206,10 +255,11 @@ public class InputService extends AccessibilityService {
             // Down arrow 65364
             if (bufferPivot > 0 && keysym == 65361) {
                 bufferPivot -= 1;
-            } else if (bufferPivot < sb.length() && keysym == 65363) {
+            } else if (bufferPivot < remoteBuffer.length() && keysym == 65363) {
                 bufferPivot += 1;
             }
             System.out.println("bufferPivot: " + bufferPivot);
+            commitBufferToView();
         }
 
 		/*
