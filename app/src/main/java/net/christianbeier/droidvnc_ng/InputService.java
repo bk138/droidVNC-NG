@@ -73,6 +73,7 @@ public class InputService extends AccessibilityService {
 
     private static final StringBuffer remoteBuffer = new StringBuffer();
     private static int bufferPivot = 0;
+    private static int pivotEnd = 0;
 
 	@Override
 	public void onAccessibilityEvent( AccessibilityEvent event ) {
@@ -86,6 +87,7 @@ public class InputService extends AccessibilityService {
                 viewUnderFocus = event.getSource();
 
                 if (viewUnderFocus.getText() != null) {
+                    // Get current view text value
                     String currBuff = viewUnderFocus.getText().toString();
                     int start = viewUnderFocus.getTextSelectionStart();
                     if (start == -1) start = 0;
@@ -93,6 +95,7 @@ public class InputService extends AccessibilityService {
                     if (end == -1) end = 0;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         if (viewUnderFocus.getHintText() != null) {
+                            // Weird quirk, even if the view is empty, but if it contains hint, then the hint become the value, detect and remove here
                             if (currBuff.equals(viewUnderFocus.getHintText().toString()))
                                 currBuff = "";
                         }
@@ -100,6 +103,7 @@ public class InputService extends AccessibilityService {
 
                     remoteBuffer.replace(0, remoteBuffer.length(), currBuff);
                     bufferPivot = start;
+                    pivotEnd = end;
 
                 } else { /*Do nothing*/ }
 
@@ -231,11 +235,19 @@ public class InputService extends AccessibilityService {
 		Log.d(TAG, "onKeyEvent: keysym " + keysym + " down " + down + " by client " + client);
 
         /*
-            Handle alpha numeric keyboard
+            Handle symbol+alpha+numeric keyboard
          */
         if (keysym >= 32 && keysym <= 127 && down == 0) {
-            remoteBuffer.insert(bufferPivot, (char) keysym);
+            if (bufferPivot == pivotEnd) {
+                // Not a block, insert normally
+                remoteBuffer.insert(bufferPivot, (char) keysym);
+            } else {
+                // Block insert, replace blocked text with new character
+                remoteBuffer.replace(bufferPivot, pivotEnd, String.valueOf((char)keysym));
+            }
             bufferPivot += 1;
+            pivotEnd = bufferPivot;
+
             System.out.println("bufferPivot: " + bufferPivot);
             System.out.println(remoteBuffer);
             commitBufferToView();
@@ -246,9 +258,17 @@ public class InputService extends AccessibilityService {
          */
         if (keysym == 65288 && down == 0) {
             if (remoteBuffer.length() > 0) {
-                if (bufferPivot > 0) {
-                    remoteBuffer.deleteCharAt(bufferPivot - 1);
-                    bufferPivot -= 1;
+                if (bufferPivot >= 0) {
+                    if (bufferPivot == pivotEnd) {
+                        // If bufferPivot equal pivotEnd, then it's not a block removal
+                        remoteBuffer.deleteCharAt(bufferPivot - 1);
+                        if (bufferPivot > 0) bufferPivot -= 1;
+                    } else {
+                        // It's a block remove, replace with empty string
+                        remoteBuffer.replace(bufferPivot, pivotEnd, "");
+                        // bufferPivot = bufferPivot
+                    }
+                    pivotEnd = bufferPivot;
                 }
             }
             System.out.println("bufferPivot: " + bufferPivot);
@@ -263,6 +283,9 @@ public class InputService extends AccessibilityService {
             // Up arrow 65362
             // Right arrow 65363
             // Down arrow 65364
+            if (bufferPivot != pivotEnd) {
+                pivotEnd = bufferPivot;
+            }
             if (bufferPivot > 0 && keysym == 65361) {
                 bufferPivot -= 1;
             } else if (bufferPivot < remoteBuffer.length() && keysym == 65363) {
