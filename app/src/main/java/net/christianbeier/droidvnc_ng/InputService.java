@@ -248,8 +248,8 @@ public class InputService extends AccessibilityService {
             bufferPivot += 1;
             pivotEnd = bufferPivot;
 
-            System.out.println("bufferPivot: " + bufferPivot);
-            System.out.println(remoteBuffer);
+            // System.out.println("bufferPivot: " + bufferPivot);
+            // System.out.println(remoteBuffer);
             commitBufferToView();
         }
 
@@ -271,8 +271,8 @@ public class InputService extends AccessibilityService {
                     pivotEnd = bufferPivot;
                 }
             }
-            System.out.println("bufferPivot: " + bufferPivot);
-            System.out.println(remoteBuffer);
+            // System.out.println("bufferPivot: " + bufferPivot);
+            // System.out.println(remoteBuffer);
             commitBufferToView();
         }
         /*
@@ -291,7 +291,7 @@ public class InputService extends AccessibilityService {
             } else if (bufferPivot < remoteBuffer.length() && keysym == 65363) {
                 bufferPivot += 1;
             }
-            System.out.println("bufferPivot: " + bufferPivot);
+            // System.out.println("bufferPivot: " + bufferPivot);
             commitBufferToView();
         }
 
