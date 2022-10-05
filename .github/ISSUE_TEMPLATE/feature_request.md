@@ -18,5 +18,8 @@ If you'd like to put out an incentive for implementing this feature, you can do 
 **Describe alternatives you've considered**
 <!--A clear and concise description of any alternative solutions or features you've considered.-->
 
-**Additional context**
-<!--Add any other context or screenshots about the feature request here. -->
+**Your environment (please complete the following information):**
+ - droidVNC-NG version:
+ - Android version:
+ - Client-side OS and version:
+ - VNC client and version:
