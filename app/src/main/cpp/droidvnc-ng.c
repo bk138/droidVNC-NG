@@ -103,6 +103,30 @@ static void onKeyEvent(rfbBool down, rfbKeySym key, rfbClientPtr cl)
     (*theVM)->DetachCurrentThread(theVM);
 }
 
+/*
+ * Is equivalent to calling Charset.forName("ISO-8859-1").decode(byteBuffer).toString()
+ */
+static jstring stringDecode(JNIEnv *env, const char* text)
+{
+    jobject byteBuffer = (*env)->NewDirectByteBuffer(env, (jbyte *)text, strlen(text));
+
+    //Charset charset = Charset.forName("ISO-8859-1")
+    jclass clsCharset =  (*env)->FindClass(env,"java/nio/charset/Charset");
+    jmethodID midCharsetForName = (*env)->GetStaticMethodID(env, clsCharset, "forName", "(Ljava/lang/String;)Ljava/nio/charset/Charset;");
+    jobject charset = (*env)->CallStaticObjectMethod(env, clsCharset, midCharsetForName, (*env)->NewStringUTF(env, "ISO-8859-1"));
+
+    //CharBuffer charBuffer = charset.decode(byteBuffer)
+    jmethodID midCharsetDecode = (*env)->GetMethodID(env, clsCharset, "decode", "(Ljava/nio/ByteBuffer;)Ljava/nio/CharBuffer;");
+    jobject charBuffer = (*env)->CallObjectMethod(env, charset, midCharsetDecode, byteBuffer);
+    (*env)->DeleteLocalRef(env, byteBuffer);
+
+    //String result = charBuffer.toString();
+    jclass clsCharBuffer = (*env)->FindClass(env, "java/nio/CharBuffer");
+    jmethodID midCharBufferToString = (*env)->GetMethodID(env, clsCharBuffer, "toString", "()Ljava/lang/String;");
+    jstring result = (*env)->CallObjectMethod(env, charBuffer, midCharBufferToString);
+    return result;
+}
+
 static void onCutText(char *text, __unused int len, rfbClientPtr cl)
 {
     JNIEnv *env = NULL;
@@ -112,9 +136,10 @@ static void onCutText(char *text, __unused int len, rfbClientPtr cl)
     }
 
     jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "onCutText", "(Ljava/lang/String;J)V");
-    jstring jText = (*env)->NewStringUTF(env, text);
+    jstring jText = stringDecode(env, text);
     (*env)->CallStaticVoidMethod(env, theInputService, mid, jText, (jlong)cl);
 
+    (*env)->DeleteLocalRef(env, jText);
     if ((*env)->ExceptionCheck(env))
         (*env)->ExceptionDescribe(env);
 
