@@ -6,6 +6,7 @@
     <string name="main_activity_settings_password">Password</string>
     <string name="main_activity_settings_start_on_boot">Start on Boot</string>
     <string name="main_activity_settings_scaling">Scaling</string>
+    <string name="main_activity_settings_remove_padding">Remove padding</string>
     <string name="main_activity_permissions_dashboard">Permissions Dashboard</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Screen Capturing</string>

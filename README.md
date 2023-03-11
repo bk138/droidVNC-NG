@@ -92,6 +92,7 @@ An example `defaults.json` with completely new defaults (not all entries need to
     "portRepeater": 5556,
     "scaling": 0.7,
     "password": "supersecure"
+    "removePadding": true
 }
 ```
 

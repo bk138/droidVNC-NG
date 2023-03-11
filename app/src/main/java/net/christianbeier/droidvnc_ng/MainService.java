@@ -335,6 +335,9 @@ public class MainService extends Service {
         int scaledWidth = (int) (metrics.widthPixels * scaling);
         int scaledHeight = (int) (metrics.heightPixels * scaling);
 
+        // remove padding
+        boolean removePadding = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_REMOVE_PADDING, mDefaults.getRemovePadding());
+
         // only set this by detecting quirky hardware if the user has not set manually
         if(!mHasPortraitInLandscapeWorkaroundSet && Build.FINGERPRINT.contains("rk3288")  && metrics.widthPixels > 800) {
             Log.w(TAG, "detected >10in rk3288 applying workaround for portrait-in-landscape quirk");
@@ -419,11 +422,28 @@ public class MainService extends Service {
                 int pixelStride = planes[0].getPixelStride();
                 int rowStride = planes[0].getRowStride();
                 int rowPadding = rowStride - pixelStride * scaledWidth;
-                int w = scaledWidth + rowPadding / pixelStride;
+                int w = scaledWidth;
+
+                // Crop
+                if (removePadding && rowPadding > 0) {
+                    int rowPaddingPx = rowPadding / pixelStride;
+                    Bitmap dest = Bitmap.createBitmap(scaledWidth + rowPaddingPx, scaledHeight, Bitmap.Config.ARGB_8888);
+
+                    buffer.rewind();
+                    dest.copyPixelsFromBuffer(buffer);
+
+                    Bitmap croppedDest = Bitmap.createBitmap(dest, 0, 0, scaledWidth, scaledHeight);
+
+                    buffer.rewind();
+                    croppedDest.copyPixelsToBuffer(buffer);
+                } else {
+                    w += rowPadding / pixelStride;
+                }
 
                 // if needed, setup a new VNC framebuffer that matches the image plane's parameters
-                if (w != vncGetFramebufferWidth() || scaledHeight != vncGetFramebufferHeight())
+                if (w != vncGetFramebufferWidth() || scaledHeight != vncGetFramebufferHeight()) {
                     vncNewFramebuffer(w, scaledHeight);
+                }
 
                 buffer.rewind();
 
