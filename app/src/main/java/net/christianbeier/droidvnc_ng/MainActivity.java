@@ -223,19 +223,17 @@ public class MainActivity extends AppCompatActivity {
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
 
-            @SuppressLint("ApplySharedPref")
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 try {
                     SharedPreferences.Editor ed = prefs.edit();
                     ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, Integer.parseInt(charSequence.toString()));
-                    ed.commit();
+                    ed.apply();
                 } catch(NumberFormatException e) {
                     // nop
                 }
             }
 
-            @SuppressLint("ApplySharedPref")
             @Override
             public void afterTextChanged(Editable editable) {
                 if(port.getText().length() == 0) {
@@ -244,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                     // and set default
                     SharedPreferences.Editor ed = prefs.edit();
                     ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, Constants.DEFAULT_PORT);
-                    ed.commit();
+                    ed.apply();
                 }
             }
         });
@@ -257,12 +255,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            @SuppressLint("ApplySharedPref")
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 SharedPreferences.Editor ed = prefs.edit();
                 ed.putString(Constants.PREFS_KEY_SETTINGS_PASSWORD, charSequence.toString());
-                ed.commit();
+                ed.apply();
             }
 
             @Override
@@ -276,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
         startOnBoot.setOnCheckedChangeListener((compoundButton, b) -> {
             SharedPreferences.Editor ed = prefs.edit();
             ed.putBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, b);
-            ed.commit();
+            ed.apply();
         });
 
         Slider scaling = findViewById(R.id.settings_scaling);
