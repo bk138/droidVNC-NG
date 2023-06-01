@@ -12,6 +12,8 @@ package net.christianbeier.droidvnc_ng;
  *
  * Swipe fixes and gesture handling by Christian Beier <info@christianbeier.net>.
  *
+ * Expanded hotkey system Alexander Balanyuk Anatolevich QuantMad@gmail.com
+ *
  */
 
 import android.accessibilityservice.AccessibilityService;
@@ -56,16 +58,42 @@ public class InputService extends AccessibilityService {
 	private Path mPath;
 	private long mLastGestureStartTime;
 
-	private boolean mIsKeyCtrlDown;
-	private boolean mIsKeyAltDown;
-	private boolean mIsKeyShiftDown;
-	private boolean mIsKeyDelDown;
-	private boolean mIsKeyEscDown;
-
 	private float mScaling;
 
 	private final GestureCallback mGestureCallback = new GestureCallback();
 
+	// FIXME: I don't know how to get out of this situation without using the static keyword.
+	//  It might be worth moving this block into the HotkeyHandler class and leaving it static,
+	//  but I can't imagine a good way to do this.
+	public static final HotkeyBinding[] HOTKEY_BINDINGS = new HotkeyBinding[]{
+			new HotkeyBinding("Portrait/Landscape Workaround", "hotkey_portrait_landscape_Workaround_",
+					VNCKey.Ctrl, VNCKey.Alt, VNCKey.Del,
+					() -> instance.mMainHandler.post(MainService::togglePortraitInLandscapeWorkaround)),
+
+			new HotkeyBinding("Show Recents", "hotkey_show_recents_",
+					VNCKey.Ctrl, VNCKey.Shift, VNCKey.Esc,
+					() -> instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)),
+
+			new HotkeyBinding("Back", "hotkey_back_",
+					VNCKey.Esc, VNCKey.Empty, VNCKey.Empty,
+					() -> instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)),
+
+			new HotkeyBinding("Home", "hotkey_home_",
+					VNCKey.Home, VNCKey.Empty, VNCKey.Empty,
+					() -> instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)),
+
+			new HotkeyBinding("Power dialog", "hotkey_power_dialog_",
+					VNCKey.Backspace, VNCKey.Empty, VNCKey.Empty,
+					() -> instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_POWER_DIALOG)),
+
+			new HotkeyBinding("Notifications", "hotkey_notifications_",
+					VNCKey.PageDown, VNCKey.Empty, VNCKey.Empty,
+					() -> instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)),
+
+			new HotkeyBinding("Split screen", "hotkey_split_screen_",
+					VNCKey.PageUp, VNCKey.Empty, VNCKey.Empty,
+					() -> instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN))
+	};
 
 	@Override
 	public void onAccessibilityEvent( AccessibilityEvent event ) { }
@@ -178,51 +206,17 @@ public class InputService extends AccessibilityService {
 			/*
 				Save states of some keys for combo handling.
 			 */
-			if(keysym == 0xFFE3)
-				instance.mIsKeyCtrlDown = down != 0;
+			boolean isKeyExist = VNCKey.tryChangeKeyState(keysym, down);
 
-			if(keysym == 0xFFE9 || keysym == 0xFF7E) // MacOS clients send Alt as 0xFF7E
-				instance.mIsKeyAltDown = down != 0;
+			if (isKeyExist) {
+				for (HotkeyBinding handler : HOTKEY_BINDINGS) {
+					boolean isCommandExecuted = handler.tryExecute();
 
-			if(keysym == 0xFFE1)
-				instance.mIsKeyShiftDown = down != 0;
-
-			if(keysym == 0xFFFF)
-				instance.mIsKeyDelDown = down != 0;
-
-			if(keysym == 0xFF1B)
-				instance.mIsKeyEscDown = down != 0;
-
-			/*
-				Ctrl-Alt-Del combo.
-		 	*/
-			if(instance.mIsKeyCtrlDown && instance.mIsKeyAltDown && instance.mIsKeyDelDown) {
-				Log.i(TAG, "onKeyEvent: got Ctrl-Alt-Del");
-				instance.mMainHandler.post(MainService::togglePortraitInLandscapeWorkaround);
-			}
-
-			/*
-				Ctrl-Shift-Esc combo.
-		 	*/
-			if(instance.mIsKeyCtrlDown && instance.mIsKeyShiftDown && instance.mIsKeyEscDown) {
-				Log.i(TAG, "onKeyEvent: got Ctrl-Shift-Esc");
-				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
-			}
-
-			/*
-				Home/Pos1
-		 	*/
-			if (keysym == 0xFF50 && down != 0) {
-				Log.i(TAG, "onKeyEvent: got Home/Pos1");
-				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
-			}
-
-			/*
-				Esc
-			 */
-			if(keysym == 0xFF1B && down != 0)  {
-				Log.i(TAG, "onKeyEvent: got Home/Pos1");
-				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+					if (isCommandExecuted) {
+						Log.i(TAG, handler.PREFS_NAME + "X executed");
+						break;
+					}
+				}
 			}
 
 		} catch (Exception e) {
