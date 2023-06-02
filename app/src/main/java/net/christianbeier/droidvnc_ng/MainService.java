@@ -91,6 +91,8 @@ public class MainService extends Service {
 
     private PowerManager.WakeLock mWakeLock;
 
+    private Defaults mDefaults;
+
     private static MainService instance;
 
     private static final Subject<StatusEvent> mStatusEventStream = BehaviorSubject.createDefault(StatusEvent.STOPPED).toSerialized();
@@ -183,12 +185,13 @@ public class MainService extends Service {
         wm.getDefaultDisplay().getRealMetrics(displayMetrics);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        mDefaults = new Defaults(this);
 
         if (!vncStartServer(displayMetrics.widthPixels,
                 displayMetrics.heightPixels,
                 prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900),
                 Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-                prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, "")))
+                prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword())))
             stopSelf();
     }
 
@@ -251,7 +254,7 @@ public class MainService extends Service {
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle input result");
             // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission
-            InputService.setScaling(PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, Constants.DEFAULT_SCALING));
+            InputService.setScaling(PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling()));
             Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
             writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(writeStorageRequestIntent);
@@ -328,7 +331,7 @@ public class MainService extends Service {
         wm.getDefaultDisplay().getRealMetrics(metrics);
 
         // apply scaling preference
-        float scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, Constants.DEFAULT_SCALING);
+        float scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling());
         int scaledWidth = (int) (metrics.widthPixels * scaling);
         int scaledHeight = (int) (metrics.heightPixels * scaling);
 
