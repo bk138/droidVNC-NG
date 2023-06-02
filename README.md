@@ -74,6 +74,26 @@ You can:
 5. Figure out your public adress i.e. <https://www.hashemian.com/whoami/>.
 6. Use this address and port from above to connect to your device.
 
+### How to Pre-seed Preferences
+
+DroidVNC-NG can read a JSON file with default settings that apply if settings were not changed
+by the user. A file named `defaults.json` needs to created under
+`<external files directory>/Android/data/net.christianbeier.droidvnc_ng/files/` where
+depending on your device, `<external files directory>` is something like `/storage/emulated/0` if
+the device shows two external storages or simply `/sdcard` if the device has one external storage.
+
+An example `defaults.json` with completely new defaults (not all entries need to be provided) is:
+
+```json
+{
+    "port": 5901,
+    "portReverse": 5555,
+    "portRepeater": 5556,
+    "scaling": 0.7,
+    "password": "supersecure"
+}
+```
+
 ## Notes
 
 * Requires at least Android 7.
