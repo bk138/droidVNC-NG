@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mAddress;
     private boolean mIsMainServiceRunning;
     private Disposable mMainServiceStatusEventStreamConnection;
+    private Defaults mDefaults;
 
 
     @Override
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        mDefaults = new Defaults(this);
 
         mButtonToggle = (Button) findViewById(R.id.toggle);
         mButtonToggle.setOnClickListener(view -> {
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                         // parse host and port parts
                         String[] parts = inputText.getText().toString().split("\\:");
                         String host = parts[0];
-                        int port = Constants.DEFAULT_PORT_REVERSE;
+                        int port = mDefaults.getPortReverse();
                         if (parts.length > 1) {
                             try {
                                 port = Integer.parseInt(parts[1]);
@@ -182,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                         // parse host and port parts
                         String[] parts = hostInputText.getText().toString().split("\\:");
                         String host = parts[0];
-                        int port = Constants.DEFAULT_PORT_REPEATER;
+                        int port = mDefaults.getPortRepeater();
                         if (parts.length > 1) {
                             try {
                                 port = Integer.parseInt(parts[1]);
@@ -217,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         final EditText port = findViewById(R.id.settings_port);
-        port.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, Constants.DEFAULT_PORT)));
+        port.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort())));
         port.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -238,17 +240,17 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable editable) {
                 if(port.getText().length() == 0) {
                     // hint that default is set
-                    port.setHint(String.valueOf(Constants.DEFAULT_PORT));
+                    port.setHint(String.valueOf(mDefaults.getPort()));
                     // and set default
                     SharedPreferences.Editor ed = prefs.edit();
-                    ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, Constants.DEFAULT_PORT);
+                    ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort());
                     ed.apply();
                 }
             }
         });
 
         final EditText password = findViewById(R.id.settings_password);
-        password.setText(prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, ""));
+        password.setText(prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
         password.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -277,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Slider scaling = findViewById(R.id.settings_scaling);
-        scaling.setValue(prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, Constants.DEFAULT_SCALING)*100);
+        scaling.setValue(prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling())*100);
         scaling.setLabelFormatter(value -> Math.round(value) + " %");
         scaling.addOnChangeListener((slider, value, fromUser) -> {
             SharedPreferences.Editor ed = prefs.edit();
