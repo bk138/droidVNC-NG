@@ -279,7 +279,7 @@ public class MainService extends Service {
     }
 
     @SuppressLint("WakelockTimeout")
-    public static void onClientConnected(long client) {
+    static void onClientConnected(long client) {
         Log.d(TAG, "onClientConnected: client " + client);
 
         try {
@@ -290,7 +290,7 @@ public class MainService extends Service {
         }
     }
 
-    public static void onClientDisconnected(long client) {
+    static void onClientDisconnected(long client) {
         Log.d(TAG, "onClientDisconnected: client " + client);
 
         try {
