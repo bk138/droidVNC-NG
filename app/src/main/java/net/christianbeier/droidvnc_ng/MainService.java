@@ -465,7 +465,7 @@ public class MainService extends Service {
      * Get whether Media Projection was granted by the user.
      * @return -1 if unknown, 0 if denied, 1 if granted
      */
-    public static int isMediaProjectionEnabled() {
+    static int isMediaProjectionEnabled() {
         if(instance == null)
             return -1;
         if(instance.mResultCode == 0 || instance.mResultData == null)
@@ -474,7 +474,7 @@ public class MainService extends Service {
         return 1;
     }
 
-    public static void togglePortraitInLandscapeWorkaround() {
+    static void togglePortraitInLandscapeWorkaround() {
         try {
             // set
             instance.mHasPortraitInLandscapeWorkaroundSet = true;
@@ -492,7 +492,7 @@ public class MainService extends Service {
      * Get non-loopback IPv4 addresses together with the port the user specified.
      * @return A list of strings in the form IP:port.
      */
-    public static ArrayList<String> getIPv4sAndPorts() {
+    static ArrayList<String> getIPv4sAndPorts() {
 
         int port = 5900;
 
