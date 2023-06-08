@@ -189,7 +189,7 @@ public class MainService extends Service {
 
         if (!vncStartServer(displayMetrics.widthPixels,
                 displayMetrics.heightPixels,
-                prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900),
+                prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()),
                 Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
                 prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword())))
             stopSelf();
