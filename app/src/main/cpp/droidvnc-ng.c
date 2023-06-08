@@ -461,3 +461,7 @@ JNIEXPORT jint JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetFr
 
     return theScreen->height;
 }
+
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncIsActive(JNIEnv *env, jobject thiz) {
+    return theScreen && rfbIsActive(theScreen);
+}
