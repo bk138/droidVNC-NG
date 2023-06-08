@@ -178,21 +178,9 @@ public class MainService extends Service {
         mWakeLock = ((PowerManager) instance.getSystemService(Context.POWER_SERVICE)).newWakeLock((PowerManager.SCREEN_DIM_WAKE_LOCK| PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE), TAG + ":clientsConnected");
 
         /*
-            Start the server FIXME move this to intent handling?
+            Load defaults
          */
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getRealMetrics(displayMetrics);
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         mDefaults = new Defaults(this);
-
-        if (!vncStartServer(displayMetrics.widthPixels,
-                displayMetrics.heightPixels,
-                prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()),
-                Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-                prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword())))
-            stopSelf();
     }
 
 
@@ -200,10 +188,7 @@ public class MainService extends Service {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getRealMetrics(displayMetrics);
-
+        DisplayMetrics displayMetrics = getDisplayMetrics();
         Log.d(TAG, "onConfigurationChanged: width: " + displayMetrics.widthPixels + " height: " + displayMetrics.heightPixels);
 
         startScreenCapture();
@@ -229,6 +214,15 @@ public class MainService extends Service {
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
+
+            DisplayMetrics displayMetrics = getDisplayMetrics();
+            if (!vncStartServer(displayMetrics.widthPixels,
+                    displayMetrics.heightPixels,
+                    PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()),
+                    Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
+                    PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword())))
+                stopSelf();
+
             startScreenCapture();
             // if we got here, we want to restart if we were killed
             return START_REDELIVER_INTENT;
@@ -239,6 +233,14 @@ public class MainService extends Service {
             // Step 3: coming back from write storage permission check, start capturing
             // or ask for ask for capturing permission first (then going in step 4)
             if (mResultCode != 0 && mResultData != null) {
+                DisplayMetrics displayMetrics = getDisplayMetrics();
+                if (!vncStartServer(displayMetrics.widthPixels,
+                        displayMetrics.heightPixels,
+                        PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()),
+                        Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
+                        PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword())))
+                    stopSelf();
+
                 startScreenCapture();
                 // if we got here, we want to restart if we were killed
                 return START_REDELIVER_INTENT;
@@ -326,9 +328,7 @@ public class MainService extends Service {
         if (mVirtualDisplay != null)
             mVirtualDisplay.release();
 
-        final DisplayMetrics metrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getRealMetrics(metrics);
+        final DisplayMetrics metrics = getDisplayMetrics();
 
         // apply scaling preference
         float scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling());
@@ -553,5 +553,12 @@ public class MainService extends Service {
         catch (NullPointerException e) {
             return false;
         }
+    }
+
+    private DisplayMetrics getDisplayMetrics() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getRealMetrics(displayMetrics);
+        return displayMetrics;
     }
 }
