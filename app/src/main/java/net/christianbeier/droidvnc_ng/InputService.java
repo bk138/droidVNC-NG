@@ -27,6 +27,8 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.ViewConfiguration;
 import android.graphics.Path;
 
+import androidx.preference.PreferenceManager;
+
 public class InputService extends AccessibilityService {
 
 	/**
@@ -79,6 +81,7 @@ public class InputService extends AccessibilityService {
 		super.onServiceConnected();
 		instance = this;
 		mMainHandler = new Handler(instance.getMainLooper());
+		mScaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, new Defaults(this).getScaling());
 		Log.i(TAG, "onServiceConnected");
 	}
 
