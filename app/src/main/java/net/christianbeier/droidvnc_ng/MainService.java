@@ -251,6 +251,9 @@ public class MainService extends Service {
                 Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
                 mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(mediaProjectionRequestIntent);
+                // if screen capturing was not started, we don't want a restart if we were killed
+                // especially, we don't want the permission asking to replay.
+                return START_NOT_STICKY;
             }
         }
 
@@ -261,6 +264,9 @@ public class MainService extends Service {
             Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
             writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(writeStorageRequestIntent);
+            // if screen capturing was not started, we don't want a restart if we were killed
+            // especially, we don't want the permission asking to replay.
+            return START_NOT_STICKY;
         }
 
         if(ACTION_START.equals(intent.getAction())) {
@@ -269,15 +275,22 @@ public class MainService extends Service {
             Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
             inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(inputRequestIntent);
+            // if screen capturing was not started, we don't want a restart if we were killed
+            // especially, we don't want the permission asking to replay.
+            return START_NOT_STICKY;
         }
 
         if(ACTION_STOP.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: stop");
             stopSelf();
+            return START_NOT_STICKY;
         }
 
-        // if screen capturing was not started, we don't want a restart if we were killed
-        // especially, we don't want the permission asking to replay.
+        // no known action was given, stop the _service_ again if the _server_ is not active
+        if(!vncIsActive()) {
+            stopSelf();
+        }
+
         return START_NOT_STICKY;
     }
 
