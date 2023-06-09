@@ -22,10 +22,13 @@
 package net.christianbeier.droidvnc_ng
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
-import java.io.File
+import androidx.preference.PreferenceManager
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import java.io.File
+import java.util.UUID
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -54,11 +57,33 @@ class Defaults {
     @EncodeDefault
     var password = ""
         private set
+
+    @EncodeDefault
+    var accessKey = ""
+        private set
     /*
        NB if adding fields here, don't forget to add their copying in the constructor as well!
      */
 
     constructor(context: Context) {
+        /*
+            persist randomly generated defaults
+         */
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        val defaultAccessKey = prefs.getString(Constants.PREFS_KEY_DEFAULTS_ACCESS_KEY, null)
+        if (defaultAccessKey == null) {
+            val ed: SharedPreferences.Editor = prefs.edit()
+            ed.putString(
+                Constants.PREFS_KEY_DEFAULTS_ACCESS_KEY,
+                UUID.randomUUID().toString().replace("-".toRegex(), "")
+            )
+            ed.apply()
+        }
+        this.accessKey = prefs.getString(Constants.PREFS_KEY_DEFAULTS_ACCESS_KEY, null)!!
+
+        /*
+            read provided defaults
+         */
         val jsonFile = File(context.getExternalFilesDir(null), "defaults.json")
         try {
             val jsonString = jsonFile.readText()
@@ -68,6 +93,7 @@ class Defaults {
             this.portRepeater = readDefault.portRepeater
             this.scaling = readDefault.scaling
             this.password = readDefault.password
+            this.accessKey = readDefault.accessKey
             // add here!
         } catch (e: Exception) {
             Log.w(TAG, "${e.message}")
