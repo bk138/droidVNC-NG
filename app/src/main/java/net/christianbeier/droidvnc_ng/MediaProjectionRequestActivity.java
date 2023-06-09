@@ -23,6 +23,7 @@
 package net.christianbeier.droidvnc_ng;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import android.app.Activity;
 import android.content.Context;
@@ -61,6 +62,7 @@ public class MediaProjectionRequestActivity extends AppCompatActivity {
 
             Intent intent = new Intent(this, MainService.class);
             intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
+            intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(this).getAccessKey()));
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_CODE, resultCode);
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_DATA, data);
             startService(intent);
