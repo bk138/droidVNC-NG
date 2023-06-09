@@ -23,9 +23,16 @@
             </intent-filter>
         </receiver>
 
+        <!--
+            We export the MainService without a permission to enable 3rd party apps to send
+            send Intents to it (otherwise they would have to know about the permission at build
+            time). Access is secured differently by an access key Intent senders have to supply.
+            As only explicit Intents are handled (i.e. no intent-filter), this is secure.
+        -->
         <service
             android:name=".MainService"
             android:enabled="true"
+            android:exported="true"
             android:foregroundServiceType="mediaProjection" />
 
         <service

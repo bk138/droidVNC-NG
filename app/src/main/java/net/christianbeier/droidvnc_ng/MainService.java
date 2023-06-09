@@ -68,6 +68,7 @@ public class MainService extends Service {
     private static final int NOTIFICATION_ID = 11;
     final static String ACTION_START = "start";
     final static String ACTION_STOP = "stop";
+    public static final String EXTRA_ACCESS_KEY = "net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
@@ -210,6 +211,17 @@ public class MainService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        String accessKey = intent.getStringExtra(EXTRA_ACCESS_KEY);
+        if (accessKey == null
+                || accessKey.isEmpty()
+                || !accessKey.equals(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()))) {
+            Log.e(TAG, "Access key missing or incorrect");
+            if(!vncIsActive()) {
+                stopSelf();
+            }
+            return START_NOT_STICKY;
+        }
+
         if(ACTION_HANDLE_MEDIA_PROJECTION_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle media projection result");
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
