@@ -33,6 +33,8 @@ import androidx.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.text.method.PasswordTransformationMethod;
+import android.text.method.SingleLineTransformationMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -259,15 +261,29 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                SharedPreferences.Editor ed = prefs.edit();
-                ed.putString(Constants.PREFS_KEY_SETTINGS_PASSWORD, charSequence.toString());
-                ed.apply();
+                // only save new value if it differs from the default
+                if(!charSequence.toString().equals(mDefaults.getPassword())) {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putString(Constants.PREFS_KEY_SETTINGS_PASSWORD, charSequence.toString());
+                    ed.apply();
+                }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
 
             }
+        });
+        // show/hide password on focus change. NB that this triggers onTextChanged above, so we have
+        // to take special precautions there.
+        password.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                password.setTransformationMethod(new SingleLineTransformationMethod());
+            } else {
+                password.setTransformationMethod(new PasswordTransformationMethod());
+            }
+            // move cursor to end of text
+            password.setSelection(password.getText().length());
         });
 
         final SwitchMaterial startOnBoot = findViewById(R.id.settings_start_on_boot);
