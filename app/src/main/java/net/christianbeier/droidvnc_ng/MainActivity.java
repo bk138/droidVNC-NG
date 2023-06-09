@@ -286,6 +286,39 @@ public class MainActivity extends AppCompatActivity {
             password.setSelection(password.getText().length());
         });
 
+        final EditText accessKey = findViewById(R.id.settings_access_key);
+        accessKey.setText(prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
+        accessKey.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // only save new value if it differs from the default
+                if(!charSequence.toString().equals(mDefaults.getAccessKey())) {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, charSequence.toString());
+                    ed.apply();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+        // show/hide access key on focus change. NB that this triggers onTextChanged above, so we have
+        // to take special precautions there.
+        accessKey.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                accessKey.setTransformationMethod(new SingleLineTransformationMethod());
+            } else {
+                accessKey.setTransformationMethod(new PasswordTransformationMethod());
+            }
+            // move cursor to end of text
+            accessKey.setSelection(accessKey.getText().length());
+        });
+
         final SwitchMaterial startOnBoot = findViewById(R.id.settings_start_on_boot);
         startOnBoot.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, true));
         startOnBoot.setOnCheckedChangeListener((compoundButton, b) -> {
@@ -334,6 +367,7 @@ public class MainActivity extends AppCompatActivity {
                 // indicate that changing these settings does not have an effect when the server is running
                 findViewById(R.id.settings_port).setEnabled(false);
                 findViewById(R.id.settings_password).setEnabled(false);
+                findViewById(R.id.settings_access_key).setEnabled(false);
                 findViewById(R.id.settings_scaling).setEnabled(false);
 
                 mIsMainServiceRunning = true;
@@ -356,6 +390,7 @@ public class MainActivity extends AppCompatActivity {
                 // indicate that changing these settings does have an effect when the server is stopped
                 findViewById(R.id.settings_port).setEnabled(true);
                 findViewById(R.id.settings_password).setEnabled(true);
+                findViewById(R.id.settings_access_key).setEnabled(true);
                 findViewById(R.id.settings_scaling).setEnabled(true);
 
                 mIsMainServiceRunning = false;

@@ -4,6 +4,7 @@
     <string name="main_activity_settings">Settings</string>
     <string name="main_activity_settings_port">Port</string>
     <string name="main_activity_settings_password">Password</string>
+    <string name="main_activity_settings_access_key">Access Key</string>
     <string name="main_activity_settings_start_on_boot">Start on Boot</string>
     <string name="main_activity_settings_scaling">Scaling</string>
     <string name="main_activity_permissions_dashboard">Permissions Dashboard</string>
