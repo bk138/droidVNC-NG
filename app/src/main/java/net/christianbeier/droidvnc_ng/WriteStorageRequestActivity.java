@@ -92,6 +92,7 @@ public class WriteStorageRequestActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, MainService.class);
         intent.setAction(MainService.ACTION_HANDLE_WRITE_STORAGE_RESULT);
+        intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(this).getAccessKey()));
         intent.putExtra(MainService.EXTRA_WRITE_STORAGE_RESULT, isPermissionGiven);
         startService(intent);
         finish();
