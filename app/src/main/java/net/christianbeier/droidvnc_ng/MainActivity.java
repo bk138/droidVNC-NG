@@ -287,14 +287,6 @@ public class MainActivity extends AppCompatActivity {
             ed.apply();
         });
 
-        final SwitchMaterial removePadding = findViewById(R.id.settings_remove_padding);
-        removePadding.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_REMOVE_PADDING, mDefaults.getRemovePadding()));
-        removePadding.setOnCheckedChangeListener((compoundButton, b) -> {
-            SharedPreferences.Editor ed = prefs.edit();
-            ed.putBoolean(Constants.PREFS_KEY_SETTINGS_REMOVE_PADDING, b);
-            ed.apply();
-        });
-
         TextView about = findViewById(R.id.about);
         about.setText(getString(R.string.main_activity_about, BuildConfig.VERSION_NAME));
 

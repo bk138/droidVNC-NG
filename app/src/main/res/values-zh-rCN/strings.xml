@@ -6,7 +6,6 @@
     <string name="main_activity_settings_password">密码</string>
     <string name="main_activity_settings_start_on_boot">开机启动</string>
     <string name="main_activity_settings_scaling">缩放</string>
-    <string name="main_activity_settings_remove_padding">删除填充</string>
     <string name="main_activity_permissions_dashboard">权限仪表盘</string>
     <string name="main_activity_colon">：</string>
     <string name="main_activity_screen_capturing">截屏</string>
