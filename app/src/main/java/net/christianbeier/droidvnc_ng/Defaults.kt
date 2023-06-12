@@ -55,6 +55,10 @@ class Defaults {
         private set
 
     @EncodeDefault
+    var viewOnly = false
+        private set
+
+    @EncodeDefault
     var password = ""
         private set
 
@@ -92,6 +96,7 @@ class Defaults {
             this.portReverse = readDefault.portReverse
             this.portRepeater = readDefault.portRepeater
             this.scaling = readDefault.scaling
+            this.viewOnly = readDefault.viewOnly
             this.password = readDefault.password
             this.accessKey = readDefault.accessKey
             // add here!
