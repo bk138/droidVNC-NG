@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, MainService.class);
             intent.putExtra(MainService.EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
             intent.putExtra(MainService.EXTRA_PASSWORD, prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
+            intent.putExtra(MainService.EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()));
             intent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
             if(mIsMainServiceRunning) {
                 intent.setAction(MainService.ACTION_STOP);
@@ -350,6 +351,14 @@ public class MainActivity extends AppCompatActivity {
             ed.apply();
         });
 
+        final SwitchMaterial viewOnly = findViewById(R.id.settings_view_only);
+        viewOnly.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()));
+        viewOnly.setOnCheckedChangeListener((compoundButton, b) -> {
+            SharedPreferences.Editor ed = prefs.edit();
+            ed.putBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, b);
+            ed.apply();
+        });
+
         TextView about = findViewById(R.id.about);
         about.setText(getString(R.string.main_activity_about, BuildConfig.VERSION_NAME));
 
@@ -383,6 +392,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.settings_password).setEnabled(false);
                 findViewById(R.id.settings_access_key).setEnabled(false);
                 findViewById(R.id.settings_scaling).setEnabled(false);
+                findViewById(R.id.settings_view_only).setEnabled(false);
 
                 mIsMainServiceRunning = true;
             }
@@ -406,6 +416,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.settings_password).setEnabled(true);
                 findViewById(R.id.settings_access_key).setEnabled(true);
                 findViewById(R.id.settings_scaling).setEnabled(true);
+                findViewById(R.id.settings_view_only).setEnabled(true);
 
                 mIsMainServiceRunning = false;
             }

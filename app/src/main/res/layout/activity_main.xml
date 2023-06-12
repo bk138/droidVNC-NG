@@ -171,6 +171,35 @@
 
             </TableRow>
 
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_settings_view_only" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_colon" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/settings_view_only"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:layout_weight="1"
+                    android:text="" />
+
+            </TableRow>
+
         </TableLayout>
 
 
