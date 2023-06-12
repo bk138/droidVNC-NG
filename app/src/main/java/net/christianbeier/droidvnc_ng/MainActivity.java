@@ -220,15 +220,19 @@ public class MainActivity extends AppCompatActivity {
                         }
                         // done
                         Log.d(TAG, "repeater vnc " + host + ":" + port + ":" + repeaterId);
-                        if(MainService.connectRepeater(host, port, /*"ID:" +*/ repeaterId)) {
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_repeater_vnc_success, host, port, repeaterId), Toast.LENGTH_LONG).show();
-                            SharedPreferences.Editor ed = prefs.edit();
-                            ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST, host + ":" + port);
-                            ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID, repeaterId);
-                            ed.apply();
+                        mLastMainServiceRequestId = UUID.randomUUID().toString();
+                        Intent request = new Intent(MainActivity.this, MainService.class);
+                        request.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
+                        request.setAction(MainService.ACTION_CONNECT_REPEATER);
+                        request.putExtra(MainService.EXTRA_HOST, host);
+                        request.putExtra(MainService.EXTRA_PORT, port);
+                        request.putExtra(MainService.EXTRA_REPEATER_ID, repeaterId);
+                        request.putExtra(MainService.EXTRA_REQUEST_ID, mLastMainServiceRequestId);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startForegroundService(request);
+                        } else {
+                            startService(request);
                         }
-                        else
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_repeater_vnc_fail, host, port, repeaterId), Toast.LENGTH_LONG).show();
                     })
                     .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                     .create();
@@ -466,10 +470,43 @@ public class MainActivity extends AppCompatActivity {
                     mLastMainServiceRequestId = null;
                 }
 
+                if (MainService.ACTION_CONNECT_REPEATER.equals(intent.getAction())
+                        && mLastMainServiceRequestId != null
+                        && mLastMainServiceRequestId.equals(intent.getStringExtra(MainService.EXTRA_REQUEST_ID))) {
+                    // was a CONNECT_REPEATER requested by us
+                    if (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
+                        Toast.makeText(MainActivity.this,
+                                        getString(R.string.main_activity_repeater_vnc_success,
+                                                intent.getStringExtra(MainService.EXTRA_HOST),
+                                                intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortRepeater()),
+                                                intent.getStringExtra(MainService.EXTRA_REPEATER_ID)),
+                                        Toast.LENGTH_LONG)
+                                .show();
+                        SharedPreferences.Editor ed = prefs.edit();
+                        ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST,
+                                intent.getStringExtra(MainService.EXTRA_HOST) + ":" + intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortRepeater()));
+                        ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID,
+                                intent.getStringExtra(MainService.EXTRA_REPEATER_ID));
+                        ed.apply();
+                    }
+                    else
+                        Toast.makeText(MainActivity.this,
+                                        getString(R.string.main_activity_repeater_vnc_fail,
+                                                intent.getStringExtra(MainService.EXTRA_HOST),
+                                                intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortRepeater()),
+                                                intent.getStringExtra(MainService.EXTRA_REPEATER_ID)),
+                                        Toast.LENGTH_LONG)
+                                .show();
+
+                    // reset this
+                    mLastMainServiceRequestId = null;
+                }
+
             }
         };
         IntentFilter filter = new IntentFilter();
         filter.addAction(MainService.ACTION_CONNECT_REVERSE);
+        filter.addAction(MainService.ACTION_CONNECT_REPEATER);
         registerReceiver(mMainServiceBroadcastReceiver, filter);
     }
 

@@ -69,10 +69,12 @@ public class MainService extends Service {
     public final static String ACTION_START = "net.christianbeier.droidvnc_ng.ACTION_START";
     public final static String ACTION_STOP = "net.christianbeier.droidvnc_ng.ACTION_STOP";
     public static final String ACTION_CONNECT_REVERSE = "net.christianbeier.droidvnc_ng.ACTION_CONNECT_REVERSE";
+    public static final String ACTION_CONNECT_REPEATER = "net.christianbeier.droidvnc_ng.ACTION_CONNECT_REPEATER";
     public static final String EXTRA_REQUEST_ID = "net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID";
     public static final String EXTRA_REQUEST_SUCCESS = "net.christianbeier.droidvnc_ng.EXTRA_REQUEST_SUCCESS";
     public static final String EXTRA_HOST = "net.christianbeier.droidvnc_ng.EXTRA_HOST";
     public static final String EXTRA_PORT = "net.christianbeier.droidvnc_ng.EXTRA_PORT";
+    public static final String EXTRA_REPEATER_ID = "net.christianbeier.droidvnc_ng.EXTRA_REPEATER_ID";
     public static final String EXTRA_ACCESS_KEY = "net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY";
     public static final String EXTRA_PASSWORD = "net.christianbeier.droidvnc_ng.EXTRA_PASSWORD";
     public static final String EXTRA_VIEW_ONLY = "net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY";
@@ -333,6 +335,32 @@ public class MainService extends Service {
             }
 
             Intent answer = new Intent(ACTION_CONNECT_REVERSE);
+            // use request's extras
+            answer.putExtras(intent);
+            // but don't leak the access key!
+            answer.removeExtra(EXTRA_ACCESS_KEY);
+            answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+            sendBroadcast(answer);
+            return START_NOT_STICKY;
+        }
+
+        if(ACTION_CONNECT_REPEATER.equals(intent.getAction())) {
+            Log.d(TAG, "onStartCommand: connect repeater");
+            boolean status = false;
+            if(vncIsActive()) {
+                try {
+                    //TODO run on worker thread
+                    status = instance.vncConnectRepeater(
+                            intent.getStringExtra(EXTRA_HOST),
+                            intent.getIntExtra(EXTRA_PORT, mDefaults.getPortRepeater()),
+                            intent.getStringExtra(EXTRA_REPEATER_ID));
+                } catch (NullPointerException ignored) {
+                }
+            } else {
+                stopSelf();
+            }
+
+            Intent answer = new Intent(ACTION_CONNECT_REPEATER);
             // use request's extras
             answer.putExtras(intent);
             // but don't leak the access key!
@@ -605,15 +633,6 @@ public class MainService extends Service {
         }
 
         return hostsAndPorts;
-    }
-
-    public static boolean connectRepeater(String host, int port, String repeaterIdentifier) {
-        try {
-            return instance.vncConnectRepeater(host, port, repeaterIdentifier);
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
     }
 
     private DisplayMetrics getDisplayMetrics() {
