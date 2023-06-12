@@ -75,6 +75,7 @@ public class MainService extends Service {
     public static final String EXTRA_PORT = "net.christianbeier.droidvnc_ng.EXTRA_PORT";
     public static final String EXTRA_ACCESS_KEY = "net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY";
     public static final String EXTRA_PASSWORD = "net.christianbeier.droidvnc_ng.EXTRA_PASSWORD";
+    public static final String EXTRA_VIEW_ONLY = "net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
@@ -261,7 +262,12 @@ public class MainService extends Service {
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle input result");
             // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission
-            InputService.setScaling(PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling()));
+            if(intent.getBooleanExtra(EXTRA_INPUT_RESULT, false)) {
+                InputService.isEnabled = true;
+                InputService.setScaling(PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling()));
+            } else {
+                InputService.isEnabled = false;
+            }
             Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
             writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(writeStorageRequestIntent);
@@ -283,6 +289,7 @@ public class MainService extends Service {
 
             // Step 1: check input permission
             Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
+            inputRequestIntent.putExtra(EXTRA_VIEW_ONLY, intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
             inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(inputRequestIntent);
             // if screen capturing was not started, we don't want a restart if we were killed

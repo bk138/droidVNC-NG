@@ -40,6 +40,12 @@ public class InputRequestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // if VIEW_ONLY is set, bail out early without bothering the user
+        if(getIntent().getBooleanExtra(MainService.EXTRA_VIEW_ONLY, new Defaults(this).getViewOnly())) {
+            postResultAndFinish(false);
+            return;
+        }
+
         if(!InputService.isConnected()) {
             new AlertDialog.Builder(this)
                     .setCancelable(false)
