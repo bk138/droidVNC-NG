@@ -76,6 +76,7 @@ public class MainService extends Service {
     public static final String EXTRA_ACCESS_KEY = "net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY";
     public static final String EXTRA_PASSWORD = "net.christianbeier.droidvnc_ng.EXTRA_PASSWORD";
     public static final String EXTRA_VIEW_ONLY = "net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY";
+    public static final String EXTRA_SCALING = "net.christianbeier.droidvnc_ng.EXTRA_SCALING";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
@@ -276,12 +277,7 @@ public class MainService extends Service {
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle input result");
             // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission
-            if(intent.getBooleanExtra(EXTRA_INPUT_RESULT, false)) {
-                InputService.isEnabled = true;
-                InputService.setScaling(PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling()));
-            } else {
-                InputService.isEnabled = false;
-            }
+            InputService.isEnabled = intent.getBooleanExtra(EXTRA_INPUT_RESULT, false);
             Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
             writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(writeStorageRequestIntent);
@@ -296,7 +292,12 @@ public class MainService extends Service {
             SharedPreferences.Editor ed = PreferenceManager.getDefaultSharedPreferences(this).edit();
             ed.putInt(Constants.PREFS_KEY_SERVER_LAST_PORT, intent.getIntExtra(EXTRA_PORT, mDefaults.getPort()));
             ed.putString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, intent.getStringExtra(EXTRA_PASSWORD) != null ? intent.getStringExtra(EXTRA_PASSWORD) : mDefaults.getPassword());
+            ed.putBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
+            ed.putFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, intent.getFloatExtra(EXTRA_SCALING, mDefaults.getScaling()));
             ed.apply();
+            // also set new value for InputService
+            InputService.scaling = intent.getFloatExtra(EXTRA_SCALING, mDefaults.getScaling());
+
             // Step 1: check input permission
             Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
             inputRequestIntent.putExtra(EXTRA_VIEW_ONLY, intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
@@ -394,8 +395,8 @@ public class MainService extends Service {
 
         final DisplayMetrics metrics = getDisplayMetrics();
 
-        // apply scaling preference
-        float scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling());
+        // apply selected scaling
+        float scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
         int scaledWidth = (int) (metrics.widthPixels * scaling);
         int scaledHeight = (int) (metrics.heightPixels * scaling);
 
