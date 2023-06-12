@@ -59,6 +59,10 @@ class Defaults {
         private set
 
     @EncodeDefault
+    var fileTranfer = false
+        private set
+
+    @EncodeDefault
     var password = ""
         private set
 
@@ -95,6 +99,7 @@ class Defaults {
             this.port = readDefault.port
             this.portReverse = readDefault.portReverse
             this.portRepeater = readDefault.portRepeater
+            this.fileTranfer = readDefault.fileTranfer
             this.scaling = readDefault.scaling
             this.viewOnly = readDefault.viewOnly
             this.password = readDefault.password
