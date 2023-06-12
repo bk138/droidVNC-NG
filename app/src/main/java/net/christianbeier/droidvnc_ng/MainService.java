@@ -119,7 +119,8 @@ public class MainService extends Service {
         System.loadLibrary("droidvnc-ng");
     }
 
-    private native boolean vncStartServer(int width, int height, int port, String desktopname, String password);
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private native boolean vncStartServer(int width, int height, int port, String desktopName, String password);
     private native boolean vncStopServer();
     private native boolean vncIsActive();
     private native boolean vncConnectReverse(String host, int port);
@@ -379,6 +380,7 @@ public class MainService extends Service {
     }
 
     @SuppressLint("WakelockTimeout")
+    @SuppressWarnings("unused")
     static void onClientConnected(long client) {
         Log.d(TAG, "onClientConnected: client " + client);
 
@@ -390,6 +392,7 @@ public class MainService extends Service {
         }
     }
 
+    @SuppressWarnings("unused")
     static void onClientDisconnected(long client) {
         Log.d(TAG, "onClientDisconnected: client " + client);
 
