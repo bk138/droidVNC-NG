@@ -29,6 +29,7 @@ public class Constants {
     public static final String PREFS_KEY_SETTINGS_PASSWORD = "settings_password" ;
     public static final String PREFS_KEY_SETTINGS_START_ON_BOOT = "settings_start_on_boot" ;
     public static final String PREFS_KEY_SETTINGS_SCALING = "settings_scaling" ;
+    public static final String PREFS_KEY_SETTINGS_VIEW_ONLY = "settings_view_only" ;
     public static final String PREFS_KEY_SETTINGS_ACCESS_KEY = "settings_access_key";
     /*
         persisted generated defaults
