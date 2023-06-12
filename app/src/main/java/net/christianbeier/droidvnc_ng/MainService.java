@@ -319,6 +319,13 @@ public class MainService extends Service {
         if(ACTION_STOP.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: stop");
             stopSelf();
+            Intent answer = new Intent(ACTION_STOP);
+            // use request's extras
+            answer.putExtras(intent);
+            // but don't leak the access key!
+            answer.removeExtra(EXTRA_ACCESS_KEY);
+            answer.putExtra(EXTRA_REQUEST_SUCCESS, true);
+            sendBroadcast(answer);
             return START_NOT_STICKY;
         }
 
