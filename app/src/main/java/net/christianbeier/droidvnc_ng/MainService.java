@@ -320,10 +320,7 @@ public class MainService extends Service {
             Log.d(TAG, "onStartCommand: stop");
             stopSelf();
             Intent answer = new Intent(ACTION_STOP);
-            // use request's extras
-            answer.putExtras(intent);
-            // but don't leak the access key!
-            answer.removeExtra(EXTRA_ACCESS_KEY);
+            answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
             answer.putExtra(EXTRA_REQUEST_SUCCESS, true);
             sendBroadcast(answer);
             return START_NOT_STICKY;
@@ -343,10 +340,7 @@ public class MainService extends Service {
             }
 
             Intent answer = new Intent(ACTION_CONNECT_REVERSE);
-            // use request's extras
-            answer.putExtras(intent);
-            // but don't leak the access key!
-            answer.removeExtra(EXTRA_ACCESS_KEY);
+            answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
             answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
             sendBroadcast(answer);
             return START_NOT_STICKY;
@@ -369,10 +363,7 @@ public class MainService extends Service {
             }
 
             Intent answer = new Intent(ACTION_CONNECT_REPEATER);
-            // use request's extras
-            answer.putExtras(intent);
-            // but don't leak the access key!
-            answer.removeExtra(EXTRA_ACCESS_KEY);
+            answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
             answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
             sendBroadcast(answer);
             return START_NOT_STICKY;
