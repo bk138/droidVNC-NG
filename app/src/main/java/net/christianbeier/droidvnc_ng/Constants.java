@@ -47,5 +47,6 @@ public class Constants {
     public static final String PREFS_KEY_SERVER_LAST_PASSWORD = "server_last_password" ;
     public static final String PREFS_KEY_SERVER_LAST_SCALING = "server_last_scaling" ;
     public static final String PREFS_KEY_SERVER_LAST_FILE_TRANSFER = "server_last_file_transfer" ;
+    public static final String PREFS_KEY_SERVER_LAST_START_REQUEST_ID = "server_last_start_request_id" ;
     public static final String PREFS_KEY_INPUT_LAST_ENABLED = "input_last_enabled" ;
 }

@@ -240,15 +240,25 @@ public class MainService extends Service {
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
             DisplayMetrics displayMetrics = getDisplayMetrics();
-            if (!vncStartServer(displayMetrics.widthPixels,
+            boolean status = vncStartServer(displayMetrics.widthPixels,
                     displayMetrics.heightPixels,
                     PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
                     Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-                    PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword())))
+                    PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
+
+            Intent answer = new Intent(ACTION_START);
+            answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
+            answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+            sendBroadcast(answer);
+
+            if(status) {
+                startScreenCapture();
+                // if we got here, we want to restart if we were killed
+                return START_REDELIVER_INTENT;
+            } else {
                 stopSelf();
-            startScreenCapture();
-            // if we got here, we want to restart if we were killed
-            return START_REDELIVER_INTENT;
+                return START_NOT_STICKY;
+            }
         }
 
         if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction())) {
@@ -257,15 +267,25 @@ public class MainService extends Service {
             // or ask for ask for capturing permission first (then going in step 4)
             if (mResultCode != 0 && mResultData != null) {
                 DisplayMetrics displayMetrics = getDisplayMetrics();
-                if (!vncStartServer(displayMetrics.widthPixels,
+                boolean status = vncStartServer(displayMetrics.widthPixels,
                         displayMetrics.heightPixels,
                         PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
                         Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-                        PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword())))
+                        PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
+
+                Intent answer = new Intent(ACTION_START);
+                answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
+                answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+                sendBroadcast(answer);
+
+                if(status) {
+                    startScreenCapture();
+                    // if we got here, we want to restart if we were killed
+                    return START_REDELIVER_INTENT;
+                } else {
                     stopSelf();
-                startScreenCapture();
-                // if we got here, we want to restart if we were killed
-                return START_REDELIVER_INTENT;
+                    return START_NOT_STICKY;
+                }
             } else {
                 Log.i(TAG, "Requesting confirmation");
                 // This initiates a prompt dialog for the user to confirm screen projection.
@@ -302,6 +322,7 @@ public class MainService extends Service {
             ed.putBoolean(Constants.PREFS_KEY_SERVER_LAST_FILE_TRANSFER, intent.getBooleanExtra(EXTRA_FILE_TRANSFER, mDefaults.getFileTranfer()));
             ed.putBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
             ed.putFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, intent.getFloatExtra(EXTRA_SCALING, mDefaults.getScaling()));
+            ed.putString(Constants.PREFS_KEY_SERVER_LAST_START_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
             ed.apply();
             // also set new value for InputService
             InputService.scaling = intent.getFloatExtra(EXTRA_SCALING, mDefaults.getScaling());
