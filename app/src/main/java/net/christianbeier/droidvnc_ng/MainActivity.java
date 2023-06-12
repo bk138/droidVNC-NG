@@ -258,11 +258,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 if(port.getText().length() == 0) {
-                    // hint that default is set
-                    port.setHint(String.valueOf(mDefaults.getPort()));
+                    // hint that not listening
+                    port.setHint(R.string.main_activity_settings_port_not_listening);
                     // and set default
                     SharedPreferences.Editor ed = prefs.edit();
-                    ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort());
+                    ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, -1);
                     ed.apply();
                 }
             }
