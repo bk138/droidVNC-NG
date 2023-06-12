@@ -67,7 +67,7 @@ public class MainService extends Service {
     private static final String TAG = "MainService";
     private static final int NOTIFICATION_ID = 11;
     public final static String ACTION_START = "net.christianbeier.droidvnc_ng.ACTION_START";
-    final static String ACTION_STOP = "stop";
+    public final static String ACTION_STOP = "net.christianbeier.droidvnc_ng.ACTION_STOP";
     public static final String ACTION_CONNECT_REVERSE = "net.christianbeier.droidvnc_ng.ACTION_CONNECT_REVERSE";
     public static final String EXTRA_REQUEST_ID = "net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID";
     public static final String EXTRA_REQUEST_SUCCESS = "net.christianbeier.droidvnc_ng.EXTRA_REQUEST_SUCCESS";
