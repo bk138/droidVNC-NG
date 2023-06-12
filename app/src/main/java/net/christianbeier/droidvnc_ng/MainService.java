@@ -234,6 +234,13 @@ public class MainService extends Service {
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
+            DisplayMetrics displayMetrics = getDisplayMetrics();
+            if (!vncStartServer(displayMetrics.widthPixels,
+                    displayMetrics.heightPixels,
+                    PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
+                    Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
+                    PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword())))
+                stopSelf();
             startScreenCapture();
             // if we got here, we want to restart if we were killed
             return START_REDELIVER_INTENT;
@@ -244,6 +251,13 @@ public class MainService extends Service {
             // Step 3: coming back from write storage permission check, start capturing
             // or ask for ask for capturing permission first (then going in step 4)
             if (mResultCode != 0 && mResultData != null) {
+                DisplayMetrics displayMetrics = getDisplayMetrics();
+                if (!vncStartServer(displayMetrics.widthPixels,
+                        displayMetrics.heightPixels,
+                        PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
+                        Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
+                        PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword())))
+                    stopSelf();
                 startScreenCapture();
                 // if we got here, we want to restart if we were killed
                 return START_REDELIVER_INTENT;
@@ -278,15 +292,11 @@ public class MainService extends Service {
 
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
-            // Step 0: start server w/ provided arguments
-            DisplayMetrics displayMetrics = getDisplayMetrics();
-            if (!vncStartServer(displayMetrics.widthPixels,
-                    displayMetrics.heightPixels,
-                    intent.getIntExtra(EXTRA_PORT, mDefaults.getPort()),
-                    Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-                    intent.getStringExtra(EXTRA_PASSWORD) != null ? intent.getStringExtra(EXTRA_PASSWORD) : mDefaults.getPassword()))
-                stopSelf();
-
+            // Step 0: persist given arguments to be able to recover from possible crash later
+            SharedPreferences.Editor ed = PreferenceManager.getDefaultSharedPreferences(this).edit();
+            ed.putInt(Constants.PREFS_KEY_SERVER_LAST_PORT, intent.getIntExtra(EXTRA_PORT, mDefaults.getPort()));
+            ed.putString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, intent.getStringExtra(EXTRA_PASSWORD) != null ? intent.getStringExtra(EXTRA_PASSWORD) : mDefaults.getPassword());
+            ed.apply();
             // Step 1: check input permission
             Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
             inputRequestIntent.putExtra(EXTRA_VIEW_ONLY, intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
