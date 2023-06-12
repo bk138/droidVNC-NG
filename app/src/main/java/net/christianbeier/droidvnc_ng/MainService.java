@@ -68,6 +68,11 @@ public class MainService extends Service {
     private static final int NOTIFICATION_ID = 11;
     final static String ACTION_START = "start";
     final static String ACTION_STOP = "stop";
+    public static final String ACTION_CONNECT_REVERSE = "net.christianbeier.droidvnc_ng.ACTION_CONNECT_REVERSE";
+    public static final String EXTRA_REQUEST_ID = "net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID";
+    public static final String EXTRA_REQUEST_SUCCESS = "net.christianbeier.droidvnc_ng.EXTRA_REQUEST_SUCCESS";
+    public static final String EXTRA_HOST = "net.christianbeier.droidvnc_ng.EXTRA_HOST";
+    public static final String EXTRA_PORT = "net.christianbeier.droidvnc_ng.EXTRA_PORT";
     public static final String EXTRA_ACCESS_KEY = "net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
@@ -295,6 +300,29 @@ public class MainService extends Service {
         if(ACTION_STOP.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: stop");
             stopSelf();
+            return START_NOT_STICKY;
+        }
+
+        if(ACTION_CONNECT_REVERSE.equals(intent.getAction())) {
+            Log.d(TAG, "onStartCommand: connect reverse");
+            boolean status = false;
+            if(vncIsActive()) {
+                try {
+                    //TODO run on worker thread
+                    status = instance.vncConnectReverse(intent.getStringExtra(EXTRA_HOST), intent.getIntExtra(EXTRA_PORT, mDefaults.getPortReverse()));
+                } catch (NullPointerException ignored) {
+                }
+            } else {
+                stopSelf();
+            }
+
+            Intent answer = new Intent(ACTION_CONNECT_REVERSE);
+            // use request's extras
+            answer.putExtras(intent);
+            // but don't leak the access key!
+            answer.removeExtra(EXTRA_ACCESS_KEY);
+            answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+            sendBroadcast(answer);
             return START_NOT_STICKY;
         }
 
@@ -561,15 +589,6 @@ public class MainService extends Service {
         }
 
         return hostsAndPorts;
-    }
-
-    public static boolean connectReverse(String host, int port) {
-        try {
-            return instance.vncConnectReverse(host, port);
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
     }
 
     public static boolean connectRepeater(String host, int port, String repeaterIdentifier) {

@@ -23,7 +23,10 @@ package net.christianbeier.droidvnc_ng;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -52,6 +55,7 @@ import com.google.android.material.slider.Slider;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import io.reactivex.rxjava3.disposables.Disposable;
 
@@ -65,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView mAddress;
     private boolean mIsMainServiceRunning;
     private Disposable mMainServiceStatusEventStreamConnection;
+    private BroadcastReceiver mMainServiceBroadcastReceiver;
+    private String mLastMainServiceRequestId;
     private Defaults mDefaults;
 
 
@@ -138,13 +144,18 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         Log.d(TAG, "reverse vnc " + host + ":" + port);
-                        if(MainService.connectReverse(host,port)) {
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_reverse_vnc_success, host, port), Toast.LENGTH_LONG).show();
-                            SharedPreferences.Editor ed = prefs.edit();
-                            ed.putString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST, inputText.getText().toString());
-                            ed.apply();
-                        } else
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_reverse_vnc_fail, host, port), Toast.LENGTH_LONG).show();
+                        mLastMainServiceRequestId = UUID.randomUUID().toString();
+                        Intent request = new Intent(MainActivity.this, MainService.class);
+                        request.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
+                        request.setAction(MainService.ACTION_CONNECT_REVERSE);
+                        request.putExtra(MainService.EXTRA_HOST, host);
+                        request.putExtra(MainService.EXTRA_PORT, port);
+                        request.putExtra(MainService.EXTRA_REQUEST_ID, mLastMainServiceRequestId);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startForegroundService(request);
+                        } else {
+                            startService(request);
+                        }
                     })
                     .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                     .create();
@@ -398,6 +409,42 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+        mMainServiceBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (MainService.ACTION_CONNECT_REVERSE.equals(intent.getAction())
+                        && mLastMainServiceRequestId != null
+                        && mLastMainServiceRequestId.equals(intent.getStringExtra(MainService.EXTRA_REQUEST_ID))) {
+                    // was a CONNECT_REVERSE requested by us
+                    if (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
+                        Toast.makeText(MainActivity.this,
+                                        getString(R.string.main_activity_reverse_vnc_success,
+                                                intent.getStringExtra(MainService.EXTRA_HOST),
+                                                intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortReverse())),
+                                        Toast.LENGTH_LONG)
+                                .show();
+                        SharedPreferences.Editor ed = prefs.edit();
+                        ed.putString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST,
+                                intent.getStringExtra(MainService.EXTRA_HOST) + ":" + intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortReverse()));
+                        ed.apply();
+                    } else
+                        Toast.makeText(MainActivity.this,
+                                        getString(R.string.main_activity_reverse_vnc_fail,
+                                                intent.getStringExtra(MainService.EXTRA_HOST),
+                                                intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortReverse())),
+                                        Toast.LENGTH_LONG)
+                                .show();
+
+                    // reset this
+                    mLastMainServiceRequestId = null;
+                }
+
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(MainService.ACTION_CONNECT_REVERSE);
+        registerReceiver(mMainServiceBroadcastReceiver, filter);
     }
 
     @SuppressLint("SetTextI18n")
@@ -455,6 +502,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
         mMainServiceStatusEventStreamConnection.dispose();
+        unregisterReceiver(mMainServiceBroadcastReceiver);
     }
 
 
