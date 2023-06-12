@@ -71,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
     private Disposable mMainServiceStatusEventStreamConnection;
     private BroadcastReceiver mMainServiceBroadcastReceiver;
     private String mLastMainServiceRequestId;
+    private String mLastReverseHost;
+    private int mLastReversePort;
+    private String mLastRepeaterHost;
+    private int mLastRepeaterPort;
+    private String mLastRepeaterId;
     private Defaults mDefaults;
 
 
@@ -150,6 +155,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                         Log.d(TAG, "reverse vnc " + host + ":" + port);
                         mLastMainServiceRequestId = UUID.randomUUID().toString();
+                        mLastReverseHost = host;
+                        mLastReversePort = port;
                         Intent request = new Intent(MainActivity.this, MainService.class);
                         request.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
                         request.setAction(MainService.ACTION_CONNECT_REVERSE);
@@ -221,6 +228,9 @@ public class MainActivity extends AppCompatActivity {
                         // done
                         Log.d(TAG, "repeater vnc " + host + ":" + port + ":" + repeaterId);
                         mLastMainServiceRequestId = UUID.randomUUID().toString();
+                        mLastRepeaterHost = host;
+                        mLastRepeaterPort = port;
+                        mLastRepeaterId = repeaterId;
                         Intent request = new Intent(MainActivity.this, MainService.class);
                         request.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
                         request.setAction(MainService.ACTION_CONNECT_REPEATER);
@@ -454,19 +464,19 @@ public class MainActivity extends AppCompatActivity {
                     if (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_reverse_vnc_success,
-                                                intent.getStringExtra(MainService.EXTRA_HOST),
-                                                intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortReverse())),
+                                                mLastReverseHost,
+                                                mLastReversePort),
                                         Toast.LENGTH_LONG)
                                 .show();
                         SharedPreferences.Editor ed = prefs.edit();
                         ed.putString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST,
-                                intent.getStringExtra(MainService.EXTRA_HOST) + ":" + intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortReverse()));
+                                mLastReverseHost + ":" + mLastReversePort);
                         ed.apply();
                     } else
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_reverse_vnc_fail,
-                                                intent.getStringExtra(MainService.EXTRA_HOST),
-                                                intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortReverse())),
+                                                mLastReverseHost,
+                                                mLastReversePort),
                                         Toast.LENGTH_LONG)
                                 .show();
 
@@ -481,24 +491,24 @@ public class MainActivity extends AppCompatActivity {
                     if (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_repeater_vnc_success,
-                                                intent.getStringExtra(MainService.EXTRA_HOST),
-                                                intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortRepeater()),
-                                                intent.getStringExtra(MainService.EXTRA_REPEATER_ID)),
+                                                mLastRepeaterHost,
+                                                mLastRepeaterPort,
+                                                mLastRepeaterId),
                                         Toast.LENGTH_LONG)
                                 .show();
                         SharedPreferences.Editor ed = prefs.edit();
                         ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST,
-                                intent.getStringExtra(MainService.EXTRA_HOST) + ":" + intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortRepeater()));
+                                mLastRepeaterHost + ":" + mLastRepeaterPort);
                         ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID,
-                                intent.getStringExtra(MainService.EXTRA_REPEATER_ID));
+                                mLastRepeaterId);
                         ed.apply();
                     }
                     else
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_repeater_vnc_fail,
-                                                intent.getStringExtra(MainService.EXTRA_HOST),
-                                                intent.getIntExtra(MainService.EXTRA_PORT, mDefaults.getPortRepeater()),
-                                                intent.getStringExtra(MainService.EXTRA_REPEATER_ID)),
+                                                mLastRepeaterHost,
+                                                mLastRepeaterPort,
+                                                mLastRepeaterId),
                                         Toast.LENGTH_LONG)
                                 .show();
 
