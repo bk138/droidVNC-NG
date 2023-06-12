@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, MainService.class);
             intent.putExtra(MainService.EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
             intent.putExtra(MainService.EXTRA_PASSWORD, prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
+            intent.putExtra(MainService.EXTRA_FILE_TRANSFER, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTranfer()));
             intent.putExtra(MainService.EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()));
             intent.putExtra(MainService.EXTRA_SCALING, prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling()));
             intent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
@@ -343,6 +344,14 @@ public class MainActivity extends AppCompatActivity {
             ed.apply();
         });
 
+        final SwitchMaterial fileTransfer = findViewById(R.id.settings_file_transfer);
+        fileTransfer.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTranfer()));
+        fileTransfer.setOnCheckedChangeListener((compoundButton, b) -> {
+            SharedPreferences.Editor ed = prefs.edit();
+            ed.putBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, b);
+            ed.apply();
+        });
+
         Slider scaling = findViewById(R.id.settings_scaling);
         scaling.setValue(prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling())*100);
         scaling.setLabelFormatter(value -> Math.round(value) + " %");
@@ -394,6 +403,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.settings_access_key).setEnabled(false);
                 findViewById(R.id.settings_scaling).setEnabled(false);
                 findViewById(R.id.settings_view_only).setEnabled(false);
+                findViewById(R.id.settings_file_transfer).setEnabled(false);
 
                 mIsMainServiceRunning = true;
             }
@@ -418,6 +428,8 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.settings_access_key).setEnabled(true);
                 findViewById(R.id.settings_scaling).setEnabled(true);
                 findViewById(R.id.settings_view_only).setEnabled(true);
+                findViewById(R.id.settings_file_transfer).setEnabled(true);
+
 
                 mIsMainServiceRunning = false;
             }
