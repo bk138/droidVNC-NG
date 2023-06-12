@@ -54,10 +54,6 @@ class Defaults {
     @EncodeDefault
     var password = ""
         private set
-
-    @EncodeDefault
-    var removePadding = false
-        private set
     /*
        NB if adding fields here, don't forget to add their copying in the constructor as well!
      */
@@ -72,7 +68,6 @@ class Defaults {
             this.portRepeater = readDefault.portRepeater
             this.scaling = readDefault.scaling
             this.password = readDefault.password
-            this.removePadding = readDefault.removePadding
             // add here!
         } catch (e: Exception) {
             Log.w(TAG, "${e.message}")
