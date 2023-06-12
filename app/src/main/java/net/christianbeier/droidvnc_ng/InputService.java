@@ -51,6 +51,7 @@ public class InputService extends AccessibilityService {
 	private static final String TAG = "InputService";
 
 	private static InputService instance;
+	static boolean isEnabled;
 
 	private Handler mMainHandler;
 
@@ -115,6 +116,10 @@ public class InputService extends AccessibilityService {
 	@SuppressWarnings("unused")
 	public static void onPointerEvent(int buttonMask, int x, int y, long client) {
 
+		if(!isEnabled) {
+			return;
+		}
+
 		try {
 			x /= instance.mScaling;
 			y /= instance.mScaling;
@@ -172,6 +177,11 @@ public class InputService extends AccessibilityService {
 	}
 
 	public static void onKeyEvent(int down, long keysym, long client) {
+
+		if(!isEnabled) {
+			return;
+		}
+
 		Log.d(TAG, "onKeyEvent: keysym " + keysym + " down " + down + " by client " + client);
 
 		/*
@@ -235,6 +245,11 @@ public class InputService extends AccessibilityService {
 	}
 
 	public static void onCutText(String text, long client) {
+
+		if(!isEnabled) {
+			return;
+		}
+
 		Log.d(TAG, "onCutText: text '" + text + "' by client " + client);
 
 		try {
