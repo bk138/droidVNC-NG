@@ -66,7 +66,7 @@ public class MainService extends Service {
 
     private static final String TAG = "MainService";
     private static final int NOTIFICATION_ID = 11;
-    final static String ACTION_START = "start";
+    public final static String ACTION_START = "net.christianbeier.droidvnc_ng.ACTION_START";
     final static String ACTION_STOP = "stop";
     public static final String ACTION_CONNECT_REVERSE = "net.christianbeier.droidvnc_ng.ACTION_CONNECT_REVERSE";
     public static final String EXTRA_REQUEST_ID = "net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID";
@@ -74,6 +74,7 @@ public class MainService extends Service {
     public static final String EXTRA_HOST = "net.christianbeier.droidvnc_ng.EXTRA_HOST";
     public static final String EXTRA_PORT = "net.christianbeier.droidvnc_ng.EXTRA_PORT";
     public static final String EXTRA_ACCESS_KEY = "net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY";
+    public static final String EXTRA_PASSWORD = "net.christianbeier.droidvnc_ng.EXTRA_PASSWORD";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
@@ -232,15 +233,6 @@ public class MainService extends Service {
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
-
-            DisplayMetrics displayMetrics = getDisplayMetrics();
-            if (!vncStartServer(displayMetrics.widthPixels,
-                    displayMetrics.heightPixels,
-                    PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()),
-                    Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-                    PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword())))
-                stopSelf();
-
             startScreenCapture();
             // if we got here, we want to restart if we were killed
             return START_REDELIVER_INTENT;
@@ -251,14 +243,6 @@ public class MainService extends Service {
             // Step 3: coming back from write storage permission check, start capturing
             // or ask for ask for capturing permission first (then going in step 4)
             if (mResultCode != 0 && mResultData != null) {
-                DisplayMetrics displayMetrics = getDisplayMetrics();
-                if (!vncStartServer(displayMetrics.widthPixels,
-                        displayMetrics.heightPixels,
-                        PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()),
-                        Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-                        PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword())))
-                    stopSelf();
-
                 startScreenCapture();
                 // if we got here, we want to restart if we were killed
                 return START_REDELIVER_INTENT;
@@ -288,6 +272,15 @@ public class MainService extends Service {
 
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
+            // Step 0: start server w/ provided arguments
+            DisplayMetrics displayMetrics = getDisplayMetrics();
+            if (!vncStartServer(displayMetrics.widthPixels,
+                    displayMetrics.heightPixels,
+                    intent.getIntExtra(EXTRA_PORT, mDefaults.getPort()),
+                    Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
+                    intent.getStringExtra(EXTRA_PASSWORD) != null ? intent.getStringExtra(EXTRA_PASSWORD) : mDefaults.getPassword()))
+                stopSelf();
+
             // Step 1: check input permission
             Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
             inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
