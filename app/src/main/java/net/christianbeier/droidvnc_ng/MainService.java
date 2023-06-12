@@ -77,6 +77,7 @@ public class MainService extends Service {
     public static final String EXTRA_PASSWORD = "net.christianbeier.droidvnc_ng.EXTRA_PASSWORD";
     public static final String EXTRA_VIEW_ONLY = "net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY";
     public static final String EXTRA_SCALING = "net.christianbeier.droidvnc_ng.EXTRA_SCALING";
+    public static final String EXTRA_FILE_TRANSFER = "net.christianbeier.droidvnc_ng.EXTRA_FILE_TRANSFER";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
@@ -279,6 +280,9 @@ public class MainService extends Service {
             // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission
             InputService.isEnabled = intent.getBooleanExtra(EXTRA_INPUT_RESULT, false);
             Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
+            writeStorageRequestIntent.putExtra(
+                    EXTRA_FILE_TRANSFER,
+                    PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SERVER_LAST_FILE_TRANSFER, mDefaults.getFileTranfer()));
             writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(writeStorageRequestIntent);
             // if screen capturing was not started, we don't want a restart if we were killed
@@ -292,6 +296,7 @@ public class MainService extends Service {
             SharedPreferences.Editor ed = PreferenceManager.getDefaultSharedPreferences(this).edit();
             ed.putInt(Constants.PREFS_KEY_SERVER_LAST_PORT, intent.getIntExtra(EXTRA_PORT, mDefaults.getPort()));
             ed.putString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, intent.getStringExtra(EXTRA_PASSWORD) != null ? intent.getStringExtra(EXTRA_PASSWORD) : mDefaults.getPassword());
+            ed.putBoolean(Constants.PREFS_KEY_SERVER_LAST_FILE_TRANSFER, intent.getBooleanExtra(EXTRA_FILE_TRANSFER, mDefaults.getFileTranfer()));
             ed.putBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
             ed.putFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, intent.getFloatExtra(EXTRA_SCALING, mDefaults.getScaling()));
             ed.apply();
