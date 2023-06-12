@@ -458,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
             Update Input permission display.
          */
         TextView inputStatus = findViewById(R.id.permission_status_input);
-        if(InputService.isEnabled()) {
+        if(InputService.isConnected()) {
             inputStatus.setText(R.string.main_activity_granted);
             inputStatus.setTextColor(getColor(android.R.color.holo_green_dark));
         } else {

@@ -40,7 +40,7 @@ public class InputRequestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(!InputService.isEnabled()) {
+        if(!InputService.isConnected()) {
             new AlertDialog.Builder(this)
                     .setCancelable(false)
                     .setTitle(R.string.input_a11y_title)
@@ -68,7 +68,7 @@ public class InputRequestActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_INPUT) {
             Log.d(TAG, "onActivityResult");
-            postResultAndFinish(InputService.isEnabled());
+            postResultAndFinish(InputService.isConnected());
         }
     }
 

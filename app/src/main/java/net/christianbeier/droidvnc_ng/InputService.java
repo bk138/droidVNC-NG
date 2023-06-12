@@ -92,7 +92,7 @@ public class InputService extends AccessibilityService {
 		Log.i(TAG, "onDestroy");
 	}
 
-	public static boolean isEnabled()
+	public static boolean isConnected()
 	{
 		return instance != null;
 	}
