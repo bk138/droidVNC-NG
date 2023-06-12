@@ -120,7 +120,7 @@ public class MainService extends Service {
     public MainService() {
     }
 
-    public static Observable<StatusEvent> getStatusEventStream() {
+    static Observable<StatusEvent> getStatusEventStream() {
         return mStatusEventStream;
     }
 
