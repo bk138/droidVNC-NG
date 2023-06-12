@@ -36,9 +36,11 @@ public class Constants {
      */
     public static final String PREFS_KEY_DEFAULTS_ACCESS_KEY = "defaults_access_key";
     /*
-        persisted ui values
+        persisted runtime values
      */
     public static final String PREFS_KEY_REVERSE_VNC_LAST_HOST = "reverse_vnc_last_host" ;
     public static final String PREFS_KEY_REPEATER_VNC_LAST_HOST = "repeater_vnc_last_host" ;
     public static final String PREFS_KEY_REPEATER_VNC_LAST_ID = "repeater_vnc_last_id" ;
+    public static final String PREFS_KEY_SERVER_LAST_PORT = "server_last_port" ;
+    public static final String PREFS_KEY_SERVER_LAST_PASSWORD = "server_last_password" ;
 }
