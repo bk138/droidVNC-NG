@@ -275,8 +275,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // only save new value if it differs from the default
-                if(!charSequence.toString().equals(mDefaults.getPassword())) {
+                // only save new value if it differs from the default and was not saved before
+                if(!(prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, null) == null && charSequence.toString().equals(mDefaults.getPassword()))) {
                     SharedPreferences.Editor ed = prefs.edit();
                     ed.putString(Constants.PREFS_KEY_SETTINGS_PASSWORD, charSequence.toString());
                     ed.apply();
@@ -309,8 +309,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // only save new value if it differs from the default
-                if(!charSequence.toString().equals(mDefaults.getAccessKey())) {
+                // only save new value if it differs from the default and was not saved before
+                if(!(prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, null) == null && charSequence.toString().equals(mDefaults.getAccessKey()))) {
                     SharedPreferences.Editor ed = prefs.edit();
                     ed.putString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, charSequence.toString());
                     ed.apply();
