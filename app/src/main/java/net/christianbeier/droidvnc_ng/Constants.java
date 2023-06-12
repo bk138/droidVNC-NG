@@ -31,6 +31,8 @@ public class Constants {
     public static final String PREFS_KEY_SETTINGS_SCALING = "settings_scaling" ;
     public static final String PREFS_KEY_SETTINGS_VIEW_ONLY = "settings_view_only" ;
     public static final String PREFS_KEY_SETTINGS_ACCESS_KEY = "settings_access_key";
+    public static final String PREFS_KEY_SETTINGS_FILE_TRANSFER = "settings_file_transfer";
+
     /*
         persisted generated defaults
      */
@@ -44,5 +46,6 @@ public class Constants {
     public static final String PREFS_KEY_SERVER_LAST_PORT = "server_last_port" ;
     public static final String PREFS_KEY_SERVER_LAST_PASSWORD = "server_last_password" ;
     public static final String PREFS_KEY_SERVER_LAST_SCALING = "server_last_scaling" ;
+    public static final String PREFS_KEY_SERVER_LAST_FILE_TRANSFER = "server_last_file_transfer" ;
     public static final String PREFS_KEY_INPUT_LAST_ENABLED = "input_last_enabled" ;
 }
