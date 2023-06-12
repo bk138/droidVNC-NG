@@ -36,6 +36,7 @@ import java.util.UUID
 class Defaults {
     companion object {
         private const val TAG = "Defaults"
+        private const val PREFS_KEY_DEFAULTS_ACCESS_KEY = "defaults_access_key"
     }
 
     @EncodeDefault
@@ -78,16 +79,16 @@ class Defaults {
             persist randomly generated defaults
          */
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val defaultAccessKey = prefs.getString(Constants.PREFS_KEY_DEFAULTS_ACCESS_KEY, null)
+        val defaultAccessKey = prefs.getString(PREFS_KEY_DEFAULTS_ACCESS_KEY, null)
         if (defaultAccessKey == null) {
             val ed: SharedPreferences.Editor = prefs.edit()
             ed.putString(
-                Constants.PREFS_KEY_DEFAULTS_ACCESS_KEY,
+                PREFS_KEY_DEFAULTS_ACCESS_KEY,
                 UUID.randomUUID().toString().replace("-".toRegex(), "")
             )
             ed.apply()
         }
-        this.accessKey = prefs.getString(Constants.PREFS_KEY_DEFAULTS_ACCESS_KEY, null)!!
+        this.accessKey = prefs.getString(PREFS_KEY_DEFAULTS_ACCESS_KEY, null)!!
 
         /*
             read provided defaults

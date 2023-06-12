@@ -34,10 +34,6 @@ public class Constants {
     public static final String PREFS_KEY_SETTINGS_FILE_TRANSFER = "settings_file_transfer";
 
     /*
-        persisted generated defaults
-     */
-    public static final String PREFS_KEY_DEFAULTS_ACCESS_KEY = "defaults_access_key";
-    /*
         persisted runtime values
      */
     public static final String PREFS_KEY_REVERSE_VNC_LAST_HOST = "reverse_vnc_last_host" ;
