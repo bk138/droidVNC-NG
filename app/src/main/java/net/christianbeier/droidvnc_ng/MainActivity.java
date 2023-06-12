@@ -242,7 +242,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         final EditText port = findViewById(R.id.settings_port);
-        port.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort())));
+        if(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()) < 0) {
+            port.setHint(R.string.main_activity_settings_port_not_listening);
+        } else {
+            port.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort())));
+        }
         port.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
