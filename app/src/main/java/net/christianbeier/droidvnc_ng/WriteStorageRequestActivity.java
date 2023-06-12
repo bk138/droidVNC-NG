@@ -44,6 +44,12 @@ public class WriteStorageRequestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // if file transfer not wanted, bail out early without bothering the user
+        if(!getIntent().getBooleanExtra(MainService.EXTRA_FILE_TRANSFER, new Defaults(this).getFileTranfer())) {
+            postResultAndFinish(false);
+            return;
+        }
+
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "Has no permission! Ask!");
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
