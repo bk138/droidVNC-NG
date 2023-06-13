@@ -98,6 +98,84 @@ An example `defaults.json` with completely new defaults (not all entries need to
 }
 ```
 
+### Remote Control via the Intent Interface
+
+droidVNC-NG features a remote control interface by means of Intents. This allows starting the VNC
+server from other apps or on certain events. It is designed to be working with automation apps
+like [MacroDroid](https://www.macrodroid.com/), [Automate](https://llamalab.com/automate/) or
+[Tasker](https://tasker.joaoapps.com/) as well as to be called from code.
+
+You basically send an explicit Intent to `net.christianbeier.droidvnc_ng.MainService` with one of
+the following Actions and associated Extras set:
+
+* `net.christianbeier.droidvnc_ng.ACTION_START`: Starts the server.
+  * `net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY`: Required String Extra containing the remote control interface's access key. You can get/set this from the Admin Panel. 
+  * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: Optional String Extra containing a unique id for this request. Used to identify the answer from the service.
+  * `net.christianbeier.droidvnc_ng.EXTRA_PORT`: Optional Integer Extra setting the listening port. Set to `-1` to disable listening.
+  * `net.christianbeier.droidvnc_ng.EXTRA_PASSWORD`: Optional String Extra containing VNC password.
+  * `net.christianbeier.droidvnc_ng.EXTRA_SCALING`: Optional Float Extra between 0.0 and 1.0 describing the server-side framebuffer scaling.
+  * `net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY`:  Optional Boolean Extra toggling view-only mode.
+  * `net.christianbeier.droidvnc_ng.EXTRA_FILE_TRANSFER`: Optional Boolean Extra toggling the file transfer feature.
+
+* `net.christianbeier.droidvnc_ng.ACTION_CONNECT_REVERSE`: Make an outbound connection to a listening viewer.
+  * `net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY`: Required String Extra containing the remote control interface's access key. You can get/set this from the Admin Panel.
+  * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: Optional String Extra containing a unique id for this request. Used to identify the answer from the service.
+  * `net.christianbeier.droidvnc_ng.EXTRA_HOST`: Required String Extra setting the host to connect to.
+  * `net.christianbeier.droidvnc_ng.EXTRA_PORT`: Optional Integer Extra setting the remote port.
+
+* `net.christianbeier.droidvnc_ng.ACTION_CONNECT_REPEATER` Make an outbound connection to a repeater.
+  * `net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY`: Required String Extra containing the remote control interface's access key. You can get/set this from the Admin Panel.
+  * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: Optional String Extra containing a unique id for this request. Used to identify the answer from the service.
+  * `net.christianbeier.droidvnc_ng.EXTRA_HOST`: Required String Extra setting the host to connect to.
+  * `net.christianbeier.droidvnc_ng.EXTRA_PORT`: Optional Integer Extra setting the remote port.
+  * `net.christianbeier.droidvnc_ng.EXTRA_REPEATER_ID`: Required String Extra setting the ID on the repeater.
+
+* `net.christianbeier.droidvnc_ng.ACTION_STOP`: Stops the server.
+  * `net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY`: Required String Extra containing the remote control interface's access key. You can get/set this from the Admin Panel.
+  * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: Optional String Extra containing a unique id for this request. Used to identify the answer from the service.
+
+The service answers with a Broadcast Intent with its Action mirroring your request:
+
+* Action: one of the above Actions you requested
+  * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: The request id this answer is for.
+  * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_SUCCESS`: Boolean Extra describing the outcome of the request.
+
+#### Examples
+
+##### Start a password-protected view-only server on port 5901
+
+Using `adb shell am` syntax:
+
+```shell
+adb shell am start-foreground-service \
+ -n net.christianbeier.droidvnc_ng/.MainService \
+ -a net.christianbeier.droidvnc_ng.ACTION_START \
+ --es net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY de32550a6efb43f8a5d145e6c07b2cde \
+ --es net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID abc123 \
+ --ei net.christianbeier.droidvnc_ng.EXTRA_PORT 5901 \
+ --es net.christianbeier.droidvnc_ng.EXTRA_PASSWORD supersecure \
+ --ez net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY true
+```
+
+##### Make an outbound connection to a listening viewer from the running server
+
+For example from Java code:
+
+See [MainActivity.java](app/src/main/java/net/christianbeier/droidvnc_ng/MainActivity.java).
+
+##### Stop the server again
+
+Using `adb shell am` syntax again:
+
+```shell
+adb shell am start-foreground-service \
+ -n net.christianbeier.droidvnc_ng/.MainService \
+ -a net.christianbeier.droidvnc_ng.ACTION_STOP \
+ --es net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY de32550a6efb43f8a5d145e6c07b2cde \
+ --es net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID def456
+```
+
+
 ## Notes
 
 * Requires at least Android 7.
