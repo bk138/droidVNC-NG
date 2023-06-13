@@ -315,6 +315,15 @@ public class MainService extends Service {
 
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
+
+            if(vncIsActive()) {
+                Intent answer = new Intent(ACTION_START);
+                answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+                answer.putExtra(EXTRA_REQUEST_SUCCESS, false);
+                sendBroadcast(answer);
+                return START_NOT_STICKY;
+            }
+
             // Step 0: persist given arguments to be able to recover from possible crash later
             SharedPreferences.Editor ed = PreferenceManager.getDefaultSharedPreferences(this).edit();
             ed.putInt(Constants.PREFS_KEY_SERVER_LAST_PORT, intent.getIntExtra(EXTRA_PORT, mDefaults.getPort()));
@@ -342,7 +351,7 @@ public class MainService extends Service {
             stopSelf();
             Intent answer = new Intent(ACTION_STOP);
             answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
-            answer.putExtra(EXTRA_REQUEST_SUCCESS, true);
+            answer.putExtra(EXTRA_REQUEST_SUCCESS, vncIsActive());
             sendBroadcast(answer);
             return START_NOT_STICKY;
         }
