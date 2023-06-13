@@ -60,7 +60,7 @@ class Defaults {
         private set
 
     @EncodeDefault
-    var fileTranfer = false
+    var fileTranfer = true
         private set
 
     @EncodeDefault
