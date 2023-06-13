@@ -67,8 +67,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFS_KEY_REPEATER_VNC_LAST_ID = "repeater_vnc_last_id" ;
 
     private Button mButtonToggle;
-    private Button mButtonReverseVNC;
-    private Button mButtonRepeaterVNC;
     private TextView mAddress;
     private boolean mIsMainServiceRunning;
     private Disposable mMainServiceStatusEventStreamConnection;
@@ -90,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         mDefaults = new Defaults(this);
 
-        mButtonToggle = (Button) findViewById(R.id.toggle);
+        mButtonToggle = findViewById(R.id.toggle);
         mButtonToggle.setOnClickListener(view -> {
 
             Intent intent = new Intent(MainActivity.this, MainService.class);
@@ -118,8 +116,8 @@ public class MainActivity extends AppCompatActivity {
 
         mAddress = findViewById(R.id.address);
 
-        mButtonReverseVNC = (Button) findViewById(R.id.reverse_vnc);
-        mButtonReverseVNC.setOnClickListener(view -> {
+        Button reverseVNC = findViewById(R.id.reverse_vnc);
+        reverseVNC.setOnClickListener(view -> {
 
             final EditText inputText = new EditText(this);
             inputText.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -178,8 +176,8 @@ public class MainActivity extends AppCompatActivity {
             dialog.show();
         });
 
-        mButtonRepeaterVNC = (Button) findViewById(R.id.repeater_vnc);
-        mButtonRepeaterVNC.setOnClickListener(view -> {
+        Button repeaterVNC = findViewById(R.id.repeater_vnc);
+        repeaterVNC.setOnClickListener(view -> {
 
             final EditText hostInputText = new EditText(this);
             hostInputText.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -410,9 +408,7 @@ public class MainActivity extends AppCompatActivity {
                     if (i != hostsAndPorts.size() - 1)
                         sb.append(" ").append(getString(R.string.or)).append(" ");
                 }
-                mAddress.post(() -> {
-                    mAddress.setText(getString(R.string.main_activity_address) + " " + sb);
-                });
+                mAddress.post(() -> mAddress.setText(getString(R.string.main_activity_address) + " " + sb));
 
                 // show outbound connection interface
                 findViewById(R.id.outbound_text).setVisibility(View.VISIBLE);
@@ -435,9 +431,7 @@ public class MainActivity extends AppCompatActivity {
                     mButtonToggle.setText(R.string.start);
                     mButtonToggle.setEnabled(true);
                 });
-                mAddress.post(() -> {
-                    mAddress.setText("");
-                });
+                mAddress.post(() -> mAddress.setText(""));
 
                 // hide outbound connection interface
                 findViewById(R.id.outbound_text).setVisibility(View.GONE);
