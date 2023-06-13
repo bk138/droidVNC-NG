@@ -62,6 +62,9 @@ import io.reactivex.rxjava3.disposables.Disposable;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final String PREFS_KEY_REVERSE_VNC_LAST_HOST = "reverse_vnc_last_host" ;
+    private static final String PREFS_KEY_REPEATER_VNC_LAST_HOST = "repeater_vnc_last_host" ;
+    private static final String PREFS_KEY_REPEATER_VNC_LAST_ID = "repeater_vnc_last_id" ;
 
     private Button mButtonToggle;
     private Button mButtonReverseVNC;
@@ -121,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             final EditText inputText = new EditText(this);
             inputText.setInputType(InputType.TYPE_CLASS_TEXT);
             inputText.setHint(getString(R.string.main_activity_reverse_vnc_hint));
-            String lastHost = prefs.getString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST, null);
+            String lastHost = prefs.getString(PREFS_KEY_REVERSE_VNC_LAST_HOST, null);
             if(lastHost != null) {
                 inputText.setText(lastHost);
                 // select all to make new input quicker
@@ -181,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
             final EditText hostInputText = new EditText(this);
             hostInputText.setInputType(InputType.TYPE_CLASS_TEXT);
             hostInputText.setHint(getString(R.string.main_activity_repeater_vnc_hint));
-            String lastHost = prefs.getString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST, "");
+            String lastHost = prefs.getString(PREFS_KEY_REPEATER_VNC_LAST_HOST, "");
             hostInputText.setText(lastHost); //host:port
             hostInputText.requestFocus();
             hostInputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -189,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
             final EditText idInputText = new EditText(this);
             idInputText.setInputType(InputType.TYPE_CLASS_NUMBER);
             idInputText.setHint(getString(R.string.main_activity_repeater_vnc_hint_id));
-            String lastID = prefs.getString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID, "");
+            String lastID = prefs.getString(PREFS_KEY_REPEATER_VNC_LAST_ID, "");
             idInputText.setText(lastID); //host:port
             idInputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
@@ -469,7 +472,7 @@ public class MainActivity extends AppCompatActivity {
                                         Toast.LENGTH_LONG)
                                 .show();
                         SharedPreferences.Editor ed = prefs.edit();
-                        ed.putString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST,
+                        ed.putString(PREFS_KEY_REVERSE_VNC_LAST_HOST,
                                 mLastReverseHost + ":" + mLastReversePort);
                         ed.apply();
                     } else
@@ -497,9 +500,9 @@ public class MainActivity extends AppCompatActivity {
                                         Toast.LENGTH_LONG)
                                 .show();
                         SharedPreferences.Editor ed = prefs.edit();
-                        ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST,
+                        ed.putString(PREFS_KEY_REPEATER_VNC_LAST_HOST,
                                 mLastRepeaterHost + ":" + mLastRepeaterPort);
-                        ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID,
+                        ed.putString(PREFS_KEY_REPEATER_VNC_LAST_ID,
                                 mLastRepeaterId);
                         ed.apply();
                     }
