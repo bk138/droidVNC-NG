@@ -91,6 +91,11 @@ public class MainService extends Service {
     final static String ACTION_HANDLE_WRITE_STORAGE_RESULT = "action_handle_write_storage_result";
     final static String EXTRA_WRITE_STORAGE_RESULT = "result_write_storage";
 
+    private static final String PREFS_KEY_SERVER_LAST_PORT = "server_last_port" ;
+    private static final String PREFS_KEY_SERVER_LAST_PASSWORD = "server_last_password" ;
+    private static final String PREFS_KEY_SERVER_LAST_FILE_TRANSFER = "server_last_file_transfer" ;
+    private static final String PREFS_KEY_SERVER_LAST_START_REQUEST_ID = "server_last_start_request_id" ;
+
     private int mResultCode;
     private Intent mResultData;
     private ImageReader mImageReader;
@@ -242,12 +247,12 @@ public class MainService extends Service {
             DisplayMetrics displayMetrics = getDisplayMetrics();
             boolean status = vncStartServer(displayMetrics.widthPixels,
                     displayMetrics.heightPixels,
-                    PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
+                    PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
                     Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-                    PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
+                    PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
 
             Intent answer = new Intent(ACTION_START);
-            answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
+            answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
             answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
             sendBroadcast(answer);
 
@@ -269,12 +274,12 @@ public class MainService extends Service {
                 DisplayMetrics displayMetrics = getDisplayMetrics();
                 boolean status = vncStartServer(displayMetrics.widthPixels,
                         displayMetrics.heightPixels,
-                        PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
+                        PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
                         Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-                        PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
+                        PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
 
                 Intent answer = new Intent(ACTION_START);
-                answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
+                answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
                 answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
                 sendBroadcast(answer);
 
@@ -305,7 +310,7 @@ public class MainService extends Service {
             Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
             writeStorageRequestIntent.putExtra(
                     EXTRA_FILE_TRANSFER,
-                    PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SERVER_LAST_FILE_TRANSFER, mDefaults.getFileTranfer()));
+                    PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FILE_TRANSFER, mDefaults.getFileTranfer()));
             writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(writeStorageRequestIntent);
             // if screen capturing was not started, we don't want a restart if we were killed
@@ -326,12 +331,12 @@ public class MainService extends Service {
 
             // Step 0: persist given arguments to be able to recover from possible crash later
             SharedPreferences.Editor ed = PreferenceManager.getDefaultSharedPreferences(this).edit();
-            ed.putInt(Constants.PREFS_KEY_SERVER_LAST_PORT, intent.getIntExtra(EXTRA_PORT, mDefaults.getPort()));
-            ed.putString(Constants.PREFS_KEY_SERVER_LAST_PASSWORD, intent.getStringExtra(EXTRA_PASSWORD) != null ? intent.getStringExtra(EXTRA_PASSWORD) : mDefaults.getPassword());
-            ed.putBoolean(Constants.PREFS_KEY_SERVER_LAST_FILE_TRANSFER, intent.getBooleanExtra(EXTRA_FILE_TRANSFER, mDefaults.getFileTranfer()));
+            ed.putInt(PREFS_KEY_SERVER_LAST_PORT, intent.getIntExtra(EXTRA_PORT, mDefaults.getPort()));
+            ed.putString(PREFS_KEY_SERVER_LAST_PASSWORD, intent.getStringExtra(EXTRA_PASSWORD) != null ? intent.getStringExtra(EXTRA_PASSWORD) : mDefaults.getPassword());
+            ed.putBoolean(PREFS_KEY_SERVER_LAST_FILE_TRANSFER, intent.getBooleanExtra(EXTRA_FILE_TRANSFER, mDefaults.getFileTranfer()));
             ed.putBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
             ed.putFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, intent.getFloatExtra(EXTRA_SCALING, mDefaults.getScaling()));
-            ed.putString(Constants.PREFS_KEY_SERVER_LAST_START_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+            ed.putString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
             ed.apply();
             // also set new value for InputService
             InputService.scaling = intent.getFloatExtra(EXTRA_SCALING, mDefaults.getScaling());
