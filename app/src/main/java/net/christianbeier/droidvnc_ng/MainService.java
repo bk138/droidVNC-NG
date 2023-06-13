@@ -632,7 +632,7 @@ public class MainService extends Service {
 
         try {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(instance);
-            port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900);
+            port = prefs.getInt(PREFS_KEY_SERVER_LAST_PORT, new Defaults(instance).getPort());
         } catch (NullPointerException e) {
             //unused
         }
