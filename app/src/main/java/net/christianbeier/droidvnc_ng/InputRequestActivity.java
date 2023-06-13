@@ -28,6 +28,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 public class InputRequestActivity extends AppCompatActivity {
 
@@ -39,7 +40,13 @@ public class InputRequestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(!InputService.isEnabled()) {
+        // if VIEW_ONLY is set, bail out early without bothering the user
+        if(getIntent().getBooleanExtra(MainService.EXTRA_VIEW_ONLY, new Defaults(this).getViewOnly())) {
+            postResultAndFinish(false);
+            return;
+        }
+
+        if(!InputService.isConnected()) {
             new AlertDialog.Builder(this)
                     .setCancelable(false)
                     .setTitle(R.string.input_a11y_title)
@@ -67,7 +74,7 @@ public class InputRequestActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_INPUT) {
             Log.d(TAG, "onActivityResult");
-            postResultAndFinish(InputService.isEnabled());
+            postResultAndFinish(InputService.isConnected());
         }
     }
 
@@ -81,6 +88,7 @@ public class InputRequestActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainService.class);
         intent.setAction(MainService.ACTION_HANDLE_INPUT_RESULT);
         intent.putExtra(MainService.EXTRA_INPUT_RESULT, isA11yEnabled);
+        intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(this).getAccessKey()));
         startService(intent);
         finish();
     }

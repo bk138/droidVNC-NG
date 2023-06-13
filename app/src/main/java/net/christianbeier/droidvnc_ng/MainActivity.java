@@ -23,7 +23,10 @@ package net.christianbeier.droidvnc_ng;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -33,6 +36,8 @@ import androidx.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.text.method.PasswordTransformationMethod;
+import android.text.method.SingleLineTransformationMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -50,12 +55,16 @@ import com.google.android.material.slider.Slider;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import io.reactivex.rxjava3.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final String PREFS_KEY_REVERSE_VNC_LAST_HOST = "reverse_vnc_last_host" ;
+    private static final String PREFS_KEY_REPEATER_VNC_LAST_HOST = "repeater_vnc_last_host" ;
+    private static final String PREFS_KEY_REPEATER_VNC_LAST_ID = "repeater_vnc_last_id" ;
 
     private Button mButtonToggle;
     private Button mButtonReverseVNC;
@@ -63,6 +72,13 @@ public class MainActivity extends AppCompatActivity {
     private TextView mAddress;
     private boolean mIsMainServiceRunning;
     private Disposable mMainServiceStatusEventStreamConnection;
+    private BroadcastReceiver mMainServiceBroadcastReceiver;
+    private String mLastMainServiceRequestId;
+    private String mLastReverseHost;
+    private int mLastReversePort;
+    private String mLastRepeaterHost;
+    private int mLastRepeaterPort;
+    private String mLastRepeaterId;
     private Defaults mDefaults;
 
 
@@ -78,6 +94,12 @@ public class MainActivity extends AppCompatActivity {
         mButtonToggle.setOnClickListener(view -> {
 
             Intent intent = new Intent(MainActivity.this, MainService.class);
+            intent.putExtra(MainService.EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
+            intent.putExtra(MainService.EXTRA_PASSWORD, prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
+            intent.putExtra(MainService.EXTRA_FILE_TRANSFER, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTranfer()));
+            intent.putExtra(MainService.EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()));
+            intent.putExtra(MainService.EXTRA_SCALING, prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling()));
+            intent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
             if(mIsMainServiceRunning) {
                 intent.setAction(MainService.ACTION_STOP);
             }
@@ -102,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             final EditText inputText = new EditText(this);
             inputText.setInputType(InputType.TYPE_CLASS_TEXT);
             inputText.setHint(getString(R.string.main_activity_reverse_vnc_hint));
-            String lastHost = prefs.getString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST, null);
+            String lastHost = prefs.getString(PREFS_KEY_REVERSE_VNC_LAST_HOST, null);
             if(lastHost != null) {
                 inputText.setText(lastHost);
                 // select all to make new input quicker
@@ -135,13 +157,20 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         Log.d(TAG, "reverse vnc " + host + ":" + port);
-                        if(MainService.connectReverse(host,port)) {
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_reverse_vnc_success, host, port), Toast.LENGTH_LONG).show();
-                            SharedPreferences.Editor ed = prefs.edit();
-                            ed.putString(Constants.PREFS_KEY_REVERSE_VNC_LAST_HOST, inputText.getText().toString());
-                            ed.apply();
-                        } else
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_reverse_vnc_fail, host, port), Toast.LENGTH_LONG).show();
+                        mLastMainServiceRequestId = UUID.randomUUID().toString();
+                        mLastReverseHost = host;
+                        mLastReversePort = port;
+                        Intent request = new Intent(MainActivity.this, MainService.class);
+                        request.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
+                        request.setAction(MainService.ACTION_CONNECT_REVERSE);
+                        request.putExtra(MainService.EXTRA_HOST, host);
+                        request.putExtra(MainService.EXTRA_PORT, port);
+                        request.putExtra(MainService.EXTRA_REQUEST_ID, mLastMainServiceRequestId);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startForegroundService(request);
+                        } else {
+                            startService(request);
+                        }
                     })
                     .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                     .create();
@@ -155,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
             final EditText hostInputText = new EditText(this);
             hostInputText.setInputType(InputType.TYPE_CLASS_TEXT);
             hostInputText.setHint(getString(R.string.main_activity_repeater_vnc_hint));
-            String lastHost = prefs.getString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST, "");
+            String lastHost = prefs.getString(PREFS_KEY_REPEATER_VNC_LAST_HOST, "");
             hostInputText.setText(lastHost); //host:port
             hostInputText.requestFocus();
             hostInputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -163,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
             final EditText idInputText = new EditText(this);
             idInputText.setInputType(InputType.TYPE_CLASS_NUMBER);
             idInputText.setHint(getString(R.string.main_activity_repeater_vnc_hint_id));
-            String lastID = prefs.getString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID, "");
+            String lastID = prefs.getString(PREFS_KEY_REPEATER_VNC_LAST_ID, "");
             idInputText.setText(lastID); //host:port
             idInputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
@@ -201,15 +230,22 @@ public class MainActivity extends AppCompatActivity {
                         }
                         // done
                         Log.d(TAG, "repeater vnc " + host + ":" + port + ":" + repeaterId);
-                        if(MainService.connectRepeater(host, port, /*"ID:" +*/ repeaterId)) {
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_repeater_vnc_success, host, port, repeaterId), Toast.LENGTH_LONG).show();
-                            SharedPreferences.Editor ed = prefs.edit();
-                            ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_HOST, host + ":" + port);
-                            ed.putString(Constants.PREFS_KEY_REPEATER_VNC_LAST_ID, repeaterId);
-                            ed.apply();
+                        mLastMainServiceRequestId = UUID.randomUUID().toString();
+                        mLastRepeaterHost = host;
+                        mLastRepeaterPort = port;
+                        mLastRepeaterId = repeaterId;
+                        Intent request = new Intent(MainActivity.this, MainService.class);
+                        request.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
+                        request.setAction(MainService.ACTION_CONNECT_REPEATER);
+                        request.putExtra(MainService.EXTRA_HOST, host);
+                        request.putExtra(MainService.EXTRA_PORT, port);
+                        request.putExtra(MainService.EXTRA_REPEATER_ID, repeaterId);
+                        request.putExtra(MainService.EXTRA_REQUEST_ID, mLastMainServiceRequestId);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startForegroundService(request);
+                        } else {
+                            startService(request);
                         }
-                        else
-                            Toast.makeText(MainActivity.this, getString(R.string.main_activity_repeater_vnc_fail, host, port, repeaterId), Toast.LENGTH_LONG).show();
                     })
                     .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                     .create();
@@ -219,7 +255,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         final EditText port = findViewById(R.id.settings_port);
-        port.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort())));
+        if(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()) < 0) {
+            port.setHint(R.string.main_activity_settings_port_not_listening);
+        } else {
+            port.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort())));
+        }
         port.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -239,11 +279,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 if(port.getText().length() == 0) {
-                    // hint that default is set
-                    port.setHint(String.valueOf(mDefaults.getPort()));
+                    // hint that not listening
+                    port.setHint(R.string.main_activity_settings_port_not_listening);
                     // and set default
                     SharedPreferences.Editor ed = prefs.edit();
-                    ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort());
+                    ed.putInt(Constants.PREFS_KEY_SETTINGS_PORT, -1);
                     ed.apply();
                 }
             }
@@ -259,15 +299,62 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                SharedPreferences.Editor ed = prefs.edit();
-                ed.putString(Constants.PREFS_KEY_SETTINGS_PASSWORD, charSequence.toString());
-                ed.apply();
+                // only save new value if it differs from the default and was not saved before
+                if(!(prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, null) == null && charSequence.toString().equals(mDefaults.getPassword()))) {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putString(Constants.PREFS_KEY_SETTINGS_PASSWORD, charSequence.toString());
+                    ed.apply();
+                }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
 
             }
+        });
+        // show/hide password on focus change. NB that this triggers onTextChanged above, so we have
+        // to take special precautions there.
+        password.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                password.setTransformationMethod(new SingleLineTransformationMethod());
+            } else {
+                password.setTransformationMethod(new PasswordTransformationMethod());
+            }
+            // move cursor to end of text
+            password.setSelection(password.getText().length());
+        });
+
+        final EditText accessKey = findViewById(R.id.settings_access_key);
+        accessKey.setText(prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
+        accessKey.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // only save new value if it differs from the default and was not saved before
+                if(!(prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, null) == null && charSequence.toString().equals(mDefaults.getAccessKey()))) {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, charSequence.toString());
+                    ed.apply();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+        // show/hide access key on focus change. NB that this triggers onTextChanged above, so we have
+        // to take special precautions there.
+        accessKey.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                accessKey.setTransformationMethod(new SingleLineTransformationMethod());
+            } else {
+                accessKey.setTransformationMethod(new PasswordTransformationMethod());
+            }
+            // move cursor to end of text
+            accessKey.setSelection(accessKey.getText().length());
         });
 
         final SwitchMaterial startOnBoot = findViewById(R.id.settings_start_on_boot);
@@ -278,12 +365,28 @@ public class MainActivity extends AppCompatActivity {
             ed.apply();
         });
 
+        final SwitchMaterial fileTransfer = findViewById(R.id.settings_file_transfer);
+        fileTransfer.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTranfer()));
+        fileTransfer.setOnCheckedChangeListener((compoundButton, b) -> {
+            SharedPreferences.Editor ed = prefs.edit();
+            ed.putBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, b);
+            ed.apply();
+        });
+
         Slider scaling = findViewById(R.id.settings_scaling);
         scaling.setValue(prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling())*100);
         scaling.setLabelFormatter(value -> Math.round(value) + " %");
         scaling.addOnChangeListener((slider, value, fromUser) -> {
             SharedPreferences.Editor ed = prefs.edit();
             ed.putFloat(Constants.PREFS_KEY_SETTINGS_SCALING, value/100);
+            ed.apply();
+        });
+
+        final SwitchMaterial viewOnly = findViewById(R.id.settings_view_only);
+        viewOnly.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()));
+        viewOnly.setOnCheckedChangeListener((compoundButton, b) -> {
+            SharedPreferences.Editor ed = prefs.edit();
+            ed.putBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, b);
             ed.apply();
         });
 
@@ -318,7 +421,10 @@ public class MainActivity extends AppCompatActivity {
                 // indicate that changing these settings does not have an effect when the server is running
                 findViewById(R.id.settings_port).setEnabled(false);
                 findViewById(R.id.settings_password).setEnabled(false);
+                findViewById(R.id.settings_access_key).setEnabled(false);
                 findViewById(R.id.settings_scaling).setEnabled(false);
+                findViewById(R.id.settings_view_only).setEnabled(false);
+                findViewById(R.id.settings_file_transfer).setEnabled(false);
 
                 mIsMainServiceRunning = true;
             }
@@ -340,12 +446,85 @@ public class MainActivity extends AppCompatActivity {
                 // indicate that changing these settings does have an effect when the server is stopped
                 findViewById(R.id.settings_port).setEnabled(true);
                 findViewById(R.id.settings_password).setEnabled(true);
+                findViewById(R.id.settings_access_key).setEnabled(true);
                 findViewById(R.id.settings_scaling).setEnabled(true);
+                findViewById(R.id.settings_view_only).setEnabled(true);
+                findViewById(R.id.settings_file_transfer).setEnabled(true);
+
 
                 mIsMainServiceRunning = false;
             }
 
         });
+
+        mMainServiceBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (MainService.ACTION_CONNECT_REVERSE.equals(intent.getAction())
+                        && mLastMainServiceRequestId != null
+                        && mLastMainServiceRequestId.equals(intent.getStringExtra(MainService.EXTRA_REQUEST_ID))) {
+                    // was a CONNECT_REVERSE requested by us
+                    if (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
+                        Toast.makeText(MainActivity.this,
+                                        getString(R.string.main_activity_reverse_vnc_success,
+                                                mLastReverseHost,
+                                                mLastReversePort),
+                                        Toast.LENGTH_LONG)
+                                .show();
+                        SharedPreferences.Editor ed = prefs.edit();
+                        ed.putString(PREFS_KEY_REVERSE_VNC_LAST_HOST,
+                                mLastReverseHost + ":" + mLastReversePort);
+                        ed.apply();
+                    } else
+                        Toast.makeText(MainActivity.this,
+                                        getString(R.string.main_activity_reverse_vnc_fail,
+                                                mLastReverseHost,
+                                                mLastReversePort),
+                                        Toast.LENGTH_LONG)
+                                .show();
+
+                    // reset this
+                    mLastMainServiceRequestId = null;
+                }
+
+                if (MainService.ACTION_CONNECT_REPEATER.equals(intent.getAction())
+                        && mLastMainServiceRequestId != null
+                        && mLastMainServiceRequestId.equals(intent.getStringExtra(MainService.EXTRA_REQUEST_ID))) {
+                    // was a CONNECT_REPEATER requested by us
+                    if (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
+                        Toast.makeText(MainActivity.this,
+                                        getString(R.string.main_activity_repeater_vnc_success,
+                                                mLastRepeaterHost,
+                                                mLastRepeaterPort,
+                                                mLastRepeaterId),
+                                        Toast.LENGTH_LONG)
+                                .show();
+                        SharedPreferences.Editor ed = prefs.edit();
+                        ed.putString(PREFS_KEY_REPEATER_VNC_LAST_HOST,
+                                mLastRepeaterHost + ":" + mLastRepeaterPort);
+                        ed.putString(PREFS_KEY_REPEATER_VNC_LAST_ID,
+                                mLastRepeaterId);
+                        ed.apply();
+                    }
+                    else
+                        Toast.makeText(MainActivity.this,
+                                        getString(R.string.main_activity_repeater_vnc_fail,
+                                                mLastRepeaterHost,
+                                                mLastRepeaterPort,
+                                                mLastRepeaterId),
+                                        Toast.LENGTH_LONG)
+                                .show();
+
+                    // reset this
+                    mLastMainServiceRequestId = null;
+                }
+
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(MainService.ACTION_CONNECT_REVERSE);
+        filter.addAction(MainService.ACTION_CONNECT_REPEATER);
+        registerReceiver(mMainServiceBroadcastReceiver, filter);
     }
 
     @SuppressLint("SetTextI18n")
@@ -357,7 +536,7 @@ public class MainActivity extends AppCompatActivity {
             Update Input permission display.
          */
         TextView inputStatus = findViewById(R.id.permission_status_input);
-        if(InputService.isEnabled()) {
+        if(InputService.isConnected()) {
             inputStatus.setText(R.string.main_activity_granted);
             inputStatus.setTextColor(getColor(android.R.color.holo_green_dark));
         } else {
@@ -403,6 +582,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
         mMainServiceStatusEventStreamConnection.dispose();
+        unregisterReceiver(mMainServiceBroadcastReceiver);
     }
 
 

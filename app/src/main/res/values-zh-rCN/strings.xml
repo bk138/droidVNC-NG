@@ -3,9 +3,13 @@
     <string name="main_activity_title">droidVNC-NG管理面板</string>
     <string name="main_activity_settings">设置</string>
     <string name="main_activity_settings_port">端口</string>
+    <string name="main_activity_settings_port_not_listening">禁用传入连接</string>
     <string name="main_activity_settings_password">密码</string>
+    <string name="main_activity_settings_access_key">访问键</string>
     <string name="main_activity_settings_start_on_boot">开机启动</string>
+    <string name="main_activity_settings_file_transfer">文件传输</string>
     <string name="main_activity_settings_scaling">缩放</string>
+    <string name="main_activity_settings_view_only">只读</string>
     <string name="main_activity_permissions_dashboard">权限仪表盘</string>
     <string name="main_activity_colon">：</string>
     <string name="main_activity_screen_capturing">截屏</string>

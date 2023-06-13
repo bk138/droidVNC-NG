@@ -66,8 +66,20 @@ public class MainService extends Service {
 
     private static final String TAG = "MainService";
     private static final int NOTIFICATION_ID = 11;
-    final static String ACTION_START = "start";
-    final static String ACTION_STOP = "stop";
+    public final static String ACTION_START = "net.christianbeier.droidvnc_ng.ACTION_START";
+    public final static String ACTION_STOP = "net.christianbeier.droidvnc_ng.ACTION_STOP";
+    public static final String ACTION_CONNECT_REVERSE = "net.christianbeier.droidvnc_ng.ACTION_CONNECT_REVERSE";
+    public static final String ACTION_CONNECT_REPEATER = "net.christianbeier.droidvnc_ng.ACTION_CONNECT_REPEATER";
+    public static final String EXTRA_REQUEST_ID = "net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID";
+    public static final String EXTRA_REQUEST_SUCCESS = "net.christianbeier.droidvnc_ng.EXTRA_REQUEST_SUCCESS";
+    public static final String EXTRA_HOST = "net.christianbeier.droidvnc_ng.EXTRA_HOST";
+    public static final String EXTRA_PORT = "net.christianbeier.droidvnc_ng.EXTRA_PORT";
+    public static final String EXTRA_REPEATER_ID = "net.christianbeier.droidvnc_ng.EXTRA_REPEATER_ID";
+    public static final String EXTRA_ACCESS_KEY = "net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY";
+    public static final String EXTRA_PASSWORD = "net.christianbeier.droidvnc_ng.EXTRA_PASSWORD";
+    public static final String EXTRA_VIEW_ONLY = "net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY";
+    public static final String EXTRA_SCALING = "net.christianbeier.droidvnc_ng.EXTRA_SCALING";
+    public static final String EXTRA_FILE_TRANSFER = "net.christianbeier.droidvnc_ng.EXTRA_FILE_TRANSFER";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
@@ -78,6 +90,11 @@ public class MainService extends Service {
 
     final static String ACTION_HANDLE_WRITE_STORAGE_RESULT = "action_handle_write_storage_result";
     final static String EXTRA_WRITE_STORAGE_RESULT = "result_write_storage";
+
+    private static final String PREFS_KEY_SERVER_LAST_PORT = "server_last_port" ;
+    private static final String PREFS_KEY_SERVER_LAST_PASSWORD = "server_last_password" ;
+    private static final String PREFS_KEY_SERVER_LAST_FILE_TRANSFER = "server_last_file_transfer" ;
+    private static final String PREFS_KEY_SERVER_LAST_START_REQUEST_ID = "server_last_start_request_id" ;
 
     private int mResultCode;
     private Intent mResultData;
@@ -107,8 +124,10 @@ public class MainService extends Service {
         System.loadLibrary("droidvnc-ng");
     }
 
-    private native boolean vncStartServer(int width, int height, int port, String desktopname, String password);
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private native boolean vncStartServer(int width, int height, int port, String desktopName, String password);
     private native boolean vncStopServer();
+    private native boolean vncIsActive();
     private native boolean vncConnectReverse(String host, int port);
     private native boolean vncConnectRepeater(String host, int port, String repeaterIdentifier);
     private native boolean vncNewFramebuffer(int width, int height);
@@ -120,7 +139,7 @@ public class MainService extends Service {
     public MainService() {
     }
 
-    public static Observable<StatusEvent> getStatusEventStream() {
+    static Observable<StatusEvent> getStatusEventStream() {
         return mStatusEventStream;
     }
 
@@ -178,21 +197,9 @@ public class MainService extends Service {
         mWakeLock = ((PowerManager) instance.getSystemService(Context.POWER_SERVICE)).newWakeLock((PowerManager.SCREEN_DIM_WAKE_LOCK| PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE), TAG + ":clientsConnected");
 
         /*
-            Start the server FIXME move this to intent handling?
+            Load defaults
          */
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getRealMetrics(displayMetrics);
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         mDefaults = new Defaults(this);
-
-        if (!vncStartServer(displayMetrics.widthPixels,
-                displayMetrics.heightPixels,
-                prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()),
-                Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
-                prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword())))
-            stopSelf();
     }
 
 
@@ -200,10 +207,7 @@ public class MainService extends Service {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getRealMetrics(displayMetrics);
-
+        DisplayMetrics displayMetrics = getDisplayMetrics();
         Log.d(TAG, "onConfigurationChanged: width: " + displayMetrics.widthPixels + " height: " + displayMetrics.heightPixels);
 
         startScreenCapture();
@@ -224,14 +228,42 @@ public class MainService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        String accessKey = intent.getStringExtra(EXTRA_ACCESS_KEY);
+        if (accessKey == null
+                || accessKey.isEmpty()
+                || !accessKey.equals(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()))) {
+            Log.e(TAG, "Access key missing or incorrect");
+            if(!vncIsActive()) {
+                stopSelf();
+            }
+            return START_NOT_STICKY;
+        }
+
         if(ACTION_HANDLE_MEDIA_PROJECTION_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle media projection result");
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
-            startScreenCapture();
-            // if we got here, we want to restart if we were killed
-            return START_REDELIVER_INTENT;
+            DisplayMetrics displayMetrics = getDisplayMetrics();
+            boolean status = vncStartServer(displayMetrics.widthPixels,
+                    displayMetrics.heightPixels,
+                    PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
+                    Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
+                    PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
+
+            Intent answer = new Intent(ACTION_START);
+            answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
+            answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+            sendBroadcast(answer);
+
+            if(status) {
+                startScreenCapture();
+                // if we got here, we want to restart if we were killed
+                return START_REDELIVER_INTENT;
+            } else {
+                stopSelf();
+                return START_NOT_STICKY;
+            }
         }
 
         if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction())) {
@@ -239,47 +271,151 @@ public class MainService extends Service {
             // Step 3: coming back from write storage permission check, start capturing
             // or ask for ask for capturing permission first (then going in step 4)
             if (mResultCode != 0 && mResultData != null) {
-                startScreenCapture();
-                // if we got here, we want to restart if we were killed
-                return START_REDELIVER_INTENT;
+                DisplayMetrics displayMetrics = getDisplayMetrics();
+                boolean status = vncStartServer(displayMetrics.widthPixels,
+                        displayMetrics.heightPixels,
+                        PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
+                        Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
+                        PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
+
+                Intent answer = new Intent(ACTION_START);
+                answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
+                answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+                sendBroadcast(answer);
+
+                if(status) {
+                    startScreenCapture();
+                    // if we got here, we want to restart if we were killed
+                    return START_REDELIVER_INTENT;
+                } else {
+                    stopSelf();
+                    return START_NOT_STICKY;
+                }
             } else {
                 Log.i(TAG, "Requesting confirmation");
                 // This initiates a prompt dialog for the user to confirm screen projection.
                 Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
                 mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(mediaProjectionRequestIntent);
+                // if screen capturing was not started, we don't want a restart if we were killed
+                // especially, we don't want the permission asking to replay.
+                return START_NOT_STICKY;
             }
         }
 
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle input result");
             // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission
-            InputService.setScaling(PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling()));
+            InputService.isEnabled = intent.getBooleanExtra(EXTRA_INPUT_RESULT, false);
             Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
+            writeStorageRequestIntent.putExtra(
+                    EXTRA_FILE_TRANSFER,
+                    PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FILE_TRANSFER, mDefaults.getFileTranfer()));
             writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(writeStorageRequestIntent);
+            // if screen capturing was not started, we don't want a restart if we were killed
+            // especially, we don't want the permission asking to replay.
+            return START_NOT_STICKY;
         }
 
         if(ACTION_START.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: start");
+
+            if(vncIsActive()) {
+                Intent answer = new Intent(ACTION_START);
+                answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+                answer.putExtra(EXTRA_REQUEST_SUCCESS, false);
+                sendBroadcast(answer);
+                return START_NOT_STICKY;
+            }
+
+            // Step 0: persist given arguments to be able to recover from possible crash later
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor ed = prefs.edit();
+            ed.putInt(PREFS_KEY_SERVER_LAST_PORT, intent.getIntExtra(EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort())));
+            ed.putString(PREFS_KEY_SERVER_LAST_PASSWORD, intent.getStringExtra(EXTRA_PASSWORD) != null ? intent.getStringExtra(EXTRA_PASSWORD) : prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
+            ed.putBoolean(PREFS_KEY_SERVER_LAST_FILE_TRANSFER, intent.getBooleanExtra(EXTRA_FILE_TRANSFER, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTranfer())));
+            ed.putBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !intent.getBooleanExtra(EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly())));
+            ed.putFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, intent.getFloatExtra(EXTRA_SCALING, prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling())));
+            ed.putString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+            ed.apply();
+            // also set new value for InputService
+            InputService.scaling = intent.getFloatExtra(EXTRA_SCALING, mDefaults.getScaling());
+
             // Step 1: check input permission
             Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
+            inputRequestIntent.putExtra(EXTRA_VIEW_ONLY, intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
             inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(inputRequestIntent);
+            // if screen capturing was not started, we don't want a restart if we were killed
+            // especially, we don't want the permission asking to replay.
+            return START_NOT_STICKY;
         }
 
         if(ACTION_STOP.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: stop");
             stopSelf();
+            Intent answer = new Intent(ACTION_STOP);
+            answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+            answer.putExtra(EXTRA_REQUEST_SUCCESS, vncIsActive());
+            sendBroadcast(answer);
+            return START_NOT_STICKY;
         }
 
-        // if screen capturing was not started, we don't want a restart if we were killed
-        // especially, we don't want the permission asking to replay.
+        if(ACTION_CONNECT_REVERSE.equals(intent.getAction())) {
+            Log.d(TAG, "onStartCommand: connect reverse");
+            boolean status = false;
+            if(vncIsActive()) {
+                try {
+                    //TODO run on worker thread
+                    status = instance.vncConnectReverse(intent.getStringExtra(EXTRA_HOST), intent.getIntExtra(EXTRA_PORT, mDefaults.getPortReverse()));
+                } catch (NullPointerException ignored) {
+                }
+            } else {
+                stopSelf();
+            }
+
+            Intent answer = new Intent(ACTION_CONNECT_REVERSE);
+            answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+            answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+            sendBroadcast(answer);
+            return START_NOT_STICKY;
+        }
+
+        if(ACTION_CONNECT_REPEATER.equals(intent.getAction())) {
+            Log.d(TAG, "onStartCommand: connect repeater");
+            boolean status = false;
+            if(vncIsActive()) {
+                try {
+                    //TODO run on worker thread
+                    status = instance.vncConnectRepeater(
+                            intent.getStringExtra(EXTRA_HOST),
+                            intent.getIntExtra(EXTRA_PORT, mDefaults.getPortRepeater()),
+                            intent.getStringExtra(EXTRA_REPEATER_ID));
+                } catch (NullPointerException ignored) {
+                }
+            } else {
+                stopSelf();
+            }
+
+            Intent answer = new Intent(ACTION_CONNECT_REPEATER);
+            answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+            answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+            sendBroadcast(answer);
+            return START_NOT_STICKY;
+        }
+
+        // no known action was given, stop the _service_ again if the _server_ is not active
+        if(!vncIsActive()) {
+            stopSelf();
+        }
+
         return START_NOT_STICKY;
     }
 
     @SuppressLint("WakelockTimeout")
-    public static void onClientConnected(long client) {
+    @SuppressWarnings("unused")
+    static void onClientConnected(long client) {
         Log.d(TAG, "onClientConnected: client " + client);
 
         try {
@@ -290,7 +426,8 @@ public class MainService extends Service {
         }
     }
 
-    public static void onClientDisconnected(long client) {
+    @SuppressWarnings("unused")
+    static void onClientDisconnected(long client) {
         Log.d(TAG, "onClientDisconnected: client " + client);
 
         try {
@@ -326,12 +463,10 @@ public class MainService extends Service {
         if (mVirtualDisplay != null)
             mVirtualDisplay.release();
 
-        final DisplayMetrics metrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getRealMetrics(metrics);
+        final DisplayMetrics metrics = getDisplayMetrics();
 
-        // apply scaling preference
-        float scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling());
+        // apply selected scaling
+        float scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
         int scaledWidth = (int) (metrics.widthPixels * scaling);
         int scaledHeight = (int) (metrics.heightPixels * scaling);
 
@@ -465,7 +600,7 @@ public class MainService extends Service {
      * Get whether Media Projection was granted by the user.
      * @return -1 if unknown, 0 if denied, 1 if granted
      */
-    public static int isMediaProjectionEnabled() {
+    static int isMediaProjectionEnabled() {
         if(instance == null)
             return -1;
         if(instance.mResultCode == 0 || instance.mResultData == null)
@@ -474,7 +609,7 @@ public class MainService extends Service {
         return 1;
     }
 
-    public static void togglePortraitInLandscapeWorkaround() {
+    static void togglePortraitInLandscapeWorkaround() {
         try {
             // set
             instance.mHasPortraitInLandscapeWorkaroundSet = true;
@@ -492,13 +627,13 @@ public class MainService extends Service {
      * Get non-loopback IPv4 addresses together with the port the user specified.
      * @return A list of strings in the form IP:port.
      */
-    public static ArrayList<String> getIPv4sAndPorts() {
+    static ArrayList<String> getIPv4sAndPorts() {
 
         int port = 5900;
 
         try {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(instance);
-            port = prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, 5900);
+            port = prefs.getInt(PREFS_KEY_SERVER_LAST_PORT, new Defaults(instance).getPort());
         } catch (NullPointerException e) {
             //unused
         }
@@ -537,21 +672,10 @@ public class MainService extends Service {
         return hostsAndPorts;
     }
 
-    public static boolean connectReverse(String host, int port) {
-        try {
-            return instance.vncConnectReverse(host, port);
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    public static boolean connectRepeater(String host, int port, String repeaterIdentifier) {
-        try {
-            return instance.vncConnectRepeater(host, port, repeaterIdentifier);
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
+    private DisplayMetrics getDisplayMetrics() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getRealMetrics(displayMetrics);
+        return displayMetrics;
     }
 }

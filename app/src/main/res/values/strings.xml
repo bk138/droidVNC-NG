@@ -3,9 +3,13 @@
     <string name="main_activity_title">droidVNC-NG Admin Panel</string>
     <string name="main_activity_settings">Settings</string>
     <string name="main_activity_settings_port">Port</string>
+    <string name="main_activity_settings_port_not_listening">Inbound connections disabled</string>
     <string name="main_activity_settings_password">Password</string>
+    <string name="main_activity_settings_access_key">Access Key</string>
     <string name="main_activity_settings_start_on_boot">Start on Boot</string>
+    <string name="main_activity_settings_file_transfer">File Transfer</string>
     <string name="main_activity_settings_scaling">Scaling</string>
+    <string name="main_activity_settings_view_only">View Only</string>
     <string name="main_activity_permissions_dashboard">Permissions Dashboard</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Screen Capturing</string>

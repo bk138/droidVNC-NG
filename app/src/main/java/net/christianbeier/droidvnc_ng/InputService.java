@@ -51,6 +51,12 @@ public class InputService extends AccessibilityService {
 	private static final String TAG = "InputService";
 
 	private static InputService instance;
+	/**
+        * Scaling factor that's applied to incoming pointer events by dividing coordinates by
+        * the given factor.
+        */
+	static float scaling;
+	static boolean isEnabled;
 
 	private Handler mMainHandler;
 
@@ -64,7 +70,6 @@ public class InputService extends AccessibilityService {
 	private boolean mIsKeyDelDown;
 	private boolean mIsKeyEscDown;
 
-	private float mScaling;
 
 	private final GestureCallback mGestureCallback = new GestureCallback();
 
@@ -80,8 +85,9 @@ public class InputService extends AccessibilityService {
 	{
 		super.onServiceConnected();
 		instance = this;
+		isEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !new Defaults(this).getViewOnly());
+		scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
 		mMainHandler = new Handler(instance.getMainLooper());
-		mScaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, new Defaults(this).getScaling());
 		Log.i(TAG, "onServiceConnected");
 	}
 
@@ -92,32 +98,22 @@ public class InputService extends AccessibilityService {
 		Log.i(TAG, "onDestroy");
 	}
 
-	public static boolean isEnabled()
+	public static boolean isConnected()
 	{
 		return instance != null;
 	}
 
-	/**
-	 * Set scaling factor that's applied to incoming pointer events by dividing coordinates by
-	 * the given factor.
-	 * @param scaling The scaling factor as a real number.
-	 * @return Whether scaling was applied or not.
-	 */
-	public static boolean setScaling(float scaling) {
-		try {
-			instance.mScaling = scaling;
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
 
 	@SuppressWarnings("unused")
 	public static void onPointerEvent(int buttonMask, int x, int y, long client) {
 
+		if(!isEnabled) {
+			return;
+		}
+
 		try {
-			x /= instance.mScaling;
-			y /= instance.mScaling;
+			x /= scaling;
+			y /= scaling;
 
 			/*
 			    left mouse button
@@ -172,6 +168,11 @@ public class InputService extends AccessibilityService {
 	}
 
 	public static void onKeyEvent(int down, long keysym, long client) {
+
+		if(!isEnabled) {
+			return;
+		}
+
 		Log.d(TAG, "onKeyEvent: keysym " + keysym + " down " + down + " by client " + client);
 
 		/*
@@ -235,6 +236,11 @@ public class InputService extends AccessibilityService {
 	}
 
 	public static void onCutText(String text, long client) {
+
+		if(!isEnabled) {
+			return;
+		}
+
 		Log.d(TAG, "onCutText: text '" + text + "' by client " + client);
 
 		try {
