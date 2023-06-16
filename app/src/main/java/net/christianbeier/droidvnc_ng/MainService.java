@@ -542,7 +542,6 @@ public class MainService extends Service {
          */
         mImageReader = ImageReader.newInstance(scaledWidth, scaledHeight, PixelFormat.RGBA_8888, 2);
         mImageReader.setOnImageAvailableListener(imageReader -> {
-            Log.d(TAG, "image available");
             try (Image image = imageReader.acquireLatestImage()) {
 
                 if (image == null)
