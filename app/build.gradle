@@ -42,7 +42,11 @@ android {
             path 'src/main/cpp/CMakeLists.txt'
         }
     }
-
+    namespace 'net.christianbeier.droidvnc_ng'
+    // needed for Gradle 8.x w/ Kotlin 1.8.x
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 dependencies {
