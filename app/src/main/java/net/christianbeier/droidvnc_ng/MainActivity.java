@@ -32,6 +32,8 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputType;
@@ -57,8 +59,6 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import io.reactivex.rxjava3.disposables.Disposable;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
     private Button mButtonToggle;
     private TextView mAddress;
     private boolean mIsMainServiceRunning;
-    private Disposable mMainServiceStatusEventStreamConnection;
     private BroadcastReceiver mMainServiceBroadcastReceiver;
     private String mLastMainServiceRequestId;
     private String mLastReverseHost;
@@ -391,69 +390,23 @@ public class MainActivity extends AppCompatActivity {
         TextView about = findViewById(R.id.about);
         about.setText(getString(R.string.main_activity_about, BuildConfig.VERSION_NAME));
 
-        mMainServiceStatusEventStreamConnection = MainService.getStatusEventStream().subscribe(event -> {
-
-            if(event == MainService.StatusEvent.STARTED) {
-                Log.d(TAG, "got MainService started event");
-                mButtonToggle.post(() -> {
-                    mButtonToggle.setText(R.string.stop);
-                    mButtonToggle.setEnabled(true);
-                });
-
-                // uhh there must be a nice functional way for this
-                ArrayList<String> hostsAndPorts = MainService.getIPv4sAndPorts();
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < hostsAndPorts.size(); ++i) {
-                    sb.append(hostsAndPorts.get(i));
-                    if (i != hostsAndPorts.size() - 1)
-                        sb.append(" ").append(getString(R.string.or)).append(" ");
-                }
-                mAddress.post(() -> mAddress.setText(getString(R.string.main_activity_address) + " " + sb));
-
-                // show outbound connection interface
-                findViewById(R.id.outbound_text).setVisibility(View.VISIBLE);
-                findViewById(R.id.outbound_buttons).setVisibility(View.VISIBLE);
-
-                // indicate that changing these settings does not have an effect when the server is running
-                findViewById(R.id.settings_port).setEnabled(false);
-                findViewById(R.id.settings_password).setEnabled(false);
-                findViewById(R.id.settings_access_key).setEnabled(false);
-                findViewById(R.id.settings_scaling).setEnabled(false);
-                findViewById(R.id.settings_view_only).setEnabled(false);
-                findViewById(R.id.settings_file_transfer).setEnabled(false);
-
-                mIsMainServiceRunning = true;
-            }
-
-            if(event == MainService.StatusEvent.STOPPED) {
-                Log.d(TAG, "got MainService stopped event");
-                mButtonToggle.post(() -> {
-                    mButtonToggle.setText(R.string.start);
-                    mButtonToggle.setEnabled(true);
-                });
-                mAddress.post(() -> mAddress.setText(""));
-
-                // hide outbound connection interface
-                findViewById(R.id.outbound_text).setVisibility(View.GONE);
-                findViewById(R.id.outbound_buttons).setVisibility(View.GONE);
-
-                // indicate that changing these settings does have an effect when the server is stopped
-                findViewById(R.id.settings_port).setEnabled(true);
-                findViewById(R.id.settings_password).setEnabled(true);
-                findViewById(R.id.settings_access_key).setEnabled(true);
-                findViewById(R.id.settings_scaling).setEnabled(true);
-                findViewById(R.id.settings_view_only).setEnabled(true);
-                findViewById(R.id.settings_file_transfer).setEnabled(true);
-
-
-                mIsMainServiceRunning = false;
-            }
-
-        });
-
         mMainServiceBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                if (MainService.ACTION_START.equals(intent.getAction())
+                        && (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false))) {
+                    // was a successful START requested by anyone (but sent by MainService, as the receiver is not exported!)
+                    Log.d(TAG, "got MainService started event");
+                    onServerStarted();
+                }
+
+                if (MainService.ACTION_STOP.equals(intent.getAction())
+                        && (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false))) {
+                    // was a successful STOP requested by anyone (but sent by MainService, as the receiver is not exported!)
+                    Log.d(TAG, "got MainService stopped event");
+                    onServerStopped();
+                }
+
                 if (MainService.ACTION_CONNECT_REVERSE.equals(intent.getAction())
                         && mLastMainServiceRequestId != null
                         && mLastMainServiceRequestId.equals(intent.getStringExtra(MainService.EXTRA_REQUEST_ID))) {
@@ -516,9 +469,24 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         IntentFilter filter = new IntentFilter();
+        filter.addAction(MainService.ACTION_START);
+        filter.addAction(MainService.ACTION_STOP);
         filter.addAction(MainService.ACTION_CONNECT_REVERSE);
         filter.addAction(MainService.ACTION_CONNECT_REPEATER);
-        registerReceiver(mMainServiceBroadcastReceiver, filter);
+        // register the receiver as NOT_EXPORTED so it only receives broadcasts sent by MainService,
+        // not a malicious fake broadcaster like
+        // `adb shell am broadcast -a net.christianbeier.droidvnc_ng.ACTION_STOP --ez net.christianbeier.droidvnc_ng.EXTRA_REQUEST_SUCCESS true`
+        // for instance
+        ContextCompat.registerReceiver(this, mMainServiceBroadcastReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+
+        // setup UI initial state
+        if (MainService.isServerActive()) {
+            Log.d(TAG, "Found server to be started");
+            onServerStarted();
+        } else {
+            Log.d(TAG, "Found server to be stopped");
+            onServerStopped();
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -575,9 +543,60 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        mMainServiceStatusEventStreamConnection.dispose();
         unregisterReceiver(mMainServiceBroadcastReceiver);
     }
 
+    private void onServerStarted() {
+        mButtonToggle.post(() -> {
+            mButtonToggle.setText(R.string.stop);
+            mButtonToggle.setEnabled(true);
+        });
+
+        // uhh there must be a nice functional way for this
+        ArrayList<String> hostsAndPorts = MainService.getIPv4sAndPorts();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < hostsAndPorts.size(); ++i) {
+            sb.append(hostsAndPorts.get(i));
+            if (i != hostsAndPorts.size() - 1)
+                sb.append(" ").append(getString(R.string.or)).append(" ");
+        }
+        mAddress.post(() -> mAddress.setText(getString(R.string.main_activity_address) + " " + sb));
+
+        // show outbound connection interface
+        findViewById(R.id.outbound_text).setVisibility(View.VISIBLE);
+        findViewById(R.id.outbound_buttons).setVisibility(View.VISIBLE);
+
+        // indicate that changing these settings does not have an effect when the server is running
+        findViewById(R.id.settings_port).setEnabled(false);
+        findViewById(R.id.settings_password).setEnabled(false);
+        findViewById(R.id.settings_access_key).setEnabled(false);
+        findViewById(R.id.settings_scaling).setEnabled(false);
+        findViewById(R.id.settings_view_only).setEnabled(false);
+        findViewById(R.id.settings_file_transfer).setEnabled(false);
+
+        mIsMainServiceRunning = true;
+    }
+
+    private void onServerStopped() {
+        mButtonToggle.post(() -> {
+            mButtonToggle.setText(R.string.start);
+            mButtonToggle.setEnabled(true);
+        });
+        mAddress.post(() -> mAddress.setText(""));
+
+        // hide outbound connection interface
+        findViewById(R.id.outbound_text).setVisibility(View.GONE);
+        findViewById(R.id.outbound_buttons).setVisibility(View.GONE);
+
+        // indicate that changing these settings does have an effect when the server is stopped
+        findViewById(R.id.settings_port).setEnabled(true);
+        findViewById(R.id.settings_password).setEnabled(true);
+        findViewById(R.id.settings_access_key).setEnabled(true);
+        findViewById(R.id.settings_scaling).setEnabled(true);
+        findViewById(R.id.settings_view_only).setEnabled(true);
+        findViewById(R.id.settings_file_transfer).setEnabled(true);
+
+        mIsMainServiceRunning = false;
+    }
 
 }
