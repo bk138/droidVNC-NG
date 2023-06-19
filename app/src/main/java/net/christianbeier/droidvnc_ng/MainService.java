@@ -159,10 +159,6 @@ public class MainService extends Service {
     private native int vncGetFramebufferWidth();
     private native int vncGetFramebufferHeight();
 
-
-    public MainService() {
-    }
-
     static Observable<StatusEvent> getStatusEventStream() {
         return mStatusEventStream;
     }
