@@ -641,6 +641,14 @@ public class MainService extends Service {
         return 1;
     }
 
+    static boolean isServerActive() {
+        try {
+            return instance.vncIsActive();
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
     static void togglePortraitInLandscapeWorkaround() {
         try {
             // set
