@@ -120,7 +120,7 @@ public class MainService extends Service {
         STOPPED,
     }
 
-    private NsdManager.RegistrationListener mNSDRegistrationListener = new NsdManager.RegistrationListener() {
+    private final NsdManager.RegistrationListener mNSDRegistrationListener = new NsdManager.RegistrationListener() {
         @Override
         public void onRegistrationFailed(NsdServiceInfo nsdServiceInfo, int i) {
             Log.e(TAG, "NSD register failed for " + nsdServiceInfo + " with code " + i);
