@@ -39,6 +39,8 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.net.nsd.NsdManager;
+import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -117,6 +119,28 @@ public class MainService extends Service {
         STARTED,
         STOPPED,
     }
+
+    private NsdManager.RegistrationListener mNSDRegistrationListener = new NsdManager.RegistrationListener() {
+        @Override
+        public void onRegistrationFailed(NsdServiceInfo nsdServiceInfo, int i) {
+            Log.e(TAG, "NSD register failed for " + nsdServiceInfo + " with code " + i);
+        }
+
+        @Override
+        public void onUnregistrationFailed(NsdServiceInfo nsdServiceInfo, int i) {
+            Log.e(TAG, "NSD unregister failed for " + nsdServiceInfo + " with code " + i);
+        }
+
+        @Override
+        public void onServiceRegistered(NsdServiceInfo nsdServiceInfo) {
+            Log.d(TAG, "NSD register for " + nsdServiceInfo);
+        }
+
+        @Override
+        public void onServiceUnregistered(NsdServiceInfo nsdServiceInfo) {
+            Log.d(TAG, "NSD unregister for " + nsdServiceInfo);
+        }
+    };
 
     static {
         // order is important here
@@ -217,6 +241,11 @@ public class MainService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
+        try {
+            ((NsdManager) getSystemService(Context.NSD_SERVICE)).unregisterService(mNSDRegistrationListener);
+        } catch (IllegalArgumentException ignored) {
+            // was not registered
+        }
         stopScreenCapture();
         vncStopServer();
         mStatusEventStream.onNext(StatusEvent.STOPPED);
@@ -245,12 +274,13 @@ public class MainService extends Service {
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
             DisplayMetrics displayMetrics = getDisplayMetrics();
+            int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
+            String name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
             boolean status = vncStartServer(displayMetrics.widthPixels,
                     displayMetrics.heightPixels,
-                    PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
-                    Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
+                    port,
+                    name,
                     PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
-
             Intent answer = new Intent(ACTION_START);
             answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
             answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
@@ -258,6 +288,7 @@ public class MainService extends Service {
 
             if(status) {
                 startScreenCapture();
+                registerNSD(name, port);
                 // if we got here, we want to restart if we were killed
                 return START_REDELIVER_INTENT;
             } else {
@@ -272,10 +303,12 @@ public class MainService extends Service {
             // or ask for ask for capturing permission first (then going in step 4)
             if (mResultCode != 0 && mResultData != null) {
                 DisplayMetrics displayMetrics = getDisplayMetrics();
+                int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
+                String name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
                 boolean status = vncStartServer(displayMetrics.widthPixels,
                         displayMetrics.heightPixels,
-                        PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort()),
-                        Settings.Secure.getString(getContentResolver(), "bluetooth_name"),
+                        port,
+                        name,
                         PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
 
                 Intent answer = new Intent(ACTION_START);
@@ -285,6 +318,7 @@ public class MainService extends Service {
 
                 if(status) {
                     startScreenCapture();
+                    registerNSD(name, port);
                     // if we got here, we want to restart if we were killed
                     return START_REDELIVER_INTENT;
                 } else {
@@ -676,4 +710,26 @@ public class MainService extends Service {
         wm.getDefaultDisplay().getRealMetrics(displayMetrics);
         return displayMetrics;
     }
+
+    private void registerNSD(String name, int port) {
+        // unregister old one
+        try {
+            ((NsdManager) getSystemService(Context.NSD_SERVICE)).unregisterService(mNSDRegistrationListener);
+        } catch (IllegalArgumentException ignored) {
+            // was not registered
+        }
+
+        // register new one
+        NsdServiceInfo serviceInfo = new NsdServiceInfo();
+        serviceInfo.setServiceName(name);
+        serviceInfo.setServiceType("_rfb._tcp.");
+        serviceInfo.setPort(port);
+
+        ((NsdManager)getSystemService(Context.NSD_SERVICE)).registerService(
+                serviceInfo,
+                NsdManager.PROTOCOL_DNS_SD,
+                mNSDRegistrationListener
+        );
+    }
+
 }
