@@ -32,6 +32,11 @@
     <string name="main_activity_repeater_vnc_input_missing">Host and/or ID missing</string>
     <string name="main_activity_special_key_reference">From a VNC viewer, <b>Ctrl-Shift-Esc</b> triggers \'Recent Apps\' overview, <b>Home/Pos1</b> acts as Home button, <b>Escape</b> acts as Back button.</string>
     <string name="main_activity_about">This is droidVNC-NG %1$s. Please note that more features are still being added to droidVNC-NG. In particular, most keyboard strokes as of now can only be input via the Android soft keyboard, there is only limited support for keyboard events from VNC viewers (yet). Please report any issues and feature requests at https://github.com/bk138/droidVNC-NG</string>
+    <string name="main_service_notification_not_listening">Not listening for incoming connections</string>
+    <plurals name="main_service_notification_listening">
+        <item quantity="one">Listening on port %1$d, %2$d client connected</item>
+        <item quantity="other">Listening on port %1$d, %2$d clients connected</item>
+    </plurals>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="error">Error</string>

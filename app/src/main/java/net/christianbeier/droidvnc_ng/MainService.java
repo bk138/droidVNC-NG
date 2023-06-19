@@ -110,6 +110,9 @@ public class MainService extends Service {
 
     private PowerManager.WakeLock mWakeLock;
 
+    private int mNumberOfClients;
+    private boolean mIsStopping;
+
     private Defaults mDefaults;
 
     private static MainService instance;
@@ -189,20 +192,9 @@ public class MainService extends Service {
             manager.createNotificationChannel(serviceChannel);
 
             /*
-                Create the notification
+                startForeground() w/ notification
              */
-            Intent notificationIntent = new Intent(this, MainActivity.class);
-
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-                    notificationIntent, PendingIntent.FLAG_IMMUTABLE);
-
-            Notification notification = new NotificationCompat.Builder(this, getPackageName())
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setContentText("Doing some work...")
-                    .setContentIntent(pendingIntent).build();
-
-            startForeground(NOTIFICATION_ID, notification);
+            startForeground(NOTIFICATION_ID, getNotification(null, true));
         }
 
         /*
@@ -237,6 +229,9 @@ public class MainService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
+
+        mIsStopping = true;
+
         try {
             ((NsdManager) getSystemService(Context.NSD_SERVICE)).unregisterService(mNSDRegistrationListener);
         } catch (IllegalArgumentException ignored) {
@@ -285,6 +280,7 @@ public class MainService extends Service {
             if(status) {
                 startScreenCapture();
                 registerNSD(name, port);
+                updateNotification();
                 // if we got here, we want to restart if we were killed
                 return START_REDELIVER_INTENT;
             } else {
@@ -315,6 +311,7 @@ public class MainService extends Service {
                 if(status) {
                     startScreenCapture();
                     registerNSD(name, port);
+                    updateNotification();
                     // if we got here, we want to restart if we were killed
                     return START_REDELIVER_INTENT;
                 } else {
@@ -450,6 +447,8 @@ public class MainService extends Service {
 
         try {
             instance.mWakeLock.acquire();
+            instance.mNumberOfClients++;
+            instance.updateNotification();
         } catch (Exception e) {
             // instance probably null
             Log.e(TAG, "onClientConnected: wake lock acquiring failed: " + e);
@@ -462,6 +461,11 @@ public class MainService extends Service {
 
         try {
             instance.mWakeLock.release();
+            instance.mNumberOfClients--;
+            if(!instance.mIsStopping) {
+                // don't show notifications when clients are disconnected on orderly server shutdown
+                instance.updateNotification();
+            }
         } catch (Exception e) {
             // instance probably null
             Log.e(TAG, "onClientDisconnected: wake lock releasing failed: " + e);
@@ -731,6 +735,39 @@ public class MainService extends Service {
                 NsdManager.PROTOCOL_DNS_SD,
                 mNSDRegistrationListener
         );
+    }
+
+    private Notification getNotification(String text, boolean isSilent){
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        return new NotificationCompat.Builder(this, getPackageName())
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(text)
+                .setSilent(isSilent)
+                .setContentIntent(pendingIntent).build();
+    }
+
+    private void updateNotification() {
+        int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
+        if (port < 0) {
+            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
+                    .notify(NOTIFICATION_ID,
+                            getNotification(getString(R.string.main_service_notification_not_listening),
+                                    false));
+        } else {
+            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
+                    .notify(NOTIFICATION_ID,
+                            getNotification(getResources().getQuantityString(
+                                            R.plurals.main_service_notification_listening,
+                                            mNumberOfClients,
+                                            port,
+                                            mNumberOfClients),
+                                    false));
+        }
     }
 
 }
