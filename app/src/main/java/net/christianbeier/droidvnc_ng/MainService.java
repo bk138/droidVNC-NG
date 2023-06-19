@@ -715,6 +715,11 @@ public class MainService extends Service {
             // was not registered
         }
 
+        if(port < 0) {
+            // no service offered
+            return;
+        }
+
         // register new one
         NsdServiceInfo serviceInfo = new NsdServiceInfo();
         serviceInfo.setServiceName(name);
