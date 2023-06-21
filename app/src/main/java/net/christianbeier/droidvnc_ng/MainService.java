@@ -663,28 +663,19 @@ public class MainService extends Service {
     }
 
     /**
-     * Get non-loopback IPv4 addresses together with the port the user specified.
-     * @return A list of strings in the form IP:port.
+     * Get non-loopback IPv4 addresses.
+     * @return A list of strings, each containing one IPv4 address.
      */
-    static ArrayList<String> getIPv4sAndPorts() {
+    static ArrayList<String> getIPv4s() {
 
-        int port = 5900;
-
-        try {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(instance);
-            port = prefs.getInt(PREFS_KEY_SERVER_LAST_PORT, new Defaults(instance).getPort());
-        } catch (NullPointerException e) {
-            //unused
-        }
-
-        ArrayList<String> hostsAndPorts = new ArrayList<>();
+        ArrayList<String> hosts = new ArrayList<>();
 
         // if running on Chrome OS, this prop is set and contains the device's IPv4 address,
         // see https://chromeos.dev/en/games/optimizing-games-networking
         String prop = Utils.getProp("arc.net.ipv4.host_address");
         if(!prop.isEmpty()) {
-            hostsAndPorts.add(prop + ":" + port);
-            return hostsAndPorts;
+            hosts.add(prop);
+            return hosts;
         }
 
         // not running on Chrome OS
@@ -699,7 +690,7 @@ public class MainService extends Service {
                         //filter for ipv4/ipv6
                         if (ia.getAddress().getAddress().length == 4) {
                             //4 for ipv4, 16 for ipv6
-                            hostsAndPorts.add(ia.getAddress().toString().replaceAll("/", "") + ":" + port);
+                            hosts.add(ia.getAddress().toString().replaceAll("/", ""));
                         }
                     }
                 }
@@ -708,7 +699,16 @@ public class MainService extends Service {
             //unused
         }
 
-        return hostsAndPorts;
+        return hosts;
+    }
+
+    static int getPort() {
+        try {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(instance);
+            return prefs.getInt(PREFS_KEY_SERVER_LAST_PORT, new Defaults(instance).getPort());
+        } catch (Exception e) {
+            return -2;
+        }
     }
 
     private DisplayMetrics getDisplayMetrics() {
