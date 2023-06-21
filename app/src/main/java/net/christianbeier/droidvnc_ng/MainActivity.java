@@ -401,8 +401,9 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (MainService.ACTION_STOP.equals(intent.getAction())
-                        && (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false))) {
+                        && (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, true))) {
                     // was a successful STOP requested by anyone (but sent by MainService, as the receiver is not exported!)
+                    // or a STOP without any extras
                     Log.d(TAG, "got MainService stopped event");
                     onServerStopped();
                 }
