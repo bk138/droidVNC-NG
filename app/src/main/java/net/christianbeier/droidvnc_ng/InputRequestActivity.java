@@ -53,6 +53,16 @@ public class InputRequestActivity extends AppCompatActivity {
                     .setMessage(R.string.input_a11y_msg)
                     .setPositiveButton(R.string.yes, (dialog, which) -> {
                         Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+
+                        // highlight entry on some devices, see https://stackoverflow.com/a/63214655/361413
+                        final String EXTRA_FRAGMENT_ARG_KEY = ":settings:fragment_args_key";
+                        final String EXTRA_SHOW_FRAGMENT_ARGUMENTS = ":settings:show_fragment_args";
+                        Bundle bundle = new Bundle();
+                        String showArgs = getPackageName() + "/" + InputService.class.getName();
+                        bundle.putString(EXTRA_FRAGMENT_ARG_KEY, showArgs);
+                        intent.putExtra(EXTRA_FRAGMENT_ARG_KEY, showArgs);
+                        intent.putExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS, bundle);
+
                         if (intent.resolveActivity(getPackageManager()) != null)
                             startActivityForResult(intent, REQUEST_INPUT);
                         else
