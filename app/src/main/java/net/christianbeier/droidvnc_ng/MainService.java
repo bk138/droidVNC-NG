@@ -60,10 +60,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.subjects.BehaviorSubject;
-import io.reactivex.rxjava3.subjects.Subject;
-
 public class MainService extends Service {
 
     private static final String TAG = "MainService";
@@ -119,12 +115,6 @@ public class MainService extends Service {
 
     private static MainService instance;
 
-    private static final Subject<StatusEvent> mStatusEventStream = BehaviorSubject.createDefault(StatusEvent.STOPPED).toSerialized();
-    public enum StatusEvent {
-        STARTED,
-        STOPPED,
-    }
-
     private final NsdManager.RegistrationListener mNSDRegistrationListener = new NsdManager.RegistrationListener() {
         @Override
         public void onRegistrationFailed(NsdServiceInfo nsdServiceInfo, int i) {
@@ -164,10 +154,6 @@ public class MainService extends Service {
     private native int vncGetFramebufferWidth();
     private native int vncGetFramebufferHeight();
 
-    static Observable<StatusEvent> getStatusEventStream() {
-        return mStatusEventStream;
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -178,8 +164,6 @@ public class MainService extends Service {
         Log.d(TAG, "onCreate");
 
         instance = this;
-
-        mStatusEventStream.onNext(StatusEvent.STARTED);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             /*
@@ -247,7 +231,6 @@ public class MainService extends Service {
         }
         stopScreenCapture();
         vncStopServer();
-        mStatusEventStream.onNext(StatusEvent.STOPPED);
         instance = null;
     }
 
