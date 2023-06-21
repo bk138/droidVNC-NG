@@ -553,15 +553,19 @@ public class MainActivity extends AppCompatActivity {
             mButtonToggle.setEnabled(true);
         });
 
-        // uhh there must be a nice functional way for this
-        ArrayList<String> hostsAndPorts = MainService.getIPv4sAndPorts();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < hostsAndPorts.size(); ++i) {
-            sb.append(hostsAndPorts.get(i));
-            if (i != hostsAndPorts.size() - 1)
-                sb.append(" ").append(getString(R.string.or)).append(" ");
+        if(MainService.getPort() >= 0) {
+            // uhh there must be a nice functional way for this
+            ArrayList<String> hosts = MainService.getIPv4s();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < hosts.size(); ++i) {
+                sb.append(hosts.get(i) + ":" + MainService.getPort());
+                if (i != hosts.size() - 1)
+                    sb.append(" ").append(getString(R.string.or)).append(" ");
+            }
+            mAddress.post(() -> mAddress.setText(getString(R.string.main_activity_address) + " " + sb));
+        } else {
+            mAddress.post(() -> mAddress.setText(R.string.main_activity_not_listening));
         }
-        mAddress.post(() -> mAddress.setText(getString(R.string.main_activity_address) + " " + sb));
 
         // show outbound connection interface
         findViewById(R.id.outbound_text).setVisibility(View.VISIBLE);

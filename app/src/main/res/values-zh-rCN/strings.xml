@@ -19,6 +19,7 @@
     <string name="main_activity_file_access">文件访问权限</string>
     <string name="main_activity_input">输入</string>
     <string name="main_activity_address">可以访问当前服务在</string>
+    <string name="main_activity_not_listening">该服务器没有监听传入的连接。</string>
     <string name="main_activity_outbound_text">你可以建立出站连接：</string>
     <string name="main_activity_reverse_vnc_button">连接到监听的viewer</string>
     <string name="main_activity_reverse_vnc_hint">域名:端口</string>
