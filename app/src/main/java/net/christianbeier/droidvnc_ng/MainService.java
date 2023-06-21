@@ -112,6 +112,8 @@ public class MainService extends Service {
 
     private int mNumberOfClients;
     private boolean mIsStopping;
+    // service is stopping on OUR initiative, NOT by stopService()
+    private boolean mIsStoppingByUs;
 
     private Defaults mDefaults;
 
@@ -232,6 +234,12 @@ public class MainService extends Service {
 
         mIsStopping = true;
 
+        if(!mIsStoppingByUs && vncIsActive()) {
+            // stopService() from OS or other component
+            Log.d(TAG, "onDestroy: sending ACTION_STOP");
+            sendBroadcast(new Intent(ACTION_STOP));
+        }
+
         try {
             ((NsdManager) getSystemService(Context.NSD_SERVICE)).unregisterService(mNSDRegistrationListener);
         } catch (IllegalArgumentException ignored) {
@@ -254,7 +262,7 @@ public class MainService extends Service {
                 || !accessKey.equals(PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()))) {
             Log.e(TAG, "Access key missing or incorrect");
             if(!vncIsActive()) {
-                stopSelf();
+                stopSelfByUs();
             }
             return START_NOT_STICKY;
         }
@@ -284,7 +292,7 @@ public class MainService extends Service {
                 // if we got here, we want to restart if we were killed
                 return START_REDELIVER_INTENT;
             } else {
-                stopSelf();
+                stopSelfByUs();
                 return START_NOT_STICKY;
             }
         }
@@ -315,7 +323,7 @@ public class MainService extends Service {
                     // if we got here, we want to restart if we were killed
                     return START_REDELIVER_INTENT;
                 } else {
-                    stopSelf();
+                    stopSelfByUs();
                     return START_NOT_STICKY;
                 }
             } else {
@@ -381,7 +389,7 @@ public class MainService extends Service {
 
         if(ACTION_STOP.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: stop");
-            stopSelf();
+            stopSelfByUs();
             Intent answer = new Intent(ACTION_STOP);
             answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
             answer.putExtra(EXTRA_REQUEST_SUCCESS, vncIsActive());
@@ -399,7 +407,7 @@ public class MainService extends Service {
                 } catch (NullPointerException ignored) {
                 }
             } else {
-                stopSelf();
+                stopSelfByUs();
             }
 
             Intent answer = new Intent(ACTION_CONNECT_REVERSE);
@@ -422,7 +430,7 @@ public class MainService extends Service {
                 } catch (NullPointerException ignored) {
                 }
             } else {
-                stopSelf();
+                stopSelfByUs();
             }
 
             Intent answer = new Intent(ACTION_CONNECT_REPEATER);
@@ -434,7 +442,7 @@ public class MainService extends Service {
 
         // no known action was given, stop the _service_ again if the _server_ is not active
         if(!vncIsActive()) {
-            stopSelf();
+            stopSelfByUs();
         }
 
         return START_NOT_STICKY;
@@ -626,6 +634,14 @@ public class MainService extends Service {
             mMediaProjection.stop();
             mMediaProjection = null;
         }
+    }
+
+    /**
+     * Wrapper around stopSelf() that indicates that the stop was on our initiative.
+     */
+    private void stopSelfByUs() {
+        mIsStoppingByUs = true;
+        stopSelf();
     }
 
     /**
