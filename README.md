@@ -140,6 +140,10 @@ The service answers with a Broadcast Intent with its Action mirroring your reque
   * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: The request id this answer is for.
   * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_SUCCESS`: Boolean Extra describing the outcome of the request.
 
+There is one special case where the service sends a Broadcast Intent with action
+`net.christianbeier.droidvnc_ng.ACTION_STOP` without any extras: that is when it is stopped by the
+system.
+
 #### Examples
 
 ##### Start a password-protected view-only server on port 5901
