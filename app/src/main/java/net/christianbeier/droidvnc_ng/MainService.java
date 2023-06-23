@@ -731,6 +731,10 @@ public class MainService extends Service {
             return;
         }
 
+        if(name == null || name.isEmpty()) {
+            name = "Android";
+        }
+
         // register new one
         NsdServiceInfo serviceInfo = new NsdServiceInfo();
         serviceInfo.setServiceName(name);
