@@ -48,7 +48,7 @@ import androidx.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.WindowManager;
+import android.view.Display;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -205,7 +205,7 @@ public class MainService extends Service {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        DisplayMetrics displayMetrics = getDisplayMetrics();
+        DisplayMetrics displayMetrics = getDisplayMetrics(Display.DEFAULT_DISPLAY);
         Log.d(TAG, "onConfigurationChanged: width: " + displayMetrics.widthPixels + " height: " + displayMetrics.heightPixels);
 
         startScreenCapture();
@@ -255,7 +255,7 @@ public class MainService extends Service {
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
-            DisplayMetrics displayMetrics = getDisplayMetrics();
+            DisplayMetrics displayMetrics = getDisplayMetrics(Display.DEFAULT_DISPLAY);
             int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
             String name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
             boolean status = vncStartServer(displayMetrics.widthPixels,
@@ -285,7 +285,7 @@ public class MainService extends Service {
             // Step 3: coming back from write storage permission check, start capturing
             // or ask for ask for capturing permission first (then going in step 4)
             if (mResultCode != 0 && mResultData != null) {
-                DisplayMetrics displayMetrics = getDisplayMetrics();
+                DisplayMetrics displayMetrics = getDisplayMetrics(Display.DEFAULT_DISPLAY);
                 int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
                 String name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
                 boolean status = vncStartServer(displayMetrics.widthPixels,
@@ -488,7 +488,7 @@ public class MainService extends Service {
         if (mVirtualDisplay != null)
             mVirtualDisplay.release();
 
-        final DisplayMetrics metrics = getDisplayMetrics();
+        final DisplayMetrics metrics = getDisplayMetrics(Display.DEFAULT_DISPLAY);
 
         // apply selected scaling
         float scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
@@ -711,10 +711,10 @@ public class MainService extends Service {
         }
     }
 
-    private DisplayMetrics getDisplayMetrics() {
+    private DisplayMetrics getDisplayMetrics(int displayId) {
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getRealMetrics(displayMetrics);
+        DisplayManager dm = (DisplayManager) getSystemService(DISPLAY_SERVICE);
+        dm.getDisplay(displayId).getRealMetrics(displayMetrics);
         return displayMetrics;
     }
 
