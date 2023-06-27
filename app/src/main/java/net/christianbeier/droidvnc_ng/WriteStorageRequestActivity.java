@@ -45,7 +45,7 @@ public class WriteStorageRequestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // if file transfer not wanted, bail out early without bothering the user
-        if(!getIntent().getBooleanExtra(MainService.EXTRA_FILE_TRANSFER, new Defaults(this).getFileTranfer())) {
+        if(!getIntent().getBooleanExtra(MainService.EXTRA_FILE_TRANSFER, new Defaults(this).getFileTransfer())) {
             postResultAndFinish(false);
             return;
         }

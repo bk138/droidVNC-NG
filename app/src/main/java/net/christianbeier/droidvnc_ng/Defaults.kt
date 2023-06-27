@@ -60,7 +60,7 @@ class Defaults {
         private set
 
     @EncodeDefault
-    var fileTranfer = true
+    var fileTransfer = true
         private set
 
     @EncodeDefault
@@ -100,7 +100,7 @@ class Defaults {
             this.port = readDefault.port
             this.portReverse = readDefault.portReverse
             this.portRepeater = readDefault.portRepeater
-            this.fileTranfer = readDefault.fileTranfer
+            this.fileTransfer = readDefault.fileTransfer
             this.scaling = readDefault.scaling
             this.viewOnly = readDefault.viewOnly
             this.password = readDefault.password
