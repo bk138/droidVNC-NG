@@ -308,6 +308,9 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     theScreen->port = port;
     theScreen->ipv6port = port;
 
+    // don't show X cursor
+    theScreen->cursor = NULL;
+
     if(desktopname) { // string arg to GetStringUTFChars() must not be NULL
         const char *cDesktopName = (*env)->GetStringUTFChars(env, desktopname, NULL);
         if(!cDesktopName) {
