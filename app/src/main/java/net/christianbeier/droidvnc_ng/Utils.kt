@@ -1,5 +1,9 @@
 package net.christianbeier.droidvnc_ng
 
+import android.content.Context
+import android.graphics.Rect
+import android.hardware.display.DisplayManager
+import android.os.Build
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -10,4 +14,19 @@ object Utils {
         val process = ProcessBuilder().command("/system/bin/getprop", prop).start()
         return BufferedReader(InputStreamReader(process.inputStream)).readLine()
     }
+
+    @JvmStatic
+    fun getDisplayInset(context: Context, displayId: Int) : Rect {
+        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val cutout = displayManager.getDisplay(displayId).cutout
+            if(cutout != null) {
+                return Rect(cutout.safeInsetLeft, cutout.safeInsetTop, cutout.safeInsetRight, cutout.safeInsetBottom)
+            }
+        }
+
+        return Rect()
+    }
+
 }
