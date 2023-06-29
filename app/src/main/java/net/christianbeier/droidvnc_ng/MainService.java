@@ -76,6 +76,7 @@ public class MainService extends Service {
     public static final String EXTRA_ACCESS_KEY = "net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY";
     public static final String EXTRA_PASSWORD = "net.christianbeier.droidvnc_ng.EXTRA_PASSWORD";
     public static final String EXTRA_VIEW_ONLY = "net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY";
+    public static final String EXTRA_SHOW_POINTERS = "net.christianbeier.droidvnc_ng.EXTRA_SHOW_POINTERS";
     public static final String EXTRA_SCALING = "net.christianbeier.droidvnc_ng.EXTRA_SCALING";
     public static final String EXTRA_FILE_TRANSFER = "net.christianbeier.droidvnc_ng.EXTRA_FILE_TRANSFER";
 
@@ -92,6 +93,7 @@ public class MainService extends Service {
     private static final String PREFS_KEY_SERVER_LAST_PORT = "server_last_port" ;
     private static final String PREFS_KEY_SERVER_LAST_PASSWORD = "server_last_password" ;
     private static final String PREFS_KEY_SERVER_LAST_FILE_TRANSFER = "server_last_file_transfer" ;
+    private static final String PREFS_KEY_SERVER_LAST_SHOW_POINTERS = "server_last_show_pointers" ;
     private static final String PREFS_KEY_SERVER_LAST_START_REQUEST_ID = "server_last_start_request_id" ;
 
     private int mResultCode;
@@ -356,6 +358,10 @@ public class MainService extends Service {
             ed.putBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !intent.getBooleanExtra(EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly())));
             ed.putFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, intent.getFloatExtra(EXTRA_SCALING, prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling())));
             ed.putString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+            // showing pointers depends on view-only being false
+            ed.putBoolean(PREFS_KEY_SERVER_LAST_SHOW_POINTERS,
+                    !intent.getBooleanExtra(EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()))
+                            && intent.getBooleanExtra(EXTRA_SHOW_POINTERS, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_SHOW_POINTERS, mDefaults.getShowPointers())));
             ed.apply();
             // also set new value for InputService
             InputService.scaling = intent.getFloatExtra(EXTRA_SCALING, mDefaults.getScaling());
@@ -440,9 +446,12 @@ public class MainService extends Service {
             instance.mWakeLock.acquire();
             instance.mNumberOfClients++;
             instance.updateNotification();
+            if(PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(PREFS_KEY_SERVER_LAST_SHOW_POINTERS, new Defaults(instance).getShowPointers())) {
+                InputService.addPointer(client);
+            }
         } catch (Exception e) {
             // instance probably null
-            Log.e(TAG, "onClientConnected: wake lock acquiring failed: " + e);
+            Log.e(TAG, "onClientConnected: error: " + e);
         }
     }
 
@@ -457,9 +466,12 @@ public class MainService extends Service {
                 // don't show notifications when clients are disconnected on orderly server shutdown
                 instance.updateNotification();
             }
+            if(PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(PREFS_KEY_SERVER_LAST_SHOW_POINTERS, new Defaults(instance).getShowPointers())) {
+                InputService.removePointer(client);
+            }
         } catch (Exception e) {
             // instance probably null
-            Log.e(TAG, "onClientDisconnected: wake lock releasing failed: " + e);
+            Log.e(TAG, "onClientDisconnected: error: " + e);
         }
     }
 

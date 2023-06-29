@@ -92,6 +92,7 @@ An example `defaults.json` with completely new defaults (not all entries need to
     "portRepeater": 5556,
     "scaling": 0.7,
     "viewOnly": false,
+    "showPointers": true,
     "fileTransfer": true,
     "password": "supersecure",
     "accessKey": "evenmoresecure"
@@ -115,6 +116,7 @@ the following Actions and associated Extras set:
   * `net.christianbeier.droidvnc_ng.EXTRA_PASSWORD`: Optional String Extra containing VNC password.
   * `net.christianbeier.droidvnc_ng.EXTRA_SCALING`: Optional Float Extra between 0.0 and 1.0 describing the server-side framebuffer scaling.
   * `net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY`:  Optional Boolean Extra toggling view-only mode.
+  * `net.christianbeier.droidvnc_ng.EXTRA_SHOW_POINTERS`:  Optional Boolean Extra toggling per-client mouse pointers.
   * `net.christianbeier.droidvnc_ng.EXTRA_FILE_TRANSFER`: Optional Boolean Extra toggling the file transfer feature.
 
 * `net.christianbeier.droidvnc_ng.ACTION_CONNECT_REVERSE`: Make an outbound connection to a listening viewer.

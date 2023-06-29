@@ -60,6 +60,10 @@ class Defaults {
         private set
 
     @EncodeDefault
+    var showPointers = false
+        private set
+
+    @EncodeDefault
     var fileTransfer = true
         private set
 
@@ -103,6 +107,7 @@ class Defaults {
             this.fileTransfer = readDefault.fileTransfer
             this.scaling = readDefault.scaling
             this.viewOnly = readDefault.viewOnly
+            this.showPointers = readDefault.showPointers
             this.password = readDefault.password
             this.accessKey = readDefault.accessKey
             // add here!
