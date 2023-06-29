@@ -31,6 +31,7 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * Reverse VNC.
 * Ability to connect to a UltraVNC-style Mode-2 repeater.
 * Functionality to provide default configuration via a JSON file.
+* Per-client mouse pointers on the controlled device.
 
 ## Contributing
 
