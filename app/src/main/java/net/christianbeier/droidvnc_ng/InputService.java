@@ -22,12 +22,16 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.ViewConfiguration;
 import android.graphics.Path;
 
 import androidx.preference.PreferenceManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class InputService extends AccessibilityService {
 
@@ -70,6 +74,7 @@ public class InputService extends AccessibilityService {
 	private boolean mIsKeyDelDown;
 	private boolean mIsKeyEscDown;
 
+	private final Map<Long, InputPointerView> mPointers = new HashMap<>();
 
 	private final GestureCallback mGestureCallback = new GestureCallback();
 
@@ -103,6 +108,36 @@ public class InputService extends AccessibilityService {
 		return instance != null;
 	}
 
+	public static void addPointer(long client) {
+		try {
+			instance.mMainHandler.post(() -> {
+				InputPointerView pointerView = new InputPointerView(
+						instance,
+						Display.DEFAULT_DISPLAY,
+						0.4f*((instance.mPointers.size()+1)%3),
+						0.2f*((instance.mPointers.size()+1)%5),
+						1.0f*((instance.mPointers.size()+1)%2)
+						);
+				pointerView.addView();
+				instance.mPointers.put(client, pointerView);
+			});
+		} catch (Exception e) {
+			Log.e(TAG, "addPointer: " + e);
+		}
+	}
+
+	public static void removePointer(long client) {
+		try {
+			instance.mMainHandler.post(() -> {
+				InputPointerView pointerView = instance.mPointers.get(client);
+				if(pointerView != null)
+					pointerView.removeView();
+				instance.mPointers.remove(client);
+			});
+		} catch (Exception e) {
+			Log.e(TAG, "removePointer: " + e);
+		}
+	}
 
 	@SuppressWarnings("unused")
 	public static void onPointerEvent(int buttonMask, int x, int y, long client) {
@@ -114,6 +149,17 @@ public class InputService extends AccessibilityService {
 		try {
 			x /= scaling;
 			y /= scaling;
+
+			/*
+				draw pointer
+			 */
+			InputPointerView pointerView = instance.mPointers.get(client);
+			if (pointerView != null) {
+				// showing pointers is enabled
+				int finalX = x;
+				int finalY = y;
+				pointerView.post(() -> pointerView.positionView(finalX, finalY));
+			}
 
 			/*
 			    left mouse button
