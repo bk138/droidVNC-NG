@@ -10,6 +10,7 @@
     <string name="main_activity_settings_file_transfer">Dateiübertragung</string>
     <string name="main_activity_settings_scaling">Skalierung</string>
     <string name="main_activity_settings_view_only">Nur Anschauen</string>
+    <string name="main_activity_settings_show_pointers">Mauszeiger</string>
     <string name="main_activity_permissions_dashboard">Berechtigungs-Dashboard</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Bildschirmaufnahme</string>

@@ -10,6 +10,7 @@
     <string name="main_activity_settings_file_transfer">Transferência de arquivo</string>
     <string name="main_activity_settings_scaling">Dimensionamento</string>
     <string name="main_activity_settings_view_only">Ver apenas</string>
+    <string name="main_activity_settings_show_pointers">Ponteiros do Mouse</string>
     <string name="main_activity_permissions_dashboard">Painel de Permissões</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Captura de tela</string>

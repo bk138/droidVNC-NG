@@ -10,6 +10,7 @@
     <string name="main_activity_settings_file_transfer">File Transfer</string>
     <string name="main_activity_settings_scaling">Scaling</string>
     <string name="main_activity_settings_view_only">View Only</string>
+    <string name="main_activity_settings_show_pointers">Mouse Cursors</string>
     <string name="main_activity_permissions_dashboard">Permissions Dashboard</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Screen Capturing</string>
