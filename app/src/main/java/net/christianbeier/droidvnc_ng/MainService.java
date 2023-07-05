@@ -446,9 +446,7 @@ public class MainService extends Service {
             instance.mWakeLock.acquire();
             instance.mNumberOfClients++;
             instance.updateNotification();
-            if(PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(PREFS_KEY_SERVER_LAST_SHOW_POINTERS, new Defaults(instance).getShowPointers())) {
-                InputService.addPointer(client);
-            }
+            InputService.addClient(client, PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(PREFS_KEY_SERVER_LAST_SHOW_POINTERS, new Defaults(instance).getShowPointers()));
         } catch (Exception e) {
             // instance probably null
             Log.e(TAG, "onClientConnected: error: " + e);
@@ -466,9 +464,7 @@ public class MainService extends Service {
                 // don't show notifications when clients are disconnected on orderly server shutdown
                 instance.updateNotification();
             }
-            if(PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(PREFS_KEY_SERVER_LAST_SHOW_POINTERS, new Defaults(instance).getShowPointers())) {
-                InputService.removePointer(client);
-            }
+            InputService.removeClient(client);
         } catch (Exception e) {
             // instance probably null
             Log.e(TAG, "onClientDisconnected: error: " + e);

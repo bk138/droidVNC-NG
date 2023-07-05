@@ -30,13 +30,13 @@ import android.graphics.Path;
 
 import androidx.preference.PreferenceManager;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InputService extends AccessibilityService {
 
 	/**
-	 * This globally tracks gesture completion status and is _not_ per gesture.
+	 * This tracks gesture completion per client.
 	 */
 	private static class GestureCallback extends AccessibilityService.GestureResultCallback {
 		private boolean mCompleted = true; // initially true so we can actually dispatch something
@@ -52,6 +52,24 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
+	/**
+	 * Per-client input context.
+	 */
+	private static class InputContext {
+		// pointer-related
+		boolean isButtonOneDown;
+		Path path = new Path();
+		long lastGestureStartTime;
+		GestureCallback gestureCallback = new GestureCallback();
+		InputPointerView pointerView;
+		// keyboard-related
+		boolean isKeyCtrlDown;
+		boolean isKeyAltDown;
+		boolean isKeyShiftDown;
+		boolean isKeyDelDown;
+		boolean isKeyEscDown;
+	}
+
 	private static final String TAG = "InputService";
 
 	private static InputService instance;
@@ -64,19 +82,7 @@ public class InputService extends AccessibilityService {
 
 	private Handler mMainHandler;
 
-	private boolean mIsButtonOneDown;
-	private Path mPath;
-	private long mLastGestureStartTime;
-
-	private boolean mIsKeyCtrlDown;
-	private boolean mIsKeyAltDown;
-	private boolean mIsKeyShiftDown;
-	private boolean mIsKeyDelDown;
-	private boolean mIsKeyEscDown;
-
-	private final Map<Long, InputPointerView> mPointers = new HashMap<>();
-
-	private final GestureCallback mGestureCallback = new GestureCallback();
+	private final Map<Long, InputContext> mInputContexts = new ConcurrentHashMap<>();
 
 
 	@Override
@@ -108,34 +114,38 @@ public class InputService extends AccessibilityService {
 		return instance != null;
 	}
 
-	public static void addPointer(long client) {
+	public static void addClient(long client, boolean withPointer) {
+		// NB runs on a worker thread!
 		try {
-			instance.mMainHandler.post(() -> {
-				InputPointerView pointerView = new InputPointerView(
+			InputContext inputContext = new InputContext();
+			if(withPointer) {
+				inputContext.pointerView = new InputPointerView(
 						instance,
 						Display.DEFAULT_DISPLAY,
-						0.4f*((instance.mPointers.size()+1)%3),
-						0.2f*((instance.mPointers.size()+1)%5),
-						1.0f*((instance.mPointers.size()+1)%2)
-						);
-				pointerView.addView();
-				instance.mPointers.put(client, pointerView);
-			});
+						0.4f * ((instance.mInputContexts.size() + 1) % 3),
+						0.2f * ((instance.mInputContexts.size() + 1) % 5),
+						1.0f * ((instance.mInputContexts.size() + 1) % 2)
+				);
+				// run this on UI thread (use main handler as view is not yet added)
+				instance.mMainHandler.post(() -> inputContext.pointerView.addView());
+			}
+			instance.mInputContexts.put(client, inputContext);
 		} catch (Exception e) {
-			Log.e(TAG, "addPointer: " + e);
+			Log.e(TAG, "addClient: " + e);
 		}
 	}
 
-	public static void removePointer(long client) {
+	public static void removeClient(long client) {
+		// NB runs on a worker thread!
 		try {
-			instance.mMainHandler.post(() -> {
-				InputPointerView pointerView = instance.mPointers.get(client);
-				if(pointerView != null)
-					pointerView.removeView();
-				instance.mPointers.remove(client);
-			});
+			InputContext inputContext = instance.mInputContexts.get(client);
+			if(inputContext != null && inputContext.pointerView != null) {
+				// run this on UI thread
+				inputContext.pointerView.post(inputContext.pointerView::removeView);
+			}
+			instance.mInputContexts.remove(client);
 		} catch (Exception e) {
-			Log.e(TAG, "removePointer: " + e);
+			Log.e(TAG, "removeClient: " + e);
 		}
 	}
 
@@ -147,13 +157,19 @@ public class InputService extends AccessibilityService {
 		}
 
 		try {
+			InputContext inputContext = instance.mInputContexts.get(client);
+
+			if(inputContext == null) {
+				throw new IllegalStateException("Client " + client + " was not added or is already removed");
+			}
+
 			x /= scaling;
 			y /= scaling;
 
 			/*
 				draw pointer
 			 */
-			InputPointerView pointerView = instance.mPointers.get(client);
+			InputPointerView pointerView = inputContext.pointerView;
 			if (pointerView != null) {
 				// showing pointers is enabled
 				int finalX = x;
@@ -166,20 +182,20 @@ public class InputService extends AccessibilityService {
 			 */
 
 			// down, was up
-			if ((buttonMask & (1 << 0)) != 0 && !instance.mIsButtonOneDown) {
-				instance.mIsButtonOneDown = true;
-				instance.startGesture(x, y);
+			if ((buttonMask & (1 << 0)) != 0 && !inputContext.isButtonOneDown) {
+				inputContext.isButtonOneDown = true;
+				instance.startGesture(inputContext, x, y);
 			}
 
 			// down, was down
-			if ((buttonMask & (1 << 0)) != 0 && instance.mIsButtonOneDown) {
-				instance.continueGesture(x, y);
+			if ((buttonMask & (1 << 0)) != 0 && inputContext.isButtonOneDown) {
+				instance.continueGesture(inputContext, x, y);
 			}
 
 			// up, was down
-			if ((buttonMask & (1 << 0)) == 0 && instance.mIsButtonOneDown) {
-				instance.mIsButtonOneDown = false;
-				instance.endGesture(x, y);
+			if ((buttonMask & (1 << 0)) == 0 && inputContext.isButtonOneDown) {
+				inputContext.isButtonOneDown = false;
+				instance.endGesture(inputContext, x, y);
 			}
 
 
@@ -195,7 +211,7 @@ public class InputService extends AccessibilityService {
 				WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
 				wm.getDefaultDisplay().getRealMetrics(displayMetrics);
 
-				instance.scroll(x, y, -displayMetrics.heightPixels / 2);
+				instance.scroll(inputContext, x, y, -displayMetrics.heightPixels / 2);
 			}
 
 			// scroll down
@@ -205,7 +221,7 @@ public class InputService extends AccessibilityService {
 				WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
 				wm.getDefaultDisplay().getRealMetrics(displayMetrics);
 
-				instance.scroll(x, y, displayMetrics.heightPixels / 2);
+				instance.scroll(inputContext, x, y, displayMetrics.heightPixels / 2);
 			}
 		} catch (Exception e) {
 			// instance probably null
@@ -225,28 +241,34 @@ public class InputService extends AccessibilityService {
 			Special key handling.
 		 */
 		try {
+			InputContext inputContext = instance.mInputContexts.get(client);
+
+			if(inputContext == null) {
+				throw new IllegalStateException("Client " + client + " was not added or is already removed");
+			}
+
 			/*
 				Save states of some keys for combo handling.
 			 */
 			if(keysym == 0xFFE3)
-				instance.mIsKeyCtrlDown = down != 0;
+				inputContext.isKeyCtrlDown = down != 0;
 
 			if(keysym == 0xFFE9 || keysym == 0xFF7E) // MacOS clients send Alt as 0xFF7E
-				instance.mIsKeyAltDown = down != 0;
+				inputContext.isKeyAltDown = down != 0;
 
 			if(keysym == 0xFFE1)
-				instance.mIsKeyShiftDown = down != 0;
+				inputContext.isKeyShiftDown = down != 0;
 
 			if(keysym == 0xFFFF)
-				instance.mIsKeyDelDown = down != 0;
+				inputContext.isKeyDelDown = down != 0;
 
 			if(keysym == 0xFF1B)
-				instance.mIsKeyEscDown = down != 0;
+				inputContext.isKeyEscDown = down != 0;
 
 			/*
 				Ctrl-Alt-Del combo.
 		 	*/
-			if(instance.mIsKeyCtrlDown && instance.mIsKeyAltDown && instance.mIsKeyDelDown) {
+			if(inputContext.isKeyCtrlDown && inputContext.isKeyAltDown && inputContext.isKeyDelDown) {
 				Log.i(TAG, "onKeyEvent: got Ctrl-Alt-Del");
 				instance.mMainHandler.post(MainService::togglePortraitInLandscapeWorkaround);
 			}
@@ -254,7 +276,7 @@ public class InputService extends AccessibilityService {
 			/*
 				Ctrl-Shift-Esc combo.
 		 	*/
-			if(instance.mIsKeyCtrlDown && instance.mIsKeyShiftDown && instance.mIsKeyEscDown) {
+			if(inputContext.isKeyCtrlDown && inputContext.isKeyShiftDown && inputContext.isKeyEscDown) {
 				Log.i(TAG, "onKeyEvent: got Ctrl-Shift-Esc");
 				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
 			}
@@ -297,24 +319,26 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
-	private void startGesture(int x, int y) {
-		mPath = new Path();
-		mPath.moveTo( x, y );
-		mLastGestureStartTime = System.currentTimeMillis();
+	private void startGesture(InputContext inputContext, int x, int y) {
+		inputContext.path.reset();
+		inputContext.path.moveTo( x, y );
+		inputContext.lastGestureStartTime = System.currentTimeMillis();
 	}
 
-	private void continueGesture(int x, int y) {
-		mPath.lineTo( x, y );
+	private void continueGesture(InputContext inputContext, int x, int y) {
+		inputContext.path.lineTo( x, y );
 	}
 
-	private void endGesture(int x, int y) {
-		mPath.lineTo( x, y );
-		long duration = System.currentTimeMillis() - mLastGestureStartTime;
+	private void endGesture(InputContext inputContext, int x, int y) {
+		inputContext.path.lineTo( x, y );
+		long duration = System.currentTimeMillis() - inputContext.lastGestureStartTime;
 		// gesture ended very very shortly after start (< 1ms). make it 1ms to get dispatched to the system
 		if (duration == 0) duration = 1;
-		GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription( mPath, 0, duration);
+		GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription( inputContext.path, 0, duration);
 		GestureDescription.Builder builder = new GestureDescription.Builder();
 		builder.addStroke(stroke);
+		// Docs says: Any gestures currently in progress, whether from the user, this service, or another service, will be cancelled.
+		// But at least on API level 32, setting different display ids with the builder allows for parallel input.
 		dispatchGesture(builder.build(), null, null);
 	}
 
@@ -324,7 +348,7 @@ public class InputService extends AccessibilityService {
 			dispatchGesture( createClick( x, y, ViewConfiguration.getTapTimeout() + ViewConfiguration.getLongPressTimeout()), null, null );
 	}
 
-	private void scroll( int x, int y, int scrollAmount )
+	private void scroll(InputContext inputContext, int x, int y, int scrollAmount )
 	{
 			/*
 			   Ignore if another gesture is still ongoing. Especially true for scroll events:
@@ -332,11 +356,11 @@ public class InputService extends AccessibilityService {
 			   event would cancel the preceding one, only actually scrolling when the user stopped
 			   scrolling.
 			 */
-			if(!mGestureCallback.mCompleted)
+			if(!inputContext.gestureCallback.mCompleted)
 				return;
 
-			mGestureCallback.mCompleted = false;
-			dispatchGesture(createSwipe(x, y, x, y - scrollAmount, ViewConfiguration.getScrollDefaultDelay()), mGestureCallback, null);
+			inputContext.gestureCallback.mCompleted = false;
+			dispatchGesture(createSwipe(x, y, x, y - scrollAmount, ViewConfiguration.getScrollDefaultDelay()), inputContext.gestureCallback, null);
 	}
 
 	private static GestureDescription createClick( int x, int y, int duration )
