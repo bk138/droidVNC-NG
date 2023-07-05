@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">droidVNC-NG</string>
     <string name="main_activity_title">Painel Administrativo do droidVNC-NG</string>
     <string name="main_activity_settings">Configurações</string>
     <string name="main_activity_settings_port">Porta</string>
