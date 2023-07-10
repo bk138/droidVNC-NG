@@ -19,6 +19,7 @@ import android.accessibilityservice.GestureDescription;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -68,6 +69,30 @@ public class InputService extends AccessibilityService {
 		boolean isKeyShiftDown;
 		boolean isKeyDelDown;
 		boolean isKeyEscDown;
+
+		private int displayId;
+
+		int getDisplayId() {return displayId;}
+
+		/**
+		 * Sets a new display id, recreates pointer view if necessary.
+		 */
+		void setDisplayId(int displayId) {
+			// set display id
+			this.displayId = displayId;
+			// and if there is a pointer, recreate it with the new display id
+			if(pointerView != null) {
+				pointerView.removeView();
+				pointerView = new InputPointerView(
+						instance,
+						displayId,
+						pointerView.getRed(),
+						pointerView.getGreen(),
+						pointerView.getBlue()
+				);
+				pointerView.addView();
+			}
+		}
 	}
 
 	private static final String TAG = "InputService";
@@ -117,11 +142,13 @@ public class InputService extends AccessibilityService {
 	public static void addClient(long client, boolean withPointer) {
 		// NB runs on a worker thread!
 		try {
+			int displayId = Display.DEFAULT_DISPLAY;
 			InputContext inputContext = new InputContext();
+			inputContext.setDisplayId(displayId);
 			if(withPointer) {
 				inputContext.pointerView = new InputPointerView(
 						instance,
-						Display.DEFAULT_DISPLAY,
+						displayId,
 						0.4f * ((instance.mInputContexts.size() + 1) % 3),
 						0.2f * ((instance.mInputContexts.size() + 1) % 5),
 						1.0f * ((instance.mInputContexts.size() + 1) % 2)
@@ -201,7 +228,7 @@ public class InputService extends AccessibilityService {
 
 			// right mouse button
 			if ((buttonMask & (1 << 2)) != 0) {
-				instance.longPress(x, y);
+				instance.longPress(inputContext, x, y);
 			}
 
 			// scroll up
@@ -336,6 +363,9 @@ public class InputService extends AccessibilityService {
 		if (duration == 0) duration = 1;
 		GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription( inputContext.path, 0, duration);
 		GestureDescription.Builder builder = new GestureDescription.Builder();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			builder.setDisplayId(inputContext.getDisplayId());
+		}
 		builder.addStroke(stroke);
 		// Docs says: Any gestures currently in progress, whether from the user, this service, or another service, will be cancelled.
 		// But at least on API level 32, setting different display ids with the builder allows for parallel input.
@@ -343,9 +373,9 @@ public class InputService extends AccessibilityService {
 	}
 
 
-	private  void longPress( int x, int y )
+	private  void longPress(InputContext inputContext, int x, int y )
 	{
-			dispatchGesture( createClick( x, y, ViewConfiguration.getTapTimeout() + ViewConfiguration.getLongPressTimeout()), null, null );
+			dispatchGesture( createClick(inputContext, x, y, ViewConfiguration.getTapTimeout() + ViewConfiguration.getLongPressTimeout()), null, null );
 	}
 
 	private void scroll(InputContext inputContext, int x, int y, int scrollAmount )
@@ -360,20 +390,23 @@ public class InputService extends AccessibilityService {
 				return;
 
 			inputContext.gestureCallback.mCompleted = false;
-			dispatchGesture(createSwipe(x, y, x, y - scrollAmount, ViewConfiguration.getScrollDefaultDelay()), inputContext.gestureCallback, null);
+			dispatchGesture(createSwipe(inputContext, x, y, x, y - scrollAmount, ViewConfiguration.getScrollDefaultDelay()), inputContext.gestureCallback, null);
 	}
 
-	private static GestureDescription createClick( int x, int y, int duration )
+	private static GestureDescription createClick(InputContext inputContext,  int x, int y, int duration )
 	{
 		Path clickPath = new Path();
 		clickPath.moveTo( x, y );
 		GestureDescription.StrokeDescription clickStroke = new GestureDescription.StrokeDescription( clickPath, 0, duration );
 		GestureDescription.Builder clickBuilder = new GestureDescription.Builder();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			clickBuilder.setDisplayId(inputContext.getDisplayId());
+		}
 		clickBuilder.addStroke( clickStroke );
 		return clickBuilder.build();
 	}
 
-	private static GestureDescription createSwipe( int x1, int y1, int x2, int y2, int duration )
+	private static GestureDescription createSwipe(InputContext inputContext, int x1, int y1, int x2, int y2, int duration )
 	{
 		Path swipePath = new Path();
 
@@ -386,6 +419,9 @@ public class InputService extends AccessibilityService {
 		swipePath.lineTo( x2, y2 );
 		GestureDescription.StrokeDescription swipeStroke = new GestureDescription.StrokeDescription( swipePath, 0, duration );
 		GestureDescription.Builder swipeBuilder = new GestureDescription.Builder();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			swipeBuilder.setDisplayId(inputContext.getDisplayId());
+		}
 		swipeBuilder.addStroke( swipeStroke );
 		return swipeBuilder.build();
 	}
