@@ -26,9 +26,9 @@ import java.lang.IllegalArgumentException
 class InputPointerView(
     context: Context,
     private val displayId: Int,
-    private val red: Float,
-    private val green: Float,
-    private val blue: Float
+    val red: Float,
+    val green: Float,
+    val blue: Float
 ) : View(context) {
 
     private val path: Path = Path()
