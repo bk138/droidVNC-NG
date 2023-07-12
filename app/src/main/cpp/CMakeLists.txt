@@ -31,8 +31,8 @@ set(libvnc_build_DIR ${CMAKE_BINARY_DIR}/libvnc)
 add_subdirectory(${libvnc_src_DIR} ${libvnc_build_DIR})
 # need to add the build dir to include dirs as well because of generated rfbconfig.h
 include_directories(
-        ${libvnc_src_DIR}
-        ${libvnc_build_DIR}
+        ${libvnc_src_DIR}/include
+        ${libvnc_build_DIR}/include
 )
 
 # build libdroidvnc-ng
