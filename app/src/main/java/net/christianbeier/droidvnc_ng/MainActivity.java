@@ -350,6 +350,14 @@ public class MainActivity extends AppCompatActivity {
                 accessKey.setTransformationMethod(new SingleLineTransformationMethod());
             } else {
                 accessKey.setTransformationMethod(new PasswordTransformationMethod());
+                // if value just saved was empty, reset preference and UI back to default
+                String savedAccessKey = prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, null);
+                if(savedAccessKey != null && savedAccessKey.isEmpty()) {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey());
+                    ed.apply();
+                    accessKey.setText(mDefaults.getAccessKey());
+                }
             }
             // move cursor to end of text
             accessKey.setSelection(accessKey.getText().length());
