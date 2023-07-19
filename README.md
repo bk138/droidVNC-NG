@@ -97,7 +97,8 @@ An example `defaults.json` with completely new defaults (not all entries need to
     "fileTransfer": true,
     "password": "supersecure",
     "accessKey": "evenmoresecure",
-    "startOnBoot": true
+    "startOnBoot": true,
+    "startOnBootDelay": 0
 }
 ```
 
