@@ -4,7 +4,7 @@
  *
  * Author: Christian Beier <info@christianbeier.net>
  *
- * Copyright (C) 2020 Kitchen Armor.
+ * Copyright (C) 2020, 2023 Kitchen Armor.
  *
  * You can redistribute and/or modify this program under the terms of the
  * GNU General Public License version 2 as published by the Free Software
@@ -22,12 +22,15 @@
 
 package net.christianbeier.droidvnc_ng;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import androidx.preference.PreferenceManager;
+import android.os.SystemClock;
 import android.util.Log;
 
 
@@ -39,11 +42,8 @@ public class OnBootReceiver extends BroadcastReceiver {
     {
         if(Intent.ACTION_BOOT_COMPLETED.equals(arg1.getAction())) {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        if(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, true)) {
-            Log.i(TAG, "onReceive: configured to start");
-
-            Defaults defaults = new Defaults(context);
-
+        Defaults defaults = new Defaults(context);
+        if(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, defaults.getStartOnBoot())) {
             Intent intent = new Intent(context, MainService.class);
             intent.setAction(MainService.ACTION_START);
             intent.putExtra(MainService.EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, defaults.getPort()));
@@ -53,10 +53,24 @@ public class OnBootReceiver extends BroadcastReceiver {
             intent.putExtra(MainService.EXTRA_SCALING, prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, defaults.getScaling()));
             intent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, defaults.getAccessKey()));
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent);
+            long delayMillis =  1000L * prefs.getInt(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT_DELAY, defaults.getStartOnBootDelay());
+            if(delayMillis > 0) {
+                Log.i(TAG, "onReceive: configured to start delayed by " + delayMillis/1000 + "s");
+                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                PendingIntent pendingIntent;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    pendingIntent = PendingIntent.getForegroundService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                } else {
+                    pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                }
+                alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + delayMillis, pendingIntent);
             } else {
-                context.startService(intent);
+                Log.i(TAG, "onReceive: configured to start immediately");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(intent);
+                } else {
+                    context.startService(intent);
+                }
             }
         } else {
             Log.i(TAG, "onReceive: configured NOT to start");
