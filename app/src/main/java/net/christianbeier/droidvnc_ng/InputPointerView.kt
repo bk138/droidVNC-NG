@@ -14,7 +14,6 @@ import android.view.Display
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
-import net.christianbeier.droidvnc_ng.Utils.getDisplayInset
 import java.lang.IllegalArgumentException
 
 /**
@@ -51,7 +50,10 @@ class InputPointerView(
         WindowManager.LayoutParams.WRAP_CONTENT,
         WindowManager.LayoutParams.WRAP_CONTENT,
         WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
         PixelFormat.TRANSLUCENT
     )
     
@@ -119,8 +121,8 @@ class InputPointerView(
      * Position input pointer view on display specified in constructor.
      */
     fun positionView(x: Int, y: Int) {
-        layoutParams.x = x - getDisplayInset(context, displayId).left
-        layoutParams.y = y - getDisplayInset(context, displayId).top
+        layoutParams.x = x
+        layoutParams.y = y
         windowManager.updateViewLayout(this, layoutParams)
     }
 
