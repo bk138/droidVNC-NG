@@ -96,7 +96,8 @@ An example `defaults.json` with completely new defaults (not all entries need to
     "showPointers": true,
     "fileTransfer": true,
     "password": "supersecure",
-    "accessKey": "evenmoresecure"
+    "accessKey": "evenmoresecure",
+    "startOnBoot": true
 }
 ```
 

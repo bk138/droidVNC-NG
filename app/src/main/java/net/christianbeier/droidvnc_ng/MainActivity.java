@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final SwitchMaterial startOnBoot = findViewById(R.id.settings_start_on_boot);
-        startOnBoot.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, true));
+        startOnBoot.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()));
         startOnBoot.setOnCheckedChangeListener((compoundButton, b) -> {
             SharedPreferences.Editor ed = prefs.edit();
             ed.putBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, b);
