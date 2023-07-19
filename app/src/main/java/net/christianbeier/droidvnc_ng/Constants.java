@@ -28,6 +28,7 @@ public class Constants {
     public static final String PREFS_KEY_SETTINGS_PORT = "settings_port";
     public static final String PREFS_KEY_SETTINGS_PASSWORD = "settings_password" ;
     public static final String PREFS_KEY_SETTINGS_START_ON_BOOT = "settings_start_on_boot" ;
+    public static final String PREFS_KEY_SETTINGS_START_ON_BOOT_DELAY = "settings_start_on_boot_delay" ;
     public static final String PREFS_KEY_SETTINGS_SCALING = "settings_scaling" ;
     public static final String PREFS_KEY_SETTINGS_VIEW_ONLY = "settings_view_only" ;
     public static final String PREFS_KEY_SETTINGS_SHOW_POINTERS = "settings_show_pointers" ;

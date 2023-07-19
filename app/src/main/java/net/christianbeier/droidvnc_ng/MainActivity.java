@@ -363,12 +363,54 @@ public class MainActivity extends AppCompatActivity {
             accessKey.setSelection(accessKey.getText().length());
         });
 
+        final EditText startOnBootDelay = findViewById(R.id.settings_start_on_boot_delay);
+        startOnBootDelay.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                try {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putInt(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT_DELAY, Integer.parseInt(charSequence.toString()));
+                    ed.apply();
+                } catch(NumberFormatException e) {
+                    // nop
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                // if value just saved was empty, reset preference and UI back to default
+                String savedAccessKey = prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, null);
+                if(savedAccessKey != null && savedAccessKey.isEmpty()) {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey());
+                    ed.apply();
+                    accessKey.setText(mDefaults.getAccessKey());
+                }
+
+                if(startOnBootDelay.getText().length() == 0) {
+                    // reset to default
+                    startOnBootDelay.setHint(String.valueOf(mDefaults.getStartOnBootDelay()));
+                    // and remove preference
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.remove(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT_DELAY);
+                    ed.apply();
+                }
+            }
+        });
+        startOnBootDelay.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT_DELAY, mDefaults.getStartOnBootDelay())));
+        startOnBootDelay.setEnabled(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()));
+
         final SwitchMaterial startOnBoot = findViewById(R.id.settings_start_on_boot);
         startOnBoot.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()));
         startOnBoot.setOnCheckedChangeListener((compoundButton, b) -> {
             SharedPreferences.Editor ed = prefs.edit();
             ed.putBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, b);
             ed.apply();
+            startOnBootDelay.setEnabled(b);
         });
 
         final SwitchMaterial fileTransfer = findViewById(R.id.settings_file_transfer);
