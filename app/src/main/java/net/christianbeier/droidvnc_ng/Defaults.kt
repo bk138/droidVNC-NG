@@ -118,7 +118,10 @@ class Defaults {
             this.viewOnly = readDefault.viewOnly
             this.showPointers = readDefault.showPointers
             this.password = readDefault.password
-            this.accessKey = readDefault.accessKey
+            // only set new access key if there is one given; i.e. don't overwrite generated default
+            // with empty string
+            if (readDefault.accessKey != "")
+                this.accessKey = readDefault.accessKey
             this.startOnBoot = readDefault.startOnBoot
             this.startOnBootDelay = readDefault.startOnBootDelay
             // add here!
