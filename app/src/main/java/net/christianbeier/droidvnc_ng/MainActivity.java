@@ -364,6 +364,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final EditText startOnBootDelay = findViewById(R.id.settings_start_on_boot_delay);
+        startOnBootDelay.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT_DELAY, mDefaults.getStartOnBootDelay())));
+        startOnBootDelay.setEnabled(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()));
         startOnBootDelay.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -401,8 +403,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        startOnBootDelay.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT_DELAY, mDefaults.getStartOnBootDelay())));
-        startOnBootDelay.setEnabled(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()));
 
         final SwitchMaterial startOnBoot = findViewById(R.id.settings_start_on_boot);
         startOnBoot.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()));
