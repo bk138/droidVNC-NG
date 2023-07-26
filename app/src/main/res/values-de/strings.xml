@@ -48,7 +48,7 @@
     <string name="input_a11y_service_description">Dies erlaubt es droidVNC-NG, Eingabeereignisse an das Android-Betriebssystem senden und so die Fernsteuerung von einem angeschlossenen VNC-Viewer aus ermöglichen. Alle eingegebenen Eingaben werden direkt an Android gesendet, es werden keine Eingaben protokolliert, gespeichert oder geteilt.</string>
     <string name="input_a11y_title">Eingabehilfe deaktiviert</string>
     <string name="input_a11y_msg">Um Ihr Gerät fernsteuern zu können, müssen Sie die Eingabehilfe für droidVNC-NG aktivieren. Möchten Sie die Eingabehilfe jetzt aktivieren?</string>
-    <string name="input_a11y_act_not_found_msg">Die Standardaktivität für Barrierefreiheitseinstellungen konnte nicht gefunden werden. Bitte konfigurieren Sie die Barrierefreiheitseinstellungen manuell.</string>
+    <string name="input_a11y_act_not_found_msg">Die Standardeinstellungen für die Eingabehilfen konnten nicht gefunden werden. Bitte aktivieren Sie droidVNC-NG in den Systemeinstellungen für Eingabehilfen manuell.</string>
     <string name="write_storage_title">Dateizugriff deaktiviert</string>
     <string name="write_storage_msg">Um Dateien von und zu Ihrem Gerät übertragen zu können, müssen Sie den Dateizugriff für droidVNC-NG aktivieren. Möchten Sie den Dateizugriff jetzt aktivieren?</string>
     <string name="write_storage_msg_android_11">Um Dateien von und zu Ihrem Gerät übertragen zu können, müssen Sie den Dateizugriff für droidVNC-NG aktivieren. Bitte beachten Sie, dass das Speichern von Dateien nur in den Verzeichnissen „Download“ und „Dokumente“ möglich ist. Möchten Sie den Dateizugriff jetzt aktivieren\?</string>

@@ -63,12 +63,16 @@ public class InputRequestActivity extends AppCompatActivity {
                         intent.putExtra(EXTRA_FRAGMENT_ARG_KEY, showArgs);
                         intent.putExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS, bundle);
 
-                        if (intent.resolveActivity(getPackageManager()) != null)
+                        if (intent.resolveActivity(getPackageManager()) != null && !intent.resolveActivity(getPackageManager()).toString().contains("Stub"))
                             startActivityForResult(intent, REQUEST_INPUT);
                         else
                             new AlertDialog.Builder(InputRequestActivity.this)
                                     .setTitle(R.string.error)
                                     .setMessage(R.string.input_a11y_act_not_found_msg)
+                                    .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
+                                        Intent generalSettingsIntent = new Intent(Settings.ACTION_SETTINGS);
+                                        startActivityForResult(generalSettingsIntent, REQUEST_INPUT);
+                                    })
                                     .show();
                     })
                     .setNegativeButton(getString(R.string.no), (dialog, which) -> postResultAndFinish(false))
