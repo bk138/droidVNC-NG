@@ -407,6 +407,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        // move cursor to end of text
+        startOnBootDelay.setOnFocusChangeListener((v, hasFocus) -> startOnBootDelay.setSelection(startOnBootDelay.getText().length()));
 
         final SwitchMaterial startOnBoot = findViewById(R.id.settings_start_on_boot);
         startOnBoot.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()));

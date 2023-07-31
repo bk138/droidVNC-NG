@@ -135,6 +135,7 @@
                     android:layout_height="wrap_content"
                     android:layout_column="2"
                     android:layout_weight="1"
+                    android:nextFocusDown="@id/settings_start_on_boot_delay"
                     android:text="" />
 
             </TableRow>
@@ -192,6 +193,7 @@
                     android:layout_height="wrap_content"
                     android:layout_column="2"
                     android:layout_weight="1"
+                    android:nextFocusUp="@id/settings_start_on_boot_delay"
                     android:text="" />
 
             </TableRow>
