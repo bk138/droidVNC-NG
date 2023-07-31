@@ -569,10 +569,10 @@ public class MainActivity extends AppCompatActivity {
         TextView inputStatus = findViewById(R.id.permission_status_input);
         if(InputService.isConnected()) {
             inputStatus.setText(R.string.main_activity_granted);
-            inputStatus.setTextColor(getColor(android.R.color.holo_green_dark));
+            inputStatus.setTextColor(getColor(R.color.granted));
         } else {
             inputStatus.setText(R.string.main_activity_denied);
-            inputStatus.setTextColor(getColor(android.R.color.holo_red_dark));
+            inputStatus.setTextColor(getColor(R.color.denied));
         }
 
 
@@ -582,10 +582,10 @@ public class MainActivity extends AppCompatActivity {
         TextView fileAccessStatus = findViewById(R.id.permission_status_file_access);
         if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             fileAccessStatus.setText(R.string.main_activity_granted);
-            fileAccessStatus.setTextColor(getColor(android.R.color.holo_green_dark));
+            fileAccessStatus.setTextColor(getColor(R.color.granted));
         } else {
             fileAccessStatus.setText(R.string.main_activity_denied);
-            fileAccessStatus.setTextColor(getColor(android.R.color.holo_red_dark));
+            fileAccessStatus.setTextColor(getColor(R.color.denied));
         }
 
 
@@ -595,11 +595,11 @@ public class MainActivity extends AppCompatActivity {
         TextView screenCapturingStatus = findViewById(R.id.permission_status_screen_capturing);
         if(MainService.isMediaProjectionEnabled() == 1) {
             screenCapturingStatus.setText(R.string.main_activity_granted);
-            screenCapturingStatus.setTextColor(getColor(android.R.color.holo_green_dark));
+            screenCapturingStatus.setTextColor(getColor(R.color.granted));
         }
         if(MainService.isMediaProjectionEnabled() == 0) {
             screenCapturingStatus.setText(R.string.main_activity_denied);
-            screenCapturingStatus.setTextColor(getColor(android.R.color.holo_red_dark));
+            screenCapturingStatus.setTextColor(getColor(R.color.denied));
         }
         if(MainService.isMediaProjectionEnabled() == -1) {
             screenCapturingStatus.setText(R.string.main_activity_unknown);
