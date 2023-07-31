@@ -625,6 +625,8 @@ public class MainActivity extends AppCompatActivity {
         mButtonToggle.post(() -> {
             mButtonToggle.setText(R.string.stop);
             mButtonToggle.setEnabled(true);
+            // let focus stay on button
+            mButtonToggle.requestFocus();
         });
 
         if(MainService.getPort() >= 0) {
@@ -661,6 +663,8 @@ public class MainActivity extends AppCompatActivity {
         mButtonToggle.post(() -> {
             mButtonToggle.setText(R.string.start);
             mButtonToggle.setEnabled(true);
+            // let focus stay on button
+            mButtonToggle.requestFocus();
         });
         mAddress.post(() -> mAddress.setText(""));
 
