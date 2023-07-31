@@ -33,6 +33,7 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 import android.text.Editable;
@@ -81,6 +82,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // check for TV and adapt UI accordingly
+        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
+            // adapt widgets to TV's dark theme
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
