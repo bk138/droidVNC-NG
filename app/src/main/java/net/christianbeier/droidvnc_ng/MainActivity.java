@@ -286,6 +286,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        port.setOnFocusChangeListener((v, hasFocus) -> {
+            // move cursor to end of text
+            port.setSelection(port.getText().length());
+        });
 
         final EditText password = findViewById(R.id.settings_password);
         password.setText(prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
