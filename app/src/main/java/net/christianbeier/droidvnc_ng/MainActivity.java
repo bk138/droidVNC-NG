@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
             inputLayout.addView(inputText);
 
             AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle(R.string.main_activity_reverse_vnc_button)
                     .setView(inputLayout)
                     .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
                         // parse host and port parts
@@ -206,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
             inputLayout.addView(idInputText);
 
             AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle(R.string.main_activity_repeater_vnc_button)
                     .setView(inputLayout)
                     .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
                         // parse host and port parts
