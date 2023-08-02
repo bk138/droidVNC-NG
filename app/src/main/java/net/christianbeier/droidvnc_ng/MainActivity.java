@@ -461,11 +461,17 @@ public class MainActivity extends AppCompatActivity {
         mMainServiceBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (MainService.ACTION_START.equals(intent.getAction())
-                        && (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false))) {
-                    // was a successful START requested by anyone (but sent by MainService, as the receiver is not exported!)
-                    Log.d(TAG, "got MainService started event");
-                    onServerStarted();
+                if (MainService.ACTION_START.equals(intent.getAction())) {
+                    if(intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
+                        // was a successful START requested by anyone (but sent by MainService, as the receiver is not exported!)
+                        Log.d(TAG, "got MainService started success event");
+                        onServerStarted();
+                    } else {
+                        // was a failed START requested by anyone (but sent by MainService, as the receiver is not exported!)
+                        Log.d(TAG, "got MainService started fail event");
+                        // if it was, by us, re-enable the button!
+                        mButtonToggle.setEnabled(true);
+                    }
                 }
 
                 if (MainService.ACTION_STOP.equals(intent.getAction())
