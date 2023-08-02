@@ -16,4 +16,6 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <style name="StartStopButtonStyle" parent="Widget.MaterialComponents.Button"/>
+
 </resources>
