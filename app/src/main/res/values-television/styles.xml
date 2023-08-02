@@ -1,13 +1,13 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
+    <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="StartStopButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton">
+    <style name="StartStopButtonStyle" parent="@style/Widget.Material3.Button.TextButton">
         <item name="android:paddingStart">50dp</item>
         <item name="android:paddingEnd">50dp</item>
     </style>
