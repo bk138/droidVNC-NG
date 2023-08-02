@@ -231,6 +231,12 @@ public class MainService extends Service {
         } catch (IllegalArgumentException ignored) {
             // was not registered
         }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            // API levels < 26 don't have the mandatory foreground notification and need manual notification dismissal
+            getSystemService(NotificationManager.class).cancelAll();
+        }
+
         stopScreenCapture();
         vncStopServer();
         instance = null;
