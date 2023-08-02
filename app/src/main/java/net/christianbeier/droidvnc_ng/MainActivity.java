@@ -473,6 +473,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "got MainService started fail event");
                         // if it was, by us, re-enable the button!
                         mButtonToggle.setEnabled(true);
+                        // let focus stay on button
+                        mButtonToggle.requestFocus();
                     }
                 }
 
