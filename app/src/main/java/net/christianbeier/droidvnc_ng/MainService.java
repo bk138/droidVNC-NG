@@ -736,7 +736,7 @@ public class MainService extends Service {
         // unregister old one
         try {
             ((NsdManager) getSystemService(Context.NSD_SERVICE)).unregisterService(mNSDRegistrationListener);
-        } catch (IllegalArgumentException ignored) {
+        } catch (Exception ignored) {
             // was not registered
         }
 
