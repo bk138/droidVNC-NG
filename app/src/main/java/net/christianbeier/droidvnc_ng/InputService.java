@@ -339,7 +339,15 @@ public class InputService extends AccessibilityService {
 		Log.d(TAG, "onCutText: text '" + text + "' by client " + client);
 
 		try {
-			instance.mMainHandler.post(() -> ((ClipboardManager) instance.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText(text, text)));
+			instance.mMainHandler.post(() -> {
+						try {
+							((ClipboardManager) instance.getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText(text, text));
+						} catch (Exception e) {
+							// some other error on main thread
+							Log.e(TAG, "onCutText: failed: " + e);
+						}
+					}
+			);
 		} catch (Exception e) {
 			// instance probably null
 			Log.e(TAG, "onCutText: failed: " + e);
