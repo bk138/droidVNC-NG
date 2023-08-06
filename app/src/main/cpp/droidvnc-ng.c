@@ -144,6 +144,10 @@ static void onCutText(char *text, __unused int len, rfbClientPtr cl)
 void onClientDisconnected(rfbClientPtr cl)
 {
     JNIEnv *env = NULL;
+    // check if already attached. happens on reverse connections
+    (*theVM)->GetEnv(theVM, (void **) &env, JNI_VERSION_1_6);
+    int wasAlreadyAttached = env != NULL;
+    // AttachCurrentThread() on an already attached thread is a no-op. https://developer.android.com/training/articles/perf-jni#threads
     if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "onClientDisconnected: could not attach thread, not calling MainService.onClientDisconnected()");
         return;
@@ -155,7 +159,9 @@ void onClientDisconnected(rfbClientPtr cl)
     if ((*env)->ExceptionCheck(env))
         (*env)->ExceptionDescribe(env);
 
-    (*theVM)->DetachCurrentThread(theVM);
+    // only detach if not attached before
+    if (!wasAlreadyAttached)
+        (*theVM)->DetachCurrentThread(theVM);
 }
 
 #pragma clang diagnostic push
