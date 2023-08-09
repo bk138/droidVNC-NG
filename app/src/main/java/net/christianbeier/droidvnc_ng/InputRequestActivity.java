@@ -67,7 +67,6 @@ public class InputRequestActivity extends AppCompatActivity {
                             startActivityForResult(intent, REQUEST_INPUT);
                         else
                             new AlertDialog.Builder(InputRequestActivity.this)
-                                    .setTitle(R.string.error)
                                     .setMessage(R.string.input_a11y_act_not_found_msg)
                                     .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
                                         Intent generalSettingsIntent = new Intent(Settings.ACTION_SETTINGS);
