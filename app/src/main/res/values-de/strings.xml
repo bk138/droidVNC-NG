@@ -45,7 +45,7 @@
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
     <string name="or">oder</string>
-    <string name="input_a11y_service_description">Dies erlaubt es droidVNC-NG, Eingabeereignisse an das Android-Betriebssystem senden und so die Fernsteuerung von einem angeschlossenen VNC-Viewer aus ermöglichen. Alle eingegebenen Eingaben werden direkt an Android gesendet, es werden keine Eingaben protokolliert, gespeichert oder geteilt.</string>
+    <string name="input_a11y_service_description">Dies erlaubt es droidVNC-NG, Eingabeereignisse an das Android-Betriebssystem senden und so die Fernsteuerung von einem angeschlossenen VNC-Viewer aus zu ermöglichen. Alle eingegebenen Eingaben werden direkt an Android gesendet, es werden keine Eingaben protokolliert, gespeichert oder geteilt.</string>
     <string name="input_a11y_title">Eingabehilfe deaktiviert</string>
     <string name="input_a11y_msg">Um Ihr Gerät fernsteuern zu können, müssen Sie die Eingabehilfe für droidVNC-NG aktivieren. Möchten Sie die Eingabehilfe jetzt aktivieren?</string>
     <string name="input_a11y_act_not_found_msg">Die Standardeinstellungen für die Eingabehilfen konnten nicht gefunden werden. Bitte aktivieren Sie droidVNC-NG in den Systemeinstellungen für Eingabehilfen manuell.</string>
