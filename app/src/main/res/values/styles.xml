@@ -5,6 +5,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <!-- https://stackoverflow.com/a/60825939/361413 -->
+        <item name="colorSurface">@color/colorPrimary</item>
     </style>
 
     <style name="TransparentTheme" parent="Theme.AppCompat.NoActionBar">
