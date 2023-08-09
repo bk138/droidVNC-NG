@@ -5,8 +5,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <!-- https://stackoverflow.com/a/60825939/361413 -->
-        <item name="colorSurface">@color/colorPrimary</item>
+        <!-- https://stackoverflow.com/a/58368668/361413  -->
+        <item name="actionBarStyle">@style/ActionBarStyle</item>
     </style>
 
     <style name="TransparentTheme" parent="Theme.AppCompat.NoActionBar">
@@ -19,5 +19,9 @@
     </style>
 
     <style name="StartStopButtonStyle" parent="Widget.MaterialComponents.Button"/>
+
+    <style name="ActionBarStyle" parent="Widget.MaterialComponents.Light.ActionBar.Solid">
+        <item name="background">@color/colorPrimary</item>
+    </style>
 
 </resources>
