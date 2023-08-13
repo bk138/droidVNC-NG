@@ -228,7 +228,7 @@ public class MainService extends Service {
 
         try {
             ((NsdManager) getSystemService(Context.NSD_SERVICE)).unregisterService(mNSDRegistrationListener);
-        } catch (IllegalArgumentException ignored) {
+        } catch (Exception ignored) {
             // was not registered
         }
 
