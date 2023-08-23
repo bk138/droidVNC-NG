@@ -773,6 +773,7 @@ public class MainService extends Service {
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(text)
                 .setSilent(isSilent)
+                .setOngoing(true)
                 .setContentIntent(pendingIntent).build();
     }
 
