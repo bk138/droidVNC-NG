@@ -52,4 +52,6 @@
     <string name="write_storage_title">Dateizugriff deaktiviert</string>
     <string name="write_storage_msg">Um Dateien von und zu Ihrem Gerät übertragen zu können, müssen Sie den Dateizugriff für droidVNC-NG aktivieren. Möchten Sie den Dateizugriff jetzt aktivieren?</string>
     <string name="write_storage_msg_android_11">Um Dateien von und zu Ihrem Gerät übertragen zu können, müssen Sie den Dateizugriff für droidVNC-NG aktivieren. Bitte beachten Sie, dass das Speichern von Dateien nur in den Verzeichnissen „Download“ und „Dokumente“ möglich ist. Möchten Sie den Dateizugriff jetzt aktivieren\?</string>
+    <string name="notification_title">Benachrichtigungen deaktiviert</string>
+    <string name="notification_msg">Um Informationen zum Serverstatus anzeigen zu können und einfacher zum Admin-Panel zurücknavigieren zu können, wird empfohlen, Benachrichtigungen zu aktivieren. Möchten Sie Benachrichtigungen jetzt aktivieren?</string>
 </resources>

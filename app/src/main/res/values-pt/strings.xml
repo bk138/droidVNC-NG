@@ -52,4 +52,6 @@
     <string name="write_storage_title">Acesso a arquivos desativado</string>
     <string name="write_storage_msg">Para poder transferir arquivos de e para o seu dispositivo, você precisa habilitar o acesso a arquivos para o droidVNC-NG. Deseja habilitar o acesso ao arquivo agora?</string>
     <string name="write_storage_msg_android_11">Para poder transferir arquivos de e para o seu dispositivo, você precisa habilitar o acesso a arquivos para o droidVNC-NG. Observe que salvar arquivos só será possível nos diretórios \'Download\' e \'Documentos\'. Deseja habilitar o acesso ao arquivo agora?</string>
+    <string name="notification_title">Notificações desativadas</string>
+    <string name="notification_msg">Para poder mostrar informações de status do servidor e fornecer um meio de navegar de volta ao painel de administração com mais facilidade, é recomendável ativar as notificações. Quer ativar as notificações agora?</string>
 </resources>

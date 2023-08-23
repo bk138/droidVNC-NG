@@ -52,4 +52,6 @@
     <string name="write_storage_title">文件访问已禁用</string>
     <string name="write_storage_msg">为了能够在设备之间传输文件，需要为droidVNC-NG启用文件访问。现在是否要启用文件访问?</string>
     <string name="write_storage_msg_android_11">为了能够在设备之间传输文件，需要为droidVNC-NG启用文件访问。请注意，保存文件将只能在"下载"和"文档"目录中。现在是否要启用文件访问?</string>
+    <string name="notification_title">通知已禁用</string>
+    <string name="notification_msg">为了能够显示服务器状态信息并提供更轻松地导航回管理面板的方法，建议启用通知。 您想立即启用通知吗？</string>
 </resources>

@@ -82,6 +82,11 @@
             android:excludeFromRecents="true"
             />
 
+        <activity android:name=".NotificationRequestActivity"
+            android:theme="@style/TransparentTheme"
+            android:excludeFromRecents="true"
+            />
+
     </application>
 
 </manifest>

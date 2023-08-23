@@ -90,6 +90,8 @@ public class MainService extends Service {
     final static String ACTION_HANDLE_WRITE_STORAGE_RESULT = "action_handle_write_storage_result";
     final static String EXTRA_WRITE_STORAGE_RESULT = "result_write_storage";
 
+    final static String ACTION_HANDLE_NOTIFICATION_RESULT = "action_handle_notification_result";
+
     private static final String PREFS_KEY_SERVER_LAST_PORT = "server_last_port" ;
     private static final String PREFS_KEY_SERVER_LAST_PASSWORD = "server_last_password" ;
     private static final String PREFS_KEY_SERVER_LAST_FILE_TRANSFER = "server_last_file_transfer" ;
