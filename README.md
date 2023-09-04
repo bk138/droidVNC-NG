@@ -175,6 +175,12 @@ adb shell am start-foreground-service \
  --es net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID def456
 ```
 
+## Building
+
+* After cloning the repo, make sure you have the required git submodules set up via `git submodule update --init`.
+* Then simply build via Android Studio or `gradlew`.
+ 
+
 ## Contributing
 
 Contributions to the project are very welcome and encouraged! They can come in many forms.
