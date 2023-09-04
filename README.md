@@ -43,6 +43,12 @@ If you have a general question, it's best to [ask in the community chat](https:/
 4. Connect to your local Wi-Fi. For accepting a connection your device should be connected to some Local Area Network that you can control, normally it is a router. Connections via data networks (i.e. your mobile provider) are not supported.
 5. Click `Start` and connect to your device.
 
+### Keyboard Shortcuts From a VNC Viewer
+
+* **Ctrl-Shift-Esc** triggers 'Recent Apps' overview
+* **Home/Pos1** acts as Home button
+* **Escape** acts as Back button
+
 ### For accepting connections from outside
 
 1. You should allow [Port Forwarding](https://en.wikipedia.org/wiki/Port_forwarding) in your router's Firewall settings. Login to your router's settings (usually open 192.168.1.1 in your browser, some routers have password written on them).
