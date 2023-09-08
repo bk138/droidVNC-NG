@@ -770,13 +770,17 @@ public class MainService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
-        return new NotificationCompat.Builder(this, getPackageName())
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, getPackageName())
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(text)
                 .setSilent(isSilent)
                 .setOngoing(true)
-                .setContentIntent(pendingIntent).build();
+                .setContentIntent(pendingIntent);
+        if (Build.VERSION.SDK_INT >= 31) {
+            builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
+        }
+        return builder.build();
     }
 
     private void updateNotification() {
