@@ -320,7 +320,7 @@ public class InputService extends AccessibilityService {
 				Esc
 			 */
 			if(keysym == 0xFF1B && down != 0)  {
-				Log.i(TAG, "onKeyEvent: got Home/Pos1");
+				Log.i(TAG, "onKeyEvent: got Esc");
 				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
 			}
 
