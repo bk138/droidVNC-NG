@@ -36,23 +36,19 @@ public class NotificationRequestActivity extends AppCompatActivity {
 
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-            /*
-                As per as per https://stackoverflow.com/a/34612503/361413 shouldShowRequestPermissionRationale()
-                returns false also if user was never asked, so keep track of that with a shared preference. Ouch.
-             */
-            if (!prefs.getBoolean(PREFS_KEY_POST_NOTIFICATION_PERMISSION_ASKED_BEFORE, false) || shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+            if (!prefs.getBoolean(PREFS_KEY_POST_NOTIFICATION_PERMISSION_ASKED_BEFORE, false)) {
                 new AlertDialog.Builder(this)
                         .setCancelable(false)
                         .setTitle(R.string.notification_title)
                         .setMessage(R.string.notification_msg)
                         .setPositiveButton(R.string.yes, (dialog, which) -> {
                             requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_POST_NOTIFICATION);
-                            SharedPreferences.Editor ed = prefs.edit();
-                            ed.putBoolean(PREFS_KEY_POST_NOTIFICATION_PERMISSION_ASKED_BEFORE, true);
-                            ed.apply();
                         })
                         .setNegativeButton(getString(R.string.no), (dialog, which) -> postResultAndFinish(false))
                         .show();
+                SharedPreferences.Editor ed = prefs.edit();
+                ed.putBoolean(PREFS_KEY_POST_NOTIFICATION_PERMISSION_ASKED_BEFORE, true);
+                ed.apply();
             } else {
                 postResultAndFinish(false);
             }
