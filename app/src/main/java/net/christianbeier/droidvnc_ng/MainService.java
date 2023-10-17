@@ -78,6 +78,9 @@ public class MainService extends Service {
     public static final String EXTRA_VIEW_ONLY = "net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY";
     public static final String EXTRA_SHOW_POINTERS = "net.christianbeier.droidvnc_ng.EXTRA_SHOW_POINTERS";
     public static final String EXTRA_SCALING = "net.christianbeier.droidvnc_ng.EXTRA_SCALING";
+    /**
+     * Only used on Android 12 and earlier.
+     */
     public static final String EXTRA_FILE_TRANSFER = "net.christianbeier.droidvnc_ng.EXTRA_FILE_TRANSFER";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
@@ -290,10 +293,18 @@ public class MainService extends Service {
             }
         }
 
-        if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction())) {
-            Log.d(TAG, "onStartCommand: handle write storage result");
-            // Step 3: coming back from write storage permission check, start capturing
-            // or ask for ask for capturing permission first (then going in step 4)
+        if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction()) || ACTION_HANDLE_NOTIFICATION_RESULT.equals(intent.getAction())) {
+            if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction())) {
+                Log.d(TAG, "onStartCommand: handle write storage result");
+                // Step 3 on Android < 13: coming back from write storage permission check, start capturing
+                // or ask for capturing permission first (then going in step 4)
+            }
+            if(ACTION_HANDLE_NOTIFICATION_RESULT.equals(intent.getAction())) {
+                Log.d(TAG, "onStartCommand: handle notification result");
+                // Step 3 on Android >= 13: coming back from notification permission check, start capturing
+                // or ask for capturing permission first (then going in step 4)
+            }
+
             if (mResultCode != 0 && mResultData != null) {
                 DisplayMetrics displayMetrics = getDisplayMetrics(Display.DEFAULT_DISPLAY);
                 int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
@@ -333,14 +344,20 @@ public class MainService extends Service {
 
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle input result");
-            // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission
+            // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission or notification permission
             InputService.isEnabled = intent.getBooleanExtra(EXTRA_INPUT_RESULT, false);
-            Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
-            writeStorageRequestIntent.putExtra(
-                    EXTRA_FILE_TRANSFER,
-                    PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FILE_TRANSFER, mDefaults.getFileTransfer()));
-            writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(writeStorageRequestIntent);
+            if(Build.VERSION.SDK_INT < 33) {
+                Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
+                writeStorageRequestIntent.putExtra(
+                        EXTRA_FILE_TRANSFER,
+                        PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FILE_TRANSFER, mDefaults.getFileTransfer()));
+                writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(writeStorageRequestIntent);
+            } else {
+                Intent notificationRequestIntent = new Intent(this, NotificationRequestActivity.class);
+                notificationRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(notificationRequestIntent);
+            }
             // if screen capturing was not started, we don't want a restart if we were killed
             // especially, we don't want the permission asking to replay.
             return START_NOT_STICKY;
