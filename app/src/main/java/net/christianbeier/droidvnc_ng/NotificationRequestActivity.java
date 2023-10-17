@@ -41,9 +41,7 @@ public class NotificationRequestActivity extends AppCompatActivity {
                         .setCancelable(false)
                         .setTitle(R.string.notification_title)
                         .setMessage(R.string.notification_msg)
-                        .setPositiveButton(R.string.yes, (dialog, which) -> {
-                            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_POST_NOTIFICATION);
-                        })
+                        .setPositiveButton(R.string.yes, (dialog, which) -> requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_POST_NOTIFICATION))
                         .setNegativeButton(getString(R.string.no), (dialog, which) -> postResultAndFinish(false))
                         .show();
                 SharedPreferences.Editor ed = prefs.edit();
