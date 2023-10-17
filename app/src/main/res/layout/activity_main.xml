@@ -171,7 +171,8 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:id="@+id/settings_row_file_transfer">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -363,7 +364,8 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:id="@+id/permission_row_file_access">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -387,6 +389,36 @@
                     android:text="@string/main_activity_unknown"
                     android:textAllCaps="true"
                     android:id="@+id/permission_status_file_access"/>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/permission_row_notification">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_notifications" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_colon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_unknown"
+                    android:textAllCaps="true"
+                    android:id="@+id/permission_status_notification"/>
 
             </TableRow>
 

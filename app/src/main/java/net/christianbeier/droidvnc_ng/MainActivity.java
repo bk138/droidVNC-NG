@@ -421,13 +421,19 @@ public class MainActivity extends AppCompatActivity {
             startOnBootDelay.setEnabled(b);
         });
 
-        final SwitchMaterial fileTransfer = findViewById(R.id.settings_file_transfer);
-        fileTransfer.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTransfer()));
-        fileTransfer.setOnCheckedChangeListener((compoundButton, b) -> {
-            SharedPreferences.Editor ed = prefs.edit();
-            ed.putBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, b);
-            ed.apply();
-        });
+        if(Build.VERSION.SDK_INT >= 33) {
+            // no use asking for permission on Android 13+, always denied.
+            // users can always read/write Documents and Downloads tough.
+            findViewById(R.id.settings_row_file_transfer).setVisibility(View.GONE);
+        } else {
+            final SwitchMaterial fileTransfer = findViewById(R.id.settings_file_transfer);
+            fileTransfer.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTransfer()));
+            fileTransfer.setOnCheckedChangeListener((compoundButton, b) -> {
+                SharedPreferences.Editor ed = prefs.edit();
+                ed.putBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, b);
+                ed.apply();
+            });
+        }
 
         Slider scaling = findViewById(R.id.settings_scaling);
         scaling.setValue(prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling())*100);
@@ -587,15 +593,36 @@ public class MainActivity extends AppCompatActivity {
 
 
         /*
-            Update File Access permission display.
+            Update File Access permission display. Only show on < Android 13.
          */
-        TextView fileAccessStatus = findViewById(R.id.permission_status_file_access);
-        if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            fileAccessStatus.setText(R.string.main_activity_granted);
-            fileAccessStatus.setTextColor(getColor(R.color.granted));
+        if(Build.VERSION.SDK_INT < 33) {
+            TextView fileAccessStatus = findViewById(R.id.permission_status_file_access);
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                fileAccessStatus.setText(R.string.main_activity_granted);
+                fileAccessStatus.setTextColor(getColor(R.color.granted));
+            } else {
+                fileAccessStatus.setText(R.string.main_activity_denied);
+                fileAccessStatus.setTextColor(getColor(R.color.denied));
+            }
         } else {
-            fileAccessStatus.setText(R.string.main_activity_denied);
-            fileAccessStatus.setTextColor(getColor(R.color.denied));
+            findViewById(R.id.permission_row_file_access).setVisibility(View.GONE);
+        }
+
+
+        /*
+            Update Notification permission display. Only show on >= Android 13.
+         */
+        if(Build.VERSION.SDK_INT >= 33) {
+            TextView notificationStatus = findViewById(R.id.permission_status_notification);
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                notificationStatus.setText(R.string.main_activity_granted);
+                notificationStatus.setTextColor(getColor(R.color.granted));
+            } else {
+                notificationStatus.setText(R.string.main_activity_denied);
+                notificationStatus.setTextColor(getColor(R.color.denied));
+            }
+        } else {
+            findViewById(R.id.permission_row_notification).setVisibility(View.GONE);
         }
 
 

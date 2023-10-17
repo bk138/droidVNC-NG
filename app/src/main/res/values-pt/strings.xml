@@ -18,6 +18,7 @@
     <string name="main_activity_granted">garantido</string>
     <string name="main_activity_denied">negado</string>
     <string name="main_activity_file_access">Acesso a arquivos</string>
+    <string name="main_activity_notifications">Notificações</string>
     <string name="main_activity_input">Entrada</string>
     <string name="main_activity_address">O servidor agora pode ser acessado em</string>
     <string name="main_activity_not_listening">O servidor não está escutando conexões de entrada.</string>

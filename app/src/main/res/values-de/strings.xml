@@ -18,6 +18,7 @@
     <string name="main_activity_granted">gewährt</string>
     <string name="main_activity_denied">verweigert</string>
     <string name="main_activity_file_access">Dateizugriff</string>
+    <string name="main_activity_notifications">Benachrichtigungen</string>
     <string name="main_activity_input">Eingabe</string>
     <string name="main_activity_address">Der Server ist jetzt erreichbar unter</string>
     <string name="main_activity_not_listening">Der Server akzeptiert keine eingehenden Verbindungen.</string>
