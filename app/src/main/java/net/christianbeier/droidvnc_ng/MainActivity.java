@@ -30,11 +30,14 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -621,6 +624,10 @@ public class MainActivity extends AppCompatActivity {
                 notificationStatus.setText(R.string.main_activity_denied);
                 notificationStatus.setTextColor(getColor(R.color.denied));
             }
+            notificationStatus.setOnClickListener(view -> {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            });
         } else {
             findViewById(R.id.permission_row_notification).setVisibility(View.GONE);
         }
