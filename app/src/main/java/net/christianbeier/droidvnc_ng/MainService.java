@@ -757,6 +757,7 @@ public class MainService extends Service {
         }
     }
 
+    /** @noinspection SameParameterValue*/
     private DisplayMetrics getDisplayMetrics(int displayId) {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         DisplayManager dm = (DisplayManager) getSystemService(DISPLAY_SERVICE);
