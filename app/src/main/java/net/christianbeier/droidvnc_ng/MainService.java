@@ -270,7 +270,20 @@ public class MainService extends Service {
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
             DisplayMetrics displayMetrics = getDisplayMetrics(Display.DEFAULT_DISPLAY);
             int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
-            String name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
+            // get device name
+            String name;
+            try {
+                // This is what we had until targetSDK 33.
+                name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
+            } catch (SecurityException ignored) {
+                // throws on devices with API level 33, so use fallback
+                if (Build.VERSION.SDK_INT > 25) {
+                    name = Settings.Global.getString(getContentResolver(), Settings.Global.DEVICE_NAME);
+                } else {
+                    name = getString(R.string.app_name);
+                }
+            }
+
             boolean status = vncStartServer(displayMetrics.widthPixels,
                     displayMetrics.heightPixels,
                     port,
