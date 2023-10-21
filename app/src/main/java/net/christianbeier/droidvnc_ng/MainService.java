@@ -531,8 +531,6 @@ public class MainService extends Service {
 
         if (mImageReader != null)
             mImageReader.close();
-        if (mVirtualDisplay != null)
-            mVirtualDisplay.release();
 
         final DisplayMetrics metrics = getDisplayMetrics(Display.DEFAULT_DISPLAY);
 
@@ -593,10 +591,15 @@ public class MainService extends Service {
             }, null);
 
             try {
-                mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
-                        quirkyLandscapeWidth, quirkyLandscapeHeight, metrics.densityDpi,
-                        DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                        mImageReader.getSurface(), null, null);
+                if(mVirtualDisplay == null) {
+                    mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
+                            quirkyLandscapeWidth, quirkyLandscapeHeight, metrics.densityDpi,
+                            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                            mImageReader.getSurface(), null, null);
+                } else {
+                    mVirtualDisplay.resize(quirkyLandscapeWidth, quirkyLandscapeHeight, metrics.densityDpi);
+                    mVirtualDisplay.setSurface(mImageReader.getSurface());
+                }
             } catch (SecurityException e) {
                 Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
                 // This initiates a prompt dialog for the user to confirm screen projection.
@@ -637,10 +640,15 @@ public class MainService extends Service {
         }, null);
 
         try {
-            mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
-                    scaledWidth, scaledHeight, metrics.densityDpi,
-                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                    mImageReader.getSurface(), null, null);
+            if(mVirtualDisplay == null) {
+                mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
+                        scaledWidth, scaledHeight, metrics.densityDpi,
+                        DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                        mImageReader.getSurface(), null, null);
+            } else {
+                mVirtualDisplay.resize(scaledWidth, scaledHeight, metrics.densityDpi);
+                mVirtualDisplay.setSurface(mImageReader.getSurface());
+            }
         } catch (SecurityException e) {
             Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
             // This initiates a prompt dialog for the user to confirm screen projection.
