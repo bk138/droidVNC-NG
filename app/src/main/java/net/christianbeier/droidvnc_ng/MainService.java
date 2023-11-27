@@ -426,44 +426,49 @@ public class MainService extends Service {
 
         if(ACTION_CONNECT_REVERSE.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: connect reverse");
-            boolean status = false;
             if(vncIsActive()) {
-                try {
-                    //TODO run on worker thread
-                    status = instance.vncConnectReverse(intent.getStringExtra(EXTRA_HOST), intent.getIntExtra(EXTRA_PORT, mDefaults.getPortReverse()));
-                } catch (NullPointerException ignored) {
-                }
+                // run on worker thread
+                new Thread(() -> {
+                    boolean status = false;
+                    try {
+                        status = instance.vncConnectReverse(intent.getStringExtra(EXTRA_HOST), intent.getIntExtra(EXTRA_PORT, mDefaults.getPortReverse()));
+                    } catch (NullPointerException ignored) {
+                    }
+                    Intent answer = new Intent(ACTION_CONNECT_REVERSE);
+                    answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+                    answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+                    sendBroadcast(answer);
+                }).start();
             } else {
                 stopSelfByUs();
             }
 
-            Intent answer = new Intent(ACTION_CONNECT_REVERSE);
-            answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
-            answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
-            sendBroadcast(answer);
             return START_NOT_STICKY;
         }
 
         if(ACTION_CONNECT_REPEATER.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: connect repeater");
-            boolean status = false;
+
             if(vncIsActive()) {
-                try {
-                    //TODO run on worker thread
-                    status = instance.vncConnectRepeater(
-                            intent.getStringExtra(EXTRA_HOST),
-                            intent.getIntExtra(EXTRA_PORT, mDefaults.getPortRepeater()),
-                            intent.getStringExtra(EXTRA_REPEATER_ID));
-                } catch (NullPointerException ignored) {
-                }
+                // run on worker thread
+                new Thread(() -> {
+                    boolean status = false;
+                    try {
+                        status = instance.vncConnectRepeater(
+                                intent.getStringExtra(EXTRA_HOST),
+                                intent.getIntExtra(EXTRA_PORT, mDefaults.getPortRepeater()),
+                                intent.getStringExtra(EXTRA_REPEATER_ID));
+                    } catch (NullPointerException ignored) {
+                    }
+                    Intent answer = new Intent(ACTION_CONNECT_REPEATER);
+                    answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+                    answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+                    sendBroadcast(answer);
+                }).start();
             } else {
                 stopSelfByUs();
             }
 
-            Intent answer = new Intent(ACTION_CONNECT_REPEATER);
-            answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
-            answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
-            sendBroadcast(answer);
             return START_NOT_STICKY;
         }
 
