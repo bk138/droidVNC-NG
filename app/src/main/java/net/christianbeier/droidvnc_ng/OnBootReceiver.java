@@ -59,17 +59,17 @@ public class OnBootReceiver extends BroadcastReceiver {
                 AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 PendingIntent pendingIntent;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    pendingIntent = PendingIntent.getForegroundService(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+                    pendingIntent = PendingIntent.getForegroundService(context.getApplicationContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
                 } else {
-                    pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+                    pendingIntent = PendingIntent.getService(context.getApplicationContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
                 }
                 alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + delayMillis, pendingIntent);
             } else {
                 Log.i(TAG, "onReceive: configured to start immediately");
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(intent);
+                    context.getApplicationContext().startForegroundService(intent);
                 } else {
-                    context.startService(intent);
+                    context.getApplicationContext().startService(intent);
                 }
             }
         } else {
