@@ -22,6 +22,7 @@
 package net.christianbeier.droidvnc_ng;
 
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -70,7 +71,12 @@ public class InputRequestActivity extends AppCompatActivity {
                                     .setMessage(R.string.input_a11y_act_not_found_msg)
                                     .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
                                         Intent generalSettingsIntent = new Intent(Settings.ACTION_SETTINGS);
-                                        startActivityForResult(generalSettingsIntent, REQUEST_INPUT);
+                                        try {
+                                            startActivityForResult(generalSettingsIntent, REQUEST_INPUT);
+                                        } catch(ActivityNotFoundException ignored) {
+                                            // This should not happen, but there were crashes reported from flaky devices
+                                            // so in this case do nothing instead of crashing.
+                                        }
                                     })
                                     .show();
                     })
