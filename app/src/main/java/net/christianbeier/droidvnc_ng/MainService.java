@@ -154,8 +154,8 @@ public class MainService extends Service {
     private native boolean vncStartServer(int width, int height, int port, String desktopName, String password);
     private native boolean vncStopServer();
     private native boolean vncIsActive();
-    private native boolean vncConnectReverse(String host, int port);
-    private native boolean vncConnectRepeater(String host, int port, String repeaterIdentifier);
+    private native long vncConnectReverse(String host, int port);
+    private native long vncConnectRepeater(String host, int port, String repeaterIdentifier);
     private native boolean vncNewFramebuffer(int width, int height);
     private native boolean vncUpdateFramebuffer(ByteBuffer buf);
     private native int vncGetFramebufferWidth();
@@ -429,14 +429,14 @@ public class MainService extends Service {
             if(vncIsActive()) {
                 // run on worker thread
                 new Thread(() -> {
-                    boolean status = false;
+                    long client = 0;
                     try {
-                        status = instance.vncConnectReverse(intent.getStringExtra(EXTRA_HOST), intent.getIntExtra(EXTRA_PORT, mDefaults.getPortReverse()));
+                        client = instance.vncConnectReverse(intent.getStringExtra(EXTRA_HOST), intent.getIntExtra(EXTRA_PORT, mDefaults.getPortReverse()));
                     } catch (NullPointerException ignored) {
                     }
                     Intent answer = new Intent(ACTION_CONNECT_REVERSE);
                     answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
-                    answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+                    answer.putExtra(EXTRA_REQUEST_SUCCESS, client != 0);
                     sendBroadcast(answer);
                 }).start();
             } else {
@@ -452,9 +452,9 @@ public class MainService extends Service {
             if(vncIsActive()) {
                 // run on worker thread
                 new Thread(() -> {
-                    boolean status = false;
+                    long client = 0;
                     try {
-                        status = instance.vncConnectRepeater(
+                        client = instance.vncConnectRepeater(
                                 intent.getStringExtra(EXTRA_HOST),
                                 intent.getIntExtra(EXTRA_PORT, mDefaults.getPortRepeater()),
                                 intent.getStringExtra(EXTRA_REPEATER_ID));
@@ -462,7 +462,7 @@ public class MainService extends Service {
                     }
                     Intent answer = new Intent(ACTION_CONNECT_REPEATER);
                     answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
-                    answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+                    answer.putExtra(EXTRA_REQUEST_SUCCESS, client != 0);
                     sendBroadcast(answer);
                 }).start();
             } else {

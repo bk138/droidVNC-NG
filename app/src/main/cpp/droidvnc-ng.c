@@ -374,47 +374,47 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 }
 
 // The MainService run this on a worker thread, in the worst case blocking for rfbMaxClientWait
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncConnectReverse(JNIEnv *env, __unused jobject thiz, jstring host, jint port)
+JNIEXPORT jlong JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncConnectReverse(JNIEnv *env, __unused jobject thiz, jstring host, jint port)
 {
     if(!theScreen || !theScreen->frameBuffer)
-        return JNI_FALSE;
+        return 0;
 
     if(host) { // string arg to GetStringUTFChars() must not be NULL
         char *cHost = (char*)(*env)->GetStringUTFChars(env, host, NULL);
         if(!cHost) {
             __android_log_print(ANDROID_LOG_ERROR, TAG, "vncConnectReverse: failed getting desktop name from JNI");
-            return JNI_FALSE;
+            return 0;
         }
         rfbClientPtr cl = rfbReverseConnection(theScreen, cHost, port);
         (*env)->ReleaseStringUTFChars(env, host, cHost);
-        return cl != NULL;
+        return (jlong) cl;
     }
-    return JNI_FALSE;
+    return 0;
 }
 
 // The MainService run this on a worker thread, in the worst case blocking for rfbMaxClientWait
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncConnectRepeater(JNIEnv *env, __unused jobject thiz, jstring host, jint port, jstring repeaterIdentifier)
+JNIEXPORT jlong JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncConnectRepeater(JNIEnv *env, __unused jobject thiz, jstring host, jint port, jstring repeaterIdentifier)
 {
     if(!theScreen || !theScreen->frameBuffer)
-        return JNI_FALSE;
+        return 0;
 
     if(host && repeaterIdentifier) { // string arg to GetStringUTFChars() must not be NULL
         char *cHost = (char*)(*env)->GetStringUTFChars(env, host, NULL);
         if(!cHost) {
             __android_log_print(ANDROID_LOG_ERROR, TAG, "vncConnectRepeater: failed getting desktop name from JNI");
-            return JNI_FALSE;
+            return 0;
         }
         char *cRepeaterIdentifier = (char*)(*env)->GetStringUTFChars(env, repeaterIdentifier, NULL);
         if(!cRepeaterIdentifier) {
             __android_log_print(ANDROID_LOG_ERROR, TAG, "vncConnectRepeater: failed getting repeater ID from JNI");
-            return JNI_FALSE;
+            return 0;
         }
         rfbClientPtr cl = repeaterConnection(theScreen, cHost, port, cRepeaterIdentifier);
         (*env)->ReleaseStringUTFChars(env, host, cHost);
         (*env)->ReleaseStringUTFChars(env, repeaterIdentifier, cRepeaterIdentifier);
-        return cl != NULL;
+        return (jlong) cl;
     }
-    return JNI_FALSE;
+    return 0;
 }
 
 
