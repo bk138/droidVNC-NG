@@ -50,6 +50,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mAddress;
     private boolean mIsMainServiceRunning;
     private BroadcastReceiver mMainServiceBroadcastReceiver;
+    private AlertDialog mOutgoingConnectionWaitDialog;
     private String mLastMainServiceRequestId;
     private String mLastReverseHost;
     private int mLastReversePort;
@@ -173,6 +175,16 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             startService(request);
                         }
+
+                        // show a progress dialog
+                        ProgressBar progressBar = new ProgressBar(this);
+                        progressBar.setPadding(0,0,0, (int) (30 * getResources().getDisplayMetrics().density));
+                        mOutgoingConnectionWaitDialog = new AlertDialog.Builder(this)
+                                .setCancelable(false)
+                                .setTitle(R.string.main_activity_reverse_vnc_button)
+                                .setMessage(getString(R.string.main_activity_connecting_to, host + ":" + port))
+                                .setView(progressBar)
+                                .show();
                     })
                     .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                     .create();
@@ -249,6 +261,15 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             startService(request);
                         }
+                        // show a progress dialog
+                        ProgressBar progressBar = new ProgressBar(this);
+                        progressBar.setPadding(0,0,0, (int) (30 * getResources().getDisplayMetrics().density));
+                        mOutgoingConnectionWaitDialog = new AlertDialog.Builder(this)
+                                .setCancelable(false)
+                                .setTitle(R.string.main_activity_repeater_vnc_button)
+                                .setMessage(getString(R.string.main_activity_connecting_to, host + ":" + port + " - " + repeaterId))
+                                .setView(progressBar)
+                                .show();
                     })
                     .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> dialogInterface.cancel())
                     .create();
@@ -520,6 +541,10 @@ public class MainActivity extends AppCompatActivity {
 
                     // reset this
                     mLastMainServiceRequestId = null;
+                    try {
+                        mOutgoingConnectionWaitDialog.dismiss();
+                    } catch(NullPointerException ignored) {
+                    }
                 }
 
                 if (MainService.ACTION_CONNECT_REPEATER.equals(intent.getAction())
@@ -552,6 +577,10 @@ public class MainActivity extends AppCompatActivity {
 
                     // reset this
                     mLastMainServiceRequestId = null;
+                    try {
+                        mOutgoingConnectionWaitDialog.dismiss();
+                    } catch(NullPointerException ignored) {
+                    }
                 }
 
             }
