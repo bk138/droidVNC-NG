@@ -373,7 +373,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     return JNI_TRUE;
 }
 
-//TODO this runs on the main thread, in the worst case blocking for rfbMaxClientWait
+// The MainService run this on a worker thread, in the worst case blocking for rfbMaxClientWait
 JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncConnectReverse(JNIEnv *env, __unused jobject thiz, jstring host, jint port)
 {
     if(!theScreen || !theScreen->frameBuffer)
@@ -392,7 +392,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncC
     return JNI_FALSE;
 }
 
-//TODO this runs on the main thread, in the worst case blocking for rfbMaxClientWait
+// The MainService run this on a worker thread, in the worst case blocking for rfbMaxClientWait
 JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncConnectRepeater(JNIEnv *env, __unused jobject thiz, jstring host, jint port, jstring repeaterIdentifier)
 {
     if(!theScreen || !theScreen->frameBuffer)
