@@ -24,6 +24,7 @@
     <string name="main_activity_address">The server is now reachable at</string>
     <string name="main_activity_not_listening">The server is not listening for incoming connections.</string>
     <string name="main_activity_outbound_text">You can make outbound connections:</string>
+    <string name="main_activity_connecting_to">Connecting to %1$s</string>
     <string name="main_activity_reverse_vnc_button">Connect to a listening viewer</string>
     <string name="main_activity_reverse_vnc_hint">Host:Port</string>
     <string name="main_activity_reverse_vnc_success">Connection to %1$s:%2$d succeeded</string>
