@@ -34,7 +34,9 @@ import android.content.pm.ServiceInfo;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.PowerManager;
 import androidx.preference.PreferenceManager;
 import android.util.DisplayMetrics;
@@ -49,6 +51,7 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MainService extends Service {
 
@@ -63,6 +66,7 @@ public class MainService extends Service {
     public static final String EXTRA_HOST = "net.christianbeier.droidvnc_ng.EXTRA_HOST";
     public static final String EXTRA_PORT = "net.christianbeier.droidvnc_ng.EXTRA_PORT";
     public static final String EXTRA_REPEATER_ID = "net.christianbeier.droidvnc_ng.EXTRA_REPEATER_ID";
+    public static final String EXTRA_RECONNECT_TRIES = "net.christianbeier.droidvnc_ng.EXTRA_RECONNECT_TRIES";
     public static final String EXTRA_ACCESS_KEY = "net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY";
     public static final String EXTRA_PASSWORD = "net.christianbeier.droidvnc_ng.EXTRA_PASSWORD";
     public static final String EXTRA_VIEW_ONLY = "net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY";
@@ -103,6 +107,18 @@ public class MainService extends Service {
     private Notification mNotification;
 
     private int mNumberOfClients;
+
+    private static class OutboundClientReconnectData {
+        Intent intent;
+        long client;
+        int reconnectTriesLeft;
+        int backoff;
+        static final int BACKOFF_INIT = 2;
+    }
+    /// This maps the Intent's request id to an OutboundClientReconnectData entry
+    private final ConcurrentHashMap<String, OutboundClientReconnectData> mOutboundClientsToReconnect = new ConcurrentHashMap<>();
+    private final Handler mOutboundClientReconnectHandler = new Handler(Looper.getMainLooper());
+
     private boolean mIsStopping;
     // service is stopping on OUR initiative, NOT by stopService()
     private boolean mIsStoppingByUs;
@@ -218,6 +234,9 @@ public class MainService extends Service {
             // API levels < 26 don't have the mandatory foreground notification and need manual notification dismissal
             getSystemService(NotificationManager.class).cancelAll();
         }
+
+        // remove all pending client reconnects
+        mOutboundClientReconnectHandler.removeCallbacksAndMessages(null);
 
         stopScreenCapture();
         vncStopServer();
@@ -416,6 +435,8 @@ public class MainService extends Service {
                     answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
                     answer.putExtra(EXTRA_REQUEST_SUCCESS, client != 0);
                     sendBroadcast(answer);
+                    // check if set to reconnect and handle accordingly
+                    handleClientReconnect(intent, client, "reverse");
                 }).start();
             } else {
                 stopSelfByUs();
@@ -442,6 +463,8 @@ public class MainService extends Service {
                     answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
                     answer.putExtra(EXTRA_REQUEST_SUCCESS, client != 0);
                     sendBroadcast(answer);
+                    // check if set to reconnect and handle accordingly
+                    handleClientReconnect(intent, client, "repeater");
                 }).start();
             } else {
                 stopSelfByUs();
@@ -493,9 +516,85 @@ public class MainService extends Service {
                 instance.updateNotification();
             }
             InputService.removeClient(client);
+
+            // check if the gone client was part of a reconnect entry
+            instance.mOutboundClientsToReconnect
+                    .values()
+                    .stream()
+                    .filter(data -> data.client == client )
+                    .forEach(data -> {
+                        // if the client is set to reconnect, it definitely has tries left on disconnect
+                        // (otherwise it wouldn't be in the list), so fire up reconnect action
+                        Log.d(TAG, "onClientDisconnected: client " + client + " set to reconnect, reconnecting with delay of " + data.backoff + " seconds");
+                        instance.mOutboundClientReconnectHandler.postDelayed(() -> {
+                            try {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    instance.startForegroundService(data.intent);
+                                } else {
+                                    instance.startService(data.intent);
+                                }
+                            } catch (NullPointerException ignored) {
+                                // onClientDisconnected() is triggered by vncStopServer() from onDestroy(),
+                                // but the actual call might happen well after instance is set to null in onDestroy()
+                            }
+                        }, data.backoff * 1000L);
+                    });
         } catch (Exception e) {
             // instance probably null
             Log.e(TAG, "onClientDisconnected: error: " + e);
+        }
+    }
+
+    private void handleClientReconnect(Intent intent, long client, String logTag) {
+        String requestId = intent.getStringExtra(EXTRA_REQUEST_ID);
+        if (intent.getIntExtra(EXTRA_RECONNECT_TRIES, 0) > 0 && requestId != null) {
+            if(client != 0) {
+                // connection successful, save Intent and client for later and set backoff and tries-left to init values
+                OutboundClientReconnectData data = new OutboundClientReconnectData();
+                data.intent = intent;
+                data.client = client;
+                data.backoff = OutboundClientReconnectData.BACKOFF_INIT;
+                data.reconnectTriesLeft = intent.getIntExtra(EXTRA_RECONNECT_TRIES, 0);
+                mOutboundClientsToReconnect.put(requestId, data);
+            } else {
+                // connection fail, check if entry in reconnect list
+                OutboundClientReconnectData reconnectData = mOutboundClientsToReconnect.get(requestId);
+                if(reconnectData != null) {
+                    // if we come here, there was already 1 reconnect from the client disconnect handler.
+                    // thus unset client, decrease reconnect tries, increase backoff
+                    reconnectData.client = 0;
+                    reconnectData.reconnectTriesLeft--;
+                    reconnectData.backoff *= 2;
+                    // then check if reconnect tries left
+                    if (reconnectData.reconnectTriesLeft > 0) {
+                        // yes, fire up another reconnect action
+                        Log.d(TAG, "handleClientReconnect: "
+                                + logTag
+                                + ": request id "
+                                + intent.getStringExtra(EXTRA_REQUEST_ID)
+                                + " has "
+                                + reconnectData.reconnectTriesLeft
+                                + " reconnect tries left, reconnecting with delay of "
+                                + reconnectData.backoff
+                                + " seconds");
+                        mOutboundClientReconnectHandler.postDelayed(() -> {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                startForegroundService(intent);
+                            } else {
+                                startService(intent);
+                            }
+                        }, reconnectData.backoff * 1000L);
+                    } else {
+                        // no, delete entry
+                        Log.d(TAG, "handleClientReconnect: "
+                                + logTag
+                                + ": request id "
+                                + intent.getStringExtra(EXTRA_REQUEST_ID)
+                                + " exceeded reconnect tries, removing from reconnect list");
+                        mOutboundClientsToReconnect.remove(requestId);
+                    }
+                }
+            }
         }
     }
 
