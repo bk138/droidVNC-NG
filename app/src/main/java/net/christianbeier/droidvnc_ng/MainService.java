@@ -121,6 +121,7 @@ public class MainService extends Service {
         int reconnectTriesLeft;
         int backoff;
         static final int BACKOFF_INIT = 2;
+        static final int BACKOFF_LIMIT = 64;
     }
     /// This maps the Intent's request id to an OutboundClientReconnectData entry
     private final ConcurrentHashMap<String, OutboundClientReconnectData> mOutboundClientsToReconnect = new ConcurrentHashMap<>();
@@ -631,7 +632,7 @@ public class MainService extends Service {
                     // thus unset client, decrease reconnect tries, increase backoff
                     reconnectData.client = 0;
                     reconnectData.reconnectTriesLeft--;
-                    reconnectData.backoff *= 2;
+                    reconnectData.backoff = Math.min(reconnectData.backoff * 2, OutboundClientReconnectData.BACKOFF_LIMIT);
                     // then check if reconnect tries left
                     if (reconnectData.reconnectTriesLeft > 0) {
                         // yes, fire up another reconnect action
