@@ -31,6 +31,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
+import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
@@ -38,7 +40,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
+
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
+import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -51,6 +56,8 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MainService extends Service {
@@ -203,6 +210,48 @@ public class MainService extends Service {
          */
         //noinspection deprecation
         mWakeLock = ((PowerManager) instance.getSystemService(Context.POWER_SERVICE)).newWakeLock((PowerManager.SCREEN_DIM_WAKE_LOCK| PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE), TAG + ":clientsConnected");
+
+        /*
+            Register a listener for network-up events
+         */
+        ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).registerDefaultNetworkCallback(new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(@NonNull Network network) {
+                // fires when wifi lost and mobile data selected as well, but that won't hurt...
+                Log.d(TAG, "DefaultNetworkCallback: now available: " + network);
+                /*
+                    A new default network came up: try to reconnect disconnected outbound clients immediately
+                 */
+                mOutboundClientsToReconnect
+                        .entrySet()
+                        .stream()
+                        .filter(entry -> entry.getValue().client == 0) // is disconnected
+                        .forEach(entry -> {
+                            // if the client is set to reconnect, it definitely has tries left on disconnect
+                            // (otherwise it wouldn't be in the list), so fire up reconnect action
+                            Log.d(TAG, "DefaultNetworkCallback: resetting backoff and reconnecting outbound connection w/ request id " + entry.getKey());
+
+                            // remove other callbacks as we don't want 2 runnables for this request on the handler queue at the same time!
+                            mOutboundClientReconnectHandler.removeCallbacksAndMessages(entry.getKey());
+                            // reset backoff for this connection
+                            entry.getValue().backoff = OutboundClientReconnectData.BACKOFF_INIT;
+                            entry.getValue().reconnectTriesLeft = entry.getValue().intent.getIntExtra(EXTRA_RECONNECT_TRIES, 0);
+                            // NB that onAvailable() runs on internal ConnectivityService thread, so still use mOutboundClientReconnectHandler here
+                            mOutboundClientReconnectHandler.postAtTime(
+                                    () -> {
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                            startForegroundService(entry.getValue().intent);
+                                        } else {
+                                            startService(entry.getValue().intent);
+                                        }
+                                    },
+                                    entry.getKey(),
+                                    SystemClock.uptimeMillis() + entry.getValue().backoff * 1000L
+                            );
+                        });
+            }
+        });
+
 
         /*
             Load defaults
@@ -422,7 +471,7 @@ public class MainService extends Service {
         }
 
         if(ACTION_CONNECT_REVERSE.equals(intent.getAction())) {
-            Log.d(TAG, "onStartCommand: connect reverse");
+            Log.d(TAG, "onStartCommand: connect reverse, id " + intent.getStringExtra(EXTRA_REQUEST_ID));
             if(vncIsActive()) {
                 // run on worker thread
                 new Thread(() -> {
@@ -446,7 +495,7 @@ public class MainService extends Service {
         }
 
         if(ACTION_CONNECT_REPEATER.equals(intent.getAction())) {
-            Log.d(TAG, "onStartCommand: connect repeater");
+            Log.d(TAG, "onStartCommand: connect repeater, id " + intent.getStringExtra(EXTRA_REQUEST_ID));
 
             if(vncIsActive()) {
                 // run on worker thread
@@ -519,25 +568,29 @@ public class MainService extends Service {
 
             // check if the gone client was part of a reconnect entry
             instance.mOutboundClientsToReconnect
-                    .values()
+                    .entrySet()
                     .stream()
-                    .filter(data -> data.client == client )
-                    .forEach(data -> {
-                        // if the client is set to reconnect, it definitely has tries left on disconnect
+                    .filter(entry -> entry.getValue().client == client )
+                    .forEach(entry -> {
+                        // unset entry's client as it's now disconnected
+                        entry.getValue().client = 0;
+                        // if the connections is set to reconnect, it definitely has tries left on disconnect
                         // (otherwise it wouldn't be in the list), so fire up reconnect action
-                        Log.d(TAG, "onClientDisconnected: client " + client + " set to reconnect, reconnecting with delay of " + data.backoff + " seconds");
-                        instance.mOutboundClientReconnectHandler.postDelayed(() -> {
-                            try {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                    instance.startForegroundService(data.intent);
-                                } else {
-                                    instance.startService(data.intent);
-                                }
-                            } catch (NullPointerException ignored) {
-                                // onClientDisconnected() is triggered by vncStopServer() from onDestroy(),
-                                // but the actual call might happen well after instance is set to null in onDestroy()
-                            }
-                        }, data.backoff * 1000L);
+                        Log.d(TAG, "onClientDisconnected: outbound connection " + entry.getKey() + " set to reconnect, reconnecting with delay of " + entry.getValue().backoff + " seconds");
+                        instance.mOutboundClientReconnectHandler.postAtTime(() -> {
+                                    try {
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                            instance.startForegroundService(entry.getValue().intent);
+                                        } else {
+                                            instance.startService(entry.getValue().intent);
+                                        }
+                                    } catch (NullPointerException ignored) {
+                                        // onClientDisconnected() is triggered by vncStopServer() from onDestroy(),
+                                        // but the actual call might happen well after instance is set to null in onDestroy()
+                                    }
+                                },
+                                entry.getKey(),
+                                SystemClock.uptimeMillis() + entry.getValue().backoff * 1000L);
                     });
         } catch (Exception e) {
             // instance probably null
@@ -549,6 +602,11 @@ public class MainService extends Service {
         String requestId = intent.getStringExtra(EXTRA_REQUEST_ID);
         if (intent.getIntExtra(EXTRA_RECONNECT_TRIES, 0) > 0 && requestId != null) {
             if(client != 0) {
+                Log.d(TAG, "handleClientReconnect: "
+                        + logTag
+                        + ": request id "
+                        + intent.getStringExtra(EXTRA_REQUEST_ID)
+                        + " successfully (re)connected");
                 // connection successful, save Intent and client for later and set backoff and tries-left to init values
                 OutboundClientReconnectData data = new OutboundClientReconnectData();
                 data.intent = intent;
@@ -559,7 +617,16 @@ public class MainService extends Service {
             } else {
                 // connection fail, check if entry in reconnect list
                 OutboundClientReconnectData reconnectData = mOutboundClientsToReconnect.get(requestId);
-                if(reconnectData != null) {
+                // also, get exact key reference (needed for cancellation at the Handler, as this does a "==" comparison, not .equals())
+                String key = mOutboundClientsToReconnect
+                        .entrySet()
+                        .stream()
+                        .filter(entry -> Objects.equals(entry.getValue(), reconnectData))
+                        .map(Map.Entry::getKey)
+                        .findFirst()
+                        .orElse(null);
+
+                if(reconnectData != null && key != null) {
                     // if we come here, there was already 1 reconnect from the client disconnect handler.
                     // thus unset client, decrease reconnect tries, increase backoff
                     reconnectData.client = 0;
@@ -572,25 +639,27 @@ public class MainService extends Service {
                                 + logTag
                                 + ": request id "
                                 + intent.getStringExtra(EXTRA_REQUEST_ID)
-                                + " has "
+                                + " reconnect failed, has "
                                 + reconnectData.reconnectTriesLeft
                                 + " reconnect tries left, reconnecting with delay of "
                                 + reconnectData.backoff
                                 + " seconds");
-                        mOutboundClientReconnectHandler.postDelayed(() -> {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                startForegroundService(intent);
-                            } else {
-                                startService(intent);
-                            }
-                        }, reconnectData.backoff * 1000L);
+                        mOutboundClientReconnectHandler.postAtTime(() -> {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        startForegroundService(intent);
+                                    } else {
+                                        startService(intent);
+                                    }
+                                },
+                                key, // important to use exact key reference here, see above!
+                                SystemClock.uptimeMillis() + reconnectData.backoff * 1000L);
                     } else {
                         // no, delete entry
                         Log.d(TAG, "handleClientReconnect: "
                                 + logTag
                                 + ": request id "
                                 + intent.getStringExtra(EXTRA_REQUEST_ID)
-                                + " exceeded reconnect tries, removing from reconnect list");
+                                + "reconnect failed, exceeded reconnect tries, removing from reconnect list");
                         mOutboundClientsToReconnect.remove(requestId);
                     }
                 }
