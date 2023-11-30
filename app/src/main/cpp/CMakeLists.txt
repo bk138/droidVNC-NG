@@ -11,7 +11,7 @@ elseif (CMAKE_ANDROID_ARCH_ABI MATCHES "^armeabi.*")  # armeabi-v7a || armeabi-v
 endif ()
 
 # build libJPEG
-set(libjpeg_src_DIR ../../../../libjpeg-turbo)
+set(libjpeg_src_DIR ${CMAKE_SOURCE_DIR}/../../../../libjpeg-turbo)
 set(libjpeg_build_DIR ${CMAKE_BINARY_DIR}/libjpeg)
 # adds a source subdir with specifying a build output dir
 add_subdirectory(${libjpeg_src_DIR} ${libjpeg_build_DIR})
@@ -25,7 +25,7 @@ include_directories(
 )
 
 # build LibVNCServer
-set(libvnc_src_DIR ../../../../libvncserver)
+set(libvnc_src_DIR ${CMAKE_SOURCE_DIR}/../../../../libvncserver)
 set(libvnc_build_DIR ${CMAKE_BINARY_DIR}/libvnc)
 # adds a source subdir with specifying a build output dir
 add_subdirectory(${libvnc_src_DIR} ${libvnc_build_DIR})
