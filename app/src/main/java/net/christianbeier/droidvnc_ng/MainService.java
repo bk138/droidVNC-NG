@@ -146,7 +146,6 @@ public class MainService extends Service {
 
     static {
         // order is important here
-        System.loadLibrary("vncserver");
         System.loadLibrary("droidvnc-ng");
     }
 
