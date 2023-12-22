@@ -163,6 +163,16 @@ adb shell am start-foreground-service \
  --ez net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY true
 ```
 
+##### Start a server with defaults from Tasker
+
+- Tasker action-category in menu is System -> Send Intent
+- In there:
+  - Action `net.christianbeier.droidvnc_ng.ACTION_START`
+  - Extra `net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY:<your api key from DroidVNC-NG start screen>`
+  - Package `net.christianbeier.droidvnc_ng`
+  - Class `net.christianbeier.droidvnc_ng.MainService`
+  - Target: Service
+
 ##### Make an outbound connection to a listening viewer from the running server
 
 For example from Java code:
