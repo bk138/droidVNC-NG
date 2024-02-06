@@ -34,7 +34,7 @@
     <string name="main_activity_repeater_vnc_success">Conexão com %1$s:%2$d com ID %3$s bem-sucedida</string>
     <string name="main_activity_repeater_vnc_fail">A conexão com %1$s:%2$d com ID %3$s falhou</string>
     <string name="main_activity_repeater_vnc_input_missing">Host e/ou ID ausente</string>
-    <string name="main_activity_special_key_reference">De um visualizador VNC, <b>Ctrl-Shift-Esc</b> aciona a visão geral de \'Aplicativos recentes\', <b>Casa/Pos1</b> atua como botão Home, <b>Escapar</b> funciona como botão Voltar.</string>
+    <string name="main_activity_special_key_reference">De um visualizador VNC, <b>Ctrl-Shift-Esc</b> aciona a visão geral de \'Aplicativos recentes\', <b>Casa/Pos1</b> atua como botão Home, <b>End</b> atua como botão liga / desliga, <b>Escapar</b> funciona como botão Voltar.</string>
     <string name="main_activity_about">Aqui é droidVNC-NG %1$s. Observe que mais recursos ainda estão sendo adicionados ao droidVNC-NG. Em particular, a maioria dos toques de teclado a partir de agora só podem ser inseridos por meio do teclado programável do Android, há apenas suporte limitado para eventos de teclado de visualizadores VNC (ainda). Relate quaisquer problemas e solicitações de recursos em https://github.com/bk138/droidVNC-NG/issues</string>
     <string name="main_service_notification_not_listening">Não está ouvindo conexões de entrada</string>
     <plurals name="main_service_notification_listening">
