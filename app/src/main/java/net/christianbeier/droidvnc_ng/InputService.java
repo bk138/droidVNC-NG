@@ -317,6 +317,14 @@ public class InputService extends AccessibilityService {
 			}
 
 			/*
+				End
+			*/
+			if (keysym == 0xFF57 && down != 0) {
+				Log.i(TAG, "onKeyEvent: got End");
+				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_POWER_DIALOG);
+			}
+
+			/*
 				Esc
 			 */
 			if(keysym == 0xFF1B && down != 0)  {
