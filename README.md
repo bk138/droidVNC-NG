@@ -21,7 +21,7 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * Injection of remote pointer events.
 * Handling of client-to-server text copy & paste. Note that server-to-client copy & paste does not
   work in a generic way due to [Android security restrictions](https://developer.android.com/about/versions/10/privacy/changes#clipboard-data).
-* Handling of special keys to trigger 'Recent Apps' overview, Home button and Back button.
+* Handling of special keys to trigger 'Recent Apps' overview, Home button, Back button and Power button.
 * Android permission handling.
 * Screen rotation handling.
 * File transfer via the local network, assuming TightVNC viewer for Windows version 1.3.x is used.
@@ -47,6 +47,7 @@ If you have a general question, it's best to [ask in the community chat](https:/
 
 * **Ctrl-Shift-Esc** triggers 'Recent Apps' overview
 * **Home/Pos1** acts as Home button
+* **End** acts as Power button
 * **Escape** acts as Back button
 
 ### For accepting connections from outside
