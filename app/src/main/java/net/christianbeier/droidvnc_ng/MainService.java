@@ -401,7 +401,7 @@ public class MainService extends Service {
                             && intent.getBooleanExtra(EXTRA_SHOW_POINTERS, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_SHOW_POINTERS, mDefaults.getShowPointers())));
             ed.apply();
             // also set new value for InputService
-            InputService.scaling = intent.getFloatExtra(EXTRA_SCALING, mDefaults.getScaling());
+            InputService.scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
 
             // Step 1: check input permission
             Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
