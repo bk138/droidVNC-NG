@@ -211,7 +211,7 @@ public class MainService extends Service {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        DisplayMetrics displayMetrics = getDisplayMetrics(Display.DEFAULT_DISPLAY);
+        DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
         Log.d(TAG, "onConfigurationChanged: width: " + displayMetrics.widthPixels + " height: " + displayMetrics.heightPixels);
 
         startScreenCapture();
@@ -267,7 +267,7 @@ public class MainService extends Service {
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
-            DisplayMetrics displayMetrics = getDisplayMetrics(Display.DEFAULT_DISPLAY);
+            DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
             int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
             // get device name
             String name;
@@ -318,7 +318,7 @@ public class MainService extends Service {
             }
 
             if (mResultCode != 0 && mResultData != null) {
-                DisplayMetrics displayMetrics = getDisplayMetrics(Display.DEFAULT_DISPLAY);
+                DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
                 int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
                 String name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
                 boolean status = vncStartServer(displayMetrics.widthPixels,
@@ -536,7 +536,7 @@ public class MainService extends Service {
         if (mImageReader != null)
             mImageReader.close();
 
-        final DisplayMetrics metrics = getDisplayMetrics(Display.DEFAULT_DISPLAY);
+        final DisplayMetrics metrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
 
         // apply selected scaling
         float scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
@@ -767,14 +767,6 @@ public class MainService extends Service {
         } catch (Exception e) {
             return -2;
         }
-    }
-
-    /** @noinspection SameParameterValue*/
-    private DisplayMetrics getDisplayMetrics(int displayId) {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        DisplayManager dm = (DisplayManager) getSystemService(DISPLAY_SERVICE);
-        dm.getDisplay(displayId).getRealMetrics(displayMetrics);
-        return displayMetrics;
     }
 
     private void registerNSD(String name, int port) {
