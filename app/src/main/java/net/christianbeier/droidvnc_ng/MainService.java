@@ -30,15 +30,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.PixelFormat;
-import android.hardware.display.DisplayManager;
-import android.hardware.display.VirtualDisplay;
-import android.media.Image;
-import android.media.ImageReader;
-import android.media.projection.MediaProjection;
-import android.media.projection.MediaProjectionManager;
+import android.content.pm.ServiceInfo;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
@@ -50,7 +42,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import java.net.InterfaceAddress;
@@ -63,7 +54,7 @@ import java.util.Enumeration;
 public class MainService extends Service {
 
     private static final String TAG = "MainService";
-    private static final int NOTIFICATION_ID = 11;
+    static final int NOTIFICATION_ID = 11;
     public final static String ACTION_START = "net.christianbeier.droidvnc_ng.ACTION_START";
     public final static String ACTION_STOP = "net.christianbeier.droidvnc_ng.ACTION_STOP";
     public static final String ACTION_CONNECT_REVERSE = "net.christianbeier.droidvnc_ng.ACTION_CONNECT_REVERSE";
@@ -103,15 +94,8 @@ public class MainService extends Service {
 
     private int mResultCode;
     private Intent mResultData;
-    private ImageReader mImageReader;
-    private VirtualDisplay mVirtualDisplay;
-    private MediaProjection mMediaProjection;
-    private MediaProjectionManager mMediaProjectionManager;
-
-    private boolean mHasPortraitInLandscapeWorkaroundApplied;
-    private boolean mHasPortraitInLandscapeWorkaroundSet;
-
     private PowerManager.WakeLock mWakeLock;
+    private Notification mNotification;
 
     private int mNumberOfClients;
     private boolean mIsStopping;
@@ -155,10 +139,10 @@ public class MainService extends Service {
     private native boolean vncIsActive();
     private native long vncConnectReverse(String host, int port);
     private native long vncConnectRepeater(String host, int port, String repeaterIdentifier);
-    private native boolean vncNewFramebuffer(int width, int height);
-    private native boolean vncUpdateFramebuffer(ByteBuffer buf);
-    private native int vncGetFramebufferWidth();
-    private native int vncGetFramebufferHeight();
+    static native boolean vncNewFramebuffer(int width, int height);
+    static native boolean vncUpdateFramebuffer(ByteBuffer buf);
+    static native int vncGetFramebufferWidth();
+    static native int vncGetFramebufferHeight();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -186,13 +170,12 @@ public class MainService extends Service {
             /*
                 startForeground() w/ notification
              */
-            startForeground(NOTIFICATION_ID, getNotification(null, true));
+            if (Build.VERSION.SDK_INT >= 29) {
+                startForeground(NOTIFICATION_ID, getNotification(null, true), ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+            } else {
+                startForeground(NOTIFICATION_ID, getNotification(null, true));
+            }
         }
-
-        /*
-            Get the MediaProjectionManager
-         */
-        mMediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 
         /*
             Get a wake lock
@@ -206,16 +189,6 @@ public class MainService extends Service {
         mDefaults = new Defaults(this);
     }
 
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
-        Log.d(TAG, "onConfigurationChanged: width: " + displayMetrics.widthPixels + " height: " + displayMetrics.heightPixels);
-
-        startScreenCapture();
-    }
 
 
     @Override
@@ -513,168 +486,20 @@ public class MainService extends Service {
         }
     }
 
-    @SuppressLint("WrongConstant")
     private void startScreenCapture() {
+        Intent intent = new Intent(this, MediaProjectionService.class);
+        intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_CODE, mResultCode);
+        intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_DATA, mResultData);
 
-        if(mMediaProjection == null)
-            try {
-                mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mResultData);
-            } catch (SecurityException e) {
-                Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
-                // This initiates a prompt dialog for the user to confirm screen projection.
-                Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
-                mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(mediaProjectionRequestIntent);
-                return;
-            }
-
-        if (mMediaProjection == null) {
-            Log.e(TAG, "startScreenCapture: did not get a media projection, probably user denied");
-            return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
         }
-
-        if (mImageReader != null)
-            mImageReader.close();
-
-        final DisplayMetrics metrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
-
-        // apply selected scaling
-        float scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
-        int scaledWidth = (int) (metrics.widthPixels * scaling);
-        int scaledHeight = (int) (metrics.heightPixels * scaling);
-
-        // only set this by detecting quirky hardware if the user has not set manually
-        if(!mHasPortraitInLandscapeWorkaroundSet && Build.FINGERPRINT.contains("rk3288")  && metrics.widthPixels > 800) {
-            Log.w(TAG, "detected >10in rk3288 applying workaround for portrait-in-landscape quirk");
-            mHasPortraitInLandscapeWorkaroundApplied = true;
-        }
-
-        // use workaround if flag set and in actual portrait mode
-        if(mHasPortraitInLandscapeWorkaroundApplied && scaledWidth < scaledHeight) {
-
-            final float portraitInsideLandscapeScaleFactor = (float)scaledWidth/scaledHeight;
-
-            // width and height are swapped here
-            final int quirkyLandscapeWidth = (int)((float)scaledHeight/portraitInsideLandscapeScaleFactor);
-            final int quirkyLandscapeHeight = (int)((float)scaledWidth/portraitInsideLandscapeScaleFactor);
-
-            mImageReader = ImageReader.newInstance(quirkyLandscapeWidth, quirkyLandscapeHeight, PixelFormat.RGBA_8888, 2);
-            mImageReader.setOnImageAvailableListener(imageReader -> {
-                try (Image image = imageReader.acquireLatestImage()) {
-
-                    if (image == null)
-                        return;
-
-                    final Image.Plane[] planes = image.getPlanes();
-                    final ByteBuffer buffer = planes[0].getBuffer();
-                    int pixelStride = planes[0].getPixelStride();
-                    int rowStride = planes[0].getRowStride();
-                    int rowPadding = rowStride - pixelStride * quirkyLandscapeWidth;
-                    int w = quirkyLandscapeWidth + rowPadding / pixelStride;
-
-                    // create destination Bitmap
-                    Bitmap dest = Bitmap.createBitmap(w, quirkyLandscapeHeight, Bitmap.Config.ARGB_8888);
-
-                    // copy landscape buffer to dest bitmap
-                    buffer.rewind();
-                    dest.copyPixelsFromBuffer(buffer);
-
-                    // get the portrait portion that's in the center of the landscape bitmap
-                    Bitmap croppedDest = Bitmap.createBitmap(dest, quirkyLandscapeWidth / 2 - scaledWidth / 2, 0, scaledWidth, scaledHeight);
-
-                    ByteBuffer croppedBuffer = ByteBuffer.allocateDirect(scaledWidth * scaledHeight * 4);
-                    croppedDest.copyPixelsToBuffer(croppedBuffer);
-
-                    // if needed, setup a new VNC framebuffer that matches the new buffer's dimensions
-                    if (scaledWidth != vncGetFramebufferWidth() || scaledHeight != vncGetFramebufferHeight())
-                        vncNewFramebuffer(scaledWidth, scaledHeight);
-
-                    vncUpdateFramebuffer(croppedBuffer);
-                } catch (Exception ignored) {
-                }
-            }, null);
-
-            try {
-                if(mVirtualDisplay == null) {
-                    mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
-                            quirkyLandscapeWidth, quirkyLandscapeHeight, metrics.densityDpi,
-                            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                            mImageReader.getSurface(), null, null);
-                } else {
-                    mVirtualDisplay.resize(quirkyLandscapeWidth, quirkyLandscapeHeight, metrics.densityDpi);
-                    mVirtualDisplay.setSurface(mImageReader.getSurface());
-                }
-            } catch (SecurityException e) {
-                Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
-                // This initiates a prompt dialog for the user to confirm screen projection.
-                Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
-                mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(mediaProjectionRequestIntent);
-            }
-
-            return;
-        }
-
-        /*
-            This is the default behaviour.
-         */
-        mImageReader = ImageReader.newInstance(scaledWidth, scaledHeight, PixelFormat.RGBA_8888, 2);
-        mImageReader.setOnImageAvailableListener(imageReader -> {
-            try (Image image = imageReader.acquireLatestImage()) {
-
-                if (image == null)
-                    return;
-
-                final Image.Plane[] planes = image.getPlanes();
-                final ByteBuffer buffer = planes[0].getBuffer();
-                int pixelStride = planes[0].getPixelStride();
-                int rowStride = planes[0].getRowStride();
-                int rowPadding = rowStride - pixelStride * scaledWidth;
-                int w = scaledWidth + rowPadding / pixelStride;
-
-                // if needed, setup a new VNC framebuffer that matches the image plane's parameters
-                if (w != vncGetFramebufferWidth() || scaledHeight != vncGetFramebufferHeight())
-                    vncNewFramebuffer(w, scaledHeight);
-
-                buffer.rewind();
-
-                vncUpdateFramebuffer(buffer);
-            } catch (Exception ignored) {
-            }
-        }, null);
-
-        try {
-            if(mVirtualDisplay == null) {
-                mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
-                        scaledWidth, scaledHeight, metrics.densityDpi,
-                        DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                        mImageReader.getSurface(), null, null);
-            } else {
-                mVirtualDisplay.resize(scaledWidth, scaledHeight, metrics.densityDpi);
-                mVirtualDisplay.setSurface(mImageReader.getSurface());
-            }
-        } catch (SecurityException e) {
-            Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
-            // This initiates a prompt dialog for the user to confirm screen projection.
-            Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
-            mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(mediaProjectionRequestIntent);
-        }
-
     }
 
     private void stopScreenCapture() {
-        try {
-            mVirtualDisplay.release();
-            mVirtualDisplay = null;
-        } catch (Exception e) {
-            //unused
-        }
-
-        if (mMediaProjection != null) {
-            mMediaProjection.stop();
-            mMediaProjection = null;
-        }
+        stopService(new Intent(this, MediaProjectionService.class));
     }
 
     /**
@@ -685,19 +510,6 @@ public class MainService extends Service {
         stopSelf();
     }
 
-    /**
-     * Get whether Media Projection was granted by the user.
-     * @return -1 if unknown, 0 if denied, 1 if granted
-     */
-    static int isMediaProjectionEnabled() {
-        if(instance == null)
-            return -1;
-        if(instance.mResultCode == 0 || instance.mResultData == null)
-            return 0;
-
-        return 1;
-    }
-
     static boolean isServerActive() {
         try {
             return instance.vncIsActive();
@@ -706,19 +518,6 @@ public class MainService extends Service {
         }
     }
 
-    static void togglePortraitInLandscapeWorkaround() {
-        try {
-            // set
-            instance.mHasPortraitInLandscapeWorkaroundSet = true;
-            instance.mHasPortraitInLandscapeWorkaroundApplied = !instance.mHasPortraitInLandscapeWorkaroundApplied;
-            // apply
-            instance.startScreenCapture();
-        }
-        catch (NullPointerException e) {
-            //unused
-        }
-
-    }
 
     /**
      * Get non-loopback IPv4 addresses.
@@ -815,7 +614,9 @@ public class MainService extends Service {
         if (Build.VERSION.SDK_INT >= 31) {
             builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
         }
-        return builder.build();
+
+        mNotification = builder.build();
+        return mNotification;
     }
 
     private void updateNotification() {
@@ -834,6 +635,14 @@ public class MainService extends Service {
                                             port,
                                             mNumberOfClients),
                                     false));
+        }
+    }
+
+    static Notification getCurrentNotification() {
+        try {
+            return instance.mNotification;
+        } catch (Exception ignored) {
+            return null;
         }
     }
 

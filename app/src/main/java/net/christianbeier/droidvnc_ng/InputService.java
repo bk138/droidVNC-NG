@@ -297,7 +297,7 @@ public class InputService extends AccessibilityService {
 		 	*/
 			if(inputContext.isKeyCtrlDown && inputContext.isKeyAltDown && inputContext.isKeyDelDown) {
 				Log.i(TAG, "onKeyEvent: got Ctrl-Alt-Del");
-				instance.mMainHandler.post(MainService::togglePortraitInLandscapeWorkaround);
+				instance.mMainHandler.post(MediaProjectionService::togglePortraitInLandscapeWorkaround);
 			}
 
 			/*
