@@ -330,7 +330,7 @@ public class MainService extends Service {
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle input result");
             // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission or notification permission
-            InputService.isEnabled = intent.getBooleanExtra(EXTRA_INPUT_RESULT, false);
+            InputService.isInputEnabled = intent.getBooleanExtra(EXTRA_INPUT_RESULT, false);
             if(Build.VERSION.SDK_INT < 33) {
                 Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
                 writeStorageRequestIntent.putExtra(

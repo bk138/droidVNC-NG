@@ -103,7 +103,7 @@ public class InputService extends AccessibilityService {
         * the given factor.
         */
 	static float scaling;
-	static boolean isEnabled;
+	static boolean isInputEnabled;
 
 	private Handler mMainHandler;
 
@@ -121,7 +121,7 @@ public class InputService extends AccessibilityService {
 	{
 		super.onServiceConnected();
 		instance = this;
-		isEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !new Defaults(this).getViewOnly());
+		isInputEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !new Defaults(this).getViewOnly());
 		scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
 		mMainHandler = new Handler(instance.getMainLooper());
 		Log.i(TAG, "onServiceConnected");
@@ -179,7 +179,7 @@ public class InputService extends AccessibilityService {
 	@SuppressWarnings("unused")
 	public static void onPointerEvent(int buttonMask, int x, int y, long client) {
 
-		if(!isEnabled) {
+		if(!isInputEnabled) {
 			return;
 		}
 
@@ -258,7 +258,7 @@ public class InputService extends AccessibilityService {
 
 	public static void onKeyEvent(int down, long keysym, long client) {
 
-		if(!isEnabled) {
+		if(!isInputEnabled) {
 			return;
 		}
 
@@ -340,7 +340,7 @@ public class InputService extends AccessibilityService {
 
 	public static void onCutText(String text, long client) {
 
-		if(!isEnabled) {
+		if(!isInputEnabled) {
 			return;
 		}
 
