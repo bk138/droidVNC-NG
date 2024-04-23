@@ -327,15 +327,9 @@ public class MediaProjectionService extends Service {
 
     /**
      * Get whether Media Projection was granted by the user.
-     * @return -1 if unknown, 0 if denied, 1 if granted
      */
-    static int isMediaProjectionEnabled() {
-        if(instance == null)
-            return -1;
-        if(instance.mResultCode == 0 || instance.mResultData == null)
-            return 0;
-
-        return 1;
+    static boolean isMediaProjectionEnabled() {
+        return instance != null && instance.mResultCode != 0 && instance.mResultData != null;
     }
 
     static void togglePortraitInLandscapeWorkaround() {
