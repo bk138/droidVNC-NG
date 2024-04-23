@@ -160,6 +160,26 @@ public class MediaProjectionService extends Service {
             return;
         }
 
+        // Android 14 and newer require this callback
+        mMediaProjection.registerCallback(new MediaProjection.Callback() {
+                                              @Override
+                                              public void onStop() {
+                                                  Log.d(TAG, "callback: onStop");
+                                                  super.onStop();
+                                              }
+
+                                              @Override
+                                              public void onCapturedContentResize(int width, int height) {
+                                                  Log.d(TAG, "callback: onCapturedContentResize " + width + "x" + height);
+                                              }
+
+                                              @Override
+                                              public void onCapturedContentVisibilityChanged(boolean isVisible) {
+                                                  Log.d(TAG, "callback: onCapturedContentVisibilityChanged " + isVisible);
+                                              }
+                                          },
+                null);
+
         if (mImageReader != null)
             mImageReader.close();
 
