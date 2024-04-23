@@ -190,8 +190,8 @@ public class InputService extends AccessibilityService {
 				throw new IllegalStateException("Client " + client + " was not added or is already removed");
 			}
 
-			x /= scaling;
-			y /= scaling;
+			x = (int) (x / scaling);
+			y = (int) (y / scaling);
 
 			/*
 				draw pointer
