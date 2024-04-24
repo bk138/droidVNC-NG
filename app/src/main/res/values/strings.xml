@@ -57,4 +57,6 @@
     <string name="write_storage_msg_android_11">To be able to transfer files to and from your device, you need to enable file access for droidVNC-NG. Please note that saving files will only be possible in the \'Download\' and \'Documents\' directories. Do you want to enable file access now?</string>
     <string name="notification_title">Notifications disabled</string>
     <string name="notification_msg">To be able to show server status information and provide a means of navigating back to the admin panel more easily, it is recommended to enable notifications. Do you want to enable notifications now?</string>
+    <string name="mediaprojection_request_activity_fallback_screen_capture_title">Slow fallback screen capture mode detected</string>
+    <string name="mediaprojection_request_activity_fallback_screen_capture_msg">Do you want to upgrade to fast mode now?</string>
 </resources>

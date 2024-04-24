@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.media.projection.MediaProjectionManager;
@@ -36,18 +37,39 @@ public class MediaProjectionRequestActivity extends AppCompatActivity {
 
     private static final String TAG = "MPRequestActivity";
     private static final int REQUEST_MEDIA_PROJECTION = 42;
+    static final String EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE = "upgrading_from_fallback_screen_capture";
+    private boolean mIsUpgradingFromFallbackScreenCapture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mIsUpgradingFromFallbackScreenCapture = getIntent().getBooleanExtra(EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, false);
+
         MediaProjectionManager mMediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 
-        Log.i(TAG, "Requesting confirmation");
-        // This initiates a prompt dialog for the user to confirm screen projection.
-        startActivityForResult(
-                mMediaProjectionManager.createScreenCaptureIntent(),
-                REQUEST_MEDIA_PROJECTION);
+        if(!mIsUpgradingFromFallbackScreenCapture) {
+            // ask for MediaProjection right away
+            Log.i(TAG, "Requesting confirmation");
+            // This initiates a prompt dialog for the user to confirm screen projection.
+            startActivityForResult(
+                    mMediaProjectionManager.createScreenCaptureIntent(),
+                    REQUEST_MEDIA_PROJECTION);
+        } else {
+            // show user info dialog before asking
+            new AlertDialog.Builder(this)
+                    .setCancelable(false)
+                    .setTitle(R.string.mediaprojection_request_activity_fallback_screen_capture_title)
+                    .setMessage(R.string.mediaprojection_request_activity_fallback_screen_capture_msg)
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
+                        // This initiates a prompt dialog for the user to confirm screen projection.
+                        startActivityForResult(
+                                mMediaProjectionManager.createScreenCaptureIntent(),
+                                REQUEST_MEDIA_PROJECTION);
+                    })
+                    .setNegativeButton(getString(R.string.no), (dialog, which) -> finish())
+                    .show();
+        }
     }
 
     @Override
@@ -65,6 +87,7 @@ public class MediaProjectionRequestActivity extends AppCompatActivity {
             intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(this).getAccessKey()));
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_CODE, resultCode);
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_DATA, data);
+            intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, mIsUpgradingFromFallbackScreenCapture);
             startService(intent);
             finish();
         }

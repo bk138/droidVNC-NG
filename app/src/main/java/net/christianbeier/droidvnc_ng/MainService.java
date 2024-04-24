@@ -81,6 +81,7 @@ public class MainService extends Service {
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
     final static String EXTRA_MEDIA_PROJECTION_RESULT_CODE = "result_code_media_projection";
+    final static String EXTRA_MEDIA_PROJECTION_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE = "upgrading_from_fallback_screen_capture";
 
     final static String ACTION_HANDLE_INPUT_RESULT = "action_handle_a11y_result";
     final static String EXTRA_INPUT_RESULT = "result_a11y";
@@ -245,41 +246,48 @@ public class MainService extends Service {
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
-            DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
-            int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
-            // get device name
-            String name;
-            try {
-                // This is what we had until targetSDK 33.
-                name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
-            } catch (SecurityException ignored) {
-                // throws on devices with API level 33, so use fallback
-                if (Build.VERSION.SDK_INT > 25) {
-                    name = Settings.Global.getString(getContentResolver(), Settings.Global.DEVICE_NAME);
-                } else {
-                    name = getString(R.string.app_name);
-                }
-            }
 
-            boolean status = vncStartServer(displayMetrics.widthPixels,
-                    displayMetrics.heightPixels,
-                    port,
-                    name,
-                    PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
-            Intent answer = new Intent(ACTION_START);
-            answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
-            answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
-            sendBroadcast(answer);
-
-            if(status) {
+            if(intent.getBooleanExtra(EXTRA_MEDIA_PROJECTION_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, false)) {
+                // just restart screen capture
+                stopScreenCapture();
                 startScreenCapture();
-                registerNSD(name, port);
-                updateNotification();
-                // if we got here, we want to restart if we were killed
-                return START_REDELIVER_INTENT;
             } else {
-                stopSelfByUs();
-                return START_NOT_STICKY;
+                DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
+                int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
+                // get device name
+                String name;
+                try {
+                    // This is what we had until targetSDK 33.
+                    name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
+                } catch (SecurityException ignored) {
+                    // throws on devices with API level 33, so use fallback
+                    if (Build.VERSION.SDK_INT > 25) {
+                        name = Settings.Global.getString(getContentResolver(), Settings.Global.DEVICE_NAME);
+                    } else {
+                        name = getString(R.string.app_name);
+                    }
+                }
+
+                boolean status = vncStartServer(displayMetrics.widthPixels,
+                        displayMetrics.heightPixels,
+                        port,
+                        name,
+                        PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
+                Intent answer = new Intent(ACTION_START);
+                answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
+                answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+                sendBroadcast(answer);
+
+                if (status) {
+                    startScreenCapture();
+                    registerNSD(name, port);
+                    updateNotification();
+                    // if we got here, we want to restart if we were killed
+                    return START_REDELIVER_INTENT;
+                } else {
+                    stopSelfByUs();
+                    return START_NOT_STICKY;
+                }
             }
         }
 
@@ -472,6 +480,13 @@ public class MainService extends Service {
             instance.mNumberOfClients++;
             instance.updateNotification();
             InputService.addClient(client, PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(PREFS_KEY_SERVER_LAST_SHOW_POINTERS, new Defaults(instance).getShowPointers()));
+            if(!MediaProjectionService.isMediaProjectionEnabled() && InputService.isTakingScreenShots()) {
+                Log.d(TAG, "onClientConnected: in fallback screen capture mode, asking for upgrade");
+                Intent mediaProjectionRequestIntent = new Intent(instance, MediaProjectionRequestActivity.class);
+                mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, true);
+                instance.startActivity(mediaProjectionRequestIntent);
+            }
         } catch (Exception e) {
             // instance probably null
             Log.e(TAG, "onClientConnected: error: " + e);
