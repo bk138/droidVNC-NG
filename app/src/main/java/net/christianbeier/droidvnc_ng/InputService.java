@@ -19,6 +19,7 @@ import android.accessibilityservice.GestureDescription;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -29,9 +30,13 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.ViewConfiguration;
 import android.graphics.Path;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.preference.PreferenceManager;
 
+import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InputService extends AccessibilityService {
@@ -104,6 +109,8 @@ public class InputService extends AccessibilityService {
         */
 	static float scaling;
 	static boolean isInputEnabled;
+	private boolean mTakeScreenShots;
+	private int mTakeScreenShotDelayMs = 100;
 
 	private Handler mMainHandler;
 
@@ -359,6 +366,92 @@ public class InputService extends AccessibilityService {
 		} catch (Exception e) {
 			// instance probably null
 			Log.e(TAG, "onCutText: failed: " + e);
+		}
+	}
+
+	@RequiresApi(api = Build.VERSION_CODES.R)
+	public static void takeScreenShots(boolean enable) {
+		try {
+			instance.mTakeScreenShots = enable;
+			if (instance.mTakeScreenShots) {
+				TakeScreenshotCallback callback = new TakeScreenshotCallback() {
+					@Override
+					public void onSuccess(@NonNull ScreenshotResult screenshot) {
+						try {
+							// create hardware bitmap from HardwareBuffer
+							Bitmap bitmap = Bitmap.wrapHardwareBuffer(screenshot.getHardwareBuffer(), screenshot.getColorSpace());
+							// create software bitmap from hardware bitmap to be able to use copyPixelsToBuffer()
+							bitmap = Objects.requireNonNull(bitmap).copy(Bitmap.Config.ARGB_8888, false);
+							// apply scaling. fast NOP when scaling == 1.0
+							bitmap = Bitmap.createScaledBitmap(bitmap,
+									(int) (bitmap.getWidth() * scaling),
+									(int) (bitmap.getHeight() * scaling),
+									true); // use filter as this makes text more readable, we're slow in this mode anyway
+
+							ByteBuffer byteBuffer = ByteBuffer.allocateDirect(Objects.requireNonNull(bitmap).getByteCount());
+							bitmap.copyPixelsToBuffer(byteBuffer);
+
+							// if needed, setup a new VNC framebuffer that matches the new buffer's dimensions
+							if (bitmap.getWidth() != MainService.vncGetFramebufferWidth() || bitmap.getHeight() != MainService.vncGetFramebufferHeight())
+								MainService.vncNewFramebuffer(bitmap.getWidth(), bitmap.getHeight());
+
+							MainService.vncUpdateFramebuffer(byteBuffer);
+
+							// important, otherwise getting "A resource failed to call close." warnings from System
+							screenshot.getHardwareBuffer().close();
+
+							// further screenshots
+							if (instance.mTakeScreenShots) {
+								// try again later, using but not incrementing delay
+								instance.mMainHandler.postDelayed(() -> instance.takeScreenshot(Display.DEFAULT_DISPLAY,
+										instance.getMainExecutor(),
+										this
+								), instance.mTakeScreenShotDelayMs);
+							} else {
+								Log.d(TAG, "takeScreenShots: stop");
+							}
+						} catch (Exception e) {
+							Log.e(TAG, "takeScreenShots: onSuccess exception " + e);
+						}
+					}
+
+					@Override
+					public void onFailure(int errorCode) {
+						try {
+							if (errorCode == AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT && instance.mTakeScreenShots) {
+								// try again later, incrementing delay
+								instance.mMainHandler.postDelayed(() -> instance.takeScreenshot(Display.DEFAULT_DISPLAY,
+										instance.getMainExecutor(),
+										this
+								), instance.mTakeScreenShotDelayMs += 50);
+								Log.w(TAG, "takeScreenShots: onFailure with ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT - upped delay to " + instance.mTakeScreenShotDelayMs);
+								return;
+							}
+							Log.e(TAG, "takeScreenShots: onFailure with error code " + errorCode);
+							instance.mTakeScreenShots = false;
+						} catch (Exception e) {
+							Log.e(TAG, "takeScreenShots: onFailure exception " + e);
+						}
+					}
+				};
+
+				// first screenshot
+				Log.d(TAG, "takeScreenShots: start");
+				instance.takeScreenshot(Display.DEFAULT_DISPLAY,
+						instance.getMainExecutor(),
+						callback
+				);
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "takeScreenShots: exception " + e);
+		}
+	}
+
+	public static boolean isTakingScreenShots() {
+		try {
+			return instance.mTakeScreenShots;
+		} catch (Exception ignored) {
+			return false;
 		}
 	}
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowsChanged"
+    android:accessibilityFlags="flagDefault"
+    android:notificationTimeout="50"
+	android:description="@string/input_a11y_service_description"
+	android:canPerformGestures="true"
+	android:canTakeScreenshot="true"
+    />
