@@ -119,6 +119,8 @@ the following Actions and associated Extras set:
   * `net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY`:  Optional Boolean Extra toggling view-only mode.
   * `net.christianbeier.droidvnc_ng.EXTRA_SHOW_POINTERS`:  Optional Boolean Extra toggling per-client mouse pointers.
   * `net.christianbeier.droidvnc_ng.EXTRA_FILE_TRANSFER`: Optional Boolean Extra toggling the file transfer feature.
+  * `net.christianbeier.droidvnc_ng.EXTRA_FALLBACK_SCREEN_CAPTURE`: Optional Boolean Extra indicating whether to start with fallback screen capture that does not need a
+     user interaction to start but is slow and needs view-only to be off. Only applicable to Android 10 and newer.
 
 * `net.christianbeier.droidvnc_ng.ACTION_CONNECT_REVERSE`: Make an outbound connection to a listening viewer.
   * `net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY`: Required String Extra containing the remote control interface's access key. You can get/set this from the Admin Panel.
@@ -218,7 +220,9 @@ You can:
 the permission to access the screen contents has to be given on each start and is not saved. You can,
 however, work around this by installing [adb](https://developer.android.com/studio/command-line/adb)
 (or simply Android Studio) on a PC, connecting the device running droidVNC-NG to that PC and running
-`adb shell cmd appops set net.christianbeier.droidvnc_ng PROJECT_MEDIA allow` once.
+`adb shell cmd appops set net.christianbeier.droidvnc_ng PROJECT_MEDIA allow` once. Alternatively, if
+using the intent interface, you can also start with `net.christianbeier.droidvnc_ng.EXTRA_FALLBACK_SCREEN_CAPTURE`
+set to true.
 
 * You can also use adb to manually give input permission prior to app start via `adb shell settings put secure enabled_accessibility_services net.christianbeier.droidvnc_ng/.InputService:$(adb shell settings get secure enabled_accessibility_services)`.
 

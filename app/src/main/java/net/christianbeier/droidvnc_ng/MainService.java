@@ -73,6 +73,10 @@ public class MainService extends Service {
      * Only used on Android 12 and earlier.
      */
     public static final String EXTRA_FILE_TRANSFER = "net.christianbeier.droidvnc_ng.EXTRA_FILE_TRANSFER";
+    /**
+     * Only used on Android 10 and later.
+     */
+    public static final String EXTRA_FALLBACK_SCREEN_CAPTURE = "net.christianbeier.droidvnc_ng.EXTRA_FALLBACK_SCREEN_CAPTURE";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
@@ -90,6 +94,7 @@ public class MainService extends Service {
     private static final String PREFS_KEY_SERVER_LAST_PASSWORD = "server_last_password" ;
     private static final String PREFS_KEY_SERVER_LAST_FILE_TRANSFER = "server_last_file_transfer" ;
     private static final String PREFS_KEY_SERVER_LAST_SHOW_POINTERS = "server_last_show_pointers" ;
+    private static final String PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE = "server_last_fallback_screen_capture" ;
     private static final String PREFS_KEY_SERVER_LAST_START_REQUEST_ID = "server_last_start_request_id" ;
 
     private int mResultCode;
@@ -290,7 +295,8 @@ public class MainService extends Service {
                 // or ask for capturing permission first (then going in step 4)
             }
 
-            if (mResultCode != 0 && mResultData != null) {
+            if (mResultCode != 0 && mResultData != null
+                    || PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE, false)) {
                 DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
                 int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
                 String name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
@@ -372,6 +378,10 @@ public class MainService extends Service {
             ed.putBoolean(PREFS_KEY_SERVER_LAST_SHOW_POINTERS,
                     !intent.getBooleanExtra(EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()))
                             && intent.getBooleanExtra(EXTRA_SHOW_POINTERS, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_SHOW_POINTERS, mDefaults.getShowPointers())));
+            // using fallback screen capture depends on view-only being false
+            ed.putBoolean(PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE,
+                    !intent.getBooleanExtra(EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()))
+                            && intent.getBooleanExtra(EXTRA_FALLBACK_SCREEN_CAPTURE, false));
             ed.apply();
             // also set new value for InputService
             InputService.scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
