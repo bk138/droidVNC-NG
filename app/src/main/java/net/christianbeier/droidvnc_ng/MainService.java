@@ -487,19 +487,33 @@ public class MainService extends Service {
     }
 
     private void startScreenCapture() {
-        Intent intent = new Intent(this, MediaProjectionService.class);
-        intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_CODE, mResultCode);
-        intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_DATA, mResultData);
+        if (mResultCode != 0 && mResultData != null) {
+            Log.d(TAG, "startScreenCapture: using MediaProjection backend");
+            Intent intent = new Intent(this, MediaProjectionService.class);
+            intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_CODE, mResultCode);
+            intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_DATA, mResultData);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            } else {
+                startService(intent);
+            }
         } else {
-            startService(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Log.d(TAG, "startScreenCapture: trying takeScreenShot backend");
+                InputService.takeScreenShots(true);
+            } else {
+                Log.w(TAG, "startScreenCapture: no backend available");
+            }
         }
     }
 
     private void stopScreenCapture() {
+        // stop all backends unconditionally
         stopService(new Intent(this, MediaProjectionService.class));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            InputService.takeScreenShots(false);
+        }
     }
 
     /**
