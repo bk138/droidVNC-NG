@@ -328,7 +328,7 @@
                     android:layout_height="wrap_content"
                     android:layout_column="2"
                     android:padding="10dp"
-                    android:text="@string/main_activity_unknown"
+                    android:text="@string/main_activity_fallback"
                     android:textAllCaps="true"
                     android:id="@+id/permission_status_screen_capturing"/>
             </TableRow>
@@ -356,7 +356,7 @@
                     android:layout_height="wrap_content"
                     android:layout_column="2"
                     android:padding="10dp"
-                    android:text="@string/main_activity_unknown"
+                    android:text="@string/main_activity_fallback"
                     android:textAllCaps="true"
                     android:id="@+id/permission_status_input"/>
 
@@ -386,7 +386,7 @@
                     android:layout_height="wrap_content"
                     android:layout_column="2"
                     android:padding="10dp"
-                    android:text="@string/main_activity_unknown"
+                    android:text="@string/main_activity_fallback"
                     android:textAllCaps="true"
                     android:id="@+id/permission_status_file_access"/>
 
@@ -416,7 +416,7 @@
                     android:layout_height="wrap_content"
                     android:layout_column="2"
                     android:padding="10dp"
-                    android:text="@string/main_activity_unknown"
+                    android:text="@string/main_activity_fallback"
                     android:textAllCaps="true"
                     android:id="@+id/permission_status_notification"/>
 

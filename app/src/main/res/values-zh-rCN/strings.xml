@@ -14,7 +14,7 @@
     <string name="main_activity_permissions_dashboard">权限仪表盘</string>
     <string name="main_activity_colon">：</string>
     <string name="main_activity_screen_capturing">截屏</string>
-    <string name="main_activity_unknown">未知</string>
+    <string name="main_activity_fallback">倒退</string>
     <string name="main_activity_granted">已授权</string>
     <string name="main_activity_denied">已禁止</string>
     <string name="main_activity_file_access">文件访问权限</string>

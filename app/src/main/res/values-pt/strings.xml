@@ -14,7 +14,7 @@
     <string name="main_activity_permissions_dashboard">Painel de Permissões</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Captura de tela</string>
-    <string name="main_activity_unknown">desconhecido</string>
+    <string name="main_activity_fallback">recuo</string>
     <string name="main_activity_granted">garantido</string>
     <string name="main_activity_denied">negado</string>
     <string name="main_activity_file_access">Acesso a arquivos</string>

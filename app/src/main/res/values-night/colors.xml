@@ -5,4 +5,5 @@
     <color name="colorAccent">#6ddacf</color>
     <color name="granted">@android:color/holo_green_light</color>
     <color name="denied">@android:color/holo_red_light</color>
+    <color name="fallback">@android:color/holo_orange_light</color>
 </resources>
