@@ -10,7 +10,7 @@ package net.christianbeier.droidvnc_ng;
  *
  * Licensed under GPL-2.0 as per https://github.com/anyvnc/anyvnc/blob/master/COPYING.
  *
- * Swipe fixes and gesture handling by Christian Beier <info@christianbeier.net>.
+ * Swipe fixes, gesture handling, cursor handling and screen-shooter by Christian Beier <info@christianbeier.net>.
  *
  */
 
