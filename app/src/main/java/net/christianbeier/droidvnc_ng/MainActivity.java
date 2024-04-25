@@ -690,6 +690,23 @@ public class MainActivity extends AppCompatActivity {
             screenCapturingStatus.setTextColor(getColor(R.color.fallback));
         }
 
+        /*
+            Update start-on-boot permission display. Only show on >= Android 10.
+         */
+        if (Build.VERSION.SDK_INT >= 30) {
+            TextView startOnBootStatus = findViewById(R.id.permission_status_start_on_boot);
+            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot())
+                    && InputService.isConnected()) {
+                startOnBootStatus.setText(R.string.main_activity_granted);
+                startOnBootStatus.setTextColor(getColor(R.color.granted));
+            } else {
+                startOnBootStatus.setText(R.string.main_activity_denied);
+                startOnBootStatus.setTextColor(getColor(R.color.denied));
+            }
+        } else {
+            findViewById(R.id.permission_row_start_on_boot).setVisibility(View.GONE);
+        }
+
     }
 
     @Override

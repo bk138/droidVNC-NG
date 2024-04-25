@@ -21,6 +21,7 @@
     <string name="main_activity_file_access">File Access</string>
     <string name="main_activity_notifications">Notifications</string>
     <string name="main_activity_input">Input</string>
+    <string name="main_activity_start_on_boot">Start on Boot</string>
     <string name="main_activity_address">The server is now reachable at</string>
     <string name="main_activity_not_listening">The server is not listening for incoming connections.</string>
     <string name="main_activity_outbound_text">You can make outbound connections:</string>
