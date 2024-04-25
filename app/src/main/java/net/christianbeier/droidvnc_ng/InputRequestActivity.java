@@ -24,6 +24,7 @@ package net.christianbeier.droidvnc_ng;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -50,7 +51,7 @@ public class InputRequestActivity extends AppCompatActivity {
         /*
             Get whether input and/or start-on-boot are requested; directly or from prefs as fallback.
          */
-        boolean startOnBootRequested = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT,  new Defaults(this).getStartOnBoot());
+        boolean startOnBootRequested = Build.VERSION.SDK_INT >= 30 && PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT,  new Defaults(this).getStartOnBoot());
         boolean inputRequested = getIntent().hasExtra(MainService.EXTRA_VIEW_ONLY)
                 ? !getIntent().getBooleanExtra(MainService.EXTRA_VIEW_ONLY, new Defaults(this).getViewOnly())
                 : !PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY,  new Defaults(this).getViewOnly());
