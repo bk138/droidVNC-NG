@@ -394,7 +394,7 @@ public class MainService extends Service {
             // also set new value for InputService
             InputService.scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
 
-            // Step 1: check input permission
+            // Step 1: check input/start-on-boot permission
             Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
             inputRequestIntent.putExtra(EXTRA_VIEW_ONLY, intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
             inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
