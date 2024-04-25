@@ -50,7 +50,9 @@
     <string name="or">ou</string>
     <string name="input_a11y_service_description">Isso permite que o droidVNC-NG poste eventos de entrada no sistema operacional Android, permitindo assim o controle remoto de um visualizador VNC conectado. Todas as entradas inseridas são postadas diretamente no Android, nenhuma entrada é registrada, salva ou compartilhada.</string>
     <string name="input_a11y_title">Acessibilidade desativada</string>
-    <string name="input_a11y_msg">Para poder controlar remotamente seu dispositivo, você precisa habilitar a acessibilidade para droidVNC-NG. Deseja ativar a acessibilidade agora?</string>
+    <string name="input_a11y_msg_input">Para poder controlar remotamente seu dispositivo, você precisa habilitar a acessibilidade para droidVNC-NG. Deseja ativar a acessibilidade agora?</string>
+    <string name="input_a11y_msg_boot">Para ativar o início no arranque do droidVNC-NG, você precisa ativar a acessibilidade para ele. Deseja ativar a acessibilidade agora?</string>
+    <string name="input_a11y_msg_input_and_boot">Para poder controlar remotamente o seu dispositivo e ativar a inicialização do droidVNC-NG, você precisa ativar a acessibilidade para ele. Deseja ativar a acessibilidade agora?</string>
     <string name="input_a11y_act_not_found_msg">Não foi possível encontrar a atividade das definições de acessibilidade predefinidas. Por favor, active manualmente o droidVNC-NG nas definições de acessibilidade do sistema.</string>
     <string name="write_storage_title">Acesso a arquivos desativado</string>
     <string name="write_storage_msg">Para poder transferir arquivos de e para o seu dispositivo, você precisa habilitar o acesso a arquivos para o droidVNC-NG. Deseja habilitar o acesso ao arquivo agora?</string>

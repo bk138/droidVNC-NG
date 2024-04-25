@@ -50,7 +50,9 @@
     <string name="or">或</string>
     <string name="input_a11y_service_description">这使得droidVNC-NG可以将输入事件发布到Android操作系统，从而可以从连接的VNC查看器进行远程控制。所有录入的输入都直接发布到Android，没有任何输入被记录、保存或共享。</string>
     <string name="input_a11y_title">无障碍已禁用</string>
-    <string name="input_a11y_msg">为了能够远程控制设备，需要启用droidVNC-NG的可访问性。现在是否想启用可访问性?</string>
+    <string name="input_a11y_msg_input">为了能够远程控制设备，需要启用droidVNC-NG的可访问性。现在是否想启用可访问性?</string>
+    <string name="input_a11y_msg_boot">要启用 droidVNC-NG 的启动启动功能，您需要启用它的可访问性。 您想立即启用辅助功能吗？</string>
+    <string name="input_a11y_msg_input_and_boot">为了能够远程控制您的设备并启用 droidVNC-NG 的启动启动功能，您需要启用它的可访问性。 您想立即启用辅助功能吗？</string>
     <string name="input_a11y_act_not_found_msg">找不到默认的辅助功能设置活动。请在系统辅助功能设置中手动启用 droidVNC-NG。</string>
     <string name="write_storage_title">文件访问已禁用</string>
     <string name="write_storage_msg">为了能够在设备之间传输文件，需要为droidVNC-NG启用文件访问。现在是否要启用文件访问?</string>

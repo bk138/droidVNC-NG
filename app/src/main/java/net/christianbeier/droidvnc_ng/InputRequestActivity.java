@@ -35,23 +35,57 @@ public class InputRequestActivity extends AppCompatActivity {
 
     private static final String TAG = "InputRequestActivity";
     private static final int REQUEST_INPUT = 43;
+    static final String EXTRA_DO_NOT_START_MAIN_SERVICE_ON_FINISH = "do_not_start_main_service_on_finish";
+    private boolean mDoNotStartMainServiceOnFinish;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // if VIEW_ONLY is set, bail out early without bothering the user
-        if(getIntent().getBooleanExtra(MainService.EXTRA_VIEW_ONLY, new Defaults(this).getViewOnly())) {
+        if(getIntent().getBooleanExtra(EXTRA_DO_NOT_START_MAIN_SERVICE_ON_FINISH, false)) {
+            mDoNotStartMainServiceOnFinish = true;
+        }
+
+        /*
+            Get whether input and/or start-on-boot are requested; directly or from prefs as fallback.
+         */
+        boolean startOnBootRequested = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT,  new Defaults(this).getStartOnBoot());
+        boolean inputRequested = getIntent().hasExtra(MainService.EXTRA_VIEW_ONLY)
+                ? !getIntent().getBooleanExtra(MainService.EXTRA_VIEW_ONLY, new Defaults(this).getViewOnly())
+                : !PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY,  new Defaults(this).getViewOnly());
+
+        Log.d(TAG, "onCreate: input requested: " + inputRequested + " start on boot requested: " + startOnBootRequested);
+
+
+        /*
+            If neither input nor start-on-boot are requested, bail out early without bothering the user.
+         */
+        if(!inputRequested && !startOnBootRequested) {
             postResultAndFinish(false);
             return;
+        }
+
+        /*
+            Then, decide on message to be shown.
+         */
+        int msg;
+        if (inputRequested && startOnBootRequested) {
+            // input and boot requested
+            msg = R.string.input_a11y_msg_input_and_boot;
+        } else if (inputRequested) {
+            // input requested
+            msg = R.string.input_a11y_msg_input;
+        } else {
+            // boot requested
+            msg = R.string.input_a11y_msg_boot;
         }
 
         if(!InputService.isConnected()) {
             new AlertDialog.Builder(this)
                     .setCancelable(false)
                     .setTitle(R.string.input_a11y_title)
-                    .setMessage(R.string.input_a11y_msg)
+                    .setMessage(msg)
                     .setPositiveButton(R.string.yes, (dialog, which) -> {
                         Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 
@@ -104,11 +138,13 @@ public class InputRequestActivity extends AppCompatActivity {
         else
             Log.i(TAG, "a11y disabled");
 
-        Intent intent = new Intent(this, MainService.class);
-        intent.setAction(MainService.ACTION_HANDLE_INPUT_RESULT);
-        intent.putExtra(MainService.EXTRA_INPUT_RESULT, isA11yEnabled);
-        intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(this).getAccessKey()));
-        startService(intent);
+        if(!mDoNotStartMainServiceOnFinish) {
+            Intent intent = new Intent(this, MainService.class);
+            intent.setAction(MainService.ACTION_HANDLE_INPUT_RESULT);
+            intent.putExtra(MainService.EXTRA_INPUT_RESULT, isA11yEnabled);
+            intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(this).getAccessKey()));
+            startService(intent);
+        }
         finish();
     }
 
