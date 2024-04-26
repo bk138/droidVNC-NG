@@ -37,7 +37,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import androidx.preference.PreferenceManager;
-import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -255,18 +254,7 @@ public class MainService extends Service {
                 DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
                 int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
                 // get device name
-                String name;
-                try {
-                    // This is what we had until targetSDK 33.
-                    name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
-                } catch (SecurityException ignored) {
-                    // throws on devices with API level 33, so use fallback
-                    if (Build.VERSION.SDK_INT > 25) {
-                        name = Settings.Global.getString(getContentResolver(), Settings.Global.DEVICE_NAME);
-                    } else {
-                        name = getString(R.string.app_name);
-                    }
-                }
+                String name = Utils.getDeviceName(this);
 
                 boolean status = vncStartServer(displayMetrics.widthPixels,
                         displayMetrics.heightPixels,
@@ -307,7 +295,7 @@ public class MainService extends Service {
                     || (Build.VERSION.SDK_INT >= 30 && PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE, false))) {
                 DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
                 int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
-                String name = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
+                String name = Utils.getDeviceName(this);
                 boolean status = vncStartServer(displayMetrics.widthPixels,
                         displayMetrics.heightPixels,
                         port,
