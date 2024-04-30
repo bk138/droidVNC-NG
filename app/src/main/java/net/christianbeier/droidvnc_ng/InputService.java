@@ -403,10 +403,17 @@ public class InputService extends AccessibilityService {
 							// further screenshots
 							if (instance.mTakeScreenShots) {
 								// try again later, using but not incrementing delay
-								instance.mMainHandler.postDelayed(() -> instance.takeScreenshot(Display.DEFAULT_DISPLAY,
-										instance.getMainExecutor(),
-										this
-								), instance.mTakeScreenShotDelayMs);
+								instance.mMainHandler.postDelayed(() ->
+										{
+											try {
+												instance.takeScreenshot(Display.DEFAULT_DISPLAY,
+														instance.getMainExecutor(),
+														this);
+											} catch (Exception ignored) {
+												// instance might be gone
+											}
+										},
+										instance.mTakeScreenShotDelayMs);
 							} else {
 								Log.d(TAG, "takeScreenShots: stop");
 							}
