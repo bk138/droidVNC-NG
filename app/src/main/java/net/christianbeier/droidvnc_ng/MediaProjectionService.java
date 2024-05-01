@@ -92,10 +92,14 @@ public class MediaProjectionService extends Service {
             /*
                 startForeground() w/ notification; bit hacky re-using MainService's ;-)
              */
-            if (Build.VERSION.SDK_INT >= 29) {
-                startForeground(MainService.NOTIFICATION_ID, Objects.requireNonNull(MainService.getCurrentNotification()), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION);
-            } else {
-                startForeground(MainService.NOTIFICATION_ID, MainService.getCurrentNotification());
+            try {
+                if (Build.VERSION.SDK_INT >= 29) {
+                    startForeground(MainService.NOTIFICATION_ID, Objects.requireNonNull(MainService.getCurrentNotification()), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION);
+                } else {
+                    startForeground(MainService.NOTIFICATION_ID, MainService.getCurrentNotification());
+                }
+            } catch (NullPointerException ignored) {
+                Log.e(TAG, "Not starting because MainService quit");
             }
         }
 
