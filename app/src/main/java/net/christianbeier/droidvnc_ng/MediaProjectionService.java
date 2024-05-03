@@ -94,11 +94,13 @@ public class MediaProjectionService extends Service {
              */
             try {
                 if (Build.VERSION.SDK_INT >= 29) {
+                    // throws NullPointerException if no notification
                     startForeground(MainService.NOTIFICATION_ID, Objects.requireNonNull(MainService.getCurrentNotification()), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION);
                 } else {
+                    // throws IllegalArgumentException if no notification
                     startForeground(MainService.NOTIFICATION_ID, MainService.getCurrentNotification());
                 }
-            } catch (NullPointerException ignored) {
+            } catch (Exception ignored) {
                 Log.e(TAG, "Not starting because MainService quit");
             }
         }
