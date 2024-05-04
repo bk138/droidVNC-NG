@@ -9,7 +9,6 @@ import android.graphics.Path
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.Build
-import android.util.DisplayMetrics
 import android.view.Display
 import android.view.Gravity
 import android.view.View
@@ -24,7 +23,7 @@ import java.lang.IllegalArgumentException
 @SuppressLint("ViewConstructor")
 class InputPointerView(
     context: Context,
-    private val displayId: Int,
+    displayId: Int,
     val red: Float,
     val green: Float,
     val blue: Float
@@ -61,9 +60,7 @@ class InputPointerView(
         val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
 
         // get density for later drawing in size adapted to display
-        val metrics = DisplayMetrics()
-        displayManager.getDisplay(displayId).getRealMetrics(metrics)
-        density = metrics.density
+        density = Utils.getDisplayMetrics(context, displayId).density
 
         windowManager = if (displayId != Display.DEFAULT_DISPLAY) {
             if (Build.VERSION.SDK_INT < 32) {
