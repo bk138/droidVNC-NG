@@ -24,6 +24,7 @@ package net.christianbeier.droidvnc_ng
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import android.view.Display
 import androidx.preference.PreferenceManager
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -52,7 +53,7 @@ class Defaults {
         private set
 
     @EncodeDefault
-    var scaling = 1.0f
+    var scaling = 0.0f
         private set
 
     @EncodeDefault
@@ -104,6 +105,11 @@ class Defaults {
         this.accessKey = prefs.getString(PREFS_KEY_DEFAULTS_ACCESS_KEY, null)!!
 
         /*
+            Set default scaling according to device display density
+         */
+        this.scaling = 1.0f / Utils.getDisplayMetrics(context, Display.DEFAULT_DISPLAY).density.coerceAtLeast(1.0f)
+
+        /*
             read provided defaults
          */
         val jsonFile = File(context.getExternalFilesDir(null), "defaults.json")
@@ -114,7 +120,9 @@ class Defaults {
             this.portReverse = readDefault.portReverse
             this.portRepeater = readDefault.portRepeater
             this.fileTransfer = readDefault.fileTransfer
-            this.scaling = readDefault.scaling
+            // only set new scaling if there is one given; i.e. don't overwrite generated default
+            if(readDefault.scaling > 0)
+                this.scaling = readDefault.scaling
             this.viewOnly = readDefault.viewOnly
             this.showPointers = readDefault.showPointers
             this.password = readDefault.password
