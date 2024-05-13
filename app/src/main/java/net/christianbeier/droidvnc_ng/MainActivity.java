@@ -463,7 +463,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Slider scaling = findViewById(R.id.settings_scaling);
-        scaling.setValue(prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling())*100);
+        scaling.setValue(
+                prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING,
+                        (float) Math.ceil(mDefaults.getScaling() * 100 / scaling.getStepSize()) * scaling.getStepSize() / 100)
+                        * 100);
         scaling.setLabelFormatter(value -> Math.round(value) + " %");
         scaling.addOnChangeListener((slider, value, fromUser) -> {
             SharedPreferences.Editor ed = prefs.edit();
