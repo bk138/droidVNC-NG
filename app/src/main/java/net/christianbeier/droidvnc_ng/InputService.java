@@ -21,6 +21,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -29,6 +30,7 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.ViewConfiguration;
 import android.graphics.Path;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -115,10 +117,39 @@ public class InputService extends AccessibilityService {
 	private Handler mMainHandler;
 
 	private final Map<Long, InputContext> mInputContexts = new ConcurrentHashMap<>();
+	/**
+	 * System keyboard input foci, display-specific starting on Android 10, see <a href="https://source.android.com/docs/core/display/multi_display/displays#focus">Android docs</a>
+	 */
+	private final Map<Integer, AccessibilityNodeInfo> mKeyboardFocusNodes = new ConcurrentHashMap<>();
 
 
 	@Override
-	public void onAccessibilityEvent( AccessibilityEvent event ) { }
+	public void onAccessibilityEvent(AccessibilityEvent event) {
+		try {
+			Log.d(TAG, "onAccessibilityEvent: " + event);
+
+			int displayId;
+			if (Build.VERSION.SDK_INT >= 30) {
+				// be display-specific
+				displayId = Objects.requireNonNull(event.getSource()).getWindow().getDisplayId();
+			} else {
+				// assume default display
+				displayId = Display.DEFAULT_DISPLAY;
+			}
+
+			// recycle old node if there
+			AccessibilityNodeInfo previousFocusNode = mKeyboardFocusNodes.get(displayId);
+			if (previousFocusNode != null) {
+				previousFocusNode.recycle();
+			}
+
+			// and put new one
+			mKeyboardFocusNodes.put(displayId, event.getSource());
+
+		} catch (Exception e) {
+			Log.e(TAG, "onAccessibilityEvent: " + Log.getStackTraceString(e));
+		}
+	}
 
 	@Override
 	public void onInterrupt() { }
@@ -271,9 +302,6 @@ public class InputService extends AccessibilityService {
 
 		Log.d(TAG, "onKeyEvent: keysym " + keysym + " down " + down + " by client " + client);
 
-		/*
-			Special key handling.
-		 */
 		try {
 			InputContext inputContext = instance.mInputContexts.get(client);
 
@@ -337,6 +365,89 @@ public class InputService extends AccessibilityService {
 			if(keysym == 0xFF1B && down != 0)  {
 				Log.i(TAG, "onKeyEvent: got Esc");
 				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+			}
+
+			/*
+				Get current keyboard focus node for input context's display.
+			 */
+			AccessibilityNodeInfo currentFocusNode = instance.mKeyboardFocusNodes.get(inputContext.getDisplayId());
+			// refresh() is important to load the represented view's current text into the node
+			Objects.requireNonNull(currentFocusNode).refresh();
+
+			/*
+			   Left/Right
+			 */
+			if ((keysym == 0xff51 || keysym == 0xff53) && down != 0) {
+				Bundle action = new Bundle();
+				action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT, AccessibilityNodeInfo.MOVEMENT_GRANULARITY_CHARACTER);
+				action.putBoolean(AccessibilityNodeInfo.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN, false);
+				if(keysym == 0xff51)
+					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY.getId(), action);
+				else
+					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_NEXT_AT_MOVEMENT_GRANULARITY.getId(), action);
+			}
+
+			/*
+			    Backspace/Delete
+			    TODO: implement deletions of text selections, right now it's only 1 char at a time
+			 */
+			if ((keysym == 0xff08 || keysym == 0xffff) && down != 0) {
+				CharSequence currentFocusText = Objects.requireNonNull(currentFocusNode).getText();
+				int cursorPos = getCursorPos(currentFocusNode);
+
+				// set new text
+				String newFocusText;
+				if (keysym == 0xff08) {
+					// backspace
+					newFocusText = String.valueOf(currentFocusText.subSequence(0, cursorPos - 1)) + currentFocusText.subSequence(cursorPos, currentFocusText.length());
+				} else {
+					// delete
+					newFocusText = String.valueOf(currentFocusText.subSequence(0, cursorPos)) + currentFocusText.subSequence(cursorPos + 1, currentFocusText.length());
+				}
+				Bundle action = new Bundle();
+				action.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, newFocusText);
+				currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_TEXT.getId(), action);
+
+				// ACTION_SET_TEXT moves cursor to the end, move cursor back to where it should be
+				setCursorPos(currentFocusNode, keysym == 0xff08 ? cursorPos - 1 : cursorPos);
+			}
+
+			/*
+			    Enter, for API level 30+
+			 */
+			if (keysym == 0xff0d && down != 0) {
+				if (Build.VERSION.SDK_INT >= 30) {
+					Bundle action = new Bundle();
+					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.getId(), action);
+				}
+			}
+
+			/*
+			    ASCII input
+			 */
+			if (keysym >= 32 && keysym <= 127 && down != 0) {
+				CharSequence currentFocusText = Objects.requireNonNull(currentFocusNode).getText();
+				int cursorPos = getCursorPos(currentFocusNode);
+
+				// set new text
+				String textBeforeCursor = "";
+				try {
+					textBeforeCursor = String.valueOf(currentFocusText.subSequence(0, cursorPos));
+				} catch (IndexOutOfBoundsException ignored) {
+				}
+				String textAfterCursor = "";
+				try {
+					textAfterCursor = String.valueOf(currentFocusText.subSequence(cursorPos, currentFocusText.length()));
+				} catch (IndexOutOfBoundsException ignored) {
+				}
+				String newFocusText = textBeforeCursor + (char) keysym + textAfterCursor;
+
+				Bundle action = new Bundle();
+				action.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, newFocusText);
+				currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_TEXT.getId(), action);
+
+				// ACTION_SET_TEXT moves cursor to the end, move cursor back to where it should be
+				setCursorPos(currentFocusNode, cursorPos > 0 ? cursorPos + 1 : 1);
 			}
 
 		} catch (Exception e) {
@@ -540,5 +651,19 @@ public class InputService extends AccessibilityService {
 		}
 		swipeBuilder.addStroke( swipeStroke );
 		return swipeBuilder.build();
+	}
+
+	/**
+	 * Returns current cursor position or -1 if no text for node.
+	 */
+	private static int getCursorPos(AccessibilityNodeInfo node) {
+		return node.getTextSelectionEnd();
+	}
+
+	private static void setCursorPos(AccessibilityNodeInfo node, int cursorPos) {
+		Bundle action = new Bundle();
+		action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, cursorPos);
+		action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, cursorPos);
+		node.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_SELECTION.getId(), action);
 	}
 }
