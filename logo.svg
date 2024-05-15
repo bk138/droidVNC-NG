@@ -34,9 +34,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1"
-     inkscape:cx="524"
-     inkscape:cy="164.5"
+     inkscape:zoom="0.93069606"
+     inkscape:cx="291.17992"
+     inkscape:cy="172.45157"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -54,6 +54,26 @@
     <inkscape:grid
        type="xygrid"
        id="grid823" />
+    <sodipodi:guide
+       position="16.932742,51.972722"
+       orientation="1,0"
+       id="guide115"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="-3.3507933,118.52753"
+       orientation="0,-1"
+       id="guide117"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="-203.88105,16.930694"
+       orientation="0,-1"
+       id="guide119"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="118.54002,147.41559"
+       orientation="1,0"
+       id="guide121"
+       inkscape:locked="false" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
