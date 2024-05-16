@@ -3,7 +3,7 @@
  	 but it seems we don't need flagRetrieveInteractiveWindows -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeViewFocused|typeViewClicked|typeViewSelected|typeViewTextChanged|typeViewTextSelectionChanged"
-	android:accessibilityFlags="flagDefault"
+	android:accessibilityFlags="flagDefault|flagIncludeNotImportantViews"
     android:notificationTimeout="30"
 	android:description="@string/input_a11y_service_description"
 	android:canPerformGestures="true"
