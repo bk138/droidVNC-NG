@@ -423,9 +423,9 @@ public class InputService extends AccessibilityService {
 			}
 
 			/*
-			    ASCII input
+			    ISO-8859-1 input
 			 */
-			if (keysym >= 32 && keysym <= 127 && down != 0) {
+			if (keysym >= 32 && keysym <= 255 && down != 0) {
 				CharSequence currentFocusText = Objects.requireNonNull(currentFocusNode).getText();
 				// some implementations return null for empty text, work around that
 				if (currentFocusText == null)
