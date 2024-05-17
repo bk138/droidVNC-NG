@@ -453,7 +453,9 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
 
     double t0 = getTime();
     memcpy(theScreen->frameBuffer, cBuf, bufSize);
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "vncUpdateFramebuffer: copy took %.3f ms", (getTime()-t0)*1000);
+
+    // only comment in when needed
+    //__android_log_print(ANDROID_LOG_DEBUG, TAG, "vncUpdateFramebuffer: copy took %.3f ms", (getTime()-t0)*1000);
 
     rfbMarkRectAsModified(theScreen, 0, 0, theScreen->width, theScreen->height);
 
