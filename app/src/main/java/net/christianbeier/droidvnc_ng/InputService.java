@@ -427,6 +427,10 @@ public class InputService extends AccessibilityService {
 			 */
 			if (keysym >= 32 && keysym <= 127 && down != 0) {
 				CharSequence currentFocusText = Objects.requireNonNull(currentFocusNode).getText();
+				// some implementations return null for empty text, work around that
+				if (currentFocusText == null)
+					currentFocusText = "";
+
 				int cursorPos = getCursorPos(currentFocusNode);
 
 				// set new text
