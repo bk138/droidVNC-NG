@@ -413,6 +413,14 @@ public class InputService extends AccessibilityService {
 			}
 
 			/*
+			   Insert
+			 */
+			if (keysym == 0xff63 && down != 0) {
+				Bundle action = new Bundle();
+				Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_PASTE.getId(), action);
+			}
+
+			/*
 			    Enter, for API level 30+
 			 */
 			if (keysym == 0xff0d && down != 0) {
