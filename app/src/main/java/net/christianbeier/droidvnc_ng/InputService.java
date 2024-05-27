@@ -139,8 +139,11 @@ public class InputService extends AccessibilityService {
 
 			// recycle old node if there
 			AccessibilityNodeInfo previousFocusNode = mKeyboardFocusNodes.get(displayId);
-			if (previousFocusNode != null) {
-				previousFocusNode.recycle();
+			try {
+				Objects.requireNonNull(previousFocusNode).recycle();
+			} catch (Exception e) {
+				// can be NullPointerException or IllegalStateException("Already in the pool!")
+				Log.i(TAG, "onAccessibilityEvent: could not recycle previousFocusNode: " + e);
 			}
 
 			// and put new one
