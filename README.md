@@ -231,3 +231,7 @@ might be that your device does not support Android's MediaProjection API correct
 try screen recording with another app, [ScreenRecorder](https://gitlab.com/vijai/screenrecorder). If it
 fails as well, your device most likely does not support screen recording via MediaProjection. This is
 known to be the case for [Android-x86](https://www.android-x86.org).
+
+* In case you happen to have a board with an Ethernet interface and experience strange hangs during a
+VNC session, setting the interface to a slower speed might help. This workaround can be applied with
+[mii-tool](https://github.com/bk138/droidVNC-NG/issues/121#issuecomment-2150790814), for instance.
