@@ -553,10 +553,16 @@ public class InputService extends AccessibilityService {
 						try {
 							if (errorCode == AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT && instance.mTakeScreenShots) {
 								// try again later, incrementing delay
-								instance.mMainHandler.postDelayed(() -> instance.takeScreenshot(Display.DEFAULT_DISPLAY,
-										instance.getMainExecutor(),
-										this
-								), instance.mTakeScreenShotDelayMs += 50);
+								instance.mMainHandler.postDelayed(() -> {
+									try {
+										instance.takeScreenshot(Display.DEFAULT_DISPLAY,
+												instance.getMainExecutor(),
+												this
+										);
+									} catch (Exception ignored) {
+										// instance might be gone
+									}
+								}, instance.mTakeScreenShotDelayMs += 50);
 								Log.w(TAG, "takeScreenShots: onFailure with ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT - upped delay to " + instance.mTakeScreenShotDelayMs);
 								return;
 							}
