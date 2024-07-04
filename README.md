@@ -237,3 +237,7 @@ known to be the case for [Android-x86](https://www.android-x86.org).
 * In case you happen to have a board with an Ethernet interface and experience strange hangs during a
 VNC session, setting the interface to a slower speed might help. This workaround can be applied with
 [mii-tool](https://github.com/bk138/droidVNC-NG/issues/121#issuecomment-2150790814), for instance.
+
+* If you see a a floating button similar to [this](https://user-images.githubusercontent.com/6049993/194750108-a808b9c3-2bc6-4cdd-ba40-b9c59476a456.jpg)
+on your screen after enabling accessibility, make sure you have the "shortcut" option in accessibility settings
+turned to off.
