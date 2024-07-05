@@ -1,5 +1,5 @@
 [submodule "libvncserver"]
-	path = libvncserver
+	path = app/src/main/cpp/libvncserver
 	url = https://github.com/LibVNC/libvncserver.git
 [submodule "libjpeg-turbo"]
 	path = app/src/main/cpp/libjpeg-turbo
