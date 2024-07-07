@@ -139,6 +139,11 @@ public class MainActivity extends AppCompatActivity {
             inputText.requestFocus();
             inputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
+            EditText reconnectTriesInputText = new EditText(this);
+            reconnectTriesInputText.setInputType(InputType.TYPE_CLASS_NUMBER);
+            reconnectTriesInputText.setHint(getString(R.string.main_activity_reconnect_tries_hint));
+            reconnectTriesInputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
             LinearLayout inputLayout = new LinearLayout(this);
             inputLayout.setPadding(
                     (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, Resources.getSystem().getDisplayMetrics()),
@@ -146,7 +151,9 @@ public class MainActivity extends AppCompatActivity {
                     (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, Resources.getSystem().getDisplayMetrics()),
                     0
             );
+            inputLayout.setOrientation(LinearLayout.VERTICAL);
             inputLayout.addView(inputText);
+            inputLayout.addView(reconnectTriesInputText);
 
             AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle(R.string.main_activity_reverse_vnc_button)
@@ -173,6 +180,10 @@ public class MainActivity extends AppCompatActivity {
                         request.putExtra(MainService.EXTRA_HOST, host);
                         request.putExtra(MainService.EXTRA_PORT, port);
                         request.putExtra(MainService.EXTRA_REQUEST_ID, mLastMainServiceRequestId);
+                        try {
+                            request.putExtra(MainService.EXTRA_RECONNECT_TRIES, Integer.parseInt(reconnectTriesInputText.getText().toString()));
+                        } catch (NumberFormatException ignored) {
+                        }
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             startForegroundService(request);
                         } else {
@@ -213,6 +224,11 @@ public class MainActivity extends AppCompatActivity {
             idInputText.setText(lastID); //host:port
             idInputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
+            EditText reconnectTriesInputText = new EditText(this);
+            reconnectTriesInputText.setInputType(InputType.TYPE_CLASS_NUMBER);
+            reconnectTriesInputText.setHint(getString(R.string.main_activity_reconnect_tries_hint));
+            reconnectTriesInputText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
             LinearLayout inputLayout = new LinearLayout(this);
             inputLayout.setPadding(
                     (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, Resources.getSystem().getDisplayMetrics()),
@@ -223,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
             inputLayout.setOrientation(LinearLayout.VERTICAL);
             inputLayout.addView(hostInputText);
             inputLayout.addView(idInputText);
+            inputLayout.addView(reconnectTriesInputText);
 
             AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle(R.string.main_activity_repeater_vnc_button)
@@ -259,6 +276,10 @@ public class MainActivity extends AppCompatActivity {
                         request.putExtra(MainService.EXTRA_PORT, port);
                         request.putExtra(MainService.EXTRA_REPEATER_ID, repeaterId);
                         request.putExtra(MainService.EXTRA_REQUEST_ID, mLastMainServiceRequestId);
+                        try {
+                            request.putExtra(MainService.EXTRA_RECONNECT_TRIES, Integer.parseInt(reconnectTriesInputText.getText().toString()));
+                        } catch (NumberFormatException ignored) {
+                        }
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             startForegroundService(request);
                         } else {
