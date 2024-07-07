@@ -27,6 +27,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -42,6 +43,7 @@ import android.os.Looper;
 import android.os.PowerManager;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.IntentSanitizer;
 import androidx.preference.PreferenceManager;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
@@ -599,7 +601,21 @@ public class MainService extends Service {
         }
     }
 
-    private void handleClientReconnect(Intent intent, long client, String logTag) {
+    private void handleClientReconnect(Intent reconnectIntent, long client, String logTag) {
+
+        final Intent intent = new IntentSanitizer.Builder()
+                .allowComponent(new ComponentName(this, getClass()))
+                .allowAction(ACTION_CONNECT_REPEATER)
+                .allowAction(ACTION_CONNECT_REVERSE)
+                .allowExtra(EXTRA_REQUEST_ID, String.class)
+                .allowExtra(EXTRA_RECONNECT_TRIES, Integer.class)
+                .allowExtra(EXTRA_ACCESS_KEY, String.class)
+                .allowExtra(EXTRA_HOST, String.class)
+                .allowExtra(EXTRA_PORT, Integer.class)
+                .allowExtra(EXTRA_REPEATER_ID, String.class)
+                .build()
+                .sanitizeByFiltering(reconnectIntent);
+
         String requestId = intent.getStringExtra(EXTRA_REQUEST_ID);
         if (intent.getIntExtra(EXTRA_RECONNECT_TRIES, 0) > 0 && requestId != null) {
             if(client != 0) {
