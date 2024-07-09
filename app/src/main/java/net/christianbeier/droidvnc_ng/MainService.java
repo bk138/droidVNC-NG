@@ -273,7 +273,7 @@ public class MainService extends Service {
         if(!mIsStoppingByUs && vncIsActive()) {
             // stopService() from OS or other component
             Log.d(TAG, "onDestroy: sending ACTION_STOP");
-            sendBroadcast(new Intent(ACTION_STOP));
+            sendBroadcastToOthersAndUs(new Intent(ACTION_STOP));
         }
 
         try {
@@ -335,7 +335,7 @@ public class MainService extends Service {
                 Intent answer = new Intent(ACTION_START);
                 answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
                 answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
-                sendBroadcast(answer);
+                sendBroadcastToOthersAndUs(answer);
 
                 if (status) {
                     startScreenCapture();
@@ -376,7 +376,7 @@ public class MainService extends Service {
                 Intent answer = new Intent(ACTION_START);
                 answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
                 answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
-                sendBroadcast(answer);
+                sendBroadcastToOthersAndUs(answer);
 
                 if(status) {
                     startScreenCapture();
@@ -428,7 +428,7 @@ public class MainService extends Service {
                 Intent answer = new Intent(ACTION_START);
                 answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
                 answer.putExtra(EXTRA_REQUEST_SUCCESS, false);
-                sendBroadcast(answer);
+                sendBroadcastToOthersAndUs(answer);
                 return START_NOT_STICKY;
             }
 
@@ -469,7 +469,7 @@ public class MainService extends Service {
             Intent answer = new Intent(ACTION_STOP);
             answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
             answer.putExtra(EXTRA_REQUEST_SUCCESS, vncIsActive());
-            sendBroadcast(answer);
+            sendBroadcastToOthersAndUs(answer);
             return START_NOT_STICKY;
         }
 
@@ -486,7 +486,7 @@ public class MainService extends Service {
                     Intent answer = new Intent(ACTION_CONNECT_REVERSE);
                     answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
                     answer.putExtra(EXTRA_REQUEST_SUCCESS, client != 0);
-                    sendBroadcast(answer);
+                    sendBroadcastToOthersAndUs(answer);
                     // check if set to reconnect and handle accordingly
                     handleClientReconnect(intent, client, "reverse");
                 }).start();
@@ -514,7 +514,7 @@ public class MainService extends Service {
                     Intent answer = new Intent(ACTION_CONNECT_REPEATER);
                     answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
                     answer.putExtra(EXTRA_REQUEST_SUCCESS, client != 0);
-                    sendBroadcast(answer);
+                    sendBroadcastToOthersAndUs(answer);
                     // check if set to reconnect and handle accordingly
                     handleClientReconnect(intent, client, "repeater");
                 }).start();
@@ -720,6 +720,18 @@ public class MainService extends Service {
     private void stopSelfByUs() {
         mIsStoppingByUs = true;
         stopSelf();
+    }
+
+    private void sendBroadcastToOthersAndUs(Intent intent) {
+        // Send implicit Intent to others (and us on API level < 34).
+        sendBroadcast(intent);
+        // Send explicit Intent to us, i.e. MainActivity which has a not-exported broadcast receiver
+        // and needs an explicit Intent from Android 14 on as per https://developer.android.com/about/versions/14/behavior-changes-14#runtime-receivers-exported
+        // This will not be delivered to others as per https://developer.android.com/develop/background-work/background-tasks/broadcasts#security-and-best-practices
+        if(Build.VERSION.SDK_INT >= 34) {
+            intent.setPackage(getPackageName());
+            sendBroadcast(intent);
+        }
     }
 
     static boolean isServerActive() {
