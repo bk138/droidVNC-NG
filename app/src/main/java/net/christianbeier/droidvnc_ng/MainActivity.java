@@ -95,8 +95,6 @@ public class MainActivity extends AppCompatActivity {
         mButtonToggle = findViewById(R.id.toggle);
         mButtonToggle.setOnClickListener(view -> {
 
-            mLastMainServiceRequestId = UUID.randomUUID().toString();
-
             Intent intent = new Intent(MainActivity.this, MainService.class);
             intent.putExtra(MainService.EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
             intent.putExtra(MainService.EXTRA_PASSWORD, prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
@@ -105,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(MainService.EXTRA_SHOW_POINTERS, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_SHOW_POINTERS, mDefaults.getShowPointers()));
             intent.putExtra(MainService.EXTRA_SCALING, prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling()));
             intent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
-            intent.putExtra(MainService.EXTRA_REQUEST_ID, mLastMainServiceRequestId);
             if(mIsMainServiceRunning) {
                 intent.setAction(MainService.ACTION_STOP);
             }
@@ -520,12 +517,7 @@ public class MainActivity extends AppCompatActivity {
         mMainServiceBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (MainService.ACTION_START.equals(intent.getAction())
-                        && mLastMainServiceRequestId != null
-                        && mLastMainServiceRequestId.equals(intent.getStringExtra(MainService.EXTRA_REQUEST_ID))) {
-                    // reset this
-                    mLastMainServiceRequestId = null;
-
+                if (MainService.ACTION_START.equals(intent.getAction())) {
                     if(intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
                         // was a successful START requested by anyone (but sent by MainService, as the receiver is not exported!)
                         Log.d(TAG, "got MainService started success event");
@@ -541,12 +533,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (MainService.ACTION_STOP.equals(intent.getAction())
-                        && mLastMainServiceRequestId != null
-                        && mLastMainServiceRequestId.equals(intent.getStringExtra(MainService.EXTRA_REQUEST_ID))
                         && (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, true))) {
-                    // reset this
-                    mLastMainServiceRequestId = null;
-
                     // was a successful STOP requested by anyone (but sent by MainService, as the receiver is not exported!)
                     // or a STOP without any extras
                     Log.d(TAG, "got MainService stopped event");
@@ -627,9 +614,11 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction(MainService.ACTION_STOP);
         filter.addAction(MainService.ACTION_CONNECT_REVERSE);
         filter.addAction(MainService.ACTION_CONNECT_REPEATER);
-        // Register the receiver as EXPORTED, needed by Android 14 and newer. We ensure the answer is valid by using
-        // the request id.
-        ContextCompat.registerReceiver(this, mMainServiceBroadcastReceiver, filter, ContextCompat.RECEIVER_EXPORTED);
+        // register the receiver as NOT_EXPORTED so it only receives broadcasts sent by MainService,
+        // not a malicious fake broadcaster like
+        // `adb shell am broadcast -a net.christianbeier.droidvnc_ng.ACTION_STOP --ez net.christianbeier.droidvnc_ng.EXTRA_REQUEST_SUCCESS true`
+        // for instance
+        ContextCompat.registerReceiver(this, mMainServiceBroadcastReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
 
         // setup UI initial state
         if (MainService.isServerActive()) {
