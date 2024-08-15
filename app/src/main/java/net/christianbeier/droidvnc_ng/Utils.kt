@@ -86,4 +86,10 @@ object Utils {
         }
     }
 
+    @JvmStatic
+    fun deleteRecursively(directory: String) {
+        val directory = File(directory)
+        directory.deleteRecursively()
+    }
+
 }
