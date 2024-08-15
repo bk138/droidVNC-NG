@@ -272,6 +272,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     free(theScreen->frameBuffer);
     theScreen->frameBuffer = NULL;
     free((char*)theScreen->desktopName); // always malloc'ed by us
+    free(theScreen->httpDir); // always malloc'ed by us
     theScreen->desktopName = NULL;
     if(theScreen->authPasswdData) { // if this is set, it was malloc'ed by us and has one password in there
         char **passwordList = theScreen->authPasswdData;
@@ -287,7 +288,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 }
 
 
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jint port, jstring desktopname, jstring password) {
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jint port, jstring desktopname, jstring password, jstring httpRootDir) {
 
     int argc = 0;
 
@@ -355,6 +356,16 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
         (*env)->ReleaseStringUTFChars(env, password, cPassword);
     }
 
+    if(httpRootDir) { // string arg to GetStringUTFChars() must not be NULL
+        const char *cHttpRootDir = (*env)->GetStringUTFChars(env, httpRootDir, NULL);
+        if(!cHttpRootDir) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed getting http root dir from JNI");
+            Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
+            return JNI_FALSE;
+        }
+        theScreen->httpDir = strdup(cHttpRootDir);
+        (*env)->ReleaseStringUTFChars(env, httpRootDir, cHttpRootDir);
+    }
 
     rfbInitServer(theScreen);
 

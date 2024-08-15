@@ -166,7 +166,7 @@ public class MainService extends Service {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private native boolean vncStartServer(int width, int height, int port, String desktopName, String password);
+    private native boolean vncStartServer(int width, int height, int port, String desktopName, String password, String httpRootDir);
     private native boolean vncStopServer();
     private native boolean vncIsActive();
     private native long vncConnectReverse(String host, int port);
@@ -339,7 +339,8 @@ public class MainService extends Service {
                         displayMetrics.heightPixels,
                         port,
                         name,
-                        PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
+                        PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()),
+                        getFilesDir().getAbsolutePath() + File.separator + "novnc");
                 Intent answer = new Intent(ACTION_START);
                 answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
                 answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
@@ -379,7 +380,8 @@ public class MainService extends Service {
                         displayMetrics.heightPixels,
                         port,
                         name,
-                        PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()));
+                        PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()),
+                        getFilesDir().getAbsolutePath() + File.separator + "novnc");
 
                 Intent answer = new Intent(ACTION_START);
                 answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
