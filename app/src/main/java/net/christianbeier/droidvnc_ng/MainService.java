@@ -52,6 +52,7 @@ import android.view.Display;
 
 import androidx.core.app.NotificationCompat;
 
+import java.io.File;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -260,6 +261,13 @@ public class MainService extends Service {
             Load defaults
          */
         mDefaults = new Defaults(this);
+
+        /*
+            Copy embedded HTML VNC client to directory accessible by embedded HTTP server.
+         */
+        String clientPath = getFilesDir().getAbsolutePath() + File.separator + "novnc";
+        Utils.deleteRecursively(clientPath);
+        Utils.copyAssetsToDir(this, "novnc", clientPath);
     }
 
 
