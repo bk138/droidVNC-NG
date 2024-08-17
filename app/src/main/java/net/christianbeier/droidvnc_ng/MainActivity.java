@@ -751,12 +751,13 @@ public class MainActivity extends AppCompatActivity {
             // uhh there must be a nice functional way for this
             ArrayList<String> hosts = MainService.getIPv4s();
             StringBuilder sb = new StringBuilder();
+            sb.append(getString(R.string.main_activity_address)).append(" ");
             for (int i = 0; i < hosts.size(); ++i) {
-                sb.append(hosts.get(i) + ":" + MainService.getPort());
+                sb.append(hosts.get(i)).append(":").append(MainService.getPort());
                 if (i != hosts.size() - 1)
                     sb.append(" ").append(getString(R.string.or)).append(" ");
             }
-            mAddress.post(() -> mAddress.setText(getString(R.string.main_activity_address) + " " + sb));
+            mAddress.post(() -> mAddress.setText(sb));
         } else {
             mAddress.post(() -> mAddress.setText(R.string.main_activity_not_listening));
         }
