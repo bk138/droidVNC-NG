@@ -22,6 +22,7 @@
     <string name="main_activity_input">Eingabe</string>
     <string name="main_activity_start_on_boot">Start bei Gerätestart</string>
     <string name="main_activity_address">Der Server ist jetzt erreichbar unter</string>
+    <string name="main_activity_share_link">Browser-Link teilen</string>
     <string name="main_activity_not_listening">Der Server akzeptiert keine eingehenden Verbindungen.</string>
     <string name="main_activity_outbound_text">Sie können ausgehende Verbindungen herstellen:</string>
     <string name="main_activity_connecting_to">Verbinde zu %1$s</string>

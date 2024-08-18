@@ -34,16 +34,22 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.SingleLineTransformationMethod;
+import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
@@ -61,6 +67,7 @@ import com.google.android.material.slider.Slider;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -748,16 +755,40 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if(MainService.getPort() >= 0) {
+            HashMap<ClickableSpan, Pair<Integer,Integer>> spans = new HashMap<>();
             // uhh there must be a nice functional way for this
             ArrayList<String> hosts = MainService.getIPv4s();
             StringBuilder sb = new StringBuilder();
             sb.append(getString(R.string.main_activity_address)).append(" ");
             for (int i = 0; i < hosts.size(); ++i) {
-                sb.append(hosts.get(i)).append(":").append(MainService.getPort());
+                String host = hosts.get(i);
+                sb.append(host).append(":").append(MainService.getPort()).append(" (");
+                int start = sb.length();
+                sb.append(getString(R.string.main_activity_share_link));
+                ClickableSpan clickableSpan = new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.putExtra(Intent.EXTRA_TEXT,
+                                "http://" + host + ":5800/vnc.html?autoconnect=true&show_dot=true&&host=" + host + "&port=" + MainService.getPort());
+                        sendIntent.setType("text/plain");
+                        startActivity(Intent.createChooser(sendIntent, null));
+                    }
+                };
+                spans.put(clickableSpan, Pair.create(start, sb.length()));
+                sb.append(")");
                 if (i != hosts.size() - 1)
                     sb.append(" ").append(getString(R.string.or)).append(" ");
             }
-            mAddress.post(() -> mAddress.setText(sb));
+            sb.append(".");
+            // done with string and span creation, put it all together
+            SpannableString spannableString = new SpannableString(sb);
+            spans.forEach((clickableSpan, startEnd) -> spannableString.setSpan(clickableSpan, startEnd.first, startEnd.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE));
+            mAddress.post(() -> {
+                mAddress.setText(spannableString);
+                mAddress.setMovementMethod(LinkMovementMethod.getInstance());
+            });
         } else {
             mAddress.post(() -> mAddress.setText(R.string.main_activity_not_listening));
         }

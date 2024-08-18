@@ -22,6 +22,7 @@
     <string name="main_activity_input">Entrada</string>
     <string name="main_activity_start_on_boot">Iniciar no arranque</string>
     <string name="main_activity_address">O servidor agora pode ser acessado em</string>
+    <string name="main_activity_share_link">partilhar link de acesso do browser</string>
     <string name="main_activity_not_listening">O servidor não está escutando conexões de entrada.</string>
     <string name="main_activity_outbound_text">Você pode fazer conexões de saída:</string>
     <string name="main_activity_connecting_to">Conectando-se a %1$s</string>

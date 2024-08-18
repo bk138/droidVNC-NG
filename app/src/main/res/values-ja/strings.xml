@@ -23,6 +23,7 @@
     <string name="main_activity_input">入力</string>
     <string name="main_activity_start_on_boot">起動時に自動実行</string>
     <string name="main_activity_address">サーバーには次のアドレスから接続可能です:</string>
+    <string name="main_activity_share_link">ブラウザアクセスリンクを共有する</string>
     <string name="main_activity_not_listening">サーバーは着信接続をリッスンしていません</string>
     <string name="main_activity_outbound_text">アウトバンド接続が可能です:</string>
     <string name="main_activity_connecting_to">%1$s に接続中</string>
