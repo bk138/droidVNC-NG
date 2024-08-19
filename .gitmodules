@@ -4,3 +4,6 @@
 [submodule "libjpeg-turbo"]
 	path = libjpeg-turbo
 	url = https://github.com/libjpeg-turbo/libjpeg-turbo.git
+[submodule "noVNC"]
+	path = noVNC
+	url = https://github.com/novnc/noVNC.git
