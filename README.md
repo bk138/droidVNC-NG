@@ -33,7 +33,9 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * Functionality to provide default configuration via a JSON file.
 * Zeroconf/Bonjour publishing for VNC server auto-discovery.
 * Per-client mouse pointers on the controlled device.
-
+* Ability to control a device’s shared screen directly from a web browser by shipping the fabulous
+  [noVNC](https://github.com/novnc/noVNC) client with the server app. This alleviates the need for a
+  native VNC client.
 
 ## How to use
 
