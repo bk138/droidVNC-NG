@@ -23,46 +23,57 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="1dp"
-            android:padding="10dp">
+            android:padding="10dp"
+            android:shrinkColumns="0">
+
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
-                    android:text="@string/main_activity_settings_listening_address" />
+                    android:text="@string/main_activity_settings_listening_address"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="2"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:hint="@string/settings_listen_interface_hint"
-                    android:layout_weight="1"
                     android:inputType="textUri"
                     android:maxLines="1"
                     android:id="@+id/settings_listen_interface"/>
             </TableRow>
 
+
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_port" />
 
@@ -70,27 +81,32 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_column="2"
-                    android:padding="10dp"
                     android:layout_weight="1"
+                    android:layout_column="2"
+                    android:gravity="center"
+                    android:padding="10dp"
                     android:inputType="number"
                     android:id="@+id/settings_port"/>
             </TableRow>
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_password" />
 
@@ -98,15 +114,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_column="2"
-                    android:padding="10dp"
                     android:layout_weight="1"
+                    android:layout_column="2"
+                    android:gravity="center"
+                    android:padding="10dp"
                     android:inputType="textPassword"
                     android:id="@+id/settings_password"/>
 
@@ -114,12 +132,15 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_access_key" />
 
@@ -127,15 +148,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_column="2"
-                    android:padding="10dp"
                     android:layout_weight="1"
+                    android:layout_column="2"
+                    android:gravity="center"
+                    android:padding="10dp"
                     android:inputType="textPassword"
                     android:id="@+id/settings_access_key"/>
 
@@ -143,12 +166,15 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_start_on_boot" />
 
@@ -156,15 +182,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/settings_start_on_boot"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_column="2"
                     android:layout_weight="1"
+                    android:layout_column="2"
+                    android:gravity="center"
                     android:nextFocusDown="@id/settings_start_on_boot_delay"
                     android:text="" />
 
@@ -172,28 +200,33 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_start_on_boot_delay" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_column="2"
-                    android:padding="10dp"
                     android:layout_weight="1"
+                    android:layout_column="2"
+                    android:gravity="center"
+                    android:padding="10dp"
                     android:inputType="number"
                     android:id="@+id/settings_start_on_boot_delay"/>
 
@@ -202,12 +235,15 @@
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/settings_row_file_transfer">
+                android:id="@+id/settings_row_file_transfer"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_file_transfer" />
 
@@ -215,15 +251,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/settings_file_transfer"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_column="2"
                     android:layout_weight="1"
+                    android:layout_column="2"
+                    android:gravity="center"
                     android:nextFocusUp="@id/settings_start_on_boot_delay"
                     android:text="" />
 
@@ -232,12 +270,15 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_scaling" />
 
@@ -245,16 +286,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <com.google.android.material.slider.Slider
                     android:id="@+id/settings_scaling"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_column="2"
                     android:layout_weight="1"
-                    android:layout_gravity="center"
+                    android:layout_column="2"
+                    android:gravity="center"
                     android:stepSize="5"
                     android:value="100"
                     android:valueFrom="10"
@@ -265,12 +307,15 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_view_only" />
 
@@ -278,27 +323,31 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/settings_view_only"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_column="2"
                     android:layout_weight="1"
+                    android:layout_column="2"
                     android:text="" />
 
             </TableRow>
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0.6"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_show_pointers" />
 
@@ -306,15 +355,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/settings_show_pointers"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_column="2"
                     android:layout_weight="1"
+                    android:layout_column="2"
                     android:text="" />
 
             </TableRow>
@@ -327,7 +377,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/main_activity_permissions_dashboard"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
         <TableLayout
             android:layout_width="match_parent"
@@ -337,12 +387,15 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_screen_capturing" />
 
@@ -350,13 +403,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="2"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_fallback"
                     android:textAllCaps="true"
@@ -365,12 +421,15 @@
 
             <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_input" />
 
@@ -378,13 +437,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="2"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_fallback"
                     android:textAllCaps="true"
@@ -395,12 +457,15 @@
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/permission_row_file_access">
+                android:id="@+id/permission_row_file_access"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_file_access" />
 
@@ -408,13 +473,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="2"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_fallback"
                     android:textAllCaps="true"
@@ -425,12 +493,15 @@
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/permission_row_notification">
+                android:id="@+id/permission_row_notification"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_notifications" />
 
@@ -438,13 +509,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="2"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_fallback"
                     android:textAllCaps="true"
@@ -455,12 +529,15 @@
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/permission_row_start_on_boot">
+                android:id="@+id/permission_row_start_on_boot"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_start_on_boot" />
 
@@ -468,12 +545,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_column="1"
+                    android:gravity="center"
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
                     android:layout_column="2"
                     android:padding="10dp"
                     android:text="@string/main_activity_fallback"
