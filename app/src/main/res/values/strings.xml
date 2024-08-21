@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name" translatable="false">droidVNC-NG</string>
+    <string name="settings_listen_interface_hint" translatable="false">0.0.0.0</string>
     <string name="main_activity_title">droidVNC-NG Admin Panel</string>
     <string name="main_activity_settings">Settings</string>
+    <string name="main_activity_settings_listening_address">Listening Address</string>
     <string name="main_activity_settings_port">Port</string>
     <string name="main_activity_settings_port_not_listening">Inbound connections disabled</string>
     <string name="main_activity_settings_password">Password</string>

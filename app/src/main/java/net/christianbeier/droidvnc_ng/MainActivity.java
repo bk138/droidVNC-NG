@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonToggle.setOnClickListener(view -> {
 
             Intent intent = new Intent(MainActivity.this, MainService.class);
+            intent.putExtra(MainService.EXTRA_LISTEN_INTERFACE, prefs.getString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, mDefaults.getListenInterface()));
             intent.putExtra(MainService.EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
             intent.putExtra(MainService.EXTRA_PASSWORD, prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
             intent.putExtra(MainService.EXTRA_FILE_TRANSFER, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTransfer()));
@@ -303,6 +304,35 @@ public class MainActivity extends AppCompatActivity {
                     .create();
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             dialog.show();
+        });
+
+
+        final EditText listenInterface = findViewById(R.id.settings_listen_interface);
+        listenInterface.setText(prefs.getString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, mDefaults.getListenInterface()));
+        listenInterface.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // only save new value if it differs from the default and was not saved before
+                if(!(prefs.getString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, null) == null && charSequence.toString().equals(mDefaults.getListenInterface()))) {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, charSequence.toString());
+                    ed.apply();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        listenInterface.setOnFocusChangeListener((v, hasFocus) -> {
+            // move cursor to end of text
+            listenInterface.setSelection(listenInterface.getText().length());
         });
 
 
@@ -757,7 +787,15 @@ public class MainActivity extends AppCompatActivity {
         if(MainService.getPort() >= 0) {
             HashMap<ClickableSpan, Pair<Integer,Integer>> spans = new HashMap<>();
             // uhh there must be a nice functional way for this
-            ArrayList<String> hosts = MainService.getIPv4s();
+            ArrayList<String> hosts = null;
+
+            if (MainService.isListeningOnAnyInterface()) {
+                hosts = MainService.getIPv4s();
+            } else {
+                hosts = new ArrayList<>();
+                hosts.add(MainService.getListenInterface());
+            }
+
             StringBuilder sb = new StringBuilder();
             sb.append(getString(R.string.main_activity_address)).append(" ");
             for (int i = 0; i < hosts.size(); ++i) {
@@ -768,10 +806,13 @@ public class MainActivity extends AppCompatActivity {
                 ClickableSpan clickableSpan = new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View widget) {
+                        final int usedPort = MainService.getPort();
+                        final int usedHttpPort = usedPort - 100;
+
                         Intent sendIntent = new Intent();
                         sendIntent.setAction(Intent.ACTION_SEND);
                         sendIntent.putExtra(Intent.EXTRA_TEXT,
-                                "http://" + host + ":5800/vnc.html?autoconnect=true&show_dot=true&&host=" + host + "&port=" + MainService.getPort());
+                                "http://" + host + ":" + usedHttpPort + "/vnc.html?autoconnect=true&show_dot=true&&host=" + host + "&port=" + usedPort);
                         sendIntent.setType("text/plain");
                         startActivity(Intent.createChooser(sendIntent, null));
                     }
@@ -798,6 +839,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.outbound_buttons).setVisibility(View.VISIBLE);
 
         // indicate that changing these settings does not have an effect when the server is running
+        findViewById(R.id.settings_listen_interface).setEnabled(false);
         findViewById(R.id.settings_port).setEnabled(false);
         findViewById(R.id.settings_password).setEnabled(false);
         findViewById(R.id.settings_access_key).setEnabled(false);
@@ -823,6 +865,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.outbound_buttons).setVisibility(View.GONE);
 
         // indicate that changing these settings does have an effect when the server is stopped
+        findViewById(R.id.settings_listen_interface).setEnabled(true);
         findViewById(R.id.settings_port).setEnabled(true);
         findViewById(R.id.settings_password).setEnabled(true);
         findViewById(R.id.settings_access_key).setEnabled(true);

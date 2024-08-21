@@ -1,6 +1,7 @@
 <resources>
     <string name="main_activity_title">droidVNC-NG管理面板</string>
     <string name="main_activity_settings">设置</string>
+    <string name="main_activity_settings_listening_address">監聽地址</string>
     <string name="main_activity_settings_port">端口</string>
     <string name="main_activity_settings_port_not_listening">禁用传入连接</string>
     <string name="main_activity_settings_password">密码</string>

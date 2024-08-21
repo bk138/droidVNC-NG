@@ -41,6 +41,10 @@ class Defaults {
     }
 
     @EncodeDefault
+    var listenInterface = "0.0.0.0"
+        private set
+
+    @EncodeDefault
     var port = 5900
         private set
 
@@ -116,6 +120,7 @@ class Defaults {
         try {
             val jsonString = jsonFile.readText()
             val readDefault = Json.decodeFromString<Defaults>(jsonString)
+            this.listenInterface = readDefault.listenInterface
             this.port = readDefault.port
             this.portReverse = readDefault.portReverse
             this.portRepeater = readDefault.portRepeater

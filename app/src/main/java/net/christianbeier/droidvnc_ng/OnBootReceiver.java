@@ -54,6 +54,7 @@ public class OnBootReceiver extends BroadcastReceiver {
 
             Intent intent = new Intent(context, MainService.class);
             intent.setAction(MainService.ACTION_START);
+            intent.putExtra(MainService.EXTRA_LISTEN_INTERFACE, prefs.getString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, defaults.getListenInterface()));
             intent.putExtra(MainService.EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, defaults.getPort()));
             intent.putExtra(MainService.EXTRA_PASSWORD, prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, defaults.getPassword()));
             intent.putExtra(MainService.EXTRA_FILE_TRANSFER, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, defaults.getFileTransfer()));

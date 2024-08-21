@@ -2,6 +2,7 @@
     <string name="app_name" translatable="false">droidVNC-NG</string>
     <string name="main_activity_title">Amministrazione di droidVNC-NG</string>
     <string name="main_activity_settings">Impostazioni</string>
+    <string name="main_activity_settings_listening_address">Indirizzo d\'ascolto</string>
     <string name="main_activity_settings_port">Porta</string>
     <string name="main_activity_settings_port_not_listening">Connessioni in entrata disabilitate</string>
     <string name="main_activity_settings_password">Password</string>

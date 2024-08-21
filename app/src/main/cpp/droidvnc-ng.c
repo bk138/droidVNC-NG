@@ -288,7 +288,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 }
 
 
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jint port, jstring desktopname, jstring password, jstring httpRootDir) {
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jstring host, jint port, jstring desktopname, jstring password, jstring httpRootDir) {
 
     int argc = 0;
 
@@ -315,6 +315,17 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     theScreen->setXCutTextUTF8 = onCutText;
     theScreen->newClientHook = onClientConnected;
 
+    in_addr_t address = 0; // Default is 0.0.0.0 (all available interfaces)
+    if (host != NULL) {
+        const char *hostNative = (*env)->GetStringUTFChars(env, host, NULL);
+        if (!rfbStringToAddr((char*)hostNative, &address)) {
+            address = 0; // Assign 0.0.0.0 (any) in case of errors
+        }
+        (*env)->ReleaseStringUTFChars(env, host, hostNative);
+    }
+
+    // With listenInterface one can define where the server will be available
+    theScreen->listenInterface = address;
     theScreen->port = port;
     theScreen->ipv6port = port;
 
@@ -491,4 +502,12 @@ JNIEXPORT jint JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetFr
 
 JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncIsActive(JNIEnv *env, jobject thiz) {
     return theScreen && rfbIsActive(theScreen);
+}
+
+JNIEXPORT jint JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetListenInterface(JNIEnv *env, jobject thiz) {
+    if (!theScreen) {
+        return -1;
+    }
+
+    return theScreen->listenInterface;
 }
