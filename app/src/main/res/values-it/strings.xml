@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">droidVNC-NG</string>
     <string name="main_activity_title">Amministrazione di droidVNC-NG</string>
     <string name="main_activity_settings">Impostazioni</string>
     <string name="main_activity_settings_listening_address">Indirizzo d\'ascolto</string>
@@ -7,8 +6,8 @@
     <string name="main_activity_settings_port_not_listening">Connessioni in entrata disabilitate</string>
     <string name="main_activity_settings_password">Password</string>
     <string name="main_activity_settings_access_key">Chiave d\'accesso</string>
-    <string name="main_activity_settings_start_on_boot">Avvia all\'accensione</string>
-    <string name="main_activity_settings_start_on_boot_delay">Ritardo all\'avvio (s)</string>
+    <string name="main_activity_settings_start_on_boot">Esegui all\'avvio</string>
+    <string name="main_activity_settings_start_on_boot_delay">Ritardo esecuzione all\'avvio (s)</string>
     <string name="main_activity_settings_file_transfer">Trasferimento file</string>
     <string name="main_activity_settings_scaling">Scala risoluzione</string>
     <string name="main_activity_settings_view_only">Modalità spettatore</string>
@@ -22,7 +21,7 @@
     <string name="main_activity_file_access">Accesso ai file</string>
     <string name="main_activity_notifications">Notifiche</string>
     <string name="main_activity_input">Uso degli input</string>
-    <string name="main_activity_start_on_boot">Avvia all\'accensione</string>
+    <string name="main_activity_start_on_boot">Esegui all\'avvio</string>
     <string name="main_activity_address">Il server è raggiungibile presso</string>
     <string name="main_activity_share_link">Accedi da browser</string>
     <string name="main_activity_not_listening">Il server non è in ascolto di connessioni in entrata.</string>
@@ -34,7 +33,7 @@
     <string name="main_activity_reverse_vnc_fail">Connessione a %1$s:%2$d fallita</string>
     <string name="main_activity_repeater_vnc_button">Connessione ad un ripetitore</string>
     <string name="main_activity_repeater_vnc_hint">Host:Porta</string>
-    <string name="main_activity_repeater_vnc_hint_id">ID sul ripetitore</string>
+    <string name="main_activity_repeater_vnc_hint_id">ID del ripetitore</string>
     <string name="main_activity_repeater_vnc_success">Connessione a %1$s:%2$d con ID %3$s riuscita</string>
     <string name="main_activity_repeater_vnc_fail">Connessione a %1$s:%2$d con ID %3$s fallita</string>
     <string name="main_activity_repeater_vnc_input_missing">Host e/o ID mancanti</string>
@@ -52,12 +51,12 @@
     <string name="yes">Sì</string>
     <string name="no">No</string>
     <string name="or">o</string>
-    <string name="input_a11y_service_description">Questo permesso consente di inviare eventi di input al sistema Android, permettendone così il controllo da remoto. Tutti gli input vengono inviati DIRETTAMENTE ad Android, nessuno di essi viene registrato, salvato o condiviso.</string>
+    <string name="input_a11y_service_description">Ciò consente di inviare eventi di input al sistema Android, permettendone così il controllo da remoto. Tutti gli input vengono inviati DIRETTAMENTE ad Android, nessuno di essi viene registrato, salvato o condiviso.</string>
     <string name="input_a11y_title">Servizio d\'accessibilità disabilitato</string>
     <string name="input_a11y_msg_input">Per controllare il dispositivo da remoto, occorre abilitare il servizio d\'accessibilità. Abilitarlo ora?</string>
-    <string name="input_a11y_msg_boot">Per abilitare l\'avvio all\'accensione, occorre abilitare il servizio d\'accessibilità. Abilitarlo ora?</string>
-    <string name="input_a11y_msg_input_and_boot">Per controllare il dispositivo da remoto ed abilitare l\'avvio all\'accensione, occorre abilitare il servizio d\'accessibilità. Abilitarlo ora?</string>
-    <string name="input_a11y_act_not_found_msg">Activity predefinita delle impostazioni d\'accessibilità non trovata. Abilitare manualmente l\'accessibilità per droidVNC-NG, andando alle impostazioni d\'accessibilità del sistema.</string>
+    <string name="input_a11y_msg_boot">Per consentire l\'esecuzione all\'avvio, occorre abilitare il servizio d\'accessibilità. Abilitarlo ora?</string>
+    <string name="input_a11y_msg_input_and_boot">Per controllare il dispositivo da remoto e consentire l\'esecuzione all\'avvio, occorre abilitare il servizio d\'accessibilità. Abilitarlo ora?</string>
+    <string name="input_a11y_act_not_found_msg">Non è stata trovata alcuna Activity predefinita per le impostazioni d\'accessibilità. Abilitare tale servizio su droidVNC-NG manualmente, andando alle impostazioni d\'accessibilità del sistema.</string>
     <string name="write_storage_title">Accesso ai file disabilitato</string>
     <string name="write_storage_msg">Per trasferire file da e verso il dispositivo, occorre abilitare l\'accesso ai file. Abilitarlo ora?</string>
     <string name="write_storage_msg_android_11">Per trasferire file da e verso il dispositivo, occorre abilitare l\'accesso ai file. Sarà possibile salvarli solo nelle cartelle \'Download\' e \'Documenti\'. Abilitare l\'accesso ai file?</string>
