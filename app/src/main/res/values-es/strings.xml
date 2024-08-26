@@ -1,7 +1,6 @@
 <resources>
     <string name="main_activity_title">Administración de droidVNC-NG</string>
     <string name="main_activity_settings">Configuración</string>
-    <string name="main_activity_settings_listening_address">Dirección de escucha</string>
     <string name="main_activity_settings_port">Puerto</string>
     <string name="main_activity_settings_port_not_listening">Conexiones entrantes deshabilitadas</string>
     <string name="main_activity_settings_password">Contraseña</string>
