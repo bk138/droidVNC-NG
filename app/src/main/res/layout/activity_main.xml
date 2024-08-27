@@ -30,8 +30,9 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_port" />
@@ -44,11 +45,11 @@
                     android:text="@string/main_activity_colon" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_column="2"
                     android:padding="10dp"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:inputType="number"
                     android:id="@+id/settings_port"/>
             </TableRow>
@@ -58,8 +59,9 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_password" />
@@ -72,11 +74,11 @@
                     android:text="@string/main_activity_colon" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_column="2"
                     android:padding="10dp"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:inputType="textPassword"
                     android:id="@+id/settings_password"/>
 
@@ -87,8 +89,9 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_access_key" />
@@ -101,11 +104,11 @@
                     android:text="@string/main_activity_colon" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_column="2"
                     android:padding="10dp"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:inputType="textPassword"
                     android:id="@+id/settings_access_key"/>
 
@@ -116,8 +119,9 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_start_on_boot" />
@@ -131,10 +135,10 @@
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/settings_start_on_boot"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_column="2"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:nextFocusDown="@id/settings_start_on_boot_delay"
                     android:text="" />
 
@@ -145,8 +149,9 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_start_on_boot_delay" />
@@ -159,11 +164,11 @@
                     android:text="@string/main_activity_colon" />
 
                 <EditText
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_column="2"
                     android:padding="10dp"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:inputType="number"
                     android:id="@+id/settings_start_on_boot_delay"/>
 
@@ -175,8 +180,9 @@
                 android:id="@+id/settings_row_file_transfer">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_file_transfer" />
@@ -190,10 +196,10 @@
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/settings_file_transfer"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_column="2"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:nextFocusUp="@id/settings_start_on_boot_delay"
                     android:text="" />
 
@@ -205,8 +211,9 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_scaling" />
@@ -220,10 +227,10 @@
 
                 <com.google.android.material.slider.Slider
                     android:id="@+id/settings_scaling"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_column="2"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:layout_gravity="center"
                     android:stepSize="5"
                     android:value="100"
@@ -238,8 +245,9 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_view_only" />
@@ -253,10 +261,10 @@
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/settings_view_only"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_column="2"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:text="" />
 
             </TableRow>
@@ -266,8 +274,9 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
                     android:text="@string/main_activity_settings_show_pointers" />
@@ -281,10 +290,10 @@
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/settings_show_pointers"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_column="2"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:text="" />
 
             </TableRow>
