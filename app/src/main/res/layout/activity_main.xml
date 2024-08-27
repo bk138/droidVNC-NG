@@ -35,6 +35,7 @@
                     android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_settings_port" />
 
                 <TextView
@@ -64,6 +65,7 @@
                     android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_settings_password" />
 
                 <TextView
@@ -94,6 +96,7 @@
                     android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_settings_access_key" />
 
                 <TextView
@@ -124,6 +127,7 @@
                     android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_settings_start_on_boot" />
 
                 <TextView
@@ -154,6 +158,7 @@
                     android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_settings_start_on_boot_delay" />
 
                 <TextView
@@ -185,6 +190,7 @@
                     android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_settings_file_transfer" />
 
                 <TextView
@@ -216,6 +222,7 @@
                     android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_settings_scaling" />
 
                 <TextView
@@ -250,6 +257,7 @@
                     android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_settings_view_only" />
 
                 <TextView
@@ -279,6 +287,7 @@
                     android:layout_weight="1"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_settings_show_pointers" />
 
                 <TextView
