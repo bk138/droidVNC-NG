@@ -328,10 +328,12 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="2"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_screen_capturing" />
 
                 <TextView
@@ -342,8 +344,9 @@
                     android:text="@string/main_activity_colon" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="3"
                     android:layout_column="2"
                     android:padding="10dp"
                     android:text="@string/main_activity_fallback"
@@ -356,10 +359,12 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="2"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_input" />
 
                 <TextView
@@ -370,8 +375,9 @@
                     android:text="@string/main_activity_colon" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="3"
                     android:layout_column="2"
                     android:padding="10dp"
                     android:text="@string/main_activity_fallback"
@@ -386,10 +392,12 @@
                 android:id="@+id/permission_row_file_access">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="2"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_file_access" />
 
                 <TextView
@@ -400,8 +408,9 @@
                     android:text="@string/main_activity_colon" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="3"
                     android:layout_column="2"
                     android:padding="10dp"
                     android:text="@string/main_activity_fallback"
@@ -416,10 +425,12 @@
                 android:id="@+id/permission_row_notification">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="2"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_notifications" />
 
                 <TextView
@@ -430,8 +441,9 @@
                     android:text="@string/main_activity_colon" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="3"
                     android:layout_column="2"
                     android:padding="10dp"
                     android:text="@string/main_activity_fallback"
@@ -446,10 +458,12 @@
                 android:id="@+id/permission_row_start_on_boot">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="2"
                     android:layout_column="0"
                     android:padding="10dp"
+                    android:hyphenationFrequency="full"
                     android:text="@string/main_activity_start_on_boot" />
 
                 <TextView
@@ -460,8 +474,9 @@
                     android:text="@string/main_activity_colon" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="3"
                     android:layout_column="2"
                     android:padding="10dp"
                     android:text="@string/main_activity_fallback"
