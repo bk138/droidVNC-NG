@@ -180,6 +180,26 @@ adb shell am start-foreground-service \
   - Class `net.christianbeier.droidvnc_ng.MainService`
   - Target: Service
 
+##### Start a server with defaults from a Kotlin app
+
+- For apps targeting API level 30+, you'll need to specify that your app is able to see/use
+  droidVNC-NG. You do this by adding the following snippet to your AndroidManifest.xml, right under 
+  the `<manifest>` namepace:
+```xml
+<queries>
+    <package android:name="net.christianbeier.droidvnc_ng" />
+</queries>
+```
+
+- In your Kotlin code, it's then:
+```kotlin
+val intent = Intent()
+intent.setComponent(ComponentName("net.christianbeier.droidvnc_ng", "net.christianbeier.droidvnc_ng.MainService"))
+intent.setAction("net.christianbeier.droidvnc_ng.ACTION_START")
+intent.putExtra("net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY", "<your api key from DroidVNC-NG start screen>")
+startForegroundService(intent)
+```
+
 ##### Make an outbound connection to a listening viewer from the running server
 
 For example from Java code:
