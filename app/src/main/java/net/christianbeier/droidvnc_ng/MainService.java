@@ -129,6 +129,43 @@ public class MainService extends Service {
     /// This maps the Intent's request id to an OutboundClientReconnectData entry
     private final ConcurrentHashMap<String, OutboundClientReconnectData> mOutboundClientsToReconnect = new ConcurrentHashMap<>();
     private final Handler mOutboundClientReconnectHandler = new Handler(Looper.getMainLooper());
+    private final ConnectivityManager.NetworkCallback mNetworkChangeListener = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onAvailable(@NonNull Network network) {
+            // fires when wifi lost and mobile data selected as well, but that won't hurt...
+            Log.d(TAG, "DefaultNetworkCallback: now available: " + network);
+            /*
+                A new default network came up: try to reconnect disconnected outbound clients immediately
+             */
+            mOutboundClientsToReconnect
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue().client == 0) // is disconnected
+                    .forEach(entry -> {
+                        // if the client is set to reconnect, it definitely has tries left on disconnect
+                        // (otherwise it wouldn't be in the list), so fire up reconnect action
+                        Log.d(TAG, "DefaultNetworkCallback: resetting backoff and reconnecting outbound connection w/ request id " + entry.getKey());
+
+                        // remove other callbacks as we don't want 2 runnables for this request on the handler queue at the same time!
+                        mOutboundClientReconnectHandler.removeCallbacksAndMessages(entry.getKey());
+                        // reset backoff for this connection
+                        entry.getValue().backoff = OutboundClientReconnectData.BACKOFF_INIT;
+                        entry.getValue().reconnectTriesLeft = entry.getValue().intent.getIntExtra(EXTRA_RECONNECT_TRIES, 0);
+                        // NB that onAvailable() runs on internal ConnectivityService thread, so still use mOutboundClientReconnectHandler here
+                        mOutboundClientReconnectHandler.postAtTime(
+                                () -> {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        startForegroundService(entry.getValue().intent);
+                                    } else {
+                                        startService(entry.getValue().intent);
+                                    }
+                                },
+                                entry.getKey(),
+                                SystemClock.uptimeMillis() + entry.getValue().backoff * 1000L
+                        );
+                    });
+        }
+    };
 
     private boolean mIsStopping;
     // service is stopping on OUR initiative, NOT by stopService()
@@ -218,44 +255,7 @@ public class MainService extends Service {
         /*
             Register a listener for network-up events
          */
-        ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).registerDefaultNetworkCallback(new ConnectivityManager.NetworkCallback() {
-            @Override
-            public void onAvailable(@NonNull Network network) {
-                // fires when wifi lost and mobile data selected as well, but that won't hurt...
-                Log.d(TAG, "DefaultNetworkCallback: now available: " + network);
-                /*
-                    A new default network came up: try to reconnect disconnected outbound clients immediately
-                 */
-                mOutboundClientsToReconnect
-                        .entrySet()
-                        .stream()
-                        .filter(entry -> entry.getValue().client == 0) // is disconnected
-                        .forEach(entry -> {
-                            // if the client is set to reconnect, it definitely has tries left on disconnect
-                            // (otherwise it wouldn't be in the list), so fire up reconnect action
-                            Log.d(TAG, "DefaultNetworkCallback: resetting backoff and reconnecting outbound connection w/ request id " + entry.getKey());
-
-                            // remove other callbacks as we don't want 2 runnables for this request on the handler queue at the same time!
-                            mOutboundClientReconnectHandler.removeCallbacksAndMessages(entry.getKey());
-                            // reset backoff for this connection
-                            entry.getValue().backoff = OutboundClientReconnectData.BACKOFF_INIT;
-                            entry.getValue().reconnectTriesLeft = entry.getValue().intent.getIntExtra(EXTRA_RECONNECT_TRIES, 0);
-                            // NB that onAvailable() runs on internal ConnectivityService thread, so still use mOutboundClientReconnectHandler here
-                            mOutboundClientReconnectHandler.postAtTime(
-                                    () -> {
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                            startForegroundService(entry.getValue().intent);
-                                        } else {
-                                            startService(entry.getValue().intent);
-                                        }
-                                    },
-                                    entry.getKey(),
-                                    SystemClock.uptimeMillis() + entry.getValue().backoff * 1000L
-                            );
-                        });
-            }
-        });
-
+        ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).registerDefaultNetworkCallback(mNetworkChangeListener);
 
         /*
             Load defaults
@@ -293,6 +293,13 @@ public class MainService extends Service {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             // API levels < 26 don't have the mandatory foreground notification and need manual notification dismissal
             getSystemService(NotificationManager.class).cancelAll();
+        }
+
+        // unregister network change listener
+        try {
+            ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).unregisterNetworkCallback(mNetworkChangeListener);
+        } catch (Exception ignored) {
+            // was not registered
         }
 
         // remove all pending client reconnects
