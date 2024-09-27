@@ -52,7 +52,7 @@ public class OnBootReceiver extends BroadcastReceiver {
                     return;
                 }
 
-                Intent intent = new Intent(context, MainService.class);
+                Intent intent = new Intent(context.getApplicationContext(), MainService.class);
                 intent.setAction(MainService.ACTION_START);
                 intent.putExtra(MainService.EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, defaults.getPort()));
                 intent.putExtra(MainService.EXTRA_PASSWORD, prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, defaults.getPassword()));
