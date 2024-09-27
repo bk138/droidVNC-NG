@@ -462,10 +462,7 @@ public class MainService extends Service {
             ed.putBoolean(PREFS_KEY_SERVER_LAST_SHOW_POINTERS,
                     !intent.getBooleanExtra(EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()))
                             && intent.getBooleanExtra(EXTRA_SHOW_POINTERS, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_SHOW_POINTERS, mDefaults.getShowPointers())));
-            // using fallback screen capture depends on view-only being false
-            ed.putBoolean(PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE,
-                    !intent.getBooleanExtra(EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()))
-                            && intent.getBooleanExtra(EXTRA_FALLBACK_SCREEN_CAPTURE, false));
+            ed.putBoolean(PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE, intent.getBooleanExtra(EXTRA_FALLBACK_SCREEN_CAPTURE, false));
             ed.apply();
             // also set new value for InputService
             InputService.scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
