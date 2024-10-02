@@ -263,3 +263,5 @@ VNC session, setting the interface to a slower speed might help. This workaround
 * If you see a a floating button similar to [this](https://user-images.githubusercontent.com/6049993/194750108-a808b9c3-2bc6-4cdd-ba40-b9c59476a456.jpg)
 on your screen after enabling accessibility, make sure you have the "shortcut" option in accessibility settings
 turned to off.
+
+* Due to [limitations in Android API](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/media/java/android/media/projection/MediaProjectionConfig.java#72), secondary displays are not supported.
