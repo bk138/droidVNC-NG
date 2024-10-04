@@ -1,6 +1,8 @@
 <resources>
     <string name="main_activity_title">Painel Administrativo do droidVNC-NG</string>
     <string name="main_activity_settings">Configurações</string>
+    <string name="main_activity_settings_listening_interface">Interface em escuta</string>
+    <string name="main_activity_settings_listenif_spin_any">Todas</string>
     <string name="main_activity_settings_port">Porta</string>
     <string name="main_activity_settings_port_not_listening">Conexões de entrada desativadas</string>
     <string name="main_activity_settings_password">Senha</string>
