@@ -427,6 +427,10 @@ public class MainService extends Service {
                 }).start();
             } else {
                 stopSelfByUs();
+                Intent answer = new Intent(ACTION_CONNECT_REVERSE);
+                answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+                answer.putExtra(EXTRA_REQUEST_SUCCESS, false);
+                sendBroadcastToOthersAndUs(answer);
             }
 
             return START_NOT_STICKY;
@@ -455,6 +459,10 @@ public class MainService extends Service {
                 }).start();
             } else {
                 stopSelfByUs();
+                Intent answer = new Intent(ACTION_CONNECT_REPEATER);
+                answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+                answer.putExtra(EXTRA_REQUEST_SUCCESS, false);
+                sendBroadcastToOthersAndUs(answer);
             }
 
             return START_NOT_STICKY;
@@ -464,6 +472,10 @@ public class MainService extends Service {
         if(!vncIsActive()) {
             stopSelfByUs();
         }
+        Intent answer = new Intent(intent.getAction());
+        answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+        answer.putExtra(EXTRA_REQUEST_SUCCESS, false);
+        sendBroadcastToOthersAndUs(answer);
 
         return START_NOT_STICKY;
     }
