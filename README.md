@@ -73,7 +73,7 @@ If you have a general question, it's best to [ask in the community chat](https:/
    Internal port: same as external port.
 
 4. Apply the settings, sometimes it requires rebooting a router.
-5. Figure out your public adress i.e. <https://www.hashemian.com/whoami/>.
+5. Figure out your public address i.e. <https://www.hashemian.com/whoami/>.
 6. Use this address and port from above to connect to your device.
 
 ### How to Pre-seed Preferences
