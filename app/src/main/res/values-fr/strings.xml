@@ -1,6 +1,8 @@
 <resources>
     <string name="main_activity_title">Administration de droidVNC-NG</string>
     <string name="main_activity_settings">Paramètres</string>
+    <string name="main_activity_settings_listening_interface">Interface en écoute</string>
+    <string name="main_activity_settings_listenif_spin_any">Toutes</string>
     <string name="main_activity_settings_port">Port</string>
     <string name="main_activity_settings_port_not_listening">Connexions d\'entrée désactivées</string>
     <string name="main_activity_settings_password">Mot de passe</string>
