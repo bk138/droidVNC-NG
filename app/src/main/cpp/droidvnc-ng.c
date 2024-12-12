@@ -431,9 +431,6 @@ JNIEXPORT jlong JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncConn
 
 JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncNewFramebuffer(__unused JNIEnv *env, __unused jobject thiz, jint width, jint height)
 {
-    rfbClientIteratorPtr iterator;
-    rfbClientPtr cl;
-
     char *oldfb, *newfb;
 
     if(!theScreen || !theScreen->frameBuffer)
@@ -489,6 +486,6 @@ JNIEXPORT jint JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetFr
     return theScreen->height;
 }
 
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncIsActive(JNIEnv *env, jobject thiz) {
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncIsActive(__unused JNIEnv *env, __unused jobject thiz) {
     return theScreen && rfbIsActive(theScreen);
 }
