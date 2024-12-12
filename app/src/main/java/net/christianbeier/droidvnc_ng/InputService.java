@@ -149,6 +149,12 @@ public class InputService extends AccessibilityService {
 			// and put new one
 			mKeyboardFocusNodes.put(displayId, event.getSource());
 
+			// send any text selection over to the client as cut text
+			if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED
+					&& Objects.requireNonNull(event.getSource()).getTextSelectionStart() != event.getSource().getTextSelectionEnd()) {
+				CharSequence selection = event.getSource().getText().subSequence(event.getSource().getTextSelectionStart(), event.getSource().getTextSelectionEnd());
+				MainService.vncSendCutText(selection.toString());
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "onAccessibilityEvent: " + Log.getStackTraceString(e));
 		}

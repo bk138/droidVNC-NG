@@ -212,6 +212,7 @@ public class MainService extends Service {
     static native boolean vncUpdateFramebuffer(ByteBuffer buf);
     static native int vncGetFramebufferWidth();
     static native int vncGetFramebufferHeight();
+    static native void vncSendCutText(String text);
 
     @Override
     public IBinder onBind(Intent intent) {

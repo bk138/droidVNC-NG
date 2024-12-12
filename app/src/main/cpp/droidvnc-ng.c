@@ -490,3 +490,34 @@ JNIEXPORT jint JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetFr
 JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncIsActive(__unused JNIEnv *env, __unused jobject thiz) {
     return theScreen && rfbIsActive(theScreen);
 }
+
+JNIEXPORT void JNICALL
+Java_net_christianbeier_droidvnc_1ng_MainService_vncSendCutText(JNIEnv *env, __unused jclass clazz,
+                                                                jstring text) {
+    if (!theScreen || !text)
+        return;
+
+    /*
+     * Convert Android's UTF-8 to Latin-1.
+     * Some viewers eat UTF-8 payload in the Latin-1 cuttext just well, but some don't, so adhere to
+     * the spec and send Latin-1 here.
+    */
+    // text.getBytes("ISO-8859-1")
+    jclass clsString = (*env)->FindClass(env, "java/lang/String");
+    jmethodID midGetBytes = (*env)->GetMethodID(env, clsString, "getBytes", "(Ljava/lang/String;)[B");
+    jstring jCharsetName = (*env)->NewStringUTF(env, "ISO-8859-1");
+    jbyteArray latin1Bytes = (jbyteArray) (*env)->CallObjectMethod(env, text, midGetBytes, jCharsetName);
+
+    // copy byte array contents to C char array on the stack, +1 for null-terminator
+    jsize latin1BytesLength = (*env)->GetArrayLength(env, latin1Bytes);
+    char cText[latin1BytesLength+1];
+    (*env)->GetByteArrayRegion(env, latin1Bytes, 0, latin1BytesLength, (jbyte*)cText);
+    cText[latin1BytesLength] = '\0'; // Null-terminate the C string
+
+    // we can clean up local references here already, cText is on the stack
+    (*env)->DeleteLocalRef(env, jCharsetName);
+    (*env)->DeleteLocalRef(env, latin1Bytes);
+
+    // Send!
+    rfbSendServerCutText(theScreen, cText, (int) strlen(cText));
+}
