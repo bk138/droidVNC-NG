@@ -459,7 +459,8 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
     if(!theScreen || !theScreen->frameBuffer || !cBuf || bufSize < 0)
         return JNI_FALSE;
 
-    double t0 = getTime();
+    // only comment in when needed
+    //double t0 = getTime();
     memcpy(theScreen->frameBuffer, cBuf, bufSize);
 
     // only comment in when needed
