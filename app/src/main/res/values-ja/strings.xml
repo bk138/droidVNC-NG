@@ -64,4 +64,7 @@
     <string name="notification_msg">サーバーのステータス情報を表示し、より簡単にこの管理パネルを表示するために、通知を有効にすることを推奨します。通知を有効にしますか？</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_title">低速なフォールバックキャプチャモードが検出されました</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_msg">高速なモードに切り替えますか？</string>
+    <string name="share_activtiy_server_not_running">テキストは共有されていません。サーバーは実行されていません。</string>
+    <string name="share_activtiy_no_clients_connected">テキストは共有されていません。クライアントが接続されていません。</string>
+    <string name="share_activtiy_shared_successfully">接続されているすべてのクライアントのクリップボードにテキストを共有しました。</string>
 </resources>

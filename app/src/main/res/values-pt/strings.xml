@@ -63,4 +63,7 @@
     <string name="notification_msg">Para poder mostrar informações de status do servidor e fornecer um meio de navegar de volta ao painel de administração com mais facilidade, é recomendável ativar as notificações. Quer ativar as notificações agora?</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_title">Modo de captura de tela de fallback lento detectado</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_msg">Deseja atualizar para o modo rápido agora?</string>
+    <string name="share_activtiy_server_not_running">Texto não partilhado, o servidor não está em execução.</string>
+    <string name="share_activtiy_no_clients_connected">Texto não partilhado, sem cliente ligado.</string>
+    <string name="share_activtiy_shared_successfully">Texto partilhado nas pranchetas de todos os clientes ligados.</string>
 </resources>

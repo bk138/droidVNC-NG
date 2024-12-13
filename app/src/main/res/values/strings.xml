@@ -64,4 +64,7 @@
     <string name="notification_msg">To be able to show server status information and provide a means of navigating back to the admin panel more easily, it is recommended to enable notifications. Do you want to enable notifications now?</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_title">Slow fallback screen capture mode detected</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_msg">Do you want to upgrade to fast mode now?</string>
+    <string name="share_activtiy_server_not_running">Not shared text, server is not running.</string>
+    <string name="share_activtiy_no_clients_connected">Not shared text, no clients connected.</string>
+    <string name="share_activtiy_shared_successfully">Shared text to clipboards of all connected clients.</string>
 </resources>

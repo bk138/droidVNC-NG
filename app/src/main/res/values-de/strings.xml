@@ -63,4 +63,7 @@
     <string name="notification_msg">Um Informationen zum Serverstatus anzeigen zu können und einfacher zum Admin-Panel zurücknavigieren zu können, wird empfohlen, Benachrichtigungen zu aktivieren. Möchten Sie Benachrichtigungen jetzt aktivieren?</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_title">Langsamer Fallback-Modus für Bildschirmaufnahme erkannt</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_msg">Möchten Sie auf den schnellen Modus upgraden?</string>
+    <string name="share_activtiy_server_not_running">Text nicht geteilt, Server läuft nicht.</string>
+    <string name="share_activtiy_no_clients_connected">Text nicht geteilt, keine Clients verbunden.</string>
+    <string name="share_activtiy_shared_successfully">Text in Zwischenablage aller verbundenen Clients geteilt.</string>
 </resources>

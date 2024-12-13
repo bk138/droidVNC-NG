@@ -63,4 +63,7 @@
     <string name="notification_msg">为了能够显示服务器状态信息并提供更轻松地导航回管理面板的方法，建议启用通知。 您想立即启用通知吗？</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_title">检测到慢回退屏幕捕获模式</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_msg">您想现在升级到快速模式吗？</string>
+    <string name="share_activtiy_server_not_running">未共享文本，服务器未运行。</string>
+    <string name="share_activtiy_no_clients_connected">未共享文本，未连接客户端。</string>
+    <string name="share_activtiy_shared_successfully">已将文本共享到所有连接客户端的剪贴板。</string>
 </resources>

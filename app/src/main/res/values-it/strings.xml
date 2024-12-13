@@ -63,4 +63,7 @@
     <string name="notification_msg">Per vedere le informazioni sullo stato del server e tornare più facilmente alla pagina d\'amministrazione, si raccomanda di abilitare le notifiche. Abilitarle ora?</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_title">Individuata una modalità lenta di fallback per la cattura dello schermo</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_msg">Utilizzare la modalità veloce?</string>
+    <string name="share_activtiy_server_not_running">Testo non condiviso, il server non è in esecuzione.</string>
+    <string name="share_activtiy_no_clients_connected">Testo non condiviso, nessun client connesso.</string>
+    <string name="share_activtiy_shared_successfully">Testo condiviso negli appunti di tutti i client connessi.</string>
 </resources>

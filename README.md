@@ -20,8 +20,8 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * Network export of device frame buffer with optional server-side scaling.
 * Injection of remote pointer and basic keyboard events (Latin-1 charset plus some special keys, into EditText widgets only).
 * Handling of client-to-server text copy & paste. Note that server-to-client copy & paste only works
-  for text selected in editable text fields. Also, only text in the Latin-1 encoding range is currently
-  supported.
+  automatically for text selected in editable text fields or manually by sharing text to droidVNC-NG
+  via Android's Share-To functionality. Also, only text in the Latin-1 encoding range is currently supported.
 * Handling of special keys to trigger 'Recent Apps' overview, Home button, Back button and Power button.
 * Android permission handling.
 * Screen rotation handling.

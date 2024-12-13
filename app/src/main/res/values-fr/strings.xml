@@ -63,4 +63,7 @@
     <string name="notification_msg">Pour voir les informations sur l\'état du serveur et retourner plus aisément a la page d\'administration, il est recommandé d\'activer les notifications. Voulez-vous les activer maintenant?</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_title">Un mode lent de fallback pour la capture de l\'écran a été detecté</string>
     <string name="mediaprojection_request_activity_fallback_screen_capture_msg">Voulez-vous utiliser le mode rapide?</string>
+    <string name="share_activtiy_server_not_running">Texte non partagé, le serveur n\'est pas en cours d\'exécution.</string>
+    <string name="share_activtiy_no_clients_connected">Texte non partagé, aucun client connecté.</string>
+    <string name="share_activtiy_shared_successfully">Texte partagé dans les presse-papiers de tous les clients connectés.</string>
 </resources>

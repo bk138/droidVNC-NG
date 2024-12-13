@@ -101,6 +101,17 @@
             android:excludeFromRecents="true"
             />
 
+        <activity android:name=".ShareActivity"
+            android:theme="@style/TransparentTheme"
+            android:excludeFromRecents="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>
