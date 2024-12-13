@@ -757,6 +757,13 @@ public class MainService extends Service {
         }
     }
 
+    static int getClientCount() {
+        try {
+            return instance.mNumberOfClients;
+        } catch (Exception ignored) {
+            return 0;
+        }
+    }
 
     /**
      * Get non-loopback IPv4 addresses.
