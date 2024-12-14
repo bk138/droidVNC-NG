@@ -26,7 +26,8 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * Android permission handling.
 * Screen rotation handling.
 * File transfer via the local network, assuming TightVNC viewer for Windows version 1.3.x is used.
-* Password protection for secure-in-terms-of-VNC connection.
+* Password protection for secure-in-terms-of-VNC connection. Note that setting a password is mandatory
+  in case you want to access the server using MacOS's built-in Screen Sharing app.
 * Ability to specify the port used.
 * Start of background service on device boot.
 * Reverse VNC.
