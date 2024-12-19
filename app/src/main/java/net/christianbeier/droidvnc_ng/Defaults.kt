@@ -41,6 +41,10 @@ class Defaults {
     }
 
     @EncodeDefault
+    var listenInterface = "loopback"
+        private set
+
+    @EncodeDefault
     var port = 5900
         private set
 
