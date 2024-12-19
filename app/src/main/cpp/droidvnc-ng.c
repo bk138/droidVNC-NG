@@ -141,6 +141,27 @@ static void onCutText(char *text, __unused int len, rfbClientPtr cl)
     (*theVM)->DetachCurrentThread(theVM);
 }
 
+static void onCutTextUTF8(char *text, __unused int len, rfbClientPtr cl)
+{
+    JNIEnv *env = NULL;
+    if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "onCutTextUTF8: could not attach thread, there will be no input");
+        return;
+    }
+
+    jstring jText = (*env)->NewStringUTF(env, text);
+
+    jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "onCutText", "(Ljava/lang/String;J)V");
+    (*env)->CallStaticVoidMethod(env, theInputService, mid, jText, (jlong)cl);
+
+    (*env)->DeleteLocalRef(env, jText);
+
+    if ((*env)->ExceptionCheck(env))
+        (*env)->ExceptionDescribe(env);
+
+    (*theVM)->DetachCurrentThread(theVM);
+}
+
 void onClientDisconnected(rfbClientPtr cl)
 {
     JNIEnv *env = NULL;
@@ -312,7 +333,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     theScreen->ptrAddEvent = onPointerEvent;
     theScreen->kbdAddEvent = onKeyEvent;
     theScreen->setXCutText = onCutText;
-    theScreen->setXCutTextUTF8 = onCutText;
+    theScreen->setXCutTextUTF8 = onCutTextUTF8;
     theScreen->newClientHook = onClientConnected;
 
     theScreen->port = port;
@@ -510,14 +531,27 @@ Java_net_christianbeier_droidvnc_1ng_MainService_vncSendCutText(JNIEnv *env, __u
 
     // copy byte array contents to C char array on the stack, +1 for null-terminator
     jsize latin1BytesLength = (*env)->GetArrayLength(env, latin1Bytes);
-    char cText[latin1BytesLength+1];
-    (*env)->GetByteArrayRegion(env, latin1Bytes, 0, latin1BytesLength, (jbyte*)cText);
-    cText[latin1BytesLength] = '\0'; // Null-terminate the C string
+    char cLatin1Text[latin1BytesLength + 1];
+    (*env)->GetByteArrayRegion(env, latin1Bytes, 0, latin1BytesLength, (jbyte*)cLatin1Text);
+    cLatin1Text[latin1BytesLength] = '\0'; // Null-terminate the C string
 
-    // we can clean up local references here already, cText is on the stack
+    // we can clean up local references here already, cLatin1Text is on the stack
     (*env)->DeleteLocalRef(env, jCharsetName);
     (*env)->DeleteLocalRef(env, latin1Bytes);
 
-    // Send!
-    rfbSendServerCutText(theScreen, cText, (int) strlen(cText));
+    /*
+     * Get UTF-8 string, too
+     */
+    const char *cUTF8Text = (*env)->GetStringUTFChars(env, text, NULL);
+
+    /*
+     * Send!
+     */
+    rfbSendServerCutTextUTF8(theScreen, (char*) cUTF8Text, (int) strlen(cUTF8Text), cLatin1Text, (int) strlen(cLatin1Text));
+
+    /*
+     * Clean up
+     */
+    if (cUTF8Text)
+         (*env)->ReleaseStringUTFChars(env, text, cUTF8Text);
 }
