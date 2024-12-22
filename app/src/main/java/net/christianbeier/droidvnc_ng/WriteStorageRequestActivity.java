@@ -38,7 +38,7 @@ public class WriteStorageRequestActivity extends AppCompatActivity {
 
     private static final String TAG = "WriteStorageRequestActivity";
     private static final int REQUEST_WRITE_STORAGE = 44;
-    private static final String PREFS_KEY_PERMISSION_ASKED_BEFORE = "write_storage_permission_asked_before";
+    public static final String PREFS_KEY_PERMISSION_ASKED_BEFORE = "write_storage_permission_asked_before";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
