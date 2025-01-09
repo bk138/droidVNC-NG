@@ -5,12 +5,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 34
+    compileSdk 34
 
     defaultConfig {
         applicationId "net.christianbeier.droidvnc_ng"
-        minSdkVersion 24
-        targetSdkVersion 34
+        minSdk 24
+        targetSdk 34
         versionCode 40
         versionName "2.8.0"
 
