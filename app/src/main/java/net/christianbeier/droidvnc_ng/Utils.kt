@@ -12,6 +12,10 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+
 object Utils {
 
     @JvmStatic
@@ -92,4 +96,65 @@ object Utils {
         directory.deleteRecursively()
     }
 
+
+    @JvmStatic
+    fun getAvailableNICs(upIfOnly: Boolean, ipAvailOnly: Boolean): ArrayList<NetworkInterface> {
+        val nics = ArrayList<NetworkInterface>();
+
+        try {
+            // Thanks go to https://stackoverflow.com/a/20103869/361413
+            val nis = NetworkInterface.getNetworkInterfaces();
+            while (nis.hasMoreElements()) {
+                val ni = nis.nextElement();
+                if (upIfOnly) {
+                    if (ipAvailOnly) {
+                        // Check if there are actual ipv4 addresses, if so, add the NetworkInterface
+                        // Should we consider IPv6 also? Technically yes, but the program, at the moment, does not support them.
+                        for (ia in ni.getInterfaceAddresses()) {
+                            if (ia.getAddress().getAddress().count() == 4) {
+                                nics.add(ni);
+                                break;
+                            }
+                        }
+                    } else {
+                        nics.add(ni);
+                    }
+                } else {
+                    nics.add(ni);
+                }
+            }
+        } catch (e: SocketException) {
+            //unused
+        }
+
+        return nics;
+    }
+
+
+    @JvmStatic
+    fun getAvailableNICs(): ArrayList<NetworkInterface> {
+        return getAvailableNICs(false, true);
+    }
+
+
+    @JvmStatic
+    fun getIPv4ForInterface(ni: String): ArrayList<String>{
+        return getIPv4ForInterface(NetworkInterface.getByName(ni));
+    }
+
+
+    @JvmStatic
+    fun getIPv4ForInterface(ni: NetworkInterface): ArrayList<String>{
+        val ipv4s = ArrayList<String>();
+
+        for (ia in ni.getInterfaceAddresses()) {
+            //filter for ipv4/ipv6
+            if (ia.getAddress().getAddress().count() == 4) {
+                //4 for ipv4, 16 for ipv6
+                ipv4s.add(ia.getAddress().toString().replace("/", ""));
+            }
+        }
+
+        return ipv4s;
+    }
 }
