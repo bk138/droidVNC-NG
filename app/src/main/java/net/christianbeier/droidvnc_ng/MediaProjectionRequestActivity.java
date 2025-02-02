@@ -29,7 +29,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.media.projection.MediaProjectionConfig;
 import android.media.projection.MediaProjectionManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -48,12 +50,21 @@ public class MediaProjectionRequestActivity extends AppCompatActivity {
 
         MediaProjectionManager mMediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 
+        // API 34 and newer has possibility to capture one app only, but we have no way of restricting
+        // input to one app only so when the user leaves the projected app, they can still input blindly,
+        // potentially causing havoc. Thus, limit our projections to whole screen.
+        Intent screenCaptureIntent;
+        if (Build.VERSION.SDK_INT >= 34)
+            screenCaptureIntent = mMediaProjectionManager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay());
+        else
+            screenCaptureIntent = mMediaProjectionManager.createScreenCaptureIntent();
+
         if(!mIsUpgradingFromFallbackScreenCapture) {
             // ask for MediaProjection right away
             Log.i(TAG, "Requesting confirmation");
             // This initiates a prompt dialog for the user to confirm screen projection.
             startActivityForResult(
-                    mMediaProjectionManager.createScreenCaptureIntent(),
+                    screenCaptureIntent,
                     REQUEST_MEDIA_PROJECTION);
         } else {
             // show user info dialog before asking
@@ -64,7 +75,7 @@ public class MediaProjectionRequestActivity extends AppCompatActivity {
                     .setPositiveButton(R.string.yes, (dialog, which) -> {
                         // This initiates a prompt dialog for the user to confirm screen projection.
                         startActivityForResult(
-                                mMediaProjectionManager.createScreenCaptureIntent(),
+                                screenCaptureIntent,
                                 REQUEST_MEDIA_PROJECTION);
                     })
                     .setNegativeButton(getString(R.string.no), (dialog, which) -> finish())
