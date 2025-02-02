@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- On API 30 and later flagRetrieveInteractiveWindows canRetrieveWindowContent
+     are needed for onAccessibilityEvent() to trigger  -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+	android:accessibilityEventTypes="typeViewFocused|typeViewClicked|typeViewSelected|typeViewTextSelectionChanged"
+    android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows|flagIncludeNotImportantViews|flagInputMethodEditor"
+    android:notificationTimeout="30"
+	android:description="@string/input_a11y_service_description"
+	android:canPerformGestures="true"
+	android:canTakeScreenshot="true"
+	android:canRetrieveWindowContent="true"
+    />
