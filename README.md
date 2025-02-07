@@ -19,7 +19,7 @@ If you have a general question, it's best to [ask in the community chat](https:/
 
 * Network export of device frame buffer with optional server-side scaling.
 * Injection of remote pointer and basic keyboard events (Latin-1 charset plus some special keys,
-  supporting any kind of UI widget on Android 13 and newer, on older devices into EditText widgets only).
+  supporting any kind of UI widget on Android 14 and newer, on older devices into EditText widgets only).
 * Handling of client-to-server text copy & paste. Note that server-to-client copy & paste only works
   automatically for text selected in editable text fields or manually by sharing text to droidVNC-NG
   via Android's Share-To functionality.

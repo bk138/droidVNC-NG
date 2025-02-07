@@ -381,8 +381,11 @@ public class InputService extends AccessibilityService {
 			/*
 				API 33+ way of sending key events. This is preferred there as it also works with non-
 				AccessibilityNode-widgets.
+				We are only using this on API level 34+ though as level 33 does not have
+				https://cs.android.com/android/_/android/platform/frameworks/base/+/89025ff06e71f9e37b4bb6f94e43ff50f246d581
+				applied.
 			 */
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			if (Build.VERSION.SDK_INT >= 34) {
 				// If this fails, it falls back to the usual AccessibilityNodeInfo approach
 				try {
 					/*
