@@ -2,6 +2,8 @@
     <string name="main_activity_title">Amministrazione di droidVNC-NG</string>
     <string name="main_activity_settings">Impostazioni</string>
     <string name="main_activity_settings_port">Porta</string>
+    <string name="main_activity_settings_listening_interface">Interfaccia in ascolto</string>
+    <string name="main_activity_settings_listenif_spin_any">Tutte</string>
     <string name="main_activity_settings_port_not_listening">Connessioni in entrata disabilitate</string>
     <string name="main_activity_settings_password">Password</string>
     <string name="main_activity_settings_access_key">Chiave di accesso API Intent</string>
