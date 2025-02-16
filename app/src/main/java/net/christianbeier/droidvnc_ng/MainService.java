@@ -72,7 +72,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class MainService extends Service {
+import net.christianbeier.droidvnc_ng.ifaceutils.IfCollector;
+import net.christianbeier.droidvnc_ng.ifaceutils.NetIfData;
+import net.christianbeier.droidvnc_ng.ifaceutils.NetworkInterfaceTester;
+
+public class MainService extends Service implements NetworkInterfaceTester.OnNetworkStateChangedListener {
 
     private static final String TAG = "MainService";
     static final int NOTIFICATION_ID = 11;
@@ -82,6 +86,7 @@ public class MainService extends Service {
     public static final String ACTION_CONNECT_REPEATER = "net.christianbeier.droidvnc_ng.ACTION_CONNECT_REPEATER";
     public static final String EXTRA_REQUEST_ID = "net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID";
     public static final String EXTRA_REQUEST_SUCCESS = "net.christianbeier.droidvnc_ng.EXTRA_REQUEST_SUCCESS";
+    public static final String EXTRA_LISTEN_INTERFACE = "net.christianbeier.droidvnc_ng.EXTRA_LISTEN_INTERFACE";
     public static final String EXTRA_HOST = "net.christianbeier.droidvnc_ng.EXTRA_HOST";
     public static final String EXTRA_PORT = "net.christianbeier.droidvnc_ng.EXTRA_PORT";
     public static final String EXTRA_REPEATER_ID = "net.christianbeier.droidvnc_ng.EXTRA_REPEATER_ID";
@@ -119,8 +124,18 @@ public class MainService extends Service {
 
     final static String ACTION_HANDLE_NOTIFICATION_RESULT = "action_handle_notification_result";
 
+
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_STATE = "state_media_projection";
+
+    private static final String PREFS_KEY_SERVER_LAST_LISTEN_INTERFACE = "server_last_listen_interface" ;
+    private static final String PREFS_KEY_SERVER_LAST_PORT = "server_last_port" ;
+    private static final String PREFS_KEY_SERVER_LAST_PASSWORD = "server_last_password" ;
+    private static final String PREFS_KEY_SERVER_LAST_FILE_TRANSFER = "server_last_file_transfer" ;
+    private static final String PREFS_KEY_SERVER_LAST_SHOW_POINTERS = "server_last_show_pointers" ;
+    private static final String PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE = "server_last_fallback_screen_capture" ;
+    private static final String PREFS_KEY_SERVER_LAST_START_REQUEST_ID = "server_last_start_request_id" ;
+
 
     private int mResultCode;
     private Intent mResultData;
@@ -209,7 +224,7 @@ public class MainService extends Service {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private native boolean vncStartServer(int width, int height, int port, String desktopName, String password, String httpRootDir);
+    private native boolean vncStartServer(int width, int height, String listenIf, int port, String desktopName, String password, String httpRootDir);
     private native boolean vncStopServer();
     private native boolean vncIsActive();
     private native long vncConnectReverse(String host, int port);
@@ -234,6 +249,7 @@ public class MainService extends Service {
         Log.d(TAG, "onCreate");
 
         instance = this;
+        NetworkInterfaceTester.getInstance(this).addOnNetworkStateChangedListener(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             /*
@@ -404,18 +420,24 @@ public class MainService extends Service {
                 startScreenCapture();
             } else {
                 DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
+
                 Intent startIntent = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this));
+                String listenIf = startIntent.getStringExtra(EXTRA_LISTEN_INTERFACE) != null ? startIntent.getStringExtra(EXTRA_LISTEN_INTERFACE) : PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, mDefaults.getListenInterface());
+                String listenAddress = MainService.getInterfaceListeningIPv4Address(listenIf);
                 int port = startIntent.getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
                 String password = startIntent.getStringExtra(EXTRA_PASSWORD) != null ? startIntent.getStringExtra(EXTRA_PASSWORD) : PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword());
+
                 // get device name
                 String name = Utils.getDeviceName(this);
 
                 boolean status = vncStartServer(displayMetrics.widthPixels,
                         displayMetrics.heightPixels,
+                        listenAddress,
                         port,
                         name,
                         password,
                         getFilesDir().getAbsolutePath() + File.separator + "novnc");
+
                 Intent answer = new Intent(ACTION_START);
                 answer.putExtra(EXTRA_REQUEST_ID, startIntent.getStringExtra(EXTRA_REQUEST_ID));
                 answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
@@ -454,11 +476,16 @@ public class MainService extends Service {
             if (mResultCode != 0 && mResultData != null
                     || (Build.VERSION.SDK_INT >= 30 && startIntent.getBooleanExtra(EXTRA_FALLBACK_SCREEN_CAPTURE, false))) {
                 DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
+
+                String listenIf = startIntent.getStringExtra(EXTRA_LISTEN_INTERFACE) != null ? startIntent.getStringExtra(EXTRA_LISTEN_INTERFACE) : PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, mDefaults.getListenInterface());
+                String listenAddress = MainService.getInterfaceListeningIPv4Address(listenIf);
                 int port = startIntent.getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
                 String password = startIntent.getStringExtra(EXTRA_PASSWORD) != null ? startIntent.getStringExtra(EXTRA_PASSWORD) : PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword());
+
                 String name = Utils.getDeviceName(this);
                 boolean status = vncStartServer(displayMetrics.widthPixels,
                         displayMetrics.heightPixels,
+                        listenAddress,
                         port,
                         name,
                         password,
@@ -520,6 +547,13 @@ public class MainService extends Service {
             MainServicePersistData.saveStartIntent(this, intent);
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor ed = prefs.edit();
+
+
+            ed.putString(PREFS_KEY_SERVER_LAST_LISTEN_INTERFACE, intent.getStringExtra(EXTRA_LISTEN_INTERFACE) != null ? intent.getStringExtra(EXTRA_LISTEN_INTERFACE) : prefs.getString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, mDefaults.getListenInterface()));
+            ed.putInt(PREFS_KEY_SERVER_LAST_PORT, intent.getIntExtra(EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort())));
+            ed.putString(PREFS_KEY_SERVER_LAST_PASSWORD, intent.getStringExtra(EXTRA_PASSWORD) != null ? intent.getStringExtra(EXTRA_PASSWORD) : prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
+            ed.putBoolean(PREFS_KEY_SERVER_LAST_FILE_TRANSFER, intent.getBooleanExtra(EXTRA_FILE_TRANSFER, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTransfer())));
+
             ed.putBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !intent.getBooleanExtra(EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly())));
             ed.putFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, intent.getFloatExtra(EXTRA_SCALING, prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling())));
             ed.apply();
@@ -874,6 +908,7 @@ public class MainService extends Service {
         }
     }
 
+
     static boolean isServerActive() {
         try {
             return instance.vncIsActive();
@@ -890,13 +925,41 @@ public class MainService extends Service {
         }
     }
 
+
+
     /**
-     * Get non-loopback IPv4 addresses.
+     * This returns A SINGLE ipv4 address for the selected option id (representing an interface)... giving the possibility
+     * to the server to listen to that address only.
+     * @param ifName name that defines the interface to be used (may be an actual interface name or an option id, like "any" and "loopback")
+     * @return null if the interface is 0.0.0.0 (any), otherwise, the needed ipv4
+     */
+    static String getInterfaceListeningIPv4Address(String ifName) {
+        if (!NetIfData.isOptionIdAny(ifName)) {
+            ArrayList<String> ipv4s = null;
+
+            if (NetIfData.isOptionIdLoopback(ifName)) {
+                ipv4s = Utils.getIPv4ForInterface(IfCollector.getInstance().getLoopback().getNetworkInterface());
+
+            } else {
+                ipv4s = Utils.getIPv4ForInterface(ifName);
+
+            }
+
+            if (ipv4s.size() > 0) {
+                return ipv4s.get(0);
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Get all available IPv4 addresses for reaching the current running server.
      * @return A list of strings, each containing one IPv4 address.
      */
-    static ArrayList<String> getIPv4s() {
-
-        Set<String> hosts = new LinkedHashSet<>();
+    static ArrayList<String> getReachableIPv4s() {
+        ArrayList<String> hosts = new ArrayList<>();
 
         // if running on Chrome OS, this prop is set and contains the device's IPv4 address,
         // see https://chromeos.dev/en/games/optimizing-games-networking
@@ -906,27 +969,46 @@ public class MainService extends Service {
         }
 
         // not running on Chrome OS
-        try {
-            // thanks go to https://stackoverflow.com/a/20103869/361413
-            Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
-            NetworkInterface ni;
-            while (nis.hasMoreElements()) {
-                ni = nis.nextElement();
-                if (!ni.isLoopback()/*not loopback*/ && ni.isUp()/*it works now*/) {
-                    for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
-                        //filter for ipv4/ipv6
-                        if (ia.getAddress().getAddress().length == 4) {
-                            //4 for ipv4, 16 for ipv6
-                            hosts.add(ia.getAddress().toString().replaceAll("/", ""));
-                        }
-                    }
+        String listenInterface = MainService.getListenInterface();
+        IfCollector ifColl = IfCollector.getInstance();
+        ArrayList<String> ipv4s = null;
+
+        if (NetIfData.isOptionIdAny(listenInterface)) {
+            // Any mode: get all the available NICs and add their IPv4
+            for (int i = 0; i < ifColl.getSize(); i++) {
+                NetIfData nid = ifColl.getNetIf(i);
+                ipv4s = Utils.getIPv4ForInterface(nid.getNetworkInterface());
+                for (String ipv4 : ipv4s) {
+                    hosts.add(ipv4);
                 }
             }
-        } catch (SocketException e) {
-            //unused
+
+        } else {
+            // Single interface: get all its IPv4 addresses
+            if (NetIfData.isOptionIdLoopback(listenInterface)) {
+                ipv4s = Utils.getIPv4ForInterface(ifColl.getLoopback().getNetworkInterface());
+
+            } else {
+                ipv4s = Utils.getIPv4ForInterface(listenInterface);
+            }
+
+            for (String ipv4 : ipv4s) {
+                hosts.add(ipv4);
+            }
         }
 
         return new ArrayList<>(hosts);
+    }
+
+
+
+    static String getListenInterface() {
+        try {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(instance);
+            return prefs.getString(PREFS_KEY_SERVER_LAST_LISTEN_INTERFACE, new Defaults(instance).getListenInterface());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     static int getPort() {
@@ -1044,6 +1126,7 @@ public class MainService extends Service {
         }
     }
 
+
     /**
      * Helper that adds {@link #EXTRA_FALLBACK_SCREEN_CAPTURE} to the given intent if
      * PROJECT_MEDIA app op is not set.
@@ -1070,4 +1153,16 @@ public class MainService extends Service {
         intent.putExtra(MainService.EXTRA_FALLBACK_SCREEN_CAPTURE, useFallback);
     }
 
+
+
+
+
+    public void onNetworkStateChanged(NetworkInterfaceTester nit) {
+        if (isServerActive()) {
+            if (!nit.isIfEnabled(getListenInterface())) {
+                // Stop if the server is active but the interface is not!
+                this.stopSelf();
+            }
+        }
+    }
 }
