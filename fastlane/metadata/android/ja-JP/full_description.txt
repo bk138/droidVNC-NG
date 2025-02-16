@@ -1,1 +1,1 @@
-これは、Android 5以上で利用可能なAPIを使用した最新のAndroid VNCサーバーです。Rootアクセスは必要ありません。 フォーク元の<a href='https://github.com/oNaiPs/droidVncServer'>droid-VNC-server</a>に敬意を払い、 droidVNC-NGと名付けました。
+これは、Android 7以上で利用可能なAPIを使用した最新のAndroid VNCサーバーです。Rootアクセスは必要ありません。 フォーク元の<a href='https://github.com/oNaiPs/droidVncServer'>droid-VNC-server</a>に敬意を払い、 droidVNC-NGと名付けました。
