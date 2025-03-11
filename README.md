@@ -63,7 +63,7 @@ Leaving ports always open is considered risky, and either way most users don't e
 
 #### Direct VNC
 If you prefer automatically accepting connections from outside:
-1. You should allow [Port Forwarding](https://en.wikipedia.org/wiki/Port_forwarding) in your router's Firewall settings. Either use [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play) or log in to your router's settings (usually open 192.168.1.1 in your browser, some routers have password written on them).
+1. You should allow [Port Forwarding](https://en.wikipedia.org/wiki/Port_forwarding) in your router's Firewall settings. Either find a [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play) supported app to open ports dynamically or log in to your router's settings (usually open 192.168.1.1 in your browser, some routers have password written on them).
 2. Find Port Forwarding, usually it's somewhere in **Network - Firewall - Port Forwards**.
 3. Create a new rule, this is an example from OpenWRT firmware.
    
