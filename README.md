@@ -31,8 +31,8 @@ If you have a general question, it's best to [ask in the community chat](https:/
   in case you want to access the server using MacOS's built-in Screen Sharing app.
 * Ability to specify the port used.
 * Start of background service on device boot.
-* Reverse VNC.
-* Ability to connect to a UltraVNC-style Mode-2 repeater.
+* [Reverse VNC](#reverse-vnc).
+* Ability to [connect to a UltraVNC-style Mode-2 repeater](#reverse-vnc).
 * Functionality to provide default configuration via a JSON file.
 * Zeroconf/Bonjour publishing for VNC server auto-discovery.
 * Per-client mouse pointers on the controlled device.
@@ -55,9 +55,15 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * **End** acts as Power button
 * **Escape** acts as Back button
 
-### For accepting connections from outside
+### How to connect?
+#### Reverse VNC
+Leaving ports always open is considered risky, and either way most users don't even know how to open them in their routers. You can thus leave the VNC port **blank** and instead connect to either a **listening viewer** or a **repeater**:
 
-1. You should allow [Port Forwarding](https://en.wikipedia.org/wiki/Port_forwarding) in your router's Firewall settings. Login to your router's settings (usually open 192.168.1.1 in your browser, some routers have password written on them).
+![image](https://github.com/user-attachments/assets/aa2f9cc2-87d0-438e-9604-c8f9e8db97c3)
+
+#### Direct VNC
+If you prefer automatically accepting connections from outside:
+1. You should allow [Port Forwarding](https://en.wikipedia.org/wiki/Port_forwarding) in your router's Firewall settings. Either use [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play) or log in to your router's settings (usually open 192.168.1.1 in your browser, some routers have password written on them).
 2. Find Port Forwarding, usually it's somewhere in **Network - Firewall - Port Forwards**.
 3. Create a new rule, this is an example from OpenWRT firmware.
    
