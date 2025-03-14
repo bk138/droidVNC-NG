@@ -21,6 +21,7 @@
 
 package net.christianbeier.droidvnc_ng;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -31,6 +32,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -338,32 +340,7 @@ public class MainService extends Service {
                 stopScreenCapture();
                 startScreenCapture();
             } else {
-                DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
-                int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
-                // get device name
-                String name = Utils.getDeviceName(this);
-
-                boolean status = vncStartServer(displayMetrics.widthPixels,
-                        displayMetrics.heightPixels,
-                        port,
-                        name,
-                        PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()),
-                        getFilesDir().getAbsolutePath() + File.separator + "novnc");
-                Intent answer = new Intent(ACTION_START);
-                answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
-                answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
-                sendBroadcastToOthersAndUs(answer);
-
-                if (status) {
-                    startScreenCapture();
-                    registerNSD(name, port);
-                    updateNotification();
-                    // if we got here, we want to restart if we were killed
-                    return START_REDELIVER_INTENT;
-                } else {
-                    stopSelfByUs();
-                    return START_NOT_STICKY;
-                }
+                return step4StartCapture();
             }
         }
 
@@ -379,64 +356,14 @@ public class MainService extends Service {
                 // or ask for capturing permission first (then going in step 4)
             }
 
-            if (mResultCode != 0 && mResultData != null
-                    || (Build.VERSION.SDK_INT >= 30 && PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE, false))) {
-                DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
-                int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
-                String name = Utils.getDeviceName(this);
-                boolean status = vncStartServer(displayMetrics.widthPixels,
-                        displayMetrics.heightPixels,
-                        port,
-                        name,
-                        PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()),
-                        getFilesDir().getAbsolutePath() + File.separator + "novnc");
-
-                Intent answer = new Intent(ACTION_START);
-                answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
-                answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
-                sendBroadcastToOthersAndUs(answer);
-
-                if(status) {
-                    startScreenCapture();
-                    registerNSD(name, port);
-                    updateNotification();
-                    // if we got here, we want to restart if we were killed
-                    return START_REDELIVER_INTENT;
-                } else {
-                    stopSelfByUs();
-                    return START_NOT_STICKY;
-                }
-            } else {
-                Log.i(TAG, "Requesting confirmation");
-                // This initiates a prompt dialog for the user to confirm screen projection.
-                Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
-                mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(mediaProjectionRequestIntent);
-                // if screen capturing was not started, we don't want a restart if we were killed
-                // especially, we don't want the permission asking to replay.
-                return START_NOT_STICKY;
-            }
+            return step3RequestProjectionPermission();
         }
 
         if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle input result");
             // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission or notification permission
             InputService.isInputEnabled = intent.getBooleanExtra(EXTRA_INPUT_RESULT, false);
-            if(Build.VERSION.SDK_INT < 33) {
-                Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
-                writeStorageRequestIntent.putExtra(
-                        EXTRA_FILE_TRANSFER,
-                        PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FILE_TRANSFER, mDefaults.getFileTransfer()));
-                writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(writeStorageRequestIntent);
-            } else {
-                Intent notificationRequestIntent = new Intent(this, NotificationRequestActivity.class);
-                notificationRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(notificationRequestIntent);
-            }
-            // if screen capturing was not started, we don't want a restart if we were killed
-            // especially, we don't want the permission asking to replay.
-            return START_NOT_STICKY;
+            return step2RequestStorageOrNotifications();
         }
 
         if(ACTION_START.equals(intent.getAction())) {
@@ -469,13 +396,7 @@ public class MainService extends Service {
             InputService.scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
 
             // Step 1: check input/start-on-boot permission
-            Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
-            inputRequestIntent.putExtra(EXTRA_VIEW_ONLY, intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
-            inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(inputRequestIntent);
-            // if screen capturing was not started, we don't want a restart if we were killed
-            // especially, we don't want the permission asking to replay.
-            return START_NOT_STICKY;
+            return step1ConnectInputService(intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
         }
 
         if(ACTION_STOP.equals(intent.getAction())) {
@@ -507,6 +428,10 @@ public class MainService extends Service {
                 }).start();
             } else {
                 stopSelfByUs();
+                Intent answer = new Intent(ACTION_CONNECT_REVERSE);
+                answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+                answer.putExtra(EXTRA_REQUEST_SUCCESS, false);
+                sendBroadcastToOthersAndUs(answer);
             }
 
             return START_NOT_STICKY;
@@ -535,6 +460,10 @@ public class MainService extends Service {
                 }).start();
             } else {
                 stopSelfByUs();
+                Intent answer = new Intent(ACTION_CONNECT_REPEATER);
+                answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+                answer.putExtra(EXTRA_REQUEST_SUCCESS, false);
+                sendBroadcastToOthersAndUs(answer);
             }
 
             return START_NOT_STICKY;
@@ -544,8 +473,99 @@ public class MainService extends Service {
         if(!vncIsActive()) {
             stopSelfByUs();
         }
+        Intent answer = new Intent(intent.getAction());
+        answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+        answer.putExtra(EXTRA_REQUEST_SUCCESS, false);
+        sendBroadcastToOthersAndUs(answer);
 
         return START_NOT_STICKY;
+    }
+
+    private int step1ConnectInputService(boolean viewOnly) {
+        if (!InputService.isConnected()) {
+            Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
+            inputRequestIntent.putExtra(EXTRA_VIEW_ONLY, viewOnly);
+            inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(inputRequestIntent);
+            // if screen capturing was not started, we don't want a restart if we were killed
+            // especially, we don't want the permission asking to replay.
+            return START_NOT_STICKY;
+        } else {
+            InputService.isInputEnabled = true;
+            return step2RequestStorageOrNotifications();
+        }
+    }
+
+    private int step2RequestStorageOrNotifications() {
+        if (Build.VERSION.SDK_INT < 33) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
+                    !PreferenceManager.getDefaultSharedPreferences(this).getBoolean(WriteStorageRequestActivity.PREFS_KEY_PERMISSION_ASKED_BEFORE, false)) {
+                Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
+                writeStorageRequestIntent.putExtra(
+                        EXTRA_FILE_TRANSFER,
+                        PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FILE_TRANSFER, mDefaults.getFileTransfer()));
+                writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(writeStorageRequestIntent);
+            } else {
+                return step3RequestProjectionPermission();
+            }
+        } else {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
+                    !PreferenceManager.getDefaultSharedPreferences(this).getBoolean(NotificationRequestActivity.PREFS_KEY_POST_NOTIFICATION_PERMISSION_ASKED_BEFORE, false)) {
+                Intent notificationRequestIntent = new Intent(this, NotificationRequestActivity.class);
+                notificationRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(notificationRequestIntent);
+            } else {
+                return step3RequestProjectionPermission();
+            }
+        }
+        // if screen capturing was not started, we don't want a restart if we were killed
+        // especially, we don't want the permission asking to replay.
+        return START_NOT_STICKY;
+    }
+
+    private int step3RequestProjectionPermission() {
+        if (mResultCode != 0 && mResultData != null
+                || (Build.VERSION.SDK_INT >= 30 && PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE, false))) {
+            return step4StartCapture();
+        } else {
+            Log.i(TAG, "Requesting confirmation");
+            // This initiates a prompt dialog for the user to confirm screen projection.
+            Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
+            mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(mediaProjectionRequestIntent);
+            // if screen capturing was not started, we don't want a restart if we were killed
+            // especially, we don't want the permission asking to replay.
+            return START_NOT_STICKY;
+        }
+    }
+
+    private int step4StartCapture() {
+        DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
+        int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
+        String name = Utils.getDeviceName(this);
+        boolean status = vncStartServer(displayMetrics.widthPixels,
+                displayMetrics.heightPixels,
+                port,
+                name,
+                PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()),
+                getFilesDir().getAbsolutePath() + File.separator + "novnc");
+
+        Intent answer = new Intent(ACTION_START);
+        answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
+        answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+        sendBroadcastToOthersAndUs(answer);
+
+        if (status) {
+            startScreenCapture();
+            registerNSD(name, port);
+            updateNotification();
+            // if we got here, we want to restart if we were killed
+            return START_REDELIVER_INTENT;
+        } else {
+            stopSelfByUs();
+            return START_NOT_STICKY;
+        }
     }
 
     @SuppressLint("WakelockTimeout")
