@@ -56,15 +56,13 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * **Escape** acts as Back button
 
 ### How to connect?
-### Disclaimer
-Leaving ports always open is considered risky, and either way most users don't even know how to open them in their routers in the first place.
 #### Reverse VNC
-Here's how to avoid the [risk of open ports](#disclaimer):
-1. Leave the VNC port **blank**, which will get the app to state the server **isn't** listening for incoming connections.
-1. Make outbound connections by choosing either "Connect to a **listening viewer**" or "Connect to a **repeater**".
+Here's how to connect to a listening VNC viewer without opening a server port:
+1. Leave the VNC port **blank**, which will get the Admin Panel to state the server **isn't** listening for incoming connections.
+2. Make outbound connections by choosing either "Connect to a **listening viewer**" or "Connect to a **repeater**".
 
 #### Direct VNC
-If you prefer automatically accepting connections from outside (which [exposes your open ports](#disclaimer)):
+If you want to accept incoming connections from VNC viewers:
 1. You should allow [Port Forwarding](https://en.wikipedia.org/wiki/Port_forwarding) in your router's Firewall settings. Either find a [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play) supported app to open ports dynamically or log in to your router's settings (usually open 192.168.1.1 in your browser, some routers have password written on them).
 2. Find Port Forwarding, usually it's somewhere in **Network - Firewall - Port Forwards**.
 3. Create a new rule, this is an example from OpenWRT firmware.
