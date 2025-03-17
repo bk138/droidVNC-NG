@@ -306,6 +306,8 @@ public class MainService extends Service {
         // remove all pending client reconnects
         mOutboundClientReconnectHandler.removeCallbacksAndMessages(null);
 
+        MainServicePersistData.clear(this);
+
         stopScreenCapture();
         vncStopServer();
         instance = null;
@@ -355,6 +357,7 @@ public class MainService extends Service {
                 sendBroadcastToOthersAndUs(answer);
 
                 if (status) {
+                    MainServicePersistData.saveLastActiveState(this, true);
                     startScreenCapture();
                     registerNSD(name, port);
                     updateNotification();
@@ -397,6 +400,7 @@ public class MainService extends Service {
                 sendBroadcastToOthersAndUs(answer);
 
                 if(status) {
+                    MainServicePersistData.saveLastActiveState(this, true);
                     startScreenCapture();
                     registerNSD(name, port);
                     updateNotification();
@@ -451,6 +455,8 @@ public class MainService extends Service {
             }
 
             // Step 0: persist given arguments to be able to recover from possible crash later
+            MainServicePersistData.clear(this);
+            MainServicePersistData.saveStartIntent(this, intent);
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor ed = prefs.edit();
             ed.putInt(PREFS_KEY_SERVER_LAST_PORT, intent.getIntExtra(EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort())));
