@@ -37,6 +37,14 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".OnPackageReplacedReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
         <!--
             We export the MainService without a permission to enable 3rd party apps to send
             send Intents to it (otherwise they would have to know about the permission at build
