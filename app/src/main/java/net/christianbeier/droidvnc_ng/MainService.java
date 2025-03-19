@@ -329,7 +329,7 @@ public class MainService extends Service {
             return START_NOT_STICKY;
         }
 
-        if(ACTION_HANDLE_MEDIA_PROJECTION_RESULT.equals(intent.getAction())) {
+        if(ACTION_HANDLE_MEDIA_PROJECTION_RESULT.equals(intent.getAction()) && MainServicePersistData.loadStartIntent(this) != null) {
             Log.d(TAG, "onStartCommand: handle media projection result");
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
@@ -370,7 +370,8 @@ public class MainService extends Service {
             }
         }
 
-        if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction()) || ACTION_HANDLE_NOTIFICATION_RESULT.equals(intent.getAction())) {
+        if((ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction()) || ACTION_HANDLE_NOTIFICATION_RESULT.equals(intent.getAction()))
+                && MainServicePersistData.loadStartIntent(this) != null) {
             if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction())) {
                 Log.d(TAG, "onStartCommand: handle write storage result");
                 // Step 3 on Android < 13: coming back from write storage permission check, start capturing
@@ -422,7 +423,7 @@ public class MainService extends Service {
             }
         }
 
-        if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction())) {
+        if(ACTION_HANDLE_INPUT_RESULT.equals(intent.getAction()) && MainServicePersistData.loadStartIntent(this) != null) {
             Log.d(TAG, "onStartCommand: handle input result");
             // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission or notification permission
             InputService.isInputEnabled = intent.getBooleanExtra(EXTRA_INPUT_RESULT, false);
