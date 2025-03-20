@@ -104,13 +104,6 @@ public class MainService extends Service {
 
     final static String ACTION_HANDLE_NOTIFICATION_RESULT = "action_handle_notification_result";
 
-    private static final String PREFS_KEY_SERVER_LAST_PORT = "server_last_port" ;
-    private static final String PREFS_KEY_SERVER_LAST_PASSWORD = "server_last_password" ;
-    private static final String PREFS_KEY_SERVER_LAST_FILE_TRANSFER = "server_last_file_transfer" ;
-    private static final String PREFS_KEY_SERVER_LAST_SHOW_POINTERS = "server_last_show_pointers" ;
-    private static final String PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE = "server_last_fallback_screen_capture" ;
-    private static final String PREFS_KEY_SERVER_LAST_START_REQUEST_ID = "server_last_start_request_id" ;
-
     private int mResultCode;
     private Intent mResultData;
     private PowerManager.WakeLock mWakeLock;
@@ -341,7 +334,9 @@ public class MainService extends Service {
                 startScreenCapture();
             } else {
                 DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
-                int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
+                Intent startIntent = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this));
+                int port = startIntent.getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
+                String password = startIntent.getStringExtra(EXTRA_PASSWORD) != null ? startIntent.getStringExtra(EXTRA_PASSWORD) : PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword());
                 // get device name
                 String name = Utils.getDeviceName(this);
 
@@ -349,10 +344,10 @@ public class MainService extends Service {
                         displayMetrics.heightPixels,
                         port,
                         name,
-                        PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()),
+                        password,
                         getFilesDir().getAbsolutePath() + File.separator + "novnc");
                 Intent answer = new Intent(ACTION_START);
-                answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
+                answer.putExtra(EXTRA_REQUEST_ID, startIntent.getStringExtra(EXTRA_REQUEST_ID));
                 answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
                 sendBroadcastToOthersAndUs(answer);
 
@@ -383,20 +378,23 @@ public class MainService extends Service {
                 // or ask for capturing permission first (then going in step 4)
             }
 
+            Intent startIntent = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this));
+
             if (mResultCode != 0 && mResultData != null
-                    || (Build.VERSION.SDK_INT >= 30 && PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE, false))) {
+                    || (Build.VERSION.SDK_INT >= 30 && startIntent.getBooleanExtra(EXTRA_FALLBACK_SCREEN_CAPTURE, false))) {
                 DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
-                int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
+                int port = startIntent.getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
+                String password = startIntent.getStringExtra(EXTRA_PASSWORD) != null ? startIntent.getStringExtra(EXTRA_PASSWORD) : PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword());
                 String name = Utils.getDeviceName(this);
                 boolean status = vncStartServer(displayMetrics.widthPixels,
                         displayMetrics.heightPixels,
                         port,
                         name,
-                        PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_PASSWORD, mDefaults.getPassword()),
+                        password,
                         getFilesDir().getAbsolutePath() + File.separator + "novnc");
 
                 Intent answer = new Intent(ACTION_START);
-                answer.putExtra(EXTRA_REQUEST_ID, PreferenceManager.getDefaultSharedPreferences(this).getString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, null));
+                answer.putExtra(EXTRA_REQUEST_ID, startIntent.getStringExtra(EXTRA_REQUEST_ID));
                 answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
                 sendBroadcastToOthersAndUs(answer);
 
@@ -431,7 +429,7 @@ public class MainService extends Service {
                 Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
                 writeStorageRequestIntent.putExtra(
                         EXTRA_FILE_TRANSFER,
-                        PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFS_KEY_SERVER_LAST_FILE_TRANSFER, mDefaults.getFileTransfer()));
+                        Objects.requireNonNull(MainServicePersistData.loadStartIntent(this)).getBooleanExtra(EXTRA_FILE_TRANSFER, PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTransfer())));
                 writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(writeStorageRequestIntent);
             } else {
@@ -460,17 +458,8 @@ public class MainService extends Service {
             MainServicePersistData.saveStartIntent(this, intent);
             final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor ed = prefs.edit();
-            ed.putInt(PREFS_KEY_SERVER_LAST_PORT, intent.getIntExtra(EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort())));
-            ed.putString(PREFS_KEY_SERVER_LAST_PASSWORD, intent.getStringExtra(EXTRA_PASSWORD) != null ? intent.getStringExtra(EXTRA_PASSWORD) : prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
-            ed.putBoolean(PREFS_KEY_SERVER_LAST_FILE_TRANSFER, intent.getBooleanExtra(EXTRA_FILE_TRANSFER, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTransfer())));
             ed.putBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !intent.getBooleanExtra(EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly())));
             ed.putFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, intent.getFloatExtra(EXTRA_SCALING, prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling())));
-            ed.putString(PREFS_KEY_SERVER_LAST_START_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
-            // showing pointers depends on view-only being false
-            ed.putBoolean(PREFS_KEY_SERVER_LAST_SHOW_POINTERS,
-                    !intent.getBooleanExtra(EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()))
-                            && intent.getBooleanExtra(EXTRA_SHOW_POINTERS, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_SHOW_POINTERS, mDefaults.getShowPointers())));
-            ed.putBoolean(PREFS_KEY_SERVER_LAST_FALLBACK_SCREEN_CAPTURE, intent.getBooleanExtra(EXTRA_FALLBACK_SCREEN_CAPTURE, false));
             ed.apply();
             // also set new value for InputService
             InputService.scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
@@ -564,7 +553,11 @@ public class MainService extends Service {
             instance.mWakeLock.acquire();
             instance.mNumberOfClients++;
             instance.updateNotification();
-            InputService.addClient(client, PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(PREFS_KEY_SERVER_LAST_SHOW_POINTERS, new Defaults(instance).getShowPointers()));
+            // showing pointers depends on view-only being false
+            Intent startIntent = Objects.requireNonNull(MainServicePersistData.loadStartIntent(instance));
+            boolean showPointer = !startIntent.getBooleanExtra(EXTRA_VIEW_ONLY, PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, new Defaults(instance).getViewOnly()))
+                    && startIntent.getBooleanExtra(EXTRA_SHOW_POINTERS, PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(Constants.PREFS_KEY_SETTINGS_SHOW_POINTERS, new Defaults(instance).getShowPointers()));
+            InputService.addClient(client, showPointer);
             if(!MediaProjectionService.isMediaProjectionEnabled() && InputService.isTakingScreenShots()) {
                 Log.d(TAG, "onClientConnected: in fallback screen capture mode, asking for upgrade");
                 Intent mediaProjectionRequestIntent = new Intent(instance, MediaProjectionRequestActivity.class);
@@ -814,8 +807,7 @@ public class MainService extends Service {
 
     static int getPort() {
         try {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(instance);
-            return prefs.getInt(PREFS_KEY_SERVER_LAST_PORT, new Defaults(instance).getPort());
+            return Objects.requireNonNull(MainServicePersistData.loadStartIntent(instance)).getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(instance).getInt(Constants.PREFS_KEY_SETTINGS_PORT, instance.mDefaults.getPort()));
         } catch (Exception e) {
             return -2;
         }
@@ -873,7 +865,7 @@ public class MainService extends Service {
     }
 
     private void updateNotification() {
-        int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(PREFS_KEY_SERVER_LAST_PORT, mDefaults.getPort());
+        int port = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this)).getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
         if (port < 0) {
             ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
                     .notify(NOTIFICATION_ID,
