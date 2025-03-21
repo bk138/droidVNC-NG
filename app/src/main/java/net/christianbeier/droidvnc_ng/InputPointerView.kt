@@ -32,6 +32,9 @@ class InputPointerView(
     private val path: Path = Path()
     private val windowManager: WindowManager
 
+    // get density for later drawing in size adapted to display
+    private val density: Float = Utils.getDisplayMetrics(context, displayId).density
+
     private val paintFill: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         color = Color.argb((0.9f * 255).toInt(), (red * 255).toInt(), (green * 255).toInt(), (blue * 255).toInt())
@@ -42,8 +45,6 @@ class InputPointerView(
         color = Color.BLACK
         strokeWidth = 0.8f  * density
     }
-
-    private val density: Float
 
     private val layoutParams = WindowManager.LayoutParams(
         WindowManager.LayoutParams.WRAP_CONTENT,
@@ -58,9 +59,6 @@ class InputPointerView(
     
     init {
         val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-
-        // get density for later drawing in size adapted to display
-        density = Utils.getDisplayMetrics(context, displayId).density
 
         windowManager = if (displayId != Display.DEFAULT_DISPLAY) {
             if (Build.VERSION.SDK_INT < 32) {
