@@ -43,9 +43,13 @@ android {
         }
     }
     namespace 'net.christianbeier.droidvnc_ng'
-    // needed for Gradle 8.x w/ Kotlin 1.8.x
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
 }
 
