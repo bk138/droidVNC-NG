@@ -41,10 +41,15 @@ object MainServicePersistData {
      */
     @JvmStatic
     fun loadStartIntent(context: Context): Intent? {
-        return Intent.parseUri(
-            PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(PREFS_KEY_MAIN_SERVICE_PERSIST_DATA_START_INTENT, null), 0
-        )
+        val intentUri = PreferenceManager.getDefaultSharedPreferences(context)
+            .getString(PREFS_KEY_MAIN_SERVICE_PERSIST_DATA_START_INTENT, null)
+        return if(intentUri != null) {
+            Intent.parseUri(
+                intentUri, 0
+            )
+        } else {
+            null
+        }
     }
 
     /**
