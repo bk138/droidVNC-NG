@@ -299,8 +299,6 @@ public class MainService extends Service {
         // remove all pending client reconnects
         mOutboundClientReconnectHandler.removeCallbacksAndMessages(null);
 
-        MainServicePersistData.clear(this);
-
         stopScreenCapture();
         vncStopServer();
         instance = null;
@@ -359,6 +357,7 @@ public class MainService extends Service {
                     // if we got here, we want to restart if we were killed
                     return START_REDELIVER_INTENT;
                 } else {
+                    MainServicePersistData.clear(this);
                     stopSelfByUs();
                     return START_NOT_STICKY;
                 }
@@ -406,6 +405,7 @@ public class MainService extends Service {
                     // if we got here, we want to restart if we were killed
                     return START_REDELIVER_INTENT;
                 } else {
+                    MainServicePersistData.clear(this);
                     stopSelfByUs();
                     return START_NOT_STICKY;
                 }
@@ -476,6 +476,7 @@ public class MainService extends Service {
 
         if(ACTION_STOP.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: stop");
+            MainServicePersistData.clear(this);
             stopSelfByUs();
             Intent answer = new Intent(ACTION_STOP);
             answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
