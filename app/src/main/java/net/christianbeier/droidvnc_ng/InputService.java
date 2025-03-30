@@ -68,8 +68,6 @@ public class InputService extends AccessibilityService {
 	private static class InputContext {
 		// pointer-related
 		boolean isButtonOneDown;
-		Path path = new Path();
-		long lastGestureStartTime;
 		GestureCallback gestureCallback = new GestureCallback();
 		InputPointerView pointerView;
 		// keyboard-related
@@ -107,6 +105,9 @@ public class InputService extends AccessibilityService {
 	private static final String TAG = "InputService";
 
 	private static InputService instance;
+
+	private final GestureHandler gestureHandler;
+
 	/**
         * Scaling factor that's applied to incoming pointer events by dividing coordinates by
         * the given factor.
@@ -124,6 +125,14 @@ public class InputService extends AccessibilityService {
 	 */
 	private final Map<Integer, AccessibilityNodeInfo> mKeyboardFocusNodes = new ConcurrentHashMap<>();
 
+	public InputService() {
+		super();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			gestureHandler = new ProgressiveGestureHandler(this);
+		} else {
+			gestureHandler = new LegacyGestureHandler(this);
+		}
+	}
 
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -260,7 +269,7 @@ public class InputService extends AccessibilityService {
 			// down, was up
 			if ((buttonMask & (1 << 0)) != 0 && !inputContext.isButtonOneDown) {
 				inputContext.isButtonOneDown = true;
-				instance.startGesture(inputContext, x, y);
+				instance.startGesture(x, y);
 			}
 
 			// down, was down
@@ -786,30 +795,16 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
-	private void startGesture(InputContext inputContext, int x, int y) {
-		inputContext.path.reset();
-		inputContext.path.moveTo( x, y );
-		inputContext.lastGestureStartTime = System.currentTimeMillis();
+	private void startGesture(int x, int y) {
+		gestureHandler.startGesture(x, y);
 	}
 
 	private void continueGesture(InputContext inputContext, int x, int y) {
-		inputContext.path.lineTo( x, y );
+		gestureHandler.continueGesture(inputContext, x, y);
 	}
 
 	private void endGesture(InputContext inputContext, int x, int y) {
-		inputContext.path.lineTo( x, y );
-		long duration = System.currentTimeMillis() - inputContext.lastGestureStartTime;
-		// gesture ended very very shortly after start (< 1ms). make it 1ms to get dispatched to the system
-		if (duration == 0) duration = 1;
-		GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription( inputContext.path, 0, duration);
-		GestureDescription.Builder builder = new GestureDescription.Builder();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-			builder.setDisplayId(inputContext.getDisplayId());
-		}
-		builder.addStroke(stroke);
-		// Docs says: Any gestures currently in progress, whether from the user, this service, or another service, will be cancelled.
-		// But at least on API level 32, setting different display ids with the builder allows for parallel input.
-		dispatchGesture(builder.build(), null, null);
+		gestureHandler.endGesture(inputContext, x, y);
 	}
 
 
@@ -878,5 +873,113 @@ public class InputService extends AccessibilityService {
 		action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, cursorPos);
 		action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, cursorPos);
 		node.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_SELECTION.getId(), action);
+	}
+
+	private interface GestureHandler {
+		void startGesture(int x, int y);
+		void continueGesture(InputContext inputContext, int x, int y);
+		void endGesture(InputContext inputContext, int x, int y);
+	}
+
+	private static class LegacyGestureHandler implements GestureHandler {
+		private final AccessibilityService service;
+		private final Path path = new Path();
+		private long lastGestureStartTime;
+
+		private LegacyGestureHandler(AccessibilityService service) {
+			this.service = service;
+		}
+
+		@Override
+		public void startGesture(int x, int y) {
+			path.reset();
+			path.moveTo( x, y );
+			lastGestureStartTime = System.currentTimeMillis();
+		}
+
+		@Override
+		public void continueGesture(InputContext inputContext, int x, int y) {
+			path.lineTo( x, y );
+		}
+
+		@Override
+		public void endGesture(InputContext inputContext, int x, int y) {
+			path.lineTo( x, y );
+			long duration = System.currentTimeMillis() - lastGestureStartTime;
+			// gesture ended very very shortly after start (< 1ms). make it 1ms to get dispatched to the system
+			if (duration == 0) duration = 1;
+			GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription( path, 0, duration);
+			GestureDescription.Builder builder = new GestureDescription.Builder();
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+				builder.setDisplayId(inputContext.getDisplayId());
+			}
+			builder.addStroke(stroke);
+			// Docs says: Any gestures currently in progress, whether from the user, this service, or another service, will be cancelled.
+			// But at least on API level 32, setting different display ids with the builder allows for parallel input.
+			service.dispatchGesture(builder.build(), null, null);
+		}
+	}
+
+	@RequiresApi(api = Build.VERSION_CODES.O)
+	private static class ProgressiveGestureHandler implements GestureHandler {
+		private final AccessibilityService service;
+		private final Path currentPath = new Path();
+		private GestureDescription.StrokeDescription currentStroke;
+		private long lastDispatch;
+
+		@RequiresApi(api = Build.VERSION_CODES.O)
+		public ProgressiveGestureHandler(AccessibilityService service) {
+			this.service = service;
+		}
+
+		@Override
+		public void startGesture(int x, int y) {
+			lastDispatch = SystemClock.elapsedRealtime();
+			currentPath.reset();
+			currentPath.moveTo(x, y);
+		}
+
+		@Override
+		public void continueGesture(InputContext inputContext, int x, int y) {
+			dispatch(inputContext, x, y, true);
+			currentPath.reset();
+			currentPath.moveTo(x, y);
+		}
+
+		@Override
+		public void endGesture(InputContext inputContext, int x, int y) {
+			dispatch(inputContext, x, y, false);
+			currentStroke = null;
+		}
+
+		private void dispatch(InputContext inputContext, int x, int y, boolean willContinue) {
+			currentPath.lineTo(x, y);
+			long currentTime = SystemClock.elapsedRealtime();
+			long duration = Math.max(1, currentTime - lastDispatch);
+
+			if (currentStroke == null) {
+				currentStroke = new GestureDescription.StrokeDescription(
+						currentPath,
+						0,
+						duration,
+						willContinue
+				);
+			} else {
+				currentStroke = currentStroke.continueStroke(
+						currentPath,
+						0,
+						duration,
+						willContinue
+				);
+			}
+
+			GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+				gestureBuilder.setDisplayId(inputContext.getDisplayId());
+			}
+			gestureBuilder.addStroke(currentStroke);
+			service.dispatchGesture(gestureBuilder.build(), null, null);
+			lastDispatch = currentTime;
+		}
 	}
 }
