@@ -76,7 +76,11 @@ public class NotificationRequestActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainService.class);
         intent.setAction(MainService.ACTION_HANDLE_NOTIFICATION_RESULT);
         intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(this).getAccessKey()));
-        startService(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
         finish();
     }
 
