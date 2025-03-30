@@ -68,6 +68,7 @@ public class InputService extends AccessibilityService {
 	private static class InputContext {
 		// pointer-related
 		boolean isButtonOneDown;
+		GestureHandler gestureHandler;
 		GestureCallback gestureCallback = new GestureCallback();
 		InputPointerView pointerView;
 		// keyboard-related
@@ -106,8 +107,6 @@ public class InputService extends AccessibilityService {
 
 	private static InputService instance;
 
-	private final GestureHandler gestureHandler;
-
 	/**
         * Scaling factor that's applied to incoming pointer events by dividing coordinates by
         * the given factor.
@@ -124,15 +123,6 @@ public class InputService extends AccessibilityService {
 	 * System keyboard input foci, display-specific starting on Android 10, see <a href="https://source.android.com/docs/core/display/multi_display/displays#focus">Android docs</a>
 	 */
 	private final Map<Integer, AccessibilityNodeInfo> mKeyboardFocusNodes = new ConcurrentHashMap<>();
-
-	public InputService() {
-		super();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			gestureHandler = new ProgressiveGestureHandler(this);
-		} else {
-			gestureHandler = new LegacyGestureHandler(this);
-		}
-	}
 
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -203,6 +193,13 @@ public class InputService extends AccessibilityService {
 			int displayId = Display.DEFAULT_DISPLAY;
 			InputContext inputContext = new InputContext();
 			inputContext.setDisplayId(displayId);
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				inputContext.gestureHandler = new ProgressiveGestureHandler(instance);
+			} else {
+				inputContext.gestureHandler = new LegacyGestureHandler(instance);
+			}
+
 			if(withPointer) {
 				inputContext.pointerView = new InputPointerView(
 						instance,
@@ -269,7 +266,7 @@ public class InputService extends AccessibilityService {
 			// down, was up
 			if ((buttonMask & (1 << 0)) != 0 && !inputContext.isButtonOneDown) {
 				inputContext.isButtonOneDown = true;
-				instance.startGesture(x, y);
+				instance.startGesture(inputContext, x, y);
 			}
 
 			// down, was down
@@ -795,16 +792,16 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
-	private void startGesture(int x, int y) {
-		gestureHandler.startGesture(x, y);
+	private void startGesture(InputContext inputContext, int x, int y) {
+		inputContext.gestureHandler.startGesture(x, y);
 	}
 
 	private void continueGesture(InputContext inputContext, int x, int y) {
-		gestureHandler.continueGesture(inputContext, x, y);
+		inputContext.gestureHandler.continueGesture(inputContext, x, y);
 	}
 
 	private void endGesture(InputContext inputContext, int x, int y) {
-		gestureHandler.endGesture(inputContext, x, y);
+		inputContext.gestureHandler.endGesture(inputContext, x, y);
 	}
 
 
