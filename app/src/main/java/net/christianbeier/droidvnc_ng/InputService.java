@@ -106,7 +106,6 @@ public class InputService extends AccessibilityService {
 	private static final String TAG = "InputService";
 
 	private static InputService instance;
-
 	/**
         * Scaling factor that's applied to incoming pointer events by dividing coordinates by
         * the given factor.
@@ -123,6 +122,7 @@ public class InputService extends AccessibilityService {
 	 * System keyboard input foci, display-specific starting on Android 10, see <a href="https://source.android.com/docs/core/display/multi_display/displays#focus">Android docs</a>
 	 */
 	private final Map<Integer, AccessibilityNodeInfo> mKeyboardFocusNodes = new ConcurrentHashMap<>();
+
 
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event) {
