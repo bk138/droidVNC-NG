@@ -144,7 +144,11 @@ public class InputRequestActivity extends AppCompatActivity {
             intent.setAction(MainService.ACTION_HANDLE_INPUT_RESULT);
             intent.putExtra(MainService.EXTRA_INPUT_RESULT, isA11yEnabled);
             intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(this).getAccessKey()));
-            startService(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            } else {
+                startService(intent);
+            }
         }
         finish();
     }
