@@ -99,7 +99,11 @@ public class MediaProjectionRequestActivity extends AppCompatActivity {
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_CODE, resultCode);
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_DATA, data);
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, mIsUpgradingFromFallbackScreenCapture);
-            startService(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            } else {
+                startService(intent);
+            }
             finish();
         }
     }
