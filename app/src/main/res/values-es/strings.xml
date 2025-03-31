@@ -14,7 +14,7 @@
     <string name="main_activity_permissions_dashboard">Panel de los permisos</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Captura de pantalla</string>
-    <string name="main_activity_fallback">Fallback</string>
+    <string name="main_activity_fallback">Fallback, haga clic aquí para actualizar</string>
     <string name="main_activity_granted">Permitido</string>
     <string name="main_activity_denied">Denegado</string>
     <string name="main_activity_file_access">Acceso a los ficheros</string>

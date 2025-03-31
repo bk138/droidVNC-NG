@@ -15,7 +15,7 @@
     <string name="main_activity_permissions_dashboard">権限ダッシュボード</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">スクリーンキャプチャ</string>
-    <string name="main_activity_fallback">フォールバック</string>
+    <string name="main_activity_fallback">フォールバック、アップグレードするにはここをクリックしてください</string>
     <string name="main_activity_granted">許可</string>
     <string name="main_activity_denied">拒否</string>
     <string name="main_activity_file_access">ファイルアクセス</string>

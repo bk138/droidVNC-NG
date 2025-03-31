@@ -699,14 +699,24 @@ public class MainActivity extends AppCompatActivity {
         if(MediaProjectionService.isMediaProjectionEnabled()) {
             screenCapturingStatus.setText(R.string.main_activity_granted);
             screenCapturingStatus.setTextColor(getColor(R.color.granted));
+            screenCapturingStatus.setOnClickListener(null);
         }
         if(!MediaProjectionService.isMediaProjectionEnabled()) {
             screenCapturingStatus.setText(R.string.main_activity_denied);
             screenCapturingStatus.setTextColor(getColor(R.color.denied));
+            screenCapturingStatus.setOnClickListener(null);
         }
         if(!MediaProjectionService.isMediaProjectionEnabled() && InputService.isTakingScreenShots()) {
             screenCapturingStatus.setText(R.string.main_activity_fallback);
             screenCapturingStatus.setTextColor(getColor(R.color.fallback));
+            // if fallback is on, this means the server is running, safe to start MediaProjectionRequestActivity
+            // with EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE which will call back into MainService
+            screenCapturingStatus.setOnClickListener(view -> {
+                Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
+                mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, true);
+                startActivity(mediaProjectionRequestIntent);
+            });
         }
 
         /*
