@@ -640,6 +640,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
+        // onWindowFocusChanged() works OK on API level 26 and newer
+        if(Build.VERSION.SDK_INT >= 26) {
+            updatePermissionsDisplay();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // onResume() is needed on API levels earlier than 26
+        if(Build.VERSION.SDK_INT < 26) {
+            updatePermissionsDisplay();
+        }
+    }
+
+    private void updatePermissionsDisplay() {
 
         /*
             Update Input permission display.
