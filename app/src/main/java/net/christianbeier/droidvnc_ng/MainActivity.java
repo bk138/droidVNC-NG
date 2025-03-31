@@ -718,6 +718,7 @@ public class MainActivity extends AppCompatActivity {
                     && InputService.isConnected()) {
                 startOnBootStatus.setText(R.string.main_activity_granted);
                 startOnBootStatus.setTextColor(getColor(R.color.granted));
+                startOnBootStatus.setOnClickListener(null);
             } else {
                 startOnBootStatus.setText(R.string.main_activity_denied);
                 startOnBootStatus.setTextColor(getColor(R.color.denied));
