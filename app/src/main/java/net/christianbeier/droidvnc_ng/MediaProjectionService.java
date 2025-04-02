@@ -58,6 +58,7 @@ public class MediaProjectionService extends Service {
     private ImageReader mImageReader;
     private VirtualDisplay mVirtualDisplay;
     private MediaProjection mMediaProjection;
+    private MediaProjection.Callback mMediaProjectionCallback;
     private MediaProjectionManager mMediaProjectionManager;
 
     private boolean mHasPortraitInLandscapeWorkaroundApplied;
@@ -106,9 +107,42 @@ public class MediaProjectionService extends Service {
         }
 
         /*
-            Get the MediaProjectionManager
+            Setup MediaProjection stuff we can setup now
          */
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        mMediaProjectionCallback = new MediaProjection.Callback() {
+            @Override
+            public void onStop() {
+                Log.d(TAG, "callback: onStop");
+                super.onStop();
+
+                // make sure isMediaProjectionEnabled() reports the right status
+                stopScreenCapture();
+
+                if(MainService.isServerActive()) {
+                    // tell MainService, it will take care of stopping us and maybe use a fallback
+                    Intent intent = new Intent(MediaProjectionService.this, MainService.class);
+                    intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
+                    intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(MediaProjectionService.this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(MediaProjectionService.this).getAccessKey()));
+                    intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_DOWNGRADING_TO_FALLBACK_SCREEN_CAPTURE, true);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(intent);
+                    } else {
+                        startService(intent);
+                    }
+                }
+            }
+
+            @Override
+            public void onCapturedContentResize(int width, int height) {
+                Log.d(TAG, "callback: onCapturedContentResize " + width + "x" + height);
+            }
+
+            @Override
+            public void onCapturedContentVisibilityChanged(boolean isVisible) {
+                Log.d(TAG, "callback: onCapturedContentVisibilityChanged " + isVisible);
+            }
+        };
     }
 
 
@@ -166,40 +200,9 @@ public class MediaProjectionService extends Service {
             return;
         }
 
-        // Android 14 and newer require this callback
-        mMediaProjection.registerCallback(new MediaProjection.Callback() {
-                                              @Override
-                                              public void onStop() {
-                                                  Log.d(TAG, "callback: onStop");
-                                                  super.onStop();
-
-                                                  stopScreenCapture();
-
-                                                  if(MainService.isServerActive()) {
-                                                      // tell MainService, it will take care of stopping us and maybe use a fallback
-                                                      Intent intent = new Intent(MediaProjectionService.this, MainService.class);
-                                                      intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
-                                                      intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(MediaProjectionService.this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(MediaProjectionService.this).getAccessKey()));
-                                                      intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_DOWNGRADING_TO_FALLBACK_SCREEN_CAPTURE, true);
-                                                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                                          startForegroundService(intent);
-                                                      } else {
-                                                          startService(intent);
-                                                      }
-                                                  }
-                                              }
-
-                                              @Override
-                                              public void onCapturedContentResize(int width, int height) {
-                                                  Log.d(TAG, "callback: onCapturedContentResize " + width + "x" + height);
-                                              }
-
-                                              @Override
-                                              public void onCapturedContentVisibilityChanged(boolean isVisible) {
-                                                  Log.d(TAG, "callback: onCapturedContentVisibilityChanged " + isVisible);
-                                              }
-                                          },
-                null);
+        // (Re)setup callback (we might come here several times on screen rotation)
+        mMediaProjection.unregisterCallback(mMediaProjectionCallback);
+        mMediaProjection.registerCallback(mMediaProjectionCallback, null);
 
         if (mImageReader != null)
             mImageReader.close();
