@@ -14,7 +14,7 @@
     <string name="main_activity_permissions_dashboard">Berechtigungs-Dashboard</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Bildschirmaufnahme</string>
-    <string name="main_activity_fallback">Fallback, für upgrade hier klicken</string>
+    <string name="main_activity_fallback">Fallback, für upgrade hier tippen</string>
     <string name="main_activity_granted">gewährt</string>
     <string name="main_activity_denied">verweigert</string>
     <string name="main_activity_file_access">Dateizugriff</string>

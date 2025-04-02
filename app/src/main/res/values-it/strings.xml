@@ -14,7 +14,7 @@
     <string name="main_activity_permissions_dashboard">Pannello delle autorizzazioni</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Cattura dello schermo</string>
-    <string name="main_activity_fallback">Fallback, clicca qui per l\'aggiornamento</string>
+    <string name="main_activity_fallback">Fallback, tocca qui per aggiornare</string>
     <string name="main_activity_granted">Concesso</string>
     <string name="main_activity_denied">Negato</string>
     <string name="main_activity_file_access">Accesso ai file</string>

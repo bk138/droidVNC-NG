@@ -15,7 +15,7 @@
     <string name="main_activity_permissions_dashboard">Permissions Dashboard</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Screen Capturing</string>
-    <string name="main_activity_fallback">fallback, click here to upgrade</string>
+    <string name="main_activity_fallback">fallback, tap here to upgrade</string>
     <string name="main_activity_granted">granted</string>
     <string name="main_activity_denied">denied</string>
     <string name="main_activity_file_access">File Access</string>
