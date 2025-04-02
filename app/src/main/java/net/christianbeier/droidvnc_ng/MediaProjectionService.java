@@ -172,6 +172,9 @@ public class MediaProjectionService extends Service {
                                               public void onStop() {
                                                   Log.d(TAG, "callback: onStop");
                                                   super.onStop();
+
+                                                  stopScreenCapture();
+
                                                   if(MainService.isServerActive()) {
                                                       // tell MainService, it will take care of stopping us and maybe use a fallback
                                                       Intent intent = new Intent(MediaProjectionService.this, MainService.class);
@@ -344,10 +347,10 @@ public class MediaProjectionService extends Service {
 
 
     /**
-     * Get whether Media Projection was granted by the user.
+     * Get whether Media Projection is currently running.
      */
     static boolean isMediaProjectionEnabled() {
-        return instance != null && instance.mResultCode != 0 && instance.mResultData != null;
+        return instance != null && instance.mMediaProjection != null;
     }
 
     static void togglePortraitInLandscapeWorkaround() {
