@@ -1,6 +1,8 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+add_link_options("LINKER:--build-id=none")
+
 project (droidVNC-NG C)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared Libs" FORCE)
