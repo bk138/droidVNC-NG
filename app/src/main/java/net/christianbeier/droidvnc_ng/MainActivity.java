@@ -731,6 +731,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
                 mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, true);
+                mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_OMIT_FALLBACK_SCREEN_CAPTURE_DIALOG, true);
                 startActivity(mediaProjectionRequestIntent);
             });
         }
