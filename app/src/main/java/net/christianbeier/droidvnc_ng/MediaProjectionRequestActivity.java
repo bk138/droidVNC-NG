@@ -40,12 +40,14 @@ public class MediaProjectionRequestActivity extends AppCompatActivity {
     private static final String TAG = "MPRequestActivity";
     private static final int REQUEST_MEDIA_PROJECTION = 42;
     static final String EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE = "upgrading_from_fallback_screen_capture";
+    static final String EXTRA_OMIT_FALLBACK_SCREEN_CAPTURE_DIALOG = "omit_fallback_screen_capture_dialog";
     private boolean mIsUpgradingFromFallbackScreenCapture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // we need this info for our answer to MainService later
         mIsUpgradingFromFallbackScreenCapture = getIntent().getBooleanExtra(EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, false);
 
         MediaProjectionManager mMediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
@@ -59,7 +61,7 @@ public class MediaProjectionRequestActivity extends AppCompatActivity {
         else
             screenCaptureIntent = mMediaProjectionManager.createScreenCaptureIntent();
 
-        if(!mIsUpgradingFromFallbackScreenCapture) {
+        if(!mIsUpgradingFromFallbackScreenCapture || getIntent().getBooleanExtra(EXTRA_OMIT_FALLBACK_SCREEN_CAPTURE_DIALOG, false)) {
             // ask for MediaProjection right away
             Log.i(TAG, "Requesting confirmation");
             // This initiates a prompt dialog for the user to confirm screen projection.
