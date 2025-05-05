@@ -39,10 +39,13 @@
     <string name="main_activity_reconnect_tries_hint">Numero di tentativi di connessione</string>
     <string name="main_activity_special_key_reference">Da un qualunque viewer VNC, utilizzare <b>Ctrl-Shift-Esc</b> per mostrare la schermata \'App recenti\', <b>Home/Pos1</b> per simulare il pulsante Home, <b>End</b> per il pulsante d\'accensione ed <b>Esc</b> per il pulsante Back.</string>
     <string name="main_activity_about">Stai utilizzando droidVNC-NG %1$s. Sono in corso di sviluppo ulteriori funzionalità, problemi e feature requests possono essere segnalati sulla pagina https://github.com/bk138/droidVNC-NG/issues</string>
-    <string name="main_service_notification_not_listening">Il server non è in ascolto di connessioni in entrata</string>
-    <plurals name="main_service_notification_listening">
-        <item quantity="one">Server in ascolto sulla porta %1$d, %2$d client connesso</item>
-        <item quantity="other">Server in ascolto sulla porta %1$d, %2$d client connessi</item>
+    <plurals name="main_service_notification_text_not_listening">
+        <item quantity="one">Il server non è in ascolto di connessioni in entrata, %1$d client connesso</item>
+        <item quantity="other">Il server non è in ascolto di connessioni in entrata, %1$d client connessi</item>
+    </plurals>
+    <plurals name="main_service_notification_text_listening">
+        <item quantity="one">Server in ascolto per connessioni in ingresso, %1$d client connesso</item>
+        <item quantity="other">Server in ascolto per connessioni in ingresso, %1$d client connessi</item>
     </plurals>
     <string name="start">Avvia</string>
     <string name="stop">Ferma</string>

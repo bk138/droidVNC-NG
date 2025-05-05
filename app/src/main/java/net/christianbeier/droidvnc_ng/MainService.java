@@ -872,21 +872,13 @@ public class MainService extends Service {
 
     private void updateNotification() {
         int port = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this)).getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
-        if (port < 0) {
-            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
-                    .notify(NOTIFICATION_ID,
-                            getNotification(getString(R.string.main_service_notification_not_listening),
-                                    false));
-        } else {
-            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
-                    .notify(NOTIFICATION_ID,
-                            getNotification(getResources().getQuantityString(
-                                            R.plurals.main_service_notification_listening,
-                                            mNumberOfClients,
-                                            port,
-                                            mNumberOfClients),
-                                    false));
-        }
+
+        String text = getResources().getQuantityString(
+                port < 0 ? R.plurals.main_service_notification_text_not_listening : R.plurals.main_service_notification_text_listening,
+                mNumberOfClients,
+                mNumberOfClients);
+
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, getNotification(text, false));
     }
 
     static Notification getCurrentNotification() {

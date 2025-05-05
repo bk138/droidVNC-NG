@@ -39,10 +39,13 @@
     <string name="main_activity_reconnect_tries_hint">Max. de tentativas de reconexão</string>
     <string name="main_activity_special_key_reference">De um visualizador VNC, <b>Ctrl-Shift-Esc</b> aciona a visão geral de \'Aplicativos recentes\', <b>Home</b> atua como botão Home, <b>End</b> atua como botão liga / desliga, <b>Escapar</b> funciona como botão Voltar.</string>
     <string name="main_activity_about">Aqui é droidVNC-NG %1$s. Observe que mais recursos ainda estão sendo adicionados ao droidVNC-NG. Relate quaisquer problemas e solicitações de recursos em https://github.com/bk138/droidVNC-NG/issues</string>
-    <string name="main_service_notification_not_listening">Não está ouvindo conexões de entrada</string>
-    <plurals name="main_service_notification_listening">
-        <item quantity="one">Escutando na porta %1$d, %2$d cliente conectado</item>
-        <item quantity="other">Escutando na porta %1$d, %2$d clientes conectados</item>
+    <plurals name="main_service_notification_text_not_listening">
+        <item quantity="one">Servidor não está escutando conexões de entrada, %1$d cliente conectado</item>
+        <item quantity="other">Servidor não está escutando conexões de entrada, %1$d clientes conectados</item>
+    </plurals>
+    <plurals name="main_service_notification_text_listening">
+        <item quantity="one">Servidor está escutando conexões de entrada, %1$d cliente conectado</item>
+        <item quantity="other">Servidor está escutando conexões de entrada, %1$d clientes conectados</item>
     </plurals>
     <string name="start">Começar</string>
     <string name="stop">Parar</string>

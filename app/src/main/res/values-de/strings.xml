@@ -39,10 +39,13 @@
     <string name="main_activity_reconnect_tries_hint">Max. Wiederverbindungsversuche</string>
     <string name="main_activity_special_key_reference">Von einem VNC-Viewer aus löst <b>Strg-Umschalt-Esc</b> die Übersicht „Letzte Apps“ aus, <b>Pos1</b> fungiert als Home-Button, <b>Ende</b> als Power-Button, <b>Esc</b> als Zurück-Taste.</string>
     <string name="main_activity_about">Dies ist droidVNC-NG %1$s. Bitte beachten Sie, dass zu droidVNC-NG noch weitere Funktionen hinzugefügt werden. Sie können Probleme und Funktionswünsche unter https://github.com/bk138/droidVNC-NG/issues melden.</string>
-    <string name="main_service_notification_not_listening">Eingehende Verbindungen sind deaktiviert</string>
-    <plurals name="main_service_notification_listening">
-        <item quantity="one">Eingehende Verbindungen möglich auf Port %1$d, %2$d Client verbunden</item>
-        <item quantity="other">Eingehende Verbindungen möglich auf Port %1$d, %2$d Clients verbunden</item>
+    <plurals name="main_service_notification_text_not_listening">
+        <item quantity="one">Eingehende Verbindungen deaktiviert, %1$d Client verbunden</item>
+        <item quantity="other">Eingehende Verbindungen deaktiviert, %1$d Clients verbunden</item>
+    </plurals>
+    <plurals name="main_service_notification_text_listening">
+        <item quantity="one">Eingehende Verbindungen möglich, %1$d Client verbunden</item>
+        <item quantity="other">Eingehende Verbindungen möglich, %1$d Clients verbunden</item>
     </plurals>
     <string name="start">Start</string>
     <string name="stop">Stop</string>

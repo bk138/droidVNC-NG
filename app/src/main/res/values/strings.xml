@@ -40,10 +40,13 @@
     <string name="main_activity_reconnect_tries_hint">Max. reconnect tries</string>
     <string name="main_activity_special_key_reference">From a VNC viewer, <b>Ctrl-Shift-Esc</b> triggers \'Recent Apps\' overview, <b>Home/Pos1</b> acts as Home button, <b>End</b> acts as Power button, <b>Escape</b> acts as Back button.</string>
     <string name="main_activity_about">This is droidVNC-NG %1$s. Please note that more features are still being added to droidVNC-NG. You can report any issues and feature requests at https://github.com/bk138/droidVNC-NG/issues</string>
-    <string name="main_service_notification_not_listening">Not listening for incoming connections</string>
-    <plurals name="main_service_notification_listening">
-        <item quantity="one">Listening on port %1$d, %2$d client connected</item>
-        <item quantity="other">Listening on port %1$d, %2$d clients connected</item>
+    <plurals name="main_service_notification_text_not_listening">
+        <item quantity="one">Not listening for incoming connections, %1$d client connected</item>
+        <item quantity="other">Not listening for incoming connections, %1$d clients connected</item>
+    </plurals>
+    <plurals name="main_service_notification_text_listening">
+        <item quantity="one">Listening for incoming connections, %1$d client connected</item>
+        <item quantity="other">Listening for incoming connections, %1$d clients connected</item>
     </plurals>
     <string name="start">Start</string>
     <string name="stop">Stop</string>

@@ -39,10 +39,13 @@
     <string name="main_activity_reconnect_tries_hint">Nombre de tentatives de connexion</string>
     <string name="main_activity_special_key_reference">Depuis n\'import quel viewer VNC, vous pouvuez utiliser <b>Ctrl-Shift-Esc</b> pour voir l\'écran de \'Applications récentes\', <b>Home/Pos1</b> pour simuler le bouton Home, <b>End</b> pour simuler le bouton Marche et <b>Esc</b> pour simuler le bouton Retour.</string>
     <string name="main_activity_about">Vous êtes en utilisant droidVNC-NG %1$s. Des fonctionnalités supplémentaires sont en cours de développement, vous pouvez rapporter problèmes et feature requests à la page https://github.com/bk138/droidVNC-NG/issues</string>
-    <string name="main_service_notification_not_listening">Le serveur n\'est pas en écoute de connexions d\'entrée</string>
-    <plurals name="main_service_notification_listening">
-        <item quantity="one">Le serveur est en écoute sur le port %1$d, %2$d client connecté</item>
-        <item quantity="other">Le serveur est en écoute sur le port %1$d, %2$d clients connectés</item>
+    <plurals name="main_service_notification_text_not_listening">
+        <item quantity="one">Le serveur n\'est pas en écoute de connexions d\'entrée, %1$d client connecté</item>
+        <item quantity="other">Le serveur n\'est pas en écoute de connexions d\'entrée, %1$d clients connectés</item>
+    </plurals>
+    <plurals name="main_service_notification_text_listening">
+        <item quantity="one">Le serveur est en écoute de connexions d\'entrée, %1$d client connecté</item>
+        <item quantity="other">Le serveur est en écoute de connexions d\'entrée, %1$d clients connectés</item>
     </plurals>
     <string name="start">Commence</string>
     <string name="stop">Ferme</string>

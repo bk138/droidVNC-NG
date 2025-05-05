@@ -40,10 +40,13 @@
     <string name="main_activity_reconnect_tries_hint">最大の接続リトライ数</string>
     <string name="main_activity_special_key_reference">VNCビューワから<b>Ctrl-Shift-Esc</b>を押下すると、「アプリ履歴」画面が呼び出されます。 <b>Home/Pos1</b>はホームボタンとして機能します。 <b>End</b>は電源ボタンとして機能します。 <b>Escape</b>は戻るボタンとして機能します</string>
     <string name="main_activity_about">このアプリはdroidVNC-NG %1$sです。 droidVNC-NGにはさらに多くの機能が追加されています。問題や機能要望は https://github.com/bk138/droidVNC-NG/issues で報告できます。</string>
-    <string name="main_service_notification_not_listening">着信接続をリッスンしていません</string>
-    <plurals name="main_service_notification_listening">
-        <item quantity="one">ポート%1$dでリッスン中 %2$dつのクライアントが接続されています</item>
-        <item quantity="other">ポート%1$dでリッスン中 %2$dつのクライアントが接続されています</item>
+    <plurals name="main_service_notification_text_not_listening">
+        <item quantity="one">サーバーは受信接続を待機していません。%1$d 台のクライアントが接続されています</item>
+        <item quantity="other">サーバーは受信接続を待機していません。%1$d 台のクライアントが接続されています</item>
+    </plurals>
+    <plurals name="main_service_notification_text_listening">
+        <item quantity="one">サーバーは受信接続を待機しています。%1$d 台のクライアントが接続されています</item>
+        <item quantity="other">サーバーは受信接続を待機しています。%1$d 台のクライアントが接続されています</item>
     </plurals>
     <string name="start">開始</string>
     <string name="stop">停止</string>
