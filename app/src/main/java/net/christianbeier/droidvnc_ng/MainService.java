@@ -737,7 +737,7 @@ public class MainService extends Service {
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 Log.d(TAG, "startScreenCapture: trying takeScreenShot backend");
-                InputService.takeScreenShots(true);
+                InputService.takeScreenShots(true, Display.DEFAULT_DISPLAY);
             } else {
                 Log.w(TAG, "startScreenCapture: no backend available");
             }
@@ -748,7 +748,7 @@ public class MainService extends Service {
         // stop all backends unconditionally
         stopService(new Intent(this, MediaProjectionService.class));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            InputService.takeScreenShots(false);
+            InputService.takeScreenShots(false, Display.DEFAULT_DISPLAY);
         }
     }
 

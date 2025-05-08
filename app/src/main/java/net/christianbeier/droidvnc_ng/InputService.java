@@ -690,7 +690,7 @@ public class InputService extends AccessibilityService {
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.R)
-	public static void takeScreenShots(boolean enable) {
+	public static void takeScreenShots(boolean enable, int displayId) {
 		try {
 			if (enable) {
 				instance.mTakeScreenShotCallback = new TakeScreenshotCallback() {
@@ -725,7 +725,7 @@ public class InputService extends AccessibilityService {
 								instance.mMainHandler.postDelayed(() ->
 										{
 											try {
-												instance.takeScreenshot(Display.DEFAULT_DISPLAY,
+												instance.takeScreenshot(displayId,
 														instance.getMainExecutor(),
 														this);
 											} catch (Exception ignored) {
@@ -749,7 +749,7 @@ public class InputService extends AccessibilityService {
 								// try again later, incrementing delay
 								instance.mMainHandler.postDelayed(() -> {
 									try {
-										instance.takeScreenshot(Display.DEFAULT_DISPLAY,
+										instance.takeScreenshot(displayId,
 												instance.getMainExecutor(),
 												this
 										);
@@ -771,7 +771,7 @@ public class InputService extends AccessibilityService {
 
 				// first screenshot
 				Log.d(TAG, "takeScreenShots: start");
-				instance.takeScreenshot(Display.DEFAULT_DISPLAY,
+				instance.takeScreenshot(displayId,
 						instance.getMainExecutor(),
 						instance.mTakeScreenShotCallback
 				);
