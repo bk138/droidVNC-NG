@@ -113,8 +113,10 @@ public class InputService extends AccessibilityService {
         */
 	static float scaling;
 	static boolean isInputEnabled;
-	private boolean mTakeScreenShots;
-	private int mTakeScreenShotDelayMs = 100;
+
+	private TakeScreenshotCallback mTakeScreenShotCallback;
+	private static final int TAKE_SCREEN_SHOT_DELAY_MS_INITIAL = 100;
+	private int mTakeScreenShotDelayMs = TAKE_SCREEN_SHOT_DELAY_MS_INITIAL;
 
 	private Handler mMainHandler;
 
@@ -690,9 +692,8 @@ public class InputService extends AccessibilityService {
 	@RequiresApi(api = Build.VERSION_CODES.R)
 	public static void takeScreenShots(boolean enable) {
 		try {
-			instance.mTakeScreenShots = enable;
-			if (instance.mTakeScreenShots) {
-				TakeScreenshotCallback callback = new TakeScreenshotCallback() {
+			if (enable) {
+				instance.mTakeScreenShotCallback = new TakeScreenshotCallback() {
 					@Override
 					public void onSuccess(@NonNull ScreenshotResult screenshot) {
 						try {
@@ -719,7 +720,7 @@ public class InputService extends AccessibilityService {
 							screenshot.getHardwareBuffer().close();
 
 							// further screenshots
-							if (instance.mTakeScreenShots) {
+							if (instance.mTakeScreenShotCallback != null) {
 								// try again later, using but not incrementing delay
 								instance.mMainHandler.postDelayed(() ->
 										{
@@ -731,6 +732,7 @@ public class InputService extends AccessibilityService {
 												// instance might be gone
 											}
 										},
+										this, // use instance.mTakeScreenShotCallback as token
 										instance.mTakeScreenShotDelayMs);
 							} else {
 								Log.d(TAG, "takeScreenShots: stop");
@@ -743,7 +745,7 @@ public class InputService extends AccessibilityService {
 					@Override
 					public void onFailure(int errorCode) {
 						try {
-							if (errorCode == AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT && instance.mTakeScreenShots) {
+							if (errorCode == AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT && instance.mTakeScreenShotCallback != null) {
 								// try again later, incrementing delay
 								instance.mMainHandler.postDelayed(() -> {
 									try {
@@ -754,12 +756,13 @@ public class InputService extends AccessibilityService {
 									} catch (Exception ignored) {
 										// instance might be gone
 									}
-								}, instance.mTakeScreenShotDelayMs += 50);
+								}, this, instance.mTakeScreenShotDelayMs += 50); // use instance.mTakeScreenShotCallback as token
 								Log.w(TAG, "takeScreenShots: onFailure with ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT - upped delay to " + instance.mTakeScreenShotDelayMs);
 								return;
 							}
 							Log.e(TAG, "takeScreenShots: onFailure with error code " + errorCode);
-							instance.mTakeScreenShots = false;
+							// prevent further calls
+							instance.mTakeScreenShotCallback = null;
 						} catch (Exception e) {
 							Log.e(TAG, "takeScreenShots: onFailure exception " + e);
 						}
@@ -770,8 +773,14 @@ public class InputService extends AccessibilityService {
 				Log.d(TAG, "takeScreenShots: start");
 				instance.takeScreenshot(Display.DEFAULT_DISPLAY,
 						instance.getMainExecutor(),
-						callback
+						instance.mTakeScreenShotCallback
 				);
+			} else {
+				Log.d(TAG, "takeScreenShots: stop");
+				// use instance.mTakeScreenShotCallback as token
+				instance.mMainHandler.removeCallbacksAndMessages(instance.mTakeScreenShotCallback);
+				instance.mTakeScreenShotCallback = null;
+				instance.mTakeScreenShotDelayMs = TAKE_SCREEN_SHOT_DELAY_MS_INITIAL;
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "takeScreenShots: exception " + e);
@@ -780,7 +789,7 @@ public class InputService extends AccessibilityService {
 
 	public static boolean isTakingScreenShots() {
 		try {
-			return instance.mTakeScreenShots;
+			return instance.mTakeScreenShotCallback != null;
 		} catch (Exception ignored) {
 			return false;
 		}
