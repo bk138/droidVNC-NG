@@ -18,7 +18,7 @@ public class NotificationRequestActivity extends AppCompatActivity {
 
     private static final String TAG = "NotificationRequestActivity";
     private static final int REQUEST_POST_NOTIFICATION = 45;
-    private static final String PREFS_KEY_POST_NOTIFICATION_PERMISSION_ASKED_BEFORE = "post_notification_permission_asked_before";
+    public static final String PREFS_KEY_POST_NOTIFICATION_PERMISSION_ASKED_BEFORE = "post_notification_permission_asked_before";
 
 
     @Override
