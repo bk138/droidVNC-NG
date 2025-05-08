@@ -124,7 +124,7 @@ public class MediaProjectionService extends Service {
                     Intent intent = new Intent(MediaProjectionService.this, MainService.class);
                     intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
                     intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(MediaProjectionService.this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(MediaProjectionService.this).getAccessKey()));
-                    intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_DOWNGRADING_TO_FALLBACK_SCREEN_CAPTURE, true);
+                    intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_STATE, false); // off
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         startForegroundService(intent);
                     } else {
@@ -171,8 +171,8 @@ public class MediaProjectionService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
-        mResultCode = intent.getIntExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
-        mResultData = intent.getParcelableExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_DATA);
+        mResultCode = intent.getIntExtra(MainService.EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE, 0);
+        mResultData = intent.getParcelableExtra(MainService.EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA);
 
         startScreenCapture();
 
@@ -332,6 +332,16 @@ public class MediaProjectionService extends Service {
             startActivity(mediaProjectionRequestIntent);
         }
 
+        // tell MainService that MediaProjection is up
+        Intent intent = new Intent(MediaProjectionService.this, MainService.class);
+        intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
+        intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(MediaProjectionService.this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(MediaProjectionService.this).getAccessKey()));
+        intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_STATE, true); // on
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
     }
 
     private void stopScreenCapture() {

@@ -91,11 +91,10 @@ public class MainService extends Service {
      */
     public static final String EXTRA_FALLBACK_SCREEN_CAPTURE = "net.christianbeier.droidvnc_ng.EXTRA_FALLBACK_SCREEN_CAPTURE";
 
-    final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
-    final static String EXTRA_MEDIA_PROJECTION_RESULT_DATA = "result_data_media_projection";
-    final static String EXTRA_MEDIA_PROJECTION_RESULT_CODE = "result_code_media_projection";
-    final static String EXTRA_MEDIA_PROJECTION_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE = "upgrading_from_fallback_screen_capture";
-    final static String EXTRA_MEDIA_PROJECTION_DOWNGRADING_TO_FALLBACK_SCREEN_CAPTURE = "downgrading_to_fallback_screen_capture";
+    final static String ACTION_HANDLE_MEDIA_PROJECTION_REQUEST_RESULT = "action_handle_media_projection_request_result";
+    final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA = "result_data_media_projection_request";
+    final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE = "result_code_media_projection_request";
+    final static String EXTRA_MEDIA_PROJECTION_REQUEST_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE = "upgrading_from_fallback_screen_capture";
 
     final static String ACTION_HANDLE_INPUT_RESULT = "action_handle_a11y_result";
     final static String EXTRA_INPUT_RESULT = "result_a11y";
@@ -104,6 +103,9 @@ public class MainService extends Service {
     final static String EXTRA_WRITE_STORAGE_RESULT = "result_write_storage";
 
     final static String ACTION_HANDLE_NOTIFICATION_RESULT = "action_handle_notification_result";
+
+    final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
+    final static String EXTRA_MEDIA_PROJECTION_STATE = "state_media_projection";
 
     private int mResultCode;
     private Intent mResultData;
@@ -323,15 +325,30 @@ public class MainService extends Service {
 
         if(ACTION_HANDLE_MEDIA_PROJECTION_RESULT.equals(intent.getAction()) && MainServicePersistData.loadStartIntent(this) != null) {
             Log.d(TAG, "onStartCommand: handle media projection result");
-            // Step 4 (optional): coming back from MediaProjection permission check, now starting capturing machinery
-            // NB: Also coming here when a previously running MediaProjection was stopped by the user or system,
-            //     in this case we have EXTRA_MEDIA_PROJECTION_DOWNGRADING_TO_FALLBACK_SCREEN_CAPTURE set and
-            //     EXTRA_MEDIA_PROJECTION_RESULT_CODE and EXTRA_MEDIA_PROJECTION_RESULT_DATA will not be present!
-            mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_RESULT_CODE, 0);
-            mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_RESULT_DATA);
+            // Step 5 (optional, possibly repeating in one lifecycle): coming here when MediaProjection is started or stopped
+            if (!intent.getBooleanExtra(EXTRA_MEDIA_PROJECTION_STATE, false)) {
+                // MediaProjection off.
+                // Coming here when a previously running MediaProjection was stopped by the user or system,
+                // in this case we need to unset the original request's result code and result data
+                // so that a restart of screen capture goes into fallback mode.
+                mResultCode = 0;
+                mResultData = null;
+                stopScreenCapture();
+                startScreenCapture();
+            }
+            // update this in both on/off case
+            updateNotification();
+            // if we got here, we want to restart if we were killed
+            return START_REDELIVER_INTENT;
+        }
 
-            if (intent.getBooleanExtra(EXTRA_MEDIA_PROJECTION_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, false)
-                    || intent.getBooleanExtra(EXTRA_MEDIA_PROJECTION_DOWNGRADING_TO_FALLBACK_SCREEN_CAPTURE, false)) {
+        if(ACTION_HANDLE_MEDIA_PROJECTION_REQUEST_RESULT.equals(intent.getAction()) && MainServicePersistData.loadStartIntent(this) != null) {
+            Log.d(TAG, "onStartCommand: handle media projection request result");
+            // Step 4 (optional): coming back from MediaProjection permission check, now starting capturing machinery
+            mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE, 0);
+            mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA);
+
+            if (intent.getBooleanExtra(EXTRA_MEDIA_PROJECTION_REQUEST_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, false)) {
                 // just restart screen capture
                 stopScreenCapture();
                 startScreenCapture();
@@ -709,8 +726,8 @@ public class MainService extends Service {
         if (mResultCode != 0 && mResultData != null) {
             Log.d(TAG, "startScreenCapture: using MediaProjection backend");
             Intent intent = new Intent(this, MediaProjectionService.class);
-            intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_CODE, mResultCode);
-            intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_RESULT_DATA, mResultData);
+            intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE, mResultCode);
+            intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA, mResultData);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(intent);
