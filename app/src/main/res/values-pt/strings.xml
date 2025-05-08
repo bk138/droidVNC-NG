@@ -47,6 +47,10 @@
         <item quantity="one">Servidor está escutando conexões de entrada, %1$d cliente conectado</item>
         <item quantity="other">Servidor está escutando conexões de entrada, %1$d clientes conectados</item>
     </plurals>
+    <string name="main_service_notification_title_fallback_screen_capture">Modo de captura de ecrã de fallback lento ativo</string>
+    <string name="main_service_notification_action_fallback_screen_capture">Actualizar para Captura de Ecrã Rápida</string>
+    <string name="main_service_notification_title_no_screen_capture">Nenhuma captura de ecrã ativa</string>
+    <string name="main_service_notification_action_no_screen_capture">Ativar captura de ecrã</string>
     <string name="start">Começar</string>
     <string name="stop">Parar</string>
     <string name="error">Erro</string>

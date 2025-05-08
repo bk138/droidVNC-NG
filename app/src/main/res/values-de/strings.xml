@@ -47,6 +47,10 @@
         <item quantity="one">Eingehende Verbindungen möglich, %1$d Client verbunden</item>
         <item quantity="other">Eingehende Verbindungen möglich, %1$d Clients verbunden</item>
     </plurals>
+    <string name="main_service_notification_title_fallback_screen_capture">Langsamer Fallback-Bildschirmaufnahmemodus aktiv</string>
+    <string name="main_service_notification_action_fallback_screen_capture">Upgrade auf schnelle Bildschirmaufnahme</string>
+    <string name="main_service_notification_title_no_screen_capture">Keine Bildschirmaufnahme aktiv</string>
+    <string name="main_service_notification_action_no_screen_capture">Bildschirmaufnahme aktivieren</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="error">Fehler</string>

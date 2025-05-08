@@ -47,6 +47,10 @@
         <item quantity="one">Le serveur est en écoute de connexions d\'entrée, %1$d client connecté</item>
         <item quantity="other">Le serveur est en écoute de connexions d\'entrée, %1$d clients connectés</item>
     </plurals>
+    <string name="main_service_notification_title_fallback_screen_capture">Mode de capture d\'écran de secours lent actif</string>
+    <string name="main_service_notification_action_fallback_screen_capture">Passer à la capture d\'écran rapide</string>
+    <string name="main_service_notification_title_no_screen_capture">Aucune capture d\'écran active</string>
+    <string name="main_service_notification_action_no_screen_capture">Activer la capture d\'écran</string>
     <string name="start">Commence</string>
     <string name="stop">Ferme</string>
     <string name="error">Erreur</string>

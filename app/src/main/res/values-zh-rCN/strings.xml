@@ -47,6 +47,10 @@
         <item quantity="one">服务器正在监听传入连接，%1$d 个客户端已连接</item>
         <item quantity="other">服务器正在监听传入连接，%1$d 个客户端已连接</item>
     </plurals>
+    <string name="main_service_notification_title_fallback_screen_capture">慢速回退屏幕捕获模式已启用</string>
+    <string name="main_service_notification_action_fallback_screen_capture">升级到快速屏幕捕获</string>
+    <string name="main_service_notification_title_no_screen_capture">无屏幕捕获活动</string>
+    <string name="main_service_notification_action_no_screen_capture">激活屏幕捕获</string>
     <string name="start">开始</string>
     <string name="stop">停止</string>
     <string name="error">错误</string>

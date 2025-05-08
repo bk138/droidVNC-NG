@@ -47,6 +47,10 @@
         <item quantity="one">Servidor en escucha, %1$d cliente connectado</item>
         <item quantity="other">Servidor en escucha, %1$d clientes connectados</item>
     </plurals>
+    <string name="main_service_notification_title_fallback_screen_capture">Modo de captura de pantalla de reserva lenta activo</string>
+    <string name="main_service_notification_action_fallback_screen_capture">Actualizar a captura de pantalla rápida</string>
+    <string name="main_service_notification_title_no_screen_capture">Captura de pantalla no activa</string>
+    <string name="main_service_notification_action_no_screen_capture">Activar captura de pantalla</string>
     <string name="start">Inicia</string>
     <string name="stop">Detiene</string>
     <string name="error">Error</string>

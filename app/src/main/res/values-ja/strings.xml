@@ -48,6 +48,10 @@
         <item quantity="one">サーバーは受信接続を待機しています。%1$d 台のクライアントが接続されています</item>
         <item quantity="other">サーバーは受信接続を待機しています。%1$d 台のクライアントが接続されています</item>
     </plurals>
+    <string name="main_service_notification_title_fallback_screen_capture">低速フォールバック画面キャプチャモードが有効です</string>
+    <string name="main_service_notification_action_fallback_screen_capture">高速画面キャプチャにアップグレードします</string>
+    <string name="main_service_notification_title_no_screen_capture">画面キャプチャが有効ではありません</string>
+    <string name="main_service_notification_action_no_screen_capture">画面キャプチャを有効にします</string>
     <string name="start">開始</string>
     <string name="stop">停止</string>
     <string name="error">エラー</string>

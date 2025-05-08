@@ -47,6 +47,10 @@
         <item quantity="one">Server in ascolto per connessioni in ingresso, %1$d client connesso</item>
         <item quantity="other">Server in ascolto per connessioni in ingresso, %1$d client connessi</item>
     </plurals>
+    <string name="main_service_notification_title_fallback_screen_capture">Modalità di acquisizione schermo di fallback lenta attiva</string>
+    <string name="main_service_notification_action_fallback_screen_capture">Passa ad Acquisizione Schermo Rapida</string>
+    <string name="main_service_notification_title_no_screen_capture">Nessuna acquisizione schermo attiva</string>
+    <string name="main_service_notification_action_no_screen_capture">Attiva Acquisizione Schermo</string>
     <string name="start">Avvia</string>
     <string name="stop">Ferma</string>
     <string name="error">Errore</string>

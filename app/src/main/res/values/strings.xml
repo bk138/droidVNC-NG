@@ -48,6 +48,10 @@
         <item quantity="one">Listening for incoming connections, %1$d client connected</item>
         <item quantity="other">Listening for incoming connections, %1$d clients connected</item>
     </plurals>
+    <string name="main_service_notification_title_fallback_screen_capture">Slow fallback screen capture mode active</string>
+    <string name="main_service_notification_action_fallback_screen_capture">Upgrade to Fast Screen Capture</string>
+    <string name="main_service_notification_title_no_screen_capture">No screen capture active</string>
+    <string name="main_service_notification_action_no_screen_capture">Activate Screen Capture</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="error">Error</string>

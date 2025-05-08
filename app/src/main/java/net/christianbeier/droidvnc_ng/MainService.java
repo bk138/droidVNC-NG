@@ -237,9 +237,9 @@ public class MainService extends Service {
                 startForeground() w/ notification
              */
             if (Build.VERSION.SDK_INT >= 29) {
-                startForeground(NOTIFICATION_ID, getNotification(null, true), ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+                startForeground(NOTIFICATION_ID, getNotification(null, null, R.drawable.ic_notification_normal, true, null), ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
             } else {
-                startForeground(NOTIFICATION_ID, getNotification(null, true));
+                startForeground(NOTIFICATION_ID, getNotification(null, null, R.drawable.ic_notification_normal, true, null));
             }
         }
 
@@ -335,9 +335,11 @@ public class MainService extends Service {
                 mResultData = null;
                 stopScreenCapture();
                 startScreenCapture();
+                updateNotification(false); // user should notice
+            } else {
+                // MediaProjection on.
+                updateNotification(true);
             }
-            // update this in both on/off case
-            updateNotification();
             // if we got here, we want to restart if we were killed
             return START_REDELIVER_INTENT;
         }
@@ -375,7 +377,7 @@ public class MainService extends Service {
                     MainServicePersistData.saveLastActiveState(this, true);
                     startScreenCapture();
                     registerNSD(name, port);
-                    updateNotification();
+                    updateNotification(true);
                     // if we got here, we want to restart if we were killed
                     return START_REDELIVER_INTENT;
                 } else {
@@ -423,7 +425,7 @@ public class MainService extends Service {
                     MainServicePersistData.saveLastActiveState(this, true);
                     startScreenCapture();
                     registerNSD(name, port);
-                    updateNotification();
+                    updateNotification(true);
                     // if we got here, we want to restart if we were killed
                     return START_REDELIVER_INTENT;
                 } else {
@@ -575,7 +577,7 @@ public class MainService extends Service {
         try {
             instance.mWakeLock.acquire();
             instance.mNumberOfClients++;
-            instance.updateNotification();
+            instance.updateNotification(false);
             // showing pointers depends on view-only being false
             Intent startIntent = Objects.requireNonNull(MainServicePersistData.loadStartIntent(instance));
             boolean showPointer = !startIntent.getBooleanExtra(EXTRA_VIEW_ONLY, PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, new Defaults(instance).getViewOnly()))
@@ -603,7 +605,7 @@ public class MainService extends Service {
             instance.mNumberOfClients--;
             if(!instance.mIsStopping) {
                 // don't show notifications when clients are disconnected on orderly server shutdown
-                instance.updateNotification();
+                instance.updateNotification(false);
             }
             InputService.removeClient(client);
 
@@ -866,18 +868,19 @@ public class MainService extends Service {
         );
     }
 
-    private Notification getNotification(String text, boolean isSilent){
+    private Notification getNotification(String title, String text, int iconResource, boolean isSilent, NotificationCompat.Action action){
         Intent notificationIntent = new Intent(this, MainActivity.class);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, getPackageName())
-                .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(getString(R.string.app_name))
+                .setSmallIcon(iconResource)
+                .setContentTitle(title)
                 .setContentText(text)
                 .setSilent(isSilent)
                 .setOngoing(true)
+                .addAction(action)
                 .setContentIntent(pendingIntent);
         if (Build.VERSION.SDK_INT >= 31) {
             builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
@@ -887,15 +890,49 @@ public class MainService extends Service {
         return mNotification;
     }
 
-    private void updateNotification() {
-        int port = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this)).getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
+    private void updateNotification(boolean isSilent) {
+        // defaults
+        int iconResource = R.drawable.ic_notification_normal;
+        NotificationCompat.Action action = null;
+        String title = null;
 
+        // fallback screen capture mode, change defaults
+        if (!MediaProjectionService.isMediaProjectionEnabled() && InputService.isTakingScreenShots()) {
+            iconResource = R.drawable.ic_notification_warn;
+
+            Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
+            mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, true);
+            mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_OMIT_FALLBACK_SCREEN_CAPTURE_DIALOG, true);
+            PendingIntent mediaProjectionRequestPendingIntent = PendingIntent.getActivity(this, 0, mediaProjectionRequestIntent, PendingIntent.FLAG_IMMUTABLE);
+            action = new NotificationCompat.Action.Builder(android.R.drawable.arrow_up_float, getString(R.string.main_service_notification_action_fallback_screen_capture), mediaProjectionRequestPendingIntent).build();
+
+            title = getString(R.string.main_service_notification_title_fallback_screen_capture);
+        }
+
+        // no screen capture, change defaults
+        if (!MediaProjectionService.isMediaProjectionEnabled() && !InputService.isTakingScreenShots()) {
+            iconResource = R.drawable.ic_notification_warn;
+
+            Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
+            mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, true);
+            mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_OMIT_FALLBACK_SCREEN_CAPTURE_DIALOG, true);
+            PendingIntent mediaProjectionRequestPendingIntent = PendingIntent.getActivity(this, 0, mediaProjectionRequestIntent, PendingIntent.FLAG_IMMUTABLE);
+            action = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_camera, getString(R.string.main_service_notification_action_no_screen_capture), mediaProjectionRequestPendingIntent).build();
+
+            title = getString(R.string.main_service_notification_title_no_screen_capture);
+        }
+
+        // notification text
+        int port = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this)).getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
         String text = getResources().getQuantityString(
                 port < 0 ? R.plurals.main_service_notification_text_not_listening : R.plurals.main_service_notification_text_listening,
                 mNumberOfClients,
                 mNumberOfClients);
 
-        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, getNotification(text, false));
+        // notify!
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, getNotification(title, text, iconResource, isSilent, action));
     }
 
     static Notification getCurrentNotification() {
