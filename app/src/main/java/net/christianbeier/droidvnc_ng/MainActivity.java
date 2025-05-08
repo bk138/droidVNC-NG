@@ -22,7 +22,6 @@
 package net.christianbeier.droidvnc_ng;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -730,7 +729,7 @@ public class MainActivity extends AppCompatActivity {
             screenCapturingStatus.setOnClickListener(view -> {
                 Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
                 mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, true);
+                mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE, true);
                 mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_OMIT_FALLBACK_SCREEN_CAPTURE_DIALOG, true);
                 startActivity(mediaProjectionRequestIntent);
             });

@@ -94,7 +94,7 @@ public class MainService extends Service {
     final static String ACTION_HANDLE_MEDIA_PROJECTION_REQUEST_RESULT = "action_handle_media_projection_request_result";
     final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA = "result_data_media_projection_request";
     final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE = "result_code_media_projection_request";
-    final static String EXTRA_MEDIA_PROJECTION_REQUEST_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE = "upgrading_from_fallback_screen_capture";
+    final static String EXTRA_MEDIA_PROJECTION_REQUEST_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE = "upgrading_from_no_or_fallback_screen_capture";
 
     final static String ACTION_HANDLE_INPUT_RESULT = "action_handle_a11y_result";
     final static String EXTRA_INPUT_RESULT = "result_a11y";
@@ -350,7 +350,7 @@ public class MainService extends Service {
             mResultCode = intent.getIntExtra(EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE, 0);
             mResultData = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA);
 
-            if (intent.getBooleanExtra(EXTRA_MEDIA_PROJECTION_REQUEST_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, false)) {
+            if (intent.getBooleanExtra(EXTRA_MEDIA_PROJECTION_REQUEST_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE, false)) {
                 // just restart screen capture
                 stopScreenCapture();
                 startScreenCapture();
@@ -587,7 +587,7 @@ public class MainService extends Service {
                 Log.d(TAG, "onClientConnected: in fallback screen capture mode, asking for upgrade");
                 Intent mediaProjectionRequestIntent = new Intent(instance, MediaProjectionRequestActivity.class);
                 mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, true);
+                mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE, true);
                 instance.startActivity(mediaProjectionRequestIntent);
             }
         } catch (Exception e) {
@@ -902,7 +902,7 @@ public class MainService extends Service {
 
             Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
             mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, true);
+            mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE, true);
             mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_OMIT_FALLBACK_SCREEN_CAPTURE_DIALOG, true);
             PendingIntent mediaProjectionRequestPendingIntent = PendingIntent.getActivity(this, 0, mediaProjectionRequestIntent, PendingIntent.FLAG_IMMUTABLE);
             action = new NotificationCompat.Action.Builder(android.R.drawable.arrow_up_float, getString(R.string.main_service_notification_action_fallback_screen_capture), mediaProjectionRequestPendingIntent).build();
@@ -916,7 +916,7 @@ public class MainService extends Service {
 
             Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
             mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_FALLBACK_SCREEN_CAPTURE, true);
+            mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE, true);
             mediaProjectionRequestIntent.putExtra(MediaProjectionRequestActivity.EXTRA_OMIT_FALLBACK_SCREEN_CAPTURE_DIALOG, true);
             PendingIntent mediaProjectionRequestPendingIntent = PendingIntent.getActivity(this, 0, mediaProjectionRequestIntent, PendingIntent.FLAG_IMMUTABLE);
             action = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_camera, getString(R.string.main_service_notification_action_no_screen_capture), mediaProjectionRequestPendingIntent).build();
