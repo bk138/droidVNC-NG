@@ -111,6 +111,14 @@ An example `defaults.json` with completely new defaults (not all entries need to
 }
 ```
 
+#### Pre-seed Preferences via Managed App Restrictions
+If you are using a device owner app, you can also pre-seed the preferences via managed app restrictions. 
+The same keys as in the JSON file above can be used.
+
+See: https://developer.android.com/work/managed-configurations
+
+> NOTE: Updates to app restrictions are only applied when the service restarts.
+
 ### Remote Control via the Intent Interface
 
 droidVNC-NG features a remote control interface by means of Intents. This allows starting the VNC
