@@ -22,6 +22,7 @@
 package net.christianbeier.droidvnc_ng;
 
 import android.annotation.SuppressLint;
+import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -941,6 +942,32 @@ public class MainService extends Service {
         } catch (Exception ignored) {
             return null;
         }
+    }
+
+    /**
+     * Helper that adds {@link #EXTRA_FALLBACK_SCREEN_CAPTURE} to the given intent if
+     * PROJECT_MEDIA app op is not set.
+     * @param context The callers context
+     * @param intent The intent to add to
+     */
+    static void addFallbackScreenCaptureIfNotAppOp(Context context, Intent intent) {
+        boolean useFallback = true;
+        try {
+            // check whether user set PROJECT_MEDIA app op to allow in order to get around the
+            // MediaProjection permission dialog
+            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            int mediaProjectionAppOpsMode = appOpsManager.checkOpNoThrow(
+                    "android:project_media",
+                    android.os.Process.myUid(),
+                    context.getPackageName()
+            );
+            // if allowed, don't use fallback
+            Log.i(TAG, "addFallbackScreenCaptureIfNotAppOp: PROJECT_MEDIA app op is " + mediaProjectionAppOpsMode);
+            useFallback = mediaProjectionAppOpsMode != AppOpsManager.MODE_ALLOWED;
+        } catch (IllegalArgumentException ignored) {
+            // can happen on older Android versions where the app op is not defined
+        }
+        intent.putExtra(MainService.EXTRA_FALLBACK_SCREEN_CAPTURE, useFallback);
     }
 
 }

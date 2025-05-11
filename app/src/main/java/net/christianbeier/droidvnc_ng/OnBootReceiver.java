@@ -23,7 +23,6 @@
 package net.christianbeier.droidvnc_ng;
 
 import android.app.AlarmManager;
-import android.app.AppOpsManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -61,23 +60,7 @@ public class OnBootReceiver extends BroadcastReceiver {
                 intent.putExtra(MainService.EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, defaults.getViewOnly()));
                 intent.putExtra(MainService.EXTRA_SCALING, prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, defaults.getScaling()));
                 intent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, defaults.getAccessKey()));
-                boolean useFallback = true; // want this on autostart
-                try {
-                    // check whether user set PROJECT_MEDIA app op to allow in order to get around the
-                    // MediaProjection permission dialog
-                    AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-                    int mediaProjectionAppOpsMode = appOpsManager.checkOpNoThrow(
-                            "android:project_media",
-                            android.os.Process.myUid(),
-                            context.getPackageName()
-                    );
-                    // if allowed, don't use fallback
-                    Log.i(TAG, "onReceive: PROJECT_MEDIA app op is " + mediaProjectionAppOpsMode);
-                    useFallback = mediaProjectionAppOpsMode != AppOpsManager.MODE_ALLOWED;
-                } catch (IllegalArgumentException ignored) {
-                    // can happen on older Android versions where the app op is not defined
-                }
-                intent.putExtra(MainService.EXTRA_FALLBACK_SCREEN_CAPTURE, useFallback);
+                MainService.addFallbackScreenCaptureIfNotAppOp(context.getApplicationContext(), intent);
 
                 long delayMillis = 1000L * prefs.getInt(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT_DELAY, defaults.getStartOnBootDelay());
                 if (delayMillis > 0) {

@@ -1,11 +1,9 @@
 package net.christianbeier.droidvnc_ng
 
-import android.app.AppOpsManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Process
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,22 +32,7 @@ class OnPackageReplacedReceiver : BroadcastReceiver() {
                 // Unattended start needs InputService on Android 10 and newer, both for the activity starts from MainService
                 // (could be reworked) but most importantly for fallback screen capture
                 if (Build.VERSION.SDK_INT >= 30) {
-                    var useFallback = true // want this on unattended start
-                    try {
-                        // check whether user set PROJECT_MEDIA app op to allow in order to get around the
-                        // MediaProjection permission dialog
-                        val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-                        val mediaProjectionAppOpsMode = appOpsManager.checkOpNoThrow(
-                            "android:project_media",
-                            Process.myUid(),
-                            context.packageName
-                        )
-                        // if allowed, don't use fallback
-                        useFallback = mediaProjectionAppOpsMode != AppOpsManager.MODE_ALLOWED
-                    } catch (ignored: IllegalArgumentException) {
-                        // can happen on older Android versions where the app op is not defined
-                    }
-                    intent?.putExtra(MainService.EXTRA_FALLBACK_SCREEN_CAPTURE, useFallback)
+                    MainService.addFallbackScreenCaptureIfNotAppOp(context.applicationContext, intent)
 
                     // wait for InputService to come up
                     CoroutineScope(Dispatchers.Main).launch {
