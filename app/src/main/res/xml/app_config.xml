@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<restrictions xmlns:android="http://schemas.android.com/apk/res/android">
+    <restriction
+        android:defaultValue="5900"
+        android:key="port"
+        android:restrictionType="integer"
+        android:title="@string/main_activity_settings_port" />
+
+    <restriction
+        android:defaultValue="5500"
+        android:key="portReverse"
+        android:restrictionType="integer"
+        android:title="@string/settings_port_reverse" />
+
+    <restriction
+        android:defaultValue="5500"
+        android:key="portRepeater"
+        android:restrictionType="integer"
+        android:title="@string/settings_port_repeater" />
+
+    <restriction
+        android:defaultValue="0.0"
+        android:key="scaling"
+        android:restrictionType="string"
+        android:title="@string/main_activity_settings_scaling" /> <!-- NOTE: float not supported, so we use string -->
+
+    <restriction
+        android:defaultValue="false"
+        android:key="viewOnly"
+        android:restrictionType="bool"
+        android:title="@string/main_activity_settings_view_only" />
+
+    <restriction
+        android:defaultValue="false"
+        android:key="showPointers"
+        android:restrictionType="bool"
+        android:title="@string/main_activity_settings_show_pointers" />
+
+    <restriction
+        android:defaultValue="true"
+        android:key="fileTransfer"
+        android:restrictionType="bool"
+        android:title="@string/main_activity_settings_file_transfer" />
+
+    <restriction
+        android:defaultValue=""
+        android:key="password"
+        android:restrictionType="string"
+        android:title="@string/main_activity_settings_password" />
+
+    <restriction
+        android:defaultValue=""
+        android:key="accessKey"
+        android:restrictionType="string"
+        android:title="@string/main_activity_settings_access_key" />
+
+    <restriction
+        android:defaultValue="true"
+        android:key="startOnBoot"
+        android:restrictionType="bool"
+        android:title="@string/main_activity_settings_start_on_boot" />
+
+    <restriction
+        android:defaultValue="0"
+        android:key="startOnBootDelay"
+        android:restrictionType="integer"
+        android:title="@string/main_activity_settings_start_on_boot_delay" />
+
+</restrictions>
