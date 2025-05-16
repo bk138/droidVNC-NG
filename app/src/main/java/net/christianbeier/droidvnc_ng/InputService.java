@@ -23,6 +23,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -188,6 +189,42 @@ public class InputService extends AccessibilityService {
 	public static boolean isConnected()
 	{
 		return instance != null;
+	}
+
+	/**
+	 * If the service is already connected, request is run immediately.
+	 * If the service is not yet connected, the function schedules a sensible
+	 * number of retries on the main thread Handler before returning.
+	 * @param request code to be run
+	 */
+	public static void runWhenConnected(Runnable request) {
+		if (isConnected()) {
+			Log.i(TAG, "runWhenConnected: already connected, running request");
+			request.run();
+		} else {
+			Log.w(TAG, "runWhenConnected: not yet connected, retrying");
+			final Handler handler = new Handler(Looper.getMainLooper());
+			final int[] retries = {0};
+			final int MAX_RETRIES = 5;
+
+			handler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					retries[0]++;
+					if (isConnected()) {
+						Log.i(TAG, "runWhenConnected: connected after " + retries[0] + " retries, running request");
+						request.run();
+					} else {
+						if (retries[0] < MAX_RETRIES) {
+							Log.w(TAG, "runWhenConnected: not yet connected after " + retries[0] + " of " + MAX_RETRIES + " retries");
+							handler.postDelayed(this, 1000);
+						} else {
+							Log.e(TAG, "runWhenConnected: not connected after " + retries[0] + " of " + MAX_RETRIES + " retries");
+						}
+					}
+				}
+			}, 1000);
+		}
 	}
 
 	public static void addClient(long client, boolean withPointer) {

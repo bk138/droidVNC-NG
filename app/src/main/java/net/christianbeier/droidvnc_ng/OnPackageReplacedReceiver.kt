@@ -5,10 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 
 /*
  * Broadcast receiver that's being triggered when the package is replaced/updated.
@@ -35,28 +31,12 @@ class OnPackageReplacedReceiver : BroadcastReceiver() {
                     MainService.addFallbackScreenCaptureIfNotAppOp(context.applicationContext, intent)
 
                     // wait for InputService to come up
-                    CoroutineScope(Dispatchers.Main).launch {
-                        var tries = 0
-                        while (!InputService.isConnected() && ++tries <= 5) {
-                            Log.w(
-                                TAG,
-                                "onReceive: on Android 10+ and InputService not yet set up, waiting $tries of 5"
-                            )
-                            delay(1000)
-                        }
-
-                        if (InputService.isConnected()) {
-                            Log.i(
-                                TAG,
-                                "onReceive: on Android 10+ and InputService set up, starting MainService"
-                            )
-                            context.applicationContext.startForegroundService(intent)
-                        } else {
-                            Log.e(
-                                TAG,
-                                "onReceive: on Android 10+ and InputService not set up, bailing out"
-                            )
-                        }
+                    InputService.runWhenConnected {
+                        Log.i(
+                            TAG,
+                            "on Android 10+ and InputService set up, starting MainService"
+                        )
+                        context.applicationContext.startForegroundService(intent)
                     }
                 } else {
                     // start immediately
