@@ -123,7 +123,8 @@ public class InputService extends AccessibilityService {
 
 	private final Map<Long, InputContext> mInputContexts = new ConcurrentHashMap<>();
 	/**
-	 * System keyboard input foci, display-specific starting on Android 10, see <a href="https://source.android.com/docs/core/display/multi_display/displays#focus">Android docs</a>
+	 * System keyboard input foci, display-specific starting on Android 10 (really 11 in higher layers),
+	 * see <a href="https://source.android.com/docs/core/display/multi_display/displays#focus">Android docs</a>
 	 */
 	private final Map<Integer, AccessibilityNodeInfo> mKeyboardFocusNodes = new ConcurrentHashMap<>();
 
