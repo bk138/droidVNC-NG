@@ -88,7 +88,7 @@ public class MainService extends Service {
      */
     public static final String EXTRA_FILE_TRANSFER = "net.christianbeier.droidvnc_ng.EXTRA_FILE_TRANSFER";
     /**
-     * Only used on Android 10 and later.
+     * Only used on Android 11 and later.
      */
     public static final String EXTRA_FALLBACK_SCREEN_CAPTURE = "net.christianbeier.droidvnc_ng.EXTRA_FALLBACK_SCREEN_CAPTURE";
 
@@ -317,14 +317,14 @@ public class MainService extends Service {
             Intent startIntent = MainServicePersistData.loadStartIntent(this);
             if(startIntent != null) {
                 Log.d(TAG, "onStartCommand: restart after crash, restoring from persisted values");
-                // Unattended start needs InputService on Android 10 and newer, both for the activity starts from MainService
+                // Unattended start needs InputService on Android 11 and newer, both for the activity starts from MainService
                 // (could be reworked) but most importantly for fallback screen capture
                 if (Build.VERSION.SDK_INT >= 30) {
                     MainService.addFallbackScreenCaptureIfNotAppOp(this, startIntent);
 
                     // Wait for InputService to come up
                     InputService.runWhenConnected(() -> {
-                        Log.i(TAG, "onStartCommand: restart after crash, on Android 10+ and InputService set up, restarting MainService");
+                        Log.i(TAG, "onStartCommand: restart after crash, on Android 11+ and InputService set up, restarting MainService");
                         startForegroundService(startIntent);
                     });
                 } else {
