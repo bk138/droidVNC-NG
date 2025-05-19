@@ -25,7 +25,7 @@ class OnPackageReplacedReceiver : BroadcastReceiver() {
                 // Intent here as the service could have been started via the Intent Interface.
                 val intent = MainServicePersistData.loadStartIntent(context)
 
-                // Unattended start needs InputService on Android 10 and newer, both for the activity starts from MainService
+                // Unattended start needs InputService on Android 11 and newer, both for the activity starts from MainService
                 // (could be reworked) but most importantly for fallback screen capture
                 if (Build.VERSION.SDK_INT >= 30) {
                     MainService.addFallbackScreenCaptureIfNotAppOp(context.applicationContext, intent)
@@ -34,7 +34,7 @@ class OnPackageReplacedReceiver : BroadcastReceiver() {
                     InputService.runWhenConnected {
                         Log.i(
                             TAG,
-                            "on Android 10+ and InputService set up, starting MainService"
+                            "on Android 11+ and InputService set up, starting MainService"
                         )
                         context.applicationContext.startForegroundService(intent)
                     }
