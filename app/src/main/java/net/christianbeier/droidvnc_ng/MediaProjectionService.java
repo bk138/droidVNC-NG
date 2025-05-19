@@ -176,7 +176,8 @@ public class MediaProjectionService extends Service {
 
         startScreenCapture();
 
-        return START_REDELIVER_INTENT;
+        // in case of a crash, we will be restarted by MainService
+        return START_NOT_STICKY;
     }
 
 

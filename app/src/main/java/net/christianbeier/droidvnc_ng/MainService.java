@@ -313,6 +313,35 @@ public class MainService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        if (intent == null) {
+            Intent startIntent = MainServicePersistData.loadStartIntent(this);
+            if(startIntent != null) {
+                Log.d(TAG, "onStartCommand: restart after crash, restoring from persisted values");
+                // Unattended start needs InputService on Android 10 and newer, both for the activity starts from MainService
+                // (could be reworked) but most importantly for fallback screen capture
+                if (Build.VERSION.SDK_INT >= 30) {
+                    MainService.addFallbackScreenCaptureIfNotAppOp(this, startIntent);
+
+                    // Wait for InputService to come up
+                    InputService.runWhenConnected(() -> {
+                        Log.i(TAG, "onStartCommand: restart after crash, on Android 10+ and InputService set up, restarting MainService");
+                        startForegroundService(startIntent);
+                    });
+                } else {
+                    // Start immediately. On API level 29, this re-shows the MediaProjection dialog :-/
+                    // API level <= 28 has the checkbox on the dialog to make it not reappear.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(startIntent);
+                    } else {
+                        startService(startIntent);
+                    }
+                }
+            } else {
+                Log.e(TAG, "onStartCommand: restart after crash but no persisted values, bailing out");
+            }
+            return START_NOT_STICKY;
+        }
+
         String accessKey = intent.getStringExtra(EXTRA_ACCESS_KEY);
         if (accessKey == null
                 || accessKey.isEmpty()
@@ -320,8 +349,10 @@ public class MainService extends Service {
             Log.e(TAG, "Access key missing or incorrect");
             if(!vncIsActive()) {
                 stopSelfByUs();
+                return START_NOT_STICKY;
+            } else {
+                return START_STICKY;
             }
-            return START_NOT_STICKY;
         }
 
         if(ACTION_HANDLE_MEDIA_PROJECTION_RESULT.equals(intent.getAction()) && MainServicePersistData.loadStartIntent(this) != null) {
@@ -342,7 +373,7 @@ public class MainService extends Service {
                 updateNotification(true);
             }
             // if we got here, we want to restart if we were killed
-            return START_REDELIVER_INTENT;
+            return START_STICKY;
         }
 
         if(ACTION_HANDLE_MEDIA_PROJECTION_REQUEST_RESULT.equals(intent.getAction()) && MainServicePersistData.loadStartIntent(this) != null) {
@@ -380,7 +411,7 @@ public class MainService extends Service {
                     registerNSD(name, port);
                     updateNotification(true);
                     // if we got here, we want to restart if we were killed
-                    return START_REDELIVER_INTENT;
+                    return START_STICKY;
                 } else {
                     MainServicePersistData.clear(this);
                     stopSelfByUs();
@@ -428,7 +459,7 @@ public class MainService extends Service {
                     registerNSD(name, port);
                     updateNotification(true);
                     // if we got here, we want to restart if we were killed
-                    return START_REDELIVER_INTENT;
+                    return START_STICKY;
                 } else {
                     MainServicePersistData.clear(this);
                     stopSelfByUs();
@@ -440,9 +471,7 @@ public class MainService extends Service {
                 Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
                 mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(mediaProjectionRequestIntent);
-                // if screen capturing was not started, we don't want a restart if we were killed
-                // especially, we don't want the permission asking to replay.
-                return START_NOT_STICKY;
+                return START_STICKY;
             }
         }
 
@@ -462,9 +491,7 @@ public class MainService extends Service {
                 notificationRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(notificationRequestIntent);
             }
-            // if screen capturing was not started, we don't want a restart if we were killed
-            // especially, we don't want the permission asking to replay.
-            return START_NOT_STICKY;
+            return START_STICKY;
         }
 
         if(ACTION_START.equals(intent.getAction())) {
@@ -475,7 +502,7 @@ public class MainService extends Service {
                 answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
                 answer.putExtra(EXTRA_REQUEST_SUCCESS, false);
                 sendBroadcastToOthersAndUs(answer);
-                return START_NOT_STICKY;
+                return START_STICKY;
             }
 
             // Step 0: persist given arguments to be able to recover from possible crash later
@@ -494,9 +521,7 @@ public class MainService extends Service {
             inputRequestIntent.putExtra(EXTRA_VIEW_ONLY, intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
             inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(inputRequestIntent);
-            // if screen capturing was not started, we don't want a restart if we were killed
-            // especially, we don't want the permission asking to replay.
-            return START_NOT_STICKY;
+            return START_STICKY;
         }
 
         if(ACTION_STOP.equals(intent.getAction())) {
@@ -527,11 +552,11 @@ public class MainService extends Service {
                     // check if set to reconnect and handle accordingly
                     handleClientReconnect(intent, client, "reverse");
                 }).start();
+                return START_STICKY;
             } else {
                 stopSelfByUs();
+                return START_NOT_STICKY;
             }
-
-            return START_NOT_STICKY;
         }
 
         if(ACTION_CONNECT_REPEATER.equals(intent.getAction())) {
@@ -555,11 +580,11 @@ public class MainService extends Service {
                     // check if set to reconnect and handle accordingly
                     handleClientReconnect(intent, client, "repeater");
                 }).start();
+                return START_STICKY;
             } else {
                 stopSelfByUs();
+                return START_NOT_STICKY;
             }
-
-            return START_NOT_STICKY;
         }
 
         // no known action was given, stop the _service_ again if the _server_ is not active
