@@ -45,10 +45,10 @@ public class OnBootReceiver extends BroadcastReceiver {
             Defaults defaults = new Defaults(context);
             if (prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, defaults.getStartOnBoot())) {
 
-                // autostart needs InputService on Android 10 and newer, both for the activity starts from MainService
+                // autostart needs InputService on Android 11 and newer, both for the activity starts from MainService
                 // (could be reworked) but most importantly for fallback screen capture
                 if (Build.VERSION.SDK_INT >= 30 && !InputService.isConnected()) {
-                    Log.w(TAG, "onReceive: configured to start, but on Android 10+ and InputService not set up, bailing out");
+                    Log.w(TAG, "onReceive: configured to start, but on Android 11+ and InputService not set up, bailing out");
                     return;
                 }
 
