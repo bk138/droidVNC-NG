@@ -23,7 +23,6 @@ package net.christianbeier.droidvnc_ng
 
 import android.content.Context
 import android.content.RestrictionsManager
-import android.content.SharedPreferences
 import android.util.Log
 import android.view.Display
 import androidx.preference.PreferenceManager
@@ -31,6 +30,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.io.File
 import java.util.UUID
+import androidx.core.content.edit
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -96,12 +96,12 @@ class Defaults {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         val defaultAccessKey = prefs.getString(PREFS_KEY_DEFAULTS_ACCESS_KEY, null)
         if (defaultAccessKey == null) {
-            val ed: SharedPreferences.Editor = prefs.edit()
-            ed.putString(
-                PREFS_KEY_DEFAULTS_ACCESS_KEY,
-                UUID.randomUUID().toString().replace("-".toRegex(), "")
-            )
-            ed.apply()
+            prefs.edit {
+                putString(
+                    PREFS_KEY_DEFAULTS_ACCESS_KEY,
+                    UUID.randomUUID().toString().replace("-".toRegex(), "")
+                )
+            }
         }
         this.accessKey = prefs.getString(PREFS_KEY_DEFAULTS_ACCESS_KEY, null)!!
 
