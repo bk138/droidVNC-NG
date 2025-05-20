@@ -22,6 +22,7 @@
 package net.christianbeier.droidvnc_ng
 
 import android.content.Context
+import android.content.RestrictionsManager
 import android.content.SharedPreferences
 import android.util.Log
 import android.view.Display
@@ -110,12 +111,45 @@ class Defaults {
         this.scaling = 1.0f / Utils.getDisplayMetrics(context, Display.DEFAULT_DISPLAY).density.coerceAtLeast(1.0f)
 
         /*
+            Try read defaults from app restrictions
+         */
+        val appConfig = (context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager).applicationRestrictions
+        if (appConfig != null && appConfig.size() > 0) {
+            Log.i(TAG, "Loading defaults from app restrictions")
+            this.port = appConfig.getInt("port", this.port)
+            this.portReverse = appConfig.getInt("portReverse", this.portReverse)
+            this.portRepeater = appConfig.getInt("portRepeater", this.portRepeater)
+            this.fileTransfer = appConfig.getBoolean("fileTransfer", this.fileTransfer)
+            this.viewOnly = appConfig.getBoolean("viewOnly", this.viewOnly)
+            this.showPointers = appConfig.getBoolean("showPointers", this.showPointers)
+            this.password = appConfig.getString("password", this.password) ?: this.password
+            this.startOnBoot = appConfig.getBoolean("startOnBoot", this.startOnBoot)
+            this.startOnBootDelay = appConfig.getInt("startOnBootDelay", this.startOnBootDelay)
+
+            val scalingStr = appConfig.getString("scaling", "0.0")
+            try {
+                val scaling = scalingStr.toFloat()
+                if (scaling > 0.0f)
+                    this.scaling = scaling
+            } catch (e: NumberFormatException) {
+                Log.w(TAG, "Invalid scaling value in app restrictions: $scalingStr")
+            }
+
+            val accessKey = appConfig.getString("accessKey", "")
+            if (accessKey != null && accessKey.isNotEmpty())
+                this.accessKey = accessKey
+
+            return
+        }
+
+        /*
             read provided defaults
          */
         val jsonFile = File(context.getExternalFilesDir(null), "defaults.json")
         try {
             val jsonString = jsonFile.readText()
             val readDefault = Json.decodeFromString<Defaults>(jsonString)
+            Log.i(TAG, "Loading defaults from json file")
             this.port = readDefault.port
             this.portReverse = readDefault.portReverse
             this.portRepeater = readDefault.portRepeater

@@ -30,6 +30,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <meta-data
+            android:name="android.content.APP_RESTRICTIONS"
+            android:resource="@xml/app_config" />
+
         <receiver android:name=".OnBootReceiver"
             android:exported="true">
             <intent-filter>

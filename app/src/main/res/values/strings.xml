@@ -74,4 +74,6 @@
     <string name="share_activtiy_server_not_running">Not shared text, server is not running.</string>
     <string name="share_activtiy_no_clients_connected">Not shared text, no clients connected.</string>
     <string name="share_activtiy_shared_successfully">Shared text to clipboards of all connected clients.</string>
+    <string name="settings_port_reverse" translatable="false">Reverse Port</string>
+    <string name="settings_port_repeater" translatable="false">Repeater Port</string>
 </resources>
