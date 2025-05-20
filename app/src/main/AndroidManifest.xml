@@ -32,7 +32,7 @@
 
         <meta-data
             android:name="android.content.APP_RESTRICTIONS"
-            android:resource="@xml/app_config" />
+            android:resource="@xml/app_restrictions" />
 
         <receiver android:name=".OnBootReceiver"
             android:exported="true">
