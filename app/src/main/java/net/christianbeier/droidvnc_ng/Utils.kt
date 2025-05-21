@@ -16,8 +16,12 @@ object Utils {
 
     @JvmStatic
     fun getProp(prop: String) : String {
-        val process = ProcessBuilder().command("/system/bin/getprop", prop).start()
-        return BufferedReader(InputStreamReader(process.inputStream)).readLine()
+        try {
+            val process = ProcessBuilder().command("/system/bin/getprop", prop).start()
+            return BufferedReader(InputStreamReader(process.inputStream)).readLine()
+        } catch (e: Exception) {
+            return ""
+        }
     }
 
     @JvmStatic
