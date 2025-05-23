@@ -836,7 +836,7 @@ public class InputService extends AccessibilityService {
 	private void startGesture(InputContext inputContext, int x, int y) {
 		inputContext.path.reset();
 		inputContext.path.moveTo( x, y );
-		inputContext.lastGestureStartTime = System.currentTimeMillis();
+		inputContext.lastGestureStartTime = SystemClock.elapsedRealtime();
 	}
 
 	private void continueGesture(InputContext inputContext, int x, int y) {
@@ -845,7 +845,7 @@ public class InputService extends AccessibilityService {
 
 	private void endGesture(InputContext inputContext, int x, int y) {
 		inputContext.path.lineTo( x, y );
-		long duration = System.currentTimeMillis() - inputContext.lastGestureStartTime;
+		long duration = SystemClock.elapsedRealtime() - inputContext.lastGestureStartTime;
 		// gesture ended very very shortly after start (< 1ms). make it 1ms to get dispatched to the system
 		if (duration == 0) duration = 1;
 		GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription( inputContext.path, 0, duration);
