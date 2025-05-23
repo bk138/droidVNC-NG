@@ -9,6 +9,7 @@ import android.graphics.Path
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.Build
+import android.util.Log
 import android.view.Display
 import android.view.Gravity
 import android.view.View
@@ -28,6 +29,10 @@ class InputPointerView(
     val green: Float,
     val blue: Float
 ) : View(context) {
+
+    companion object {
+        private const val TAG = "InputPointerView"
+    }
 
     private val path: Path = Path()
     private val windowManager: WindowManager
@@ -100,9 +105,13 @@ class InputPointerView(
      * Add input pointer view to display specified in constructor.
      */
     fun addView() {
-        // attach to display
-        layoutParams.gravity = Gravity.TOP or Gravity.START
-        windowManager.addView(this, layoutParams)
+        try {
+            // attach to display
+            layoutParams.gravity = Gravity.TOP or Gravity.START
+            windowManager.addView(this, layoutParams)
+        } catch (e: Exception) {
+            Log.e(TAG, "addView: $e")
+        }
     }
 
     /**
