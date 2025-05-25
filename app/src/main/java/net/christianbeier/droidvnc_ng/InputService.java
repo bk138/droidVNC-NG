@@ -70,6 +70,7 @@ public class InputService extends AccessibilityService {
 		// pointer-related
 		boolean isButtonOneDown;
 		Path path = new Path();
+		GestureDescription.StrokeDescription stroke;
 		long lastGestureStartTime;
 		GestureCallback gestureCallback = new GestureCallback();
 		InputPointerView pointerView;
@@ -300,18 +301,18 @@ public class InputService extends AccessibilityService {
 			// down, was up
 			if ((buttonMask & (1 << 0)) != 0 && !inputContext.isButtonOneDown) {
 				inputContext.isButtonOneDown = true;
-				instance.startGesture(inputContext, x, y);
+				instance.startStroke(inputContext, x, y);
 			}
 
 			// down, was down
 			if ((buttonMask & (1 << 0)) != 0 && inputContext.isButtonOneDown) {
-				instance.continueGesture(inputContext, x, y);
+				instance.continueStroke(inputContext, x, y);
 			}
 
 			// up, was down
 			if ((buttonMask & (1 << 0)) == 0 && inputContext.isButtonOneDown) {
 				inputContext.isButtonOneDown = false;
-				instance.endGesture(inputContext, x, y);
+				instance.endStroke(inputContext, x, y);
 			}
 
 
@@ -833,25 +834,76 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
-	private void startGesture(InputContext inputContext, int x, int y) {
+	private void startStroke(InputContext inputContext, int x, int y) {
 		inputContext.path.reset();
 		inputContext.path.moveTo( x, y );
 		inputContext.lastGestureStartTime = SystemClock.elapsedRealtime();
+		// On API level 26 and newer, we can submit the stroke via multiple gestures, one per
+		// continued stroke. Reset the stroke here to mark the start of a stroke which will be
+		// continued in continueStroke() or ended in endStroke()
+		// On older API levels, the stroke is constructed and submitted at the very end from the whole path.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			inputContext.stroke = null;
+		}
 	}
 
-	private void continueGesture(InputContext inputContext, int x, int y) {
-		inputContext.path.lineTo( x, y );
+	private void continueStroke(InputContext inputContext, int x, int y) {
+		inputContext.path.lineTo(x, y);
+		// On API level 26 and newer, we can dispatch the stroke via multiple gestures.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			long currentTime = SystemClock.elapsedRealtime();
+			long duration = currentTime - inputContext.lastGestureStartTime;
+			// if passing 0, getting "IllegalArgumentException: Duration must be positive"
+			if (duration == 0) duration = 1;
+
+			// Either create a new stroke if this is the first continueStroke() after startStroke()
+			// or create a continued stroke.
+			if (inputContext.stroke == null) {
+				inputContext.stroke = new GestureDescription.StrokeDescription(inputContext.path, 0, duration, true);
+			} else {
+				inputContext.stroke = inputContext.stroke.continueStroke(inputContext.path, 0, duration, true);
+			}
+
+			// and dispatch it to OS
+			dispatchStrokeAsGesture(inputContext.stroke, inputContext.getDisplayId());
+
+			// start a new gesture
+			inputContext.lastGestureStartTime = currentTime;
+
+			// start a new path
+			inputContext.path.reset();
+			inputContext.path.moveTo(x, y);
+		}
 	}
 
-	private void endGesture(InputContext inputContext, int x, int y) {
+	private void endStroke(InputContext inputContext, int x, int y) {
 		inputContext.path.lineTo( x, y );
 		long duration = SystemClock.elapsedRealtime() - inputContext.lastGestureStartTime;
 		// gesture ended very very shortly after start (< 1ms). make it 1ms to get dispatched to the system
 		if (duration == 0) duration = 1;
-		GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription( inputContext.path, 0, duration);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			// On API level 26 and newer, we can submit the stroke via multiple gestures, so end it here.
+			// Either create a new stroke if this is endStroke comes right after startStroke()
+			// or create a continued stroke.
+			if (inputContext.stroke == null) {
+				inputContext.stroke = new GestureDescription.StrokeDescription(inputContext.path, 0, duration, false);
+			} else {
+				inputContext.stroke = inputContext.stroke.continueStroke(inputContext.path, 0, duration, false);
+			}
+		} else {
+			// On older API levels, the stroke is constructed and submitted at the very end from the whole path
+			inputContext.stroke = new GestureDescription.StrokeDescription(inputContext.path, 0, duration);
+		}
+
+		dispatchStrokeAsGesture(inputContext.stroke, inputContext.getDisplayId());
+	}
+
+	/// Dispatch the given stroke to the OS, display-specific starting at API level 30
+	private void dispatchStrokeAsGesture(GestureDescription.StrokeDescription stroke, int displayId) {
 		GestureDescription.Builder builder = new GestureDescription.Builder();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-			builder.setDisplayId(inputContext.getDisplayId());
+			builder.setDisplayId(displayId);
 		}
 		builder.addStroke(stroke);
 		// Docs says: Any gestures currently in progress, whether from the user, this service, or another service, will be cancelled.
