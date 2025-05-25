@@ -5,7 +5,7 @@
     <string name="main_activity_settings_port">ポート</string>
     <string name="main_activity_settings_port_not_listening">インバウンド接続は無効です</string>
     <string name="main_activity_settings_password">パスワード</string>
-    <string name="main_activity_settings_access_key">アクセスキー</string>
+    <string name="main_activity_settings_access_key">インテントAPIアクセスキー</string>
     <string name="main_activity_settings_start_on_boot">起動時に自動実行</string>
     <string name="main_activity_settings_start_on_boot_delay">自動実行の遅延時間(秒)</string>
     <string name="main_activity_settings_file_transfer">ファイル転送</string>

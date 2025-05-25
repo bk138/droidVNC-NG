@@ -4,7 +4,7 @@
     <string name="main_activity_settings_port">Port</string>
     <string name="main_activity_settings_port_not_listening">Eingehende Verbindungen deaktiviert</string>
     <string name="main_activity_settings_password">Passwort</string>
-    <string name="main_activity_settings_access_key">Zugangsschlüssel</string>
+    <string name="main_activity_settings_access_key">Intent-API-Zugangssschlüssel</string>
     <string name="main_activity_settings_start_on_boot">Start bei Gerätestart</string>
     <string name="main_activity_settings_start_on_boot_delay">Startverzögerung (s)</string>
     <string name="main_activity_settings_file_transfer">Dateiübertragung</string>

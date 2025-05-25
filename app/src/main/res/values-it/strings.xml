@@ -4,7 +4,7 @@
     <string name="main_activity_settings_port">Porta</string>
     <string name="main_activity_settings_port_not_listening">Connessioni in entrata disabilitate</string>
     <string name="main_activity_settings_password">Password</string>
-    <string name="main_activity_settings_access_key">Chiave d\'accesso</string>
+    <string name="main_activity_settings_access_key">Chiave di accesso API Intent</string>
     <string name="main_activity_settings_start_on_boot">Esegui all\'avvio</string>
     <string name="main_activity_settings_start_on_boot_delay">Ritardo esecuzione all\'avvio (s)</string>
     <string name="main_activity_settings_file_transfer">Trasferimento file</string>

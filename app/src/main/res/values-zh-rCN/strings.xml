@@ -4,7 +4,7 @@
     <string name="main_activity_settings_port">端口</string>
     <string name="main_activity_settings_port_not_listening">禁用传入连接</string>
     <string name="main_activity_settings_password">密码</string>
-    <string name="main_activity_settings_access_key">访问键</string>
+    <string name="main_activity_settings_access_key">意图 API 访问密钥</string>
     <string name="main_activity_settings_start_on_boot">开机启动</string>
     <string name="main_activity_settings_start_on_boot_delay">启动延迟（秒）</string>
     <string name="main_activity_settings_file_transfer">文件传输</string>
