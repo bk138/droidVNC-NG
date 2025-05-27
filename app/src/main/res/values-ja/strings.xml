@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">droidVNC-NG</string>
     <string name="main_activity_title">droidVNC-NG管理パネル</string>
     <string name="main_activity_settings">設定</string>
     <string name="main_activity_settings_port">ポート</string>
