@@ -33,7 +33,8 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * Start of background service on device boot.
 * [Reverse VNC](#reverse-vnc).
 * Ability to [connect to a UltraVNC-style Mode-2 repeater](#reverse-vnc).
-* Functionality to provide default configuration via a JSON file.
+* Functionality to provide default configuration via a JSON file or
+  [Mobile Device Management](https://developer.android.com/work/managed-configurations).
 * Zeroconf/Bonjour publishing for VNC server auto-discovery.
 * Per-client mouse pointers on the controlled device.
 * Ability to control a device’s shared screen directly from a web browser by shipping the fabulous
