@@ -28,13 +28,13 @@
     <string name="main_activity_connecting_to">Conexión a %1$s</string>
     <string name="main_activity_reverse_vnc_button">Conexión a un visor</string>
     <string name="main_activity_reverse_vnc_hint">Host:Puerto</string>
-    <string name="main_activity_reverse_vnc_success">Conexión a %1$s:%2$d exitosa</string>
-    <string name="main_activity_reverse_vnc_fail">Conexión a %1$s:%2$d fallida</string>
+    <string name="main_activity_reverse_vnc_success">Conexión a %1$s exitosa</string>
+    <string name="main_activity_reverse_vnc_fail">Conexión a %1$s fallida</string>
     <string name="main_activity_repeater_vnc_button">Conexión a un repetidor</string>
     <string name="main_activity_repeater_vnc_hint">Host:Puerto</string>
     <string name="main_activity_repeater_vnc_hint_id">ID del repetidor</string>
-    <string name="main_activity_repeater_vnc_success">Conexión a %1$s:%2$d con ID %3$s exitosa</string>
-    <string name="main_activity_repeater_vnc_fail">Conexión a %1$s:%2$d con ID %3$s fallida</string>
+    <string name="main_activity_repeater_vnc_success">Conexión a %1$s con ID %2$s exitosa</string>
+    <string name="main_activity_repeater_vnc_fail">Conexión a %1$s con ID %2$s fallida</string>
     <string name="main_activity_repeater_vnc_input_missing">Falta(n) el Host y/o el ID</string>
     <string name="main_activity_reconnect_tries_hint">Número de intentos de conexión</string>
     <string name="main_activity_special_key_reference">En cualquier visor VNC, utilizar <b>Ctrl-Shift-Esc</b> para ver la pantalla \'App recientes\', <b>Home/Pos1</b> para simular el botón Home, <b>End</b> para el botón de encendido y <b>Esc</b> para el boton Atrás.</string>

@@ -29,13 +29,13 @@
     <string name="main_activity_connecting_to">正在連接到%1$s</string>
     <string name="main_activity_reverse_vnc_button">連接到監聽的viewer</string>
     <string name="main_activity_reverse_vnc_hint">域名:連接埠</string>
-    <string name="main_activity_reverse_vnc_success">成功連接到%1$s:%2$d</string>
-    <string name="main_activity_reverse_vnc_fail">連接%1$s:%2$d失敗</string>
+    <string name="main_activity_reverse_vnc_success">成功連接到%1$s</string>
+    <string name="main_activity_reverse_vnc_fail">連接%1$s失敗</string>
     <string name="main_activity_repeater_vnc_button">連接到中繼器</string>
     <string name="main_activity_repeater_vnc_hint">域名:連接埠</string>
     <string name="main_activity_repeater_vnc_hint_id">中繼器上的ID</string>
-    <string name="main_activity_repeater_vnc_success">成功連接到%1$s:%2$d；ID%3$s</string>
-    <string name="main_activity_repeater_vnc_fail">連接%1$s:%2$d失敗；ID%3$s</string>
+    <string name="main_activity_repeater_vnc_success">成功連接到%1$s；ID%2$s</string>
+    <string name="main_activity_repeater_vnc_fail">連接%1$s失敗；ID%2$s</string>
     <string name="main_activity_repeater_vnc_input_missing">域名/ID遺失</string>
     <string name="main_activity_reconnect_tries_hint">最大重新連接嘗試次數</string>
     <string name="main_activity_special_key_reference">從VNC客戶端，<b>Ctrl-Shift-Esc</b> 打開 \'最近的app\' 預覽，<b>Home/Pos1</b> 作為Home鍵，<b>End</b> 充當電源按鈕，<b>Escape</b> 作為返回鍵。</string>

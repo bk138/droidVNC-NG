@@ -553,8 +553,7 @@ public class MainActivity extends AppCompatActivity {
                     if (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_reverse_vnc_success,
-                                                mLastReverseHost,
-                                                mLastReversePort),
+                                                mLastReverseHost + ":" + mLastReversePort),
                                         Toast.LENGTH_LONG)
                                 .show();
                         SharedPreferences.Editor ed = prefs.edit();
@@ -564,8 +563,7 @@ public class MainActivity extends AppCompatActivity {
                     } else
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_reverse_vnc_fail,
-                                                mLastReverseHost,
-                                                mLastReversePort),
+                                                mLastReverseHost + ":" + mLastReversePort),
                                         Toast.LENGTH_LONG)
                                 .show();
 
@@ -584,8 +582,7 @@ public class MainActivity extends AppCompatActivity {
                     if (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_repeater_vnc_success,
-                                                mLastRepeaterHost,
-                                                mLastRepeaterPort,
+                                                 mLastRepeaterHost + ":" + mLastRepeaterPort,
                                                 mLastRepeaterId),
                                         Toast.LENGTH_LONG)
                                 .show();
@@ -599,8 +596,7 @@ public class MainActivity extends AppCompatActivity {
                     else
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_repeater_vnc_fail,
-                                                mLastRepeaterHost,
-                                                mLastRepeaterPort,
+                                                mLastRepeaterHost + ":" + mLastRepeaterPort,
                                                 mLastRepeaterId),
                                         Toast.LENGTH_LONG)
                                 .show();

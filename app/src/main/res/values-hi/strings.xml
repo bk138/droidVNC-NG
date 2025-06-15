@@ -28,13 +28,13 @@
     <string name="main_activity_connecting_to">%1$s से कनेक्ट हो रहा है</string>
     <string name="main_activity_reverse_vnc_button">लिसनिंग व्यूअर से कनेक्ट करें</string>
     <string name="main_activity_reverse_vnc_hint">होस्ट:पोर्ट</string>
-    <string name="main_activity_reverse_vnc_success">%1$s:%2$d से कनेक्शन सफल</string>
-    <string name="main_activity_reverse_vnc_fail">%1$s:%2$d से कनेक्शन असफल</string>
+    <string name="main_activity_reverse_vnc_success">%1$s से कनेक्शन सफल</string>
+    <string name="main_activity_reverse_vnc_fail">%1$s से कनेक्शन असफल</string>
     <string name="main_activity_repeater_vnc_button">रीपीटर से कनेक्ट करें</string>
     <string name="main_activity_repeater_vnc_hint">होस्ट:पोर्ट</string>
     <string name="main_activity_repeater_vnc_hint_id">रीपीटर पर ID</string>
-    <string name="main_activity_repeater_vnc_success">%1$s:%2$d से ID %3$s के साथ कनेक्शन सफल</string>
-    <string name="main_activity_repeater_vnc_fail">%1$s:%2$d से ID %3$s के साथ कनेक्शन असफल</string>
+    <string name="main_activity_repeater_vnc_success">%1$s से ID %2$s के साथ कनेक्शन सफल</string>
+    <string name="main_activity_repeater_vnc_fail">%1$s से ID %2$s के साथ कनेक्शन असफल</string>
     <string name="main_activity_repeater_vnc_input_missing">होस्ट और/या ID गायब है</string>
     <string name="main_activity_reconnect_tries_hint">अधिकतम पुन: कनेक्ट प्रयास</string>
     <string name="main_activity_special_key_reference">VNC व्यूअर से, <b>Ctrl-Shift-Esc</b> "हाल ही में उपयोग किए गए ऐप्स" दिखाता है, <b>Home/Pos1</b> होम बटन की तरह कार्य करता है, <b>End</b> पावर बटन की तरह और <b>Escape</b> बैक बटन की तरह कार्य करता है।</string>

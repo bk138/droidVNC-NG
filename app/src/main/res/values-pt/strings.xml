@@ -28,13 +28,13 @@
     <string name="main_activity_connecting_to">Conectando-se a %1$s</string>
     <string name="main_activity_reverse_vnc_button">Conecte-se a um visualizador ouvinte</string>
     <string name="main_activity_reverse_vnc_hint">Host:Porta</string>
-    <string name="main_activity_reverse_vnc_success">Conexão com %1$s:%2$d bem-sucedida</string>
-    <string name="main_activity_reverse_vnc_fail">A conexão com %1$s:%2$d falhou</string>
+    <string name="main_activity_reverse_vnc_success">Conexão com %1$s bem-sucedida</string>
+    <string name="main_activity_reverse_vnc_fail">A conexão com %1$s falhou</string>
     <string name="main_activity_repeater_vnc_button">Conectar a um repetidor</string>
     <string name="main_activity_repeater_vnc_hint">Host:Porta</string>
     <string name="main_activity_repeater_vnc_hint_id">ID no repetidor</string>
-    <string name="main_activity_repeater_vnc_success">Conexão com %1$s:%2$d com ID %3$s bem-sucedida</string>
-    <string name="main_activity_repeater_vnc_fail">A conexão com %1$s:%2$d com ID %3$s falhou</string>
+    <string name="main_activity_repeater_vnc_success">Conexão com %1$s com ID %2$s bem-sucedida</string>
+    <string name="main_activity_repeater_vnc_fail">A conexão com %1$s com ID %2$s falhou</string>
     <string name="main_activity_repeater_vnc_input_missing">Host e/ou ID ausente</string>
     <string name="main_activity_reconnect_tries_hint">Max. de tentativas de reconexão</string>
     <string name="main_activity_special_key_reference">De um visualizador VNC, <b>Ctrl-Shift-Esc</b> aciona a visão geral de \'Aplicativos recentes\', <b>Home</b> atua como botão Home, <b>End</b> atua como botão liga / desliga, <b>Escapar</b> funciona como botão Voltar.</string>

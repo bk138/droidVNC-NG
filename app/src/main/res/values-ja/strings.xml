@@ -28,13 +28,13 @@
     <string name="main_activity_connecting_to">%1$s に接続中</string>
     <string name="main_activity_reverse_vnc_button">クライアントに接続</string>
     <string name="main_activity_reverse_vnc_hint">ホスト名:ポート</string>
-    <string name="main_activity_reverse_vnc_success">%1$s:%2$d への接続に成功しました</string>
-    <string name="main_activity_reverse_vnc_fail">%1$s:%2$d への接続に失敗しました</string>
+    <string name="main_activity_reverse_vnc_success">%1$s への接続に成功しました</string>
+    <string name="main_activity_reverse_vnc_fail">%1$s への接続に失敗しました</string>
     <string name="main_activity_repeater_vnc_button">リピータに接続</string>
     <string name="main_activity_repeater_vnc_hint">ホスト名:ポート</string>
     <string name="main_activity_repeater_vnc_hint_id">リピータのIDを</string>
-    <string name="main_activity_repeater_vnc_success">%1$s:%2$d (ID %3$s) への接続に成功しました</string>
-    <string name="main_activity_repeater_vnc_fail">%1$s:%2$d (ID %3$s) への接続に失敗しました</string>
+    <string name="main_activity_repeater_vnc_success">%1$s (ID %2$s) への接続に成功しました</string>
+    <string name="main_activity_repeater_vnc_fail">%1$s (ID %2$s) への接続に失敗しました</string>
     <string name="main_activity_repeater_vnc_input_missing">ホスト名またはIDが入力されていません</string>
     <string name="main_activity_reconnect_tries_hint">最大の接続リトライ数</string>
     <string name="main_activity_special_key_reference">VNCビューワから<b>Ctrl-Shift-Esc</b>を押下すると、「アプリ履歴」画面が呼び出されます。 <b>Home/Pos1</b>はホームボタンとして機能します。 <b>End</b>は電源ボタンとして機能します。 <b>Escape</b>は戻るボタンとして機能します</string>

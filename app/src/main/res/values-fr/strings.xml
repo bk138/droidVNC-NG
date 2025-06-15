@@ -28,13 +28,13 @@
     <string name="main_activity_connecting_to">Connexion à %1$s</string>
     <string name="main_activity_reverse_vnc_button">Connexion à un viewer</string>
     <string name="main_activity_reverse_vnc_hint">Host:Port</string>
-    <string name="main_activity_reverse_vnc_success">Connexion à %1$s:%2$d réussie</string>
-    <string name="main_activity_reverse_vnc_fail">Connexion à %1$s:%2$d échouée</string>
+    <string name="main_activity_reverse_vnc_success">Connexion à %1$s réussie</string>
+    <string name="main_activity_reverse_vnc_fail">Connexion à %1$s échouée</string>
     <string name="main_activity_repeater_vnc_button">Connexion à un répéteur</string>
     <string name="main_activity_repeater_vnc_hint">Host:Port</string>
     <string name="main_activity_repeater_vnc_hint_id">ID du répéteur</string>
-    <string name="main_activity_repeater_vnc_success">Connexion à %1$s:%2$d avec ID %3$s réussie</string>
-    <string name="main_activity_repeater_vnc_fail">Connexion à %1$s:%2$d avec ID %3$s échouée</string>
+    <string name="main_activity_repeater_vnc_success">Connexion à %1$s avec ID %2$s réussie</string>
+    <string name="main_activity_repeater_vnc_fail">Connexion à %1$s avec ID %2$s échouée</string>
     <string name="main_activity_repeater_vnc_input_missing">Host et/ou ID manquantes</string>
     <string name="main_activity_reconnect_tries_hint">Nombre de tentatives de connexion</string>
     <string name="main_activity_special_key_reference">Depuis n\'import quel viewer VNC, vous pouvuez utiliser <b>Ctrl-Shift-Esc</b> pour voir l\'écran de \'Applications récentes\', <b>Home/Pos1</b> pour simuler le bouton Home, <b>End</b> pour simuler le bouton Marche et <b>Esc</b> pour simuler le bouton Retour.</string>

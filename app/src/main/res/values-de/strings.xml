@@ -28,13 +28,13 @@
     <string name="main_activity_connecting_to">Verbinde zu %1$s</string>
     <string name="main_activity_reverse_vnc_button">Verbindung zu VNC-Viewer</string>
     <string name="main_activity_reverse_vnc_hint">Host:Port</string>
-    <string name="main_activity_reverse_vnc_success">Verbindung zu %1$s:%2$d erfolgreich</string>
-    <string name="main_activity_reverse_vnc_fail">Die Verbindung zu %1$s:%2$d ist fehlgeschlagen</string>
+    <string name="main_activity_reverse_vnc_success">Verbindung zu %1$s erfolgreich</string>
+    <string name="main_activity_reverse_vnc_fail">Die Verbindung zu %1$s ist fehlgeschlagen</string>
     <string name="main_activity_repeater_vnc_button">Verbindung zu VNC-Repeater</string>
     <string name="main_activity_repeater_vnc_hint">Host:Port</string>
     <string name="main_activity_repeater_vnc_hint_id">ID auf Repeater</string>
-    <string name="main_activity_repeater_vnc_success">Die Verbindung zu %1$s:%2$d mit der ID %3$s war erfolgreich</string>
-    <string name="main_activity_repeater_vnc_fail">Die Verbindung zu %1$s:%2$d mit der ID %3$s ist fehlgeschlagen</string>
+    <string name="main_activity_repeater_vnc_success">Die Verbindung zu %1$s mit der ID %2$s war erfolgreich</string>
+    <string name="main_activity_repeater_vnc_fail">Die Verbindung zu %1$s mit der ID %2$s ist fehlgeschlagen</string>
     <string name="main_activity_repeater_vnc_input_missing">Host und/oder ID fehlen</string>
     <string name="main_activity_reconnect_tries_hint">Max. Wiederverbindungsversuche</string>
     <string name="main_activity_special_key_reference">Von einem VNC-Viewer aus löst <b>Strg-Umschalt-Esc</b> die Übersicht „Letzte Apps“ aus, <b>Pos1</b> fungiert als Home-Button, <b>Ende</b> als Power-Button, <b>Esc</b> als Zurück-Taste.</string>

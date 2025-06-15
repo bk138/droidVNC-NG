@@ -29,13 +29,13 @@
     <string name="main_activity_connecting_to">Connecting to %1$s</string>
     <string name="main_activity_reverse_vnc_button">Connect to a listening viewer</string>
     <string name="main_activity_reverse_vnc_hint">Host:Port</string>
-    <string name="main_activity_reverse_vnc_success">Connection to %1$s:%2$d succeeded</string>
-    <string name="main_activity_reverse_vnc_fail">Connection to %1$s:%2$d failed</string>
+    <string name="main_activity_reverse_vnc_success">Connection to %1$s succeeded</string>
+    <string name="main_activity_reverse_vnc_fail">Connection to %1$s failed</string>
     <string name="main_activity_repeater_vnc_button">Connect to a repeater</string>
     <string name="main_activity_repeater_vnc_hint">Host:Port</string>
     <string name="main_activity_repeater_vnc_hint_id">ID on Repeater</string>
-    <string name="main_activity_repeater_vnc_success">Connection to %1$s:%2$d with ID %3$s succeeded</string>
-    <string name="main_activity_repeater_vnc_fail">Connection to %1$s:%2$d with ID %3$s failed</string>
+    <string name="main_activity_repeater_vnc_success">Connection to %1$s with ID %2$s succeeded</string>
+    <string name="main_activity_repeater_vnc_fail">Connection to %1$s with ID %2$s failed</string>
     <string name="main_activity_repeater_vnc_input_missing">Host and/or ID missing</string>
     <string name="main_activity_reconnect_tries_hint">Max. reconnect tries</string>
     <string name="main_activity_special_key_reference">From a VNC viewer, <b>Ctrl-Shift-Esc</b> triggers \'Recent Apps\' overview, <b>Home/Pos1</b> acts as Home button, <b>End</b> acts as Power button, <b>Escape</b> acts as Back button.</string>
