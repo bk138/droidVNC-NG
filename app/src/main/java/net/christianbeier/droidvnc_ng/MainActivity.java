@@ -35,6 +35,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.BidiFormatter;
 import androidx.preference.PreferenceManager;
 
 import android.provider.Settings;
@@ -199,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                         mOutgoingConnectionWaitDialog = new AlertDialog.Builder(this)
                                 .setCancelable(false)
                                 .setTitle(R.string.main_activity_reverse_vnc_button)
-                                .setMessage(getString(R.string.main_activity_connecting_to, host + ":" + port))
+                                .setMessage(getString(R.string.main_activity_connecting_to, BidiFormatter.getInstance().unicodeWrap(host + ":" + port)))
                                 .setView(progressBar)
                                 .show();
                     })
@@ -294,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
                         mOutgoingConnectionWaitDialog = new AlertDialog.Builder(this)
                                 .setCancelable(false)
                                 .setTitle(R.string.main_activity_repeater_vnc_button)
-                                .setMessage(getString(R.string.main_activity_connecting_to, host + ":" + port + " - " + repeaterId))
+                                .setMessage(getString(R.string.main_activity_connecting_to, BidiFormatter.getInstance().unicodeWrap(host + ":" + port + " - " + repeaterId)))
                                 .setView(progressBar)
                                 .show();
                     })
@@ -553,7 +554,7 @@ public class MainActivity extends AppCompatActivity {
                     if (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_reverse_vnc_success,
-                                                mLastReverseHost + ":" + mLastReversePort),
+                                                BidiFormatter.getInstance().unicodeWrap(mLastReverseHost + ":" + mLastReversePort)),
                                         Toast.LENGTH_LONG)
                                 .show();
                         SharedPreferences.Editor ed = prefs.edit();
@@ -563,7 +564,7 @@ public class MainActivity extends AppCompatActivity {
                     } else
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_reverse_vnc_fail,
-                                                mLastReverseHost + ":" + mLastReversePort),
+                                                BidiFormatter.getInstance().unicodeWrap(mLastReverseHost + ":" + mLastReversePort)),
                                         Toast.LENGTH_LONG)
                                 .show();
 
@@ -582,7 +583,7 @@ public class MainActivity extends AppCompatActivity {
                     if (intent.getBooleanExtra(MainService.EXTRA_REQUEST_SUCCESS, false)) {
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_repeater_vnc_success,
-                                                 mLastRepeaterHost + ":" + mLastRepeaterPort,
+                                                BidiFormatter.getInstance().unicodeWrap(mLastRepeaterHost + ":" + mLastRepeaterPort),
                                                 mLastRepeaterId),
                                         Toast.LENGTH_LONG)
                                 .show();
@@ -596,7 +597,7 @@ public class MainActivity extends AppCompatActivity {
                     else
                         Toast.makeText(MainActivity.this,
                                         getString(R.string.main_activity_repeater_vnc_fail,
-                                                mLastRepeaterHost + ":" + mLastRepeaterPort,
+                                                BidiFormatter.getInstance().unicodeWrap(mLastRepeaterHost + ":" + mLastRepeaterPort),
                                                 mLastRepeaterId),
                                         Toast.LENGTH_LONG)
                                 .show();
