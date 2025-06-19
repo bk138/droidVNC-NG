@@ -2,10 +2,12 @@
 
 The Intent Interface described herein allows controlling the VNC server from other packages.
 
-Use cases: 
+## Use Cases
 - automation apps like [MacroDroid](https://www.macrodroid.com/), [Automate](https://llamalab.com/automate/) or
 [Tasker](https://tasker.joaoapps.com/)
 - to be called from code  of other apps
+
+## Specification
 
 You basically send an explicit Intent to `net.christianbeier.droidvnc_ng.MainService` with one of
 the following Actions and associated Extras set:
