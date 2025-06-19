@@ -43,12 +43,6 @@ If you have a general question, it's best to [ask in the community chat](https:/
 
 ## How to use
 
-1. Install the app from either marketplace.
-2. Get it all the permissions required.
-3. Set a good password and consider turning the `Start on Boot` off.
-4. Connect to your local Wi-Fi. For accepting a connection your device should be connected to some Local Area Network that you can control, normally it is a router. Connections via data networks (i.e. your mobile provider) are not supported.
-5. Click `Start` and connect to your device.
-
 ### Keyboard Shortcuts From a VNC Viewer
 
 * **Ctrl-Shift-Esc** triggers 'Recent Apps' overview
@@ -56,14 +50,20 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * **End** acts as Power button
 * **Escape** acts as Back button
 
-### How to connect?
-#### Reverse VNC
-Here's how to connect to a listening VNC viewer without opening a server port:
-1. Leave the VNC port **blank**, which will get the Admin Panel to state the server **isn't** listening for incoming connections.
-2. Make outbound connections by choosing either "Connect to a **listening viewer**" or "Connect to a **repeater**".
+### Within a Local Area Network
 
-#### Direct VNC
+1. Install the app from either marketplace.
+2. Get it all the permissions required.
+3. Set a good password and consider turning the `Start on Boot` off.
+4. Connect to your local Wi-Fi. For accepting a connection your device should be connected to some Local Area Network that you can control, normally it is a router.
+5. Click `Start` and connect to your device.
+
+### From The Internet
+
+**Disclaimer**: Anything else than password exchange is currently not encrypted, so use at your own risk!
+
 If you want to accept incoming connections from VNC viewers:
+
 1. You should allow [Port Forwarding](https://en.wikipedia.org/wiki/Port_forwarding) in your router's Firewall settings. Either find a [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play) supported app to open ports dynamically or log in to your router's settings (usually open 192.168.1.1 in your browser, some routers have password written on them).
 2. Find Port Forwarding, usually it's somewhere in **Network - Firewall - Port Forwards**.
 3. Create a new rule, this is an example from OpenWRT firmware.
@@ -85,6 +85,13 @@ If you want to accept incoming connections from VNC viewers:
 4. Apply the settings, sometimes it requires rebooting a router.
 5. Figure out your public address i.e. <https://www.hashemian.com/whoami/>.
 6. Use this address and port from above to connect to your device.
+
+### Reverse VNC
+
+Here's how to connect to a listening VNC viewer or repeater without opening a server port:
+1. Leave the VNC port **blank**, which will get the Admin Panel to state the server **isn't** listening for incoming connections.
+2. Make outbound connections by choosing either "Connect to a **listening viewer**" or "Connect to a **repeater**".
+
 
 ### How to Pre-seed Preferences
 
