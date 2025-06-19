@@ -88,37 +88,10 @@ If you want to accept incoming connections from VNC viewers:
 
 ### How to Pre-seed Preferences
 
-DroidVNC-NG can read a JSON file with default settings that apply if settings were not changed
-by the user. A file named `defaults.json` needs to created under
-`<external files directory>/Android/data/net.christianbeier.droidvnc_ng/files/` where
-depending on your device, `<external files directory>` is something like `/storage/emulated/0` if
-the device shows two external storages or simply `/sdcard` if the device has one external storage.
+DroidVNC-NG can be supplied with defaults for preferences that apply if preferences
+were not changed by the user.
 
-An example `defaults.json` with completely new defaults (not all entries need to be provided) is:
-
-```json
-{
-    "port": 5901,
-    "portReverse": 5555,
-    "portRepeater": 5556,
-    "scaling": 0.7,
-    "viewOnly": false,
-    "showPointers": true,
-    "fileTransfer": true,
-    "password": "supersecure",
-    "accessKey": "evenmoresecure",
-    "startOnBoot": true,
-    "startOnBootDelay": 0
-}
-```
-
-#### Pre-seed Preferences via Managed App Restrictions
-If you are using a device owner app, you can also pre-seed the preferences via managed app restrictions. 
-The same keys as in the JSON file above can be used.
-
-See: https://developer.android.com/work/managed-configurations
-
-> NOTE: Updates to app restrictions are only applied when the service restarts.
+See the [Preseed Preferences Docs](doc/Preseed-Preferences.md) for more details.
 
 ### Remote Control via the Intent Interface
 
