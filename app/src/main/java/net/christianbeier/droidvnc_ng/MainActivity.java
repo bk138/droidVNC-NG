@@ -29,6 +29,10 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.LinkProperties;
+import android.net.Network;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -89,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
     private int mLastRepeaterPort;
     private String mLastRepeaterId;
     private Defaults mDefaults;
-
+    private ConnectivityManager.NetworkCallback mNetworkCallback;
+    private BroadcastReceiver mWifiApStateChangedReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -623,7 +628,50 @@ public class MainActivity extends AppCompatActivity {
         // for instance
         ContextCompat.registerReceiver(this, mMainServiceBroadcastReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
 
-        // setup UI initial state
+        /*
+            Let UI update on any network interface changes.
+         */
+        // Client networks
+        mNetworkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(@NonNull Network network) {
+                Log.d(TAG, "NetworkCallback onAvailable");
+                updateAddressesDisplay();
+            }
+
+            @Override
+            public void onLinkPropertiesChanged(@NonNull Network network, @NonNull LinkProperties linkProperties) {
+                Log.d(TAG, "NetworkCallback onLinkPropertiesChanged");
+                updateAddressesDisplay();
+            }
+
+
+            @Override
+            public void onLost(@NonNull Network network) {
+                Log.d(TAG, "NetworkCallback onLost");
+                updateAddressesDisplay();
+            }
+        };
+        ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).registerNetworkCallback(
+                new NetworkRequest.Builder().build(),
+                mNetworkCallback);
+        // Access Points opened by us
+        mWifiApStateChangedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, "WIFI_AP_STATE_CHANGED");
+                updateAddressesDisplay();
+            }
+        };
+        ContextCompat.registerReceiver(
+                this,
+                mWifiApStateChangedReceiver,
+                new IntentFilter("android.net.wifi.WIFI_AP_STATE_CHANGED"),
+                ContextCompat.RECEIVER_EXPORTED);
+
+        /*
+            setup UI initial state
+         */
         if (MainService.isServerActive()) {
             Log.d(TAG, "Found server to be started");
             onServerStarted();
@@ -762,20 +810,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy");
-        unregisterReceiver(mMainServiceBroadcastReceiver);
-    }
+    private void updateAddressesDisplay() {
 
-    private void onServerStarted() {
-        mButtonToggle.post(() -> {
-            mButtonToggle.setText(R.string.stop);
-            mButtonToggle.setEnabled(true);
-            // let focus stay on button
-            mButtonToggle.requestFocus();
-        });
+        if(!MainService.isServerActive()) {
+            return;
+        }
+
+        Log.d(TAG, "updateAddressesDisplay");
 
         if(MainService.getPort() >= 0) {
             HashMap<ClickableSpan, Pair<Integer,Integer>> spans = new HashMap<>();
@@ -783,26 +824,30 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String> hosts = MainService.getIPv4s();
             StringBuilder sb = new StringBuilder();
             sb.append(getString(R.string.main_activity_address)).append(" ");
-            for (int i = 0; i < hosts.size(); ++i) {
-                String host = hosts.get(i);
-                sb.append(host).append(":").append(MainService.getPort()).append(" (");
-                int start = sb.length();
-                sb.append(getString(R.string.main_activity_share_link));
-                ClickableSpan clickableSpan = new ClickableSpan() {
-                    @Override
-                    public void onClick(@NonNull View widget) {
-                        Intent sendIntent = new Intent();
-                        sendIntent.setAction(Intent.ACTION_SEND);
-                        sendIntent.putExtra(Intent.EXTRA_TEXT,
-                                "http://" + host + ":" + (MainService.getPort() - 100) + "/vnc.html?autoconnect=true&show_dot=true&&host=" + host + "&port=" + MainService.getPort());
-                        sendIntent.setType("text/plain");
-                        startActivity(Intent.createChooser(sendIntent, null));
-                    }
-                };
-                spans.put(clickableSpan, Pair.create(start, sb.length()));
-                sb.append(")");
-                if (i != hosts.size() - 1)
-                    sb.append(" ").append(getString(R.string.or)).append(" ");
+            if(hosts.isEmpty()) {
+                sb.append("localhost");
+            } else {
+                for (int i = 0; i < hosts.size(); ++i) {
+                    String host = hosts.get(i);
+                    sb.append(host).append(":").append(MainService.getPort()).append(" (");
+                    int start = sb.length();
+                    sb.append(getString(R.string.main_activity_share_link));
+                    ClickableSpan clickableSpan = new ClickableSpan() {
+                        @Override
+                        public void onClick(@NonNull View widget) {
+                            Intent sendIntent = new Intent();
+                            sendIntent.setAction(Intent.ACTION_SEND);
+                            sendIntent.putExtra(Intent.EXTRA_TEXT,
+                                    "http://" + host + ":" + (MainService.getPort() - 100) + "/vnc.html?autoconnect=true&show_dot=true&&host=" + host + "&port=" + MainService.getPort());
+                            sendIntent.setType("text/plain");
+                            startActivity(Intent.createChooser(sendIntent, null));
+                        }
+                    };
+                    spans.put(clickableSpan, Pair.create(start, sb.length()));
+                    sb.append(")");
+                    if (i != hosts.size() - 1)
+                        sb.append(" ").append(getString(R.string.or)).append(" ");
+                }
             }
             sb.append(".");
             // done with string and span creation, put it all together
@@ -815,6 +860,26 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mAddress.post(() -> mAddress.setText(R.string.main_activity_not_listening));
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+        unregisterReceiver(mMainServiceBroadcastReceiver);
+        ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).unregisterNetworkCallback(mNetworkCallback);
+        unregisterReceiver(mWifiApStateChangedReceiver);
+    }
+
+    private void onServerStarted() {
+        mButtonToggle.post(() -> {
+            mButtonToggle.setText(R.string.stop);
+            mButtonToggle.setEnabled(true);
+            // let focus stay on button
+            mButtonToggle.requestFocus();
+        });
+
+        updateAddressesDisplay();
 
         // show outbound connection interface
         findViewById(R.id.outbound_text).setVisibility(View.VISIBLE);
