@@ -60,8 +60,10 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MainService extends Service {
@@ -822,14 +824,13 @@ public class MainService extends Service {
      */
     static ArrayList<String> getIPv4s() {
 
-        ArrayList<String> hosts = new ArrayList<>();
+        Set<String> hosts = new LinkedHashSet<>();
 
         // if running on Chrome OS, this prop is set and contains the device's IPv4 address,
         // see https://chromeos.dev/en/games/optimizing-games-networking
         String prop = Utils.getProp("arc.net.ipv4.host_address");
         if(!prop.isEmpty()) {
             hosts.add(prop);
-            return hosts;
         }
 
         // not running on Chrome OS
@@ -853,7 +854,7 @@ public class MainService extends Service {
             //unused
         }
 
-        return hosts;
+        return new ArrayList<>(hosts);
     }
 
     static int getPort() {
