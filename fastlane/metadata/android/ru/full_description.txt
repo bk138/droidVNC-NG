@@ -1,0 +1,1 @@
+Это VNC-сервер для Android, использующий современное API Android 7+. Поэтому ему не требуется права суперпользователя root. В знак уважения к известному <a href='https://github.com/oNaiPs/droidVncServer'>droid-VNC-server</a> он называется droidVNC-NG.
