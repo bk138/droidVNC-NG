@@ -37,7 +37,7 @@
     <string name="main_activity_repeater_vnc_fail">Під\'єднання до %1$s з ID %2$s не вдалося</string>
     <string name="main_activity_repeater_vnc_input_missing">Відсутній хост і/або ID</string>
     <string name="main_activity_reconnect_tries_hint">Макс. спроби повторного під\'єднання</string>
-    <string name="main_activity_special_key_reference">З переглядача VNC, <b>Ctrl-Shift-Esc</b> викликає огляд \'Нещодавні програми\', <b>Home/Pos1</b> діє як кнопка Home, <b>End</b> діє як кнопка живлення, <b>Escape</b> діє як кнопка Назад.</string>
+    <string name="main_activity_special_key_reference">У VNC-переглядачі <b>Ctrl-Shift-Esc</b> викликає огляд \"Нещодавні програми\", <b>Home/Pos1</b> діє як кнопка "Додому", <b>End</b> діє як кнопка живлення, <b>Escape</b> діє як кнопка "Назад", <b>Ctrl-Alt-PageUp/PageDown</b> змінює гучність звуку.</string>
     <string name="main_activity_about">Це droidVNC-NG %1$s. Зверніть увагу, що до droidVNC-NG все ще додаються нові функції. Ви можете повідомляти про будь-які проблеми та запити на функції на https://github.com/bk138/droidVNC-NG/issues</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">Не слухає вхідні з\'єднання, %1$d клієнт під\'єднано</item>

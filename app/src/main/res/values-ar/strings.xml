@@ -37,7 +37,7 @@
     <string name="main_activity_repeater_vnc_fail">فشل الاتصال بـ %1$s باستخدام المعرف %2$s</string>
     <string name="main_activity_repeater_vnc_input_missing">المضيف و/أو المعرف مفقود</string>
     <string name="main_activity_reconnect_tries_hint">أقصى عدد لمحاولات إعادة الاتصال</string>
-    <string name="main_activity_special_key_reference">من عارض VNC، <b>Ctrl-Shift-Esc</b> يفتح عرض "التطبيقات الأخيرة"، <b>Home/Pos1</b> يعمل كزر الصفحة الرئيسية، <b>End</b> يعمل كزر الطاقة، <b>Escape</b> يعمل كزر الرجوع.</string>
+    <string name="main_activity_special_key_reference">من عارض VNC، يؤدي الضغط على <b>Ctrl-Shift-Esc</b> إلى تشغيل نظرة عامة على \'التطبيقات الأخيرة\'، ويعمل <b>Home/Pos1</b> كزر الصفحة الرئيسية، ويعمل <b>End</b> كزر الطاقة، ويعمل <b>Escape</b> كزر الرجوع، ويغير الضغط على <b>Ctrl-Alt-PageUp/PageDown</b> مستوى الصوت.</string>
     <string name="main_activity_about">هذا هو droidVNC-NG %1$s. يرجى ملاحظة أن المزيد من الميزات لا تزال تُضاف إلى droidVNC-NG. يمكنك الإبلاغ عن أي مشاكل وطلبات الميزات على https://github.com/bk138/droidVNC-NG/issues</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">لا يستمع للاتصالات الواردة، %1$d عميل متصل</item>

@@ -37,7 +37,7 @@
     <string name="main_activity_repeater_vnc_fail">连接%1$s失败；ID%2$s</string>
     <string name="main_activity_repeater_vnc_input_missing">域名/ID遗失</string>
     <string name="main_activity_reconnect_tries_hint">最大重新连接尝试次数</string>
-    <string name="main_activity_special_key_reference">从VNC客户端，<b>Ctrl-Shift-Esc</b> 打开 \'最近的app\' 预览，<b>Home/Pos1</b> 作为Home键，<b>End</b> 充当电源按钮，<b>Escape</b> 作为返回键。</string>
+    <string name="main_activity_special_key_reference">从 VNC 查看器中，<b>Ctrl-Shift-Esc</b> 触发“最近使用的应用程序”概览，<b>Home/Pos1</b> 充当“主页”按钮，<b>End</b> 充当“电源”按钮，<b>Escape</b> 充当“后退”按钮，<b>Ctrl-Alt-PageUp/PageDown</b> 更改音量。</string>
     <string name="main_activity_about">这是droidVNC-NG%1$s。请注意，更多功能仍在添加到droidVNC-NG中。请报告任何问题和功能请求 https://github.com/bk138/droidVNC-NG/issues</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">服务器未监听传入连接，%1$d 个客户端已连接</item>

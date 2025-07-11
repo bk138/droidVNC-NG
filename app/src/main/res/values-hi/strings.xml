@@ -37,7 +37,7 @@
     <string name="main_activity_repeater_vnc_fail">%1$s से ID %2$s के साथ कनेक्शन असफल</string>
     <string name="main_activity_repeater_vnc_input_missing">होस्ट और/या ID गायब है</string>
     <string name="main_activity_reconnect_tries_hint">अधिकतम पुन: कनेक्ट प्रयास</string>
-    <string name="main_activity_special_key_reference">VNC व्यूअर से, <b>Ctrl-Shift-Esc</b> "हाल ही में उपयोग किए गए ऐप्स" दिखाता है, <b>Home/Pos1</b> होम बटन की तरह कार्य करता है, <b>End</b> पावर बटन की तरह और <b>Escape</b> बैक बटन की तरह कार्य करता है।</string>
+    <string name="main_activity_special_key_reference">VNC व्यूअर से, <b>Ctrl-Shift-Esc</b> \'हाल के ऐप्स\' अवलोकन को ट्रिगर करता है, <b>Home/Pos1</b> होम बटन के रूप में कार्य करता है, <b>End</b> पावर बटन के रूप में कार्य करता है, <b>Escape</b> बैक बटन के रूप में कार्य करता है, <b>Ctrl-Alt-PageUp/PageDown</b> ऑडियो वॉल्यूम बदलता है.</string>
     <string name="main_activity_about">यह droidVNC-NG %1$s है। कृपया ध्यान दें कि इसमें और विशेषताएँ जोड़ी जा रही हैं। आप किसी भी समस्या या फीचर रिक्वेस्ट की रिपोर्ट https://github.com/bk138/droidVNC-NG/issues पर कर सकते हैं।</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">इनबाउंड कनेक्शन के लिए नहीं सुन रहा है, %1$d क्लाइंट कनेक्टेड</item>

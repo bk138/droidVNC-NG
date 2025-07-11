@@ -23,7 +23,8 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * Handling of client-to-server text copy & paste. Note that server-to-client copy & paste only works
   automatically for text selected in editable text fields or manually by sharing text to droidVNC-NG
   via Android's Share-To functionality.
-* Handling of special keys to trigger 'Recent Apps' overview, Home button, Back button and Power button.
+* Handling of special keys to trigger 'Recent Apps' overview, Home button, Back button, Power button
+  and volume controls.
 * Android permission handling.
 * Screen rotation handling.
 * File transfer via the local network, assuming TightVNC viewer for Windows version 1.3.x is used.
@@ -49,6 +50,8 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * **Home/Pos1** acts as Home button
 * **End** acts as Power button
 * **Escape** acts as Back button
+* **Ctrl-Alt-PageUp** increases audio volume
+* **Ctrl-Alt-PageDown** decreases audio volume
 
 ### Within a Local Area Network
 

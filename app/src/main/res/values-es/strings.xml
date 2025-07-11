@@ -37,7 +37,7 @@
     <string name="main_activity_repeater_vnc_fail">Conexión a %1$s con ID %2$s fallida</string>
     <string name="main_activity_repeater_vnc_input_missing">Falta(n) el Host y/o el ID</string>
     <string name="main_activity_reconnect_tries_hint">Número de intentos de conexión</string>
-    <string name="main_activity_special_key_reference">En cualquier visor VNC, utilizar <b>Ctrl-Shift-Esc</b> para ver la pantalla \'App recientes\', <b>Home/Pos1</b> para simular el botón Home, <b>End</b> para el botón de encendido y <b>Esc</b> para el boton Atrás.</string>
+    <string name="main_activity_special_key_reference">Desde un visor VNC, <b>Ctrl-Shift-Esc</b> activa la vista general de \'Aplicaciones recientes\', <b>Inicio/Pos1</b> actúa como botón de Inicio, <b>Fin</b> actúa como botón de Encendido, <b>Escape</b> actúa como botón Atrás, <b>Ctrl-Alt-Re Pág/Av Pág</b> cambia el volumen del audio.</string>
     <string name="main_activity_about">Estas usando droidVNC-NG %1$s. Muchas más funcionalidades estan en desarollo, problemas y feature requests se pueden reportar a la página https://github.com/bk138/droidVNC-NG/issues</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">El servidor no esta escuchando conexiones entrantes, %1$d cliente connectado</item>

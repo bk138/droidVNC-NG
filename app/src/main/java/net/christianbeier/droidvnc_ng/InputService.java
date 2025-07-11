@@ -20,6 +20,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -417,6 +418,22 @@ public class InputService extends AccessibilityService {
 			if(keysym == 0xFF1B && down != 0)  {
 				Log.i(TAG, "onKeyEvent: got Esc");
 				instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+			}
+
+			/*
+				Ctrl-Alt-PageUp
+			 */
+			if(inputContext.isKeyCtrlDown && inputContext.isKeyAltDown && keysym == 0xff55 && down != 0) {
+				Log.i(TAG, "onKeyEvent: got Ctrl-Alt-PageUp");
+				((AudioManager) instance.getSystemService(Context.AUDIO_SERVICE)).adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
+			}
+
+			/*
+				Ctrl-Alt-PageDown
+			 */
+			if(inputContext.isKeyCtrlDown && inputContext.isKeyAltDown && keysym == 0xff56 && down != 0) {
+				Log.i(TAG, "onKeyEvent: got Ctrl-Alt-PageDown");
+				((AudioManager) instance.getSystemService(Context.AUDIO_SERVICE)).adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI);
 			}
 
 			/*
