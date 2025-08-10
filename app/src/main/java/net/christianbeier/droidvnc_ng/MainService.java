@@ -489,9 +489,7 @@ public class MainService extends Service {
                 writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(writeStorageRequestIntent);
             } else {
-                Intent notificationRequestIntent = new Intent(this, NotificationRequestActivity.class);
-                notificationRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(notificationRequestIntent);
+                NotificationRequestActivity.requestIfNeededAndPostResult(this);
             }
             return START_STICKY;
         }
