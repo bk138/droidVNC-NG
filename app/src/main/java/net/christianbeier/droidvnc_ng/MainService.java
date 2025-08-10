@@ -482,12 +482,8 @@ public class MainService extends Service {
             // Step 2: coming back from input permission check, now setup InputService and ask for write storage permission or notification permission
             InputService.isInputEnabled = intent.getBooleanExtra(EXTRA_INPUT_RESULT, false);
             if(Build.VERSION.SDK_INT < 33) {
-                Intent writeStorageRequestIntent = new Intent(this, WriteStorageRequestActivity.class);
-                writeStorageRequestIntent.putExtra(
-                        EXTRA_FILE_TRANSFER,
-                        Objects.requireNonNull(MainServicePersistData.loadStartIntent(this)).getBooleanExtra(EXTRA_FILE_TRANSFER, PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTransfer())));
-                writeStorageRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(writeStorageRequestIntent);
+                // if file transfer not wanted, skip request without bothering the user
+                WriteStorageRequestActivity.requestIfNeededAndPostResult(this, !Objects.requireNonNull(MainServicePersistData.loadStartIntent(this)).getBooleanExtra(EXTRA_FILE_TRANSFER, PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTransfer())));
             } else {
                 NotificationRequestActivity.requestIfNeededAndPostResult(this);
             }
