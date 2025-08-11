@@ -513,10 +513,10 @@ public class MainService extends Service {
             InputService.scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
 
             // Step 1: check input/start-on-boot permission
-            Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
-            inputRequestIntent.putExtra(EXTRA_VIEW_ONLY, intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()));
-            inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(inputRequestIntent);
+            InputRequestActivity.requestIfNeededAndPostResult(this,
+                    !intent.getBooleanExtra(EXTRA_VIEW_ONLY, mDefaults.getViewOnly()),
+                    Build.VERSION.SDK_INT >= 30 && PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT,  new Defaults(this).getStartOnBoot()),
+                    false);
             return START_STICKY;
         }
 

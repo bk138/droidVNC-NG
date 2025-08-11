@@ -802,13 +802,10 @@ public class MainActivity extends AppCompatActivity {
                 startOnBootStatus.setTextColor(getColor(R.color.denied));
                 // wire this up only for denied status
                 startOnBootStatus.setOnClickListener(view -> {
-                    if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()))
-                    {
-                        Intent inputRequestIntent = new Intent(this, InputRequestActivity.class);
-                        inputRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        inputRequestIntent.putExtra(InputRequestActivity.EXTRA_DO_NOT_START_MAIN_SERVICE_ON_FINISH, true);
-                        startActivity(inputRequestIntent);
-                    }
+                    InputRequestActivity.requestIfNeededAndPostResult(this,
+                            false,
+                            PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()),
+                            true);
                 });
             }
         } else {
