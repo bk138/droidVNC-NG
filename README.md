@@ -31,7 +31,8 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * Password protection for secure-in-terms-of-VNC connection. Note that setting a password is mandatory
   in case you want to access the server using MacOS's built-in Screen Sharing app.
 * Ability to specify the port used.
-* Start of background service on device boot.
+* Start of background service on device boot. On Android 11 and newer this also works with kiosk-mode
+  launchers and [lock task mode](https://developer.android.com/work/dpc/dedicated-devices/lock-task-mode).
 * [Reverse VNC](#reverse-vnc).
 * Ability to [connect to a UltraVNC-style Mode-2 repeater](#reverse-vnc).
 * Functionality to provide default configuration via a JSON file or
