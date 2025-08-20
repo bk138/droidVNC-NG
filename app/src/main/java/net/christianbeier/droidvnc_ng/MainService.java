@@ -61,6 +61,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -115,7 +116,7 @@ public class MainService extends Service {
     private PowerManager.WakeLock mWakeLock;
     private Notification mNotification;
 
-    private int mNumberOfClients;
+    private final List<Long> mConnectedClients = new ArrayList<>() ;
 
     private static class OutboundClientReconnectData {
         Intent intent;
@@ -599,7 +600,7 @@ public class MainService extends Service {
 
         try {
             instance.mWakeLock.acquire();
-            instance.mNumberOfClients++;
+            instance.mConnectedClients.add(client);
             instance.updateNotification(false);
             // showing pointers depends on view-only being false
             Intent startIntent = Objects.requireNonNull(MainServicePersistData.loadStartIntent(instance));
@@ -625,7 +626,7 @@ public class MainService extends Service {
 
         try {
             instance.mWakeLock.release();
-            instance.mNumberOfClients--;
+            instance.mConnectedClients.remove(client);
             if(!instance.mIsStopping) {
                 // don't show notifications when clients are disconnected on orderly server shutdown
                 instance.updateNotification(false);
@@ -807,7 +808,7 @@ public class MainService extends Service {
 
     static int getClientCount() {
         try {
-            return instance.mNumberOfClients;
+            return instance.mConnectedClients.size();
         } catch (Exception ignored) {
             return 0;
         }
@@ -950,8 +951,8 @@ public class MainService extends Service {
         int port = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this)).getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
         String text = getResources().getQuantityString(
                 port < 0 ? R.plurals.main_service_notification_text_not_listening : R.plurals.main_service_notification_text_listening,
-                mNumberOfClients,
-                mNumberOfClients);
+                mConnectedClients.size(),
+                mConnectedClients.size());
 
         // notify!
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, getNotification(title, text, iconResource, isSilent, action));
