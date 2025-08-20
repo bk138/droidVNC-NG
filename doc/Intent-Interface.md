@@ -39,6 +39,11 @@ the following Actions and associated Extras set:
   * `net.christianbeier.droidvnc_ng.EXTRA_REPEATER_ID`: Required String Extra setting the ID on the repeater.
   * `net.christianbeier.droidvnc_ng.EXTRA_RECONNECT_TRIES`: Optional Integer Extra setting the number of tries reconnecting a once established connection. Needs request id to be set.
 
+* `net.christianbeier.droidvnc_ng.ACTION_GET_CLIENTS` Get a JSON array of currently handled clients.
+  * `net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY`: Required String Extra containing the remote control interface's access key. You can get/set this from the Admin Panel.
+  * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: Optional String Extra containing a unique id for this request. Used to identify the answer from the service.
+  * `net.christianbeier.droidvnc_ng.EXTRA_RECEIVER`: Required String Extra containing the name of the package the answer should be sent to.
+
 * `net.christianbeier.droidvnc_ng.ACTION_STOP`: Stops the server.
   * `net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY`: Required String Extra containing the remote control interface's access key. You can get/set this from the Admin Panel.
   * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: Optional String Extra containing a unique id for this request. Used to identify the answer from the service.
@@ -48,6 +53,24 @@ The service answers with a Broadcast Intent with its Action mirroring your reque
 * Action: one of the above Actions you requested
   * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: The request id this answer is for.
   * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_SUCCESS`: Boolean Extra describing the outcome of the request.
+  * `net.christianbeier.droidvnc_ng.EXTRA_CLIENTS`: If action is `net.christianbeier.droidvnc_ng.ACTION_GET_CLIENTS`, a String Extra containing a JSON array of
+    currently handled clients:
+    ```json
+    [
+       {
+         "connectionId": 123454321,
+         "host": "192.168.1.2",
+         "port": 5500,
+         "repeaterId": "someStringId",
+         "requestId": "someStringId"
+       }
+    ]
+    ```
+     - `connectionId` optional, only set when there is an actual connection (it might not be if a reverse/repeater client is in reconnect mode)
+     - `host` is remote IP address or hostname, either the source or the reverse/repeater destination
+     - `port` optional, port of reverse/repeater remote
+     - `repeaterId` optional, id for repeater remote
+     - `requestId` optional, the id given when initiating a reverse/repeater connection
 
 There is one special case where the service sends a Broadcast Intent with action
 `net.christianbeier.droidvnc_ng.ACTION_STOP` without any extras: that is when it is stopped by the
