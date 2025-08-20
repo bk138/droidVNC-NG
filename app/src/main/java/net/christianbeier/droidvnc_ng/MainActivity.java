@@ -43,6 +43,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.text.BidiFormatter;
 import androidx.preference.PreferenceManager;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputType;
@@ -96,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
     private Defaults mDefaults;
     private ConnectivityManager.NetworkCallback mNetworkCallback;
     private BroadcastReceiver mWifiApStateChangedReceiver;
+    private Handler mClientListHandler = new Handler(Looper.getMainLooper());
+    private BroadcastReceiver mClientListBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -698,8 +702,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+        stopGettingClientList();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        if (MainService.isServerActive()) {
+            startGettingClientClist();
+        }
         // onResume() is needed on API levels earlier than 26
         if(Build.VERSION.SDK_INT < 26) {
             updatePermissionsDisplay();
@@ -898,6 +912,8 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.settings_file_transfer).setEnabled(false);
         findViewById(R.id.settings_show_pointers).setEnabled(false);
 
+        startGettingClientClist();
+
         mIsMainServiceRunning = true;
     }
 
@@ -926,7 +942,54 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.settings_show_pointers).setEnabled(true);
         }
 
+        stopGettingClientList();
+
         mIsMainServiceRunning = false;
+    }
+
+    private void startGettingClientClist() {
+        stopGettingClientList();
+
+        mClientListBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //TODO actually display
+            }
+        };
+        ContextCompat.registerReceiver(
+                this,
+                mClientListBroadcastReceiver,
+                new IntentFilter(MainService.ACTION_GET_CLIENTS),
+                ContextCompat.RECEIVER_NOT_EXPORTED);
+
+        mClientListHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+
+                Intent intent = new Intent(MainActivity.this, MainService.class);
+                intent.setAction(MainService.ACTION_GET_CLIENTS);
+                intent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
+                intent.putExtra(MainService.EXTRA_RECEIVER, getPackageName());
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intent);
+                } else {
+                    startService(intent);
+                }
+
+                mClientListHandler.postDelayed(this, 1000);
+            }
+        }, 1000);
+    }
+
+    private void stopGettingClientList() {
+        mClientListHandler.removeCallbacksAndMessages(null);
+        try {
+            unregisterReceiver(mClientListBroadcastReceiver);
+        } catch (IllegalArgumentException unused) {
+            // not registered
+        }
     }
 
 }
