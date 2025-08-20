@@ -555,3 +555,8 @@ Java_net_christianbeier_droidvnc_1ng_MainService_vncSendCutText(JNIEnv *env, __u
     if (cUTF8Text)
          (*env)->ReleaseStringUTFChars(env, text, cUTF8Text);
 }
+
+JNIEXPORT jstring JNICALL
+Java_net_christianbeier_droidvnc_1ng_MainService_vncGetRemoteHost(JNIEnv *env, __unused jobject thiz, jlong client) {
+    return (*env)->NewStringUTF(env, ((rfbClientPtr)client)->host);
+}
