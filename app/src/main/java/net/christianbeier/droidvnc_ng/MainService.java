@@ -94,6 +94,9 @@ public class MainService extends Service {
      * Only used on Android 11 and later.
      */
     public static final String EXTRA_FALLBACK_SCREEN_CAPTURE = "net.christianbeier.droidvnc_ng.EXTRA_FALLBACK_SCREEN_CAPTURE";
+    public static final String ACTION_GET_CLIENTS = "net.christianbeier.droidvnc_ng.ACTION_GET_CLIENTS";
+    public static final String EXTRA_RECEIVER = "net.christianbeier.droidvnc_ng.EXTRA_RECEIVER";
+    public static final String EXTRA_CLIENTS = "net.christianbeier.droidvnc_ng.EXTRA_CLIENTS";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_REQUEST_RESULT = "action_handle_media_projection_request_result";
     final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA = "result_data_media_projection_request";
@@ -578,6 +581,40 @@ public class MainService extends Service {
                     // check if set to reconnect and handle accordingly
                     handleClientReconnect(intent, client, "repeater");
                 }).start();
+                return START_STICKY;
+            } else {
+                stopSelfByUs();
+                return START_NOT_STICKY;
+            }
+        }
+
+        if(ACTION_GET_CLIENTS.equals(intent.getAction()) && intent.getStringExtra(EXTRA_RECEIVER) != null) {
+            Log.d(TAG, "onStartCommand: get clients, id " + intent.getStringExtra(EXTRA_REQUEST_ID) + " receiver " + intent.getStringExtra(EXTRA_RECEIVER));
+
+            if(vncIsActive()) {
+                ClientList clientList = ClientList.empty();
+
+                mConnectedClients.forEach(client -> clientList.insertOrUpdate(new ClientList.Client(
+                        client,
+                        vncGetRemoteHost(client),
+                        null,
+                        null,
+                        null
+                )));
+
+                mOutboundClientsToReconnect.forEach((key, value) -> clientList.insertOrUpdate(new ClientList.Client(
+                        value.client,
+                        value.intent.getStringExtra(MainService.EXTRA_HOST),
+                        value.intent.getIntExtra(MainService.EXTRA_PORT, value.intent.getStringExtra(MainService.EXTRA_REPEATER_ID) != null ? mDefaults.getPortRepeater() : mDefaults.getPortReverse()),
+                        value.intent.getStringExtra(MainService.EXTRA_REPEATER_ID),
+                        value.intent.getStringExtra(MainService.EXTRA_REQUEST_ID)
+                )));
+
+                // Send explicit Intent
+                Intent answer = new Intent(intent.getAction());
+                answer.putExtra(EXTRA_CLIENTS, clientList.toJson());
+                answer.setPackage(intent.getStringExtra(EXTRA_RECEIVER));
+                sendBroadcast(answer);
                 return START_STICKY;
             } else {
                 stopSelfByUs();
