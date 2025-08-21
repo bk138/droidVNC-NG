@@ -134,11 +134,7 @@ public class MainActivity extends AppCompatActivity {
             }
             mButtonToggle.setEnabled(false);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent);
-            } else {
-                startService(intent);
-            }
+            ContextCompat.startForegroundService(MainActivity.this, intent);
 
         });
 
@@ -204,11 +200,7 @@ public class MainActivity extends AppCompatActivity {
                             request.putExtra(MainService.EXTRA_RECONNECT_TRIES, Integer.parseInt(reconnectTriesInputText.getText().toString()));
                         } catch (NumberFormatException ignored) {
                         }
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            startForegroundService(request);
-                        } else {
-                            startService(request);
-                        }
+                        ContextCompat.startForegroundService(MainActivity.this, request);
 
                         // show a progress dialog
                         ProgressBar progressBar = new ProgressBar(this);
@@ -300,11 +292,7 @@ public class MainActivity extends AppCompatActivity {
                             request.putExtra(MainService.EXTRA_RECONNECT_TRIES, Integer.parseInt(reconnectTriesInputText.getText().toString()));
                         } catch (NumberFormatException ignored) {
                         }
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            startForegroundService(request);
-                        } else {
-                            startService(request);
-                        }
+                        ContextCompat.startForegroundService(MainActivity.this, request);
                         // show a progress dialog
                         ProgressBar progressBar = new ProgressBar(this);
                         progressBar.setPadding(0,0,0, (int) (30 * getResources().getDisplayMetrics().density));
@@ -972,11 +960,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
                 intent.putExtra(MainService.EXTRA_RECEIVER, getPackageName());
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(intent);
-                } else {
-                    startService(intent);
-                }
+                ContextCompat.startForegroundService(MainActivity.this, intent);
 
                 mClientListHandler.postDelayed(this, 1000);
             }
