@@ -32,6 +32,7 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 
@@ -75,11 +76,7 @@ public class OnBootReceiver extends BroadcastReceiver {
                     alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + delayMillis, pendingIntent);
                 } else {
                     Log.i(TAG, "onReceive: configured to start immediately");
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.getApplicationContext().startForegroundService(intent);
-                    } else {
-                        context.getApplicationContext().startService(intent);
-                    }
+                    ContextCompat.startForegroundService(context.getApplicationContext(), intent);
                 }
             } else {
                 Log.i(TAG, "onReceive: configured NOT to start");
