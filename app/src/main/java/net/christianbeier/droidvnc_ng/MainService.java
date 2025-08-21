@@ -44,6 +44,7 @@ import android.os.Looper;
 import android.os.PowerManager;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.IntentSanitizer;
 import androidx.preference.PreferenceManager;
 import android.os.SystemClock;
@@ -156,13 +157,7 @@ public class MainService extends Service {
                         entry.getValue().reconnectTriesLeft = entry.getValue().intent.getIntExtra(EXTRA_RECONNECT_TRIES, 0);
                         // NB that onAvailable() runs on internal ConnectivityService thread, so still use mOutboundClientReconnectHandler here
                         mOutboundClientReconnectHandler.postAtTime(
-                                () -> {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                        startForegroundService(entry.getValue().intent);
-                                    } else {
-                                        startService(entry.getValue().intent);
-                                    }
-                                },
+                                () -> ContextCompat.startForegroundService(MainService.this, entry.getValue().intent),
                                 entry.getKey(),
                                 SystemClock.uptimeMillis() + entry.getValue().backoff * 1000L
                         );
@@ -337,11 +332,7 @@ public class MainService extends Service {
                 } else {
                     // Start immediately. On API level 29, this re-shows the MediaProjection dialog :-/
                     // API level <= 28 has the checkbox on the dialog to make it not reappear.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(startIntent);
-                    } else {
-                        startService(startIntent);
-                    }
+                    ContextCompat.startForegroundService(MainService.this, startIntent);
                 }
             } else {
                 Log.e(TAG, "onStartCommand: restart after crash but no persisted values, bailing out");
@@ -683,11 +674,7 @@ public class MainService extends Service {
                         Log.d(TAG, "onClientDisconnected: outbound connection " + entry.getKey() + " set to reconnect, reconnecting with delay of " + entry.getValue().backoff + " seconds");
                         instance.mOutboundClientReconnectHandler.postAtTime(() -> {
                                     try {
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                            instance.startForegroundService(entry.getValue().intent);
-                                        } else {
-                                            instance.startService(entry.getValue().intent);
-                                        }
+                                        ContextCompat.startForegroundService(instance, entry.getValue().intent);
                                     } catch (NullPointerException ignored) {
                                         // onClientDisconnected() is triggered by vncStopServer() from onDestroy(),
                                         // but the actual call might happen well after instance is set to null in onDestroy()
@@ -762,13 +749,7 @@ public class MainService extends Service {
                                 + " reconnect tries left, reconnecting with delay of "
                                 + reconnectData.backoff
                                 + " seconds");
-                        mOutboundClientReconnectHandler.postAtTime(() -> {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                        startForegroundService(intent);
-                                    } else {
-                                        startService(intent);
-                                    }
-                                },
+                        mOutboundClientReconnectHandler.postAtTime(() -> ContextCompat.startForegroundService(MainService.this, intent),
                                 key, // important to use exact key reference here, see above!
                                 SystemClock.uptimeMillis() + reconnectData.backoff * 1000L);
                     } else {
@@ -792,11 +773,7 @@ public class MainService extends Service {
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE, mResultCode);
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA, mResultData);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent);
-            } else {
-                startService(intent);
-            }
+            ContextCompat.startForegroundService(MainService.this, intent);
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 Log.d(TAG, "startScreenCapture: trying takeScreenShot backend");
