@@ -29,6 +29,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 import android.util.Log;
 
@@ -93,11 +95,7 @@ public class WriteStorageRequestActivity extends AppCompatActivity {
         intent.setAction(MainService.ACTION_HANDLE_WRITE_STORAGE_RESULT);
         intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(context).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(context).getAccessKey()));
         intent.putExtra(MainService.EXTRA_WRITE_STORAGE_RESULT, isPermissionGiven);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent);
-        } else {
-            context.startService(intent);
-        }
+        ContextCompat.startForegroundService(context, intent);
     }
 
     /**
