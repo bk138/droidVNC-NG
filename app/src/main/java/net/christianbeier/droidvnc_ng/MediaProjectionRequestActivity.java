@@ -23,6 +23,7 @@
 package net.christianbeier.droidvnc_ng;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import android.app.Activity;
@@ -101,11 +102,7 @@ public class MediaProjectionRequestActivity extends AppCompatActivity {
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE, resultCode);
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA, data);
             intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_REQUEST_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE, mIsUpgradingFromNoOrFallbackScreenCapture);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent);
-            } else {
-                startService(intent);
-            }
+            ContextCompat.startForegroundService(this, intent);
             finish();
         }
     }
