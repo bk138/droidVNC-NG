@@ -31,6 +31,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 public class InputRequestActivity extends AppCompatActivity {
@@ -128,11 +129,7 @@ public class InputRequestActivity extends AppCompatActivity {
         intent.setAction(MainService.ACTION_HANDLE_INPUT_RESULT);
         intent.putExtra(MainService.EXTRA_INPUT_RESULT, isA11yEnabled);
         intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(context).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(context).getAccessKey()));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent);
-        } else {
-            context.startService(intent);
-        }
+        ContextCompat.startForegroundService(context, intent);
     }
 
     public static void requestIfNeededAndPostResult(Context context, boolean inputRequested, boolean startOnBootRequested, boolean skipPost) {
