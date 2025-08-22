@@ -44,6 +44,7 @@ import android.util.Log;
 import android.view.Display;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import java.nio.ByteBuffer;
@@ -125,11 +126,7 @@ public class MediaProjectionService extends Service {
                     intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
                     intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(MediaProjectionService.this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(MediaProjectionService.this).getAccessKey()));
                     intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_STATE, false); // off
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(intent);
-                    } else {
-                        startService(intent);
-                    }
+                    ContextCompat.startForegroundService(MediaProjectionService.this, intent);
                 }
             }
 
@@ -338,11 +335,7 @@ public class MediaProjectionService extends Service {
         intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
         intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(MediaProjectionService.this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(MediaProjectionService.this).getAccessKey()));
         intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_STATE, true); // on
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent);
-        } else {
-            startService(intent);
-        }
+        ContextCompat.startForegroundService(MediaProjectionService.this, intent);
     }
 
     private void stopScreenCapture() {
