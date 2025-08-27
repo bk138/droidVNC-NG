@@ -50,6 +50,12 @@ class ClientList private constructor(
          */
         @JvmStatic
         fun empty(): ClientList = ClientList(mutableListOf())
+
+        private fun hash(input: Long): Long {
+            val bytes = ByteBuffer.allocate(8).putLong(input).array()
+            val digest = MessageDigest.getInstance("SHA-256").digest(bytes)
+            return ByteBuffer.wrap(digest, 0, 8).long
+        }
     }
 
     fun toJson(): String = json.encodeToString(clients)
@@ -68,9 +74,7 @@ class ClientList private constructor(
             connectionId = if (clientPtr == 0L) {
                 null
             } else {
-                val bytes = ByteBuffer.allocate(8).putLong(clientPtr).array()
-                val digest = MessageDigest.getInstance("SHA-256").digest(bytes)
-                ByteBuffer.wrap(digest, 0, 8).long
+                hash(clientPtr)
             }, host = host, port = port, repeaterId = repeaterId, requestId = requestId
         )
     }
