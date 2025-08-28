@@ -44,6 +44,15 @@ the following Actions and associated Extras set:
   * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: Optional String Extra containing a unique id for this request. Used to identify the answer from the service.
   * `net.christianbeier.droidvnc_ng.EXTRA_RECEIVER`: Required String Extra containing the name of the package the answer should be sent to.
 
+* `net.christianbeier.droidvnc_ng.ACTION_DISCONNECT` Disconnect the specified client.
+  * `net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY`: Required String Extra containing the remote control interface's access key. You can get/set this from the Admin Panel.
+  * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: Optional String Extra containing a unique id for this request. Used to identify the answer from the service.
+  * `net.christianbeier.droidvnc_ng.EXTRA_CLIENT_CONNECTION_ID`: Optional/Required Long Extra containing the connection id of the client to disconnect. Either this or
+    `net.christianbeier.droidvnc_ng.EXTRA_CLIENT_REQUEST_ID` must be given. If both are given, only `net.christianbeier.droidvnc_ng.EXTRA_CLIENT_CONNECTION_ID` is
+    handled.
+  * `net.christianbeier.droidvnc_ng.EXTRA_CLIENT_REQUEST_ID`: Optional/Required String Extra containing the request id of the reverse/repeater client to disconnect.
+    Either this or `net.christianbeier.droidvnc_ng.EXTRA_CLIENT_CONNECTION_ID` must be given. If both are given, only `net.christianbeier.droidvnc_ng.EXTRA_CLIENT_CONNECTION_ID` is handled.
+
 * `net.christianbeier.droidvnc_ng.ACTION_STOP`: Stops the server.
   * `net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY`: Required String Extra containing the remote control interface's access key. You can get/set this from the Admin Panel.
   * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: Optional String Extra containing a unique id for this request. Used to identify the answer from the service.
