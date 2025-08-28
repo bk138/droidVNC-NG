@@ -51,6 +51,14 @@ class ClientList private constructor(
         @JvmStatic
         fun empty(): ClientList = ClientList(mutableListOf())
 
+        /**
+         * Returns true if the given connection id matches the given client pointer.
+         */
+        @JvmStatic
+        fun isConnectionIdMatchingClient(connectionId: Long, clientPtr: Long): Boolean {
+            return hash(clientPtr) == connectionId
+        }
+
         private fun hash(input: Long): Long {
             val bytes = ByteBuffer.allocate(8).putLong(input).array()
             val digest = MessageDigest.getInstance("SHA-256").digest(bytes)
