@@ -65,6 +65,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -98,6 +99,9 @@ public class MainService extends Service {
     public static final String ACTION_GET_CLIENTS = "net.christianbeier.droidvnc_ng.ACTION_GET_CLIENTS";
     public static final String EXTRA_RECEIVER = "net.christianbeier.droidvnc_ng.EXTRA_RECEIVER";
     public static final String EXTRA_CLIENTS = "net.christianbeier.droidvnc_ng.EXTRA_CLIENTS";
+    public static final String ACTION_DISCONNECT = "net.christianbeier.droidvnc_ng.ACTION_DISCONNECT";
+    public static final String EXTRA_CLIENT_CONNECTION_ID = "net.christianbeier.droidvnc_ng.EXTRA_CLIENT_CONNECTION_ID";
+    public static final String EXTRA_CLIENT_REQUEST_ID = "net.christianbeier.droidvnc_ng.EXTRA_CLIENT_REQUEST_ID";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_REQUEST_RESULT = "action_handle_media_projection_request_result";
     final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA = "result_data_media_projection_request";
@@ -608,6 +612,48 @@ public class MainService extends Service {
                 answer.setPackage(intent.getStringExtra(EXTRA_RECEIVER));
                 sendBroadcast(answer);
                 return START_STICKY;
+            } else {
+                stopSelfByUs();
+                return START_NOT_STICKY;
+            }
+        }
+
+        if(ACTION_DISCONNECT.equals(intent.getAction())) {
+            Log.d(TAG, "onStartCommand: disconnect client, id " + intent.getStringExtra(EXTRA_REQUEST_ID));
+
+            if(vncIsActive()) {
+                long clientConnectionId = intent.getLongExtra(EXTRA_CLIENT_CONNECTION_ID, 0);
+                String clientRequestId = intent.getStringExtra(EXTRA_CLIENT_REQUEST_ID);
+                boolean status = false;
+
+                // if both are given, only connection id is handled
+                if (clientConnectionId != 0) {
+                    // find client for connection id
+                    Optional<Long> client = mConnectedClients.stream().filter(clientPtr -> ClientList.isConnectionIdMatchingClient(clientConnectionId, clientPtr)).findFirst();
+                    if(client.isPresent()) {
+                        status = vncDisconnect(client.get());
+                    }
+                } else if (clientRequestId != null && !clientRequestId.isEmpty()) {
+                    // we get the full entry in order to get the exact key reference (needed for cancellation at the Handler, as this does a "==" comparison, not .equals())
+                    Optional<Map.Entry<String, OutboundClientReconnectData>> entry = mOutboundClientsToReconnect.entrySet().stream().filter(someEntry -> someEntry.getKey().equals(clientRequestId)).findFirst();
+                    if (entry.isPresent()) {
+                        // found!
+                        status = true;
+                        // first, remove from reconnect list
+                        mOutboundClientsToReconnect.remove(clientRequestId);
+                        // then, remove reconnect Runnable from Handler
+                        mOutboundClientReconnectHandler.removeCallbacksAndMessages(entry.get().getKey());
+                        // finally, disconnect if connected
+                        vncDisconnect(entry.get().getValue().client);
+                    }
+                } else {
+                    Log.e(TAG, "onStartCommand: disconnect client, id " + intent.getStringExtra(EXTRA_REQUEST_ID) + ": missing extras");
+                }
+
+                Intent answer = new Intent(ACTION_DISCONNECT);
+                answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+                answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
+                sendBroadcastToOthersAndUs(answer);
             } else {
                 stopSelfByUs();
                 return START_NOT_STICKY;
