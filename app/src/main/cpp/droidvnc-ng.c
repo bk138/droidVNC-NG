@@ -560,3 +560,20 @@ JNIEXPORT jstring JNICALL
 Java_net_christianbeier_droidvnc_1ng_MainService_vncGetRemoteHost(JNIEnv *env, __unused jobject thiz, jlong client) {
     return (*env)->NewStringUTF(env, ((rfbClientPtr)client)->host);
 }
+
+JNIEXPORT jboolean JNICALL
+Java_net_christianbeier_droidvnc_1ng_MainService_vncDisconnect(__unused JNIEnv *env, __unused jobject thiz, jlong client) {
+    rfbBool found = FALSE;
+    rfbClientIteratorPtr iterator;
+    rfbClientPtr cl;
+    iterator = rfbGetClientIterator(theScreen);
+    while ((cl = rfbClientIteratorNext(iterator)) != NULL) {
+        if (cl == (rfbClientPtr) client) {
+            found = TRUE;
+            rfbCloseClient((rfbClientPtr) client);
+            break;
+        }
+    }
+    rfbReleaseClientIterator(iterator);
+    return found;
+}

@@ -212,6 +212,7 @@ public class MainService extends Service {
     static native int vncGetFramebufferHeight();
     static native void vncSendCutText(String text);
     private native String vncGetRemoteHost(long client);
+    private native boolean vncDisconnect(long client);
 
     @Override
     public IBinder onBind(Intent intent) {
