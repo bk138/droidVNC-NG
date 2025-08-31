@@ -216,6 +216,7 @@ public class MainService extends Service {
     static native int vncGetFramebufferHeight();
     static native void vncSendCutText(String text);
     private native String vncGetRemoteHost(long client);
+    private native int vncGetDestinationPort(long client);
     private native boolean vncDisconnect(long client);
 
     @Override
@@ -593,7 +594,7 @@ public class MainService extends Service {
                 mConnectedClients.forEach(client -> clientList.insertOrUpdate(new ClientList.Client(
                         client,
                         vncGetRemoteHost(client),
-                        null,
+                        vncGetDestinationPort(client) < 0 ? null : vncGetDestinationPort(client),
                         null,
                         null
                 )));

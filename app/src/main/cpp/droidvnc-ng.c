@@ -577,3 +577,21 @@ Java_net_christianbeier_droidvnc_1ng_MainService_vncDisconnect(__unused JNIEnv *
     rfbReleaseClientIterator(iterator);
     return found;
 }
+
+JNIEXPORT jint JNICALL
+Java_net_christianbeier_droidvnc_1ng_MainService_vncGetDestinationPort(__unused JNIEnv *env,
+                                                                       __unused jobject thiz,
+                                                                       jlong client) {
+    int port = -1;
+    rfbClientIteratorPtr iterator;
+    rfbClientPtr cl;
+    iterator = rfbGetClientIterator(theScreen);
+    while (theScreen && (cl = rfbClientIteratorNext(iterator)) != NULL) {
+        if (cl == (rfbClientPtr) client) {
+            port = cl->destPort;
+            break;
+        }
+    }
+    rfbReleaseClientIterator(iterator);
+    return port;
+}
