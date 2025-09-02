@@ -559,3 +559,10 @@ Java_net_christianbeier_droidvnc_1ng_MainService_vncGetDestinationPort(__unused 
     rfbReleaseClientIterator(iterator);
     return port;
 }
+
+JNIEXPORT jstring JNICALL
+Java_net_christianbeier_droidvnc_1ng_MainService_vncGetRepeaterId(JNIEnv *env,
+                                                                  __unused jobject thiz,
+                                                                  jlong client) {
+    return (*env)->NewStringUTF(env, ((rfbClientPtr)client)->repeaterId);
+}

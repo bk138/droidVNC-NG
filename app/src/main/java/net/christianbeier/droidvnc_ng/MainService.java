@@ -217,6 +217,7 @@ public class MainService extends Service {
     static native void vncSendCutText(String text);
     private native String vncGetRemoteHost(long client);
     private native int vncGetDestinationPort(long client);
+    private native String vncGetRepeaterId(long client);
     private native boolean vncDisconnect(long client);
 
     @Override
@@ -595,7 +596,7 @@ public class MainService extends Service {
                         client,
                         vncGetRemoteHost(client),
                         vncGetDestinationPort(client) < 0 ? null : vncGetDestinationPort(client),
-                        null,
+                        vncGetRepeaterId(client),
                         null
                 )));
 
