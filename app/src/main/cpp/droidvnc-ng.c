@@ -218,42 +218,6 @@ static enum rfbNewClientAction onClientConnected(rfbClientPtr cl)
 }
 #pragma clang diagnostic pop
 
-rfbClientPtr
-repeaterConnection(rfbScreenInfoPtr rfbScreen,
-                   char *repeaterHost,
-                   int repeaterPort,
-                   const char* repeaterIdentifier)
-{
-    rfbSocket sock;
-    rfbClientPtr cl;
-    char id[250];
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Connecting to a repeater Host: %s:%d.", repeaterHost, repeaterPort);
-
-    if ((sock = rfbConnect(rfbScreen, repeaterHost, repeaterPort)) < 0)
-        return NULL;
-
-    memset(id, 0, sizeof(id));
-    if(snprintf(id, sizeof(id), "ID:%s", repeaterIdentifier) >= (int)sizeof(id)) {
-        /* truncated! */
-        __android_log_print(ANDROID_LOG_ERROR, TAG, "Error, given ID is too long.\n");
-        return NULL;
-    }
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Sending a repeater ID: %s.\n", id);
-    if (send(sock, id, sizeof(id),0) != sizeof(id)) {
-        rfbLog("writing id failed\n");
-        return NULL;
-    }
-    cl = rfbNewClient(rfbScreen, sock);
-    if (!cl) {
-        __android_log_print(ANDROID_LOG_ERROR, TAG, "New client failed\n");
-        return NULL;
-    }
-
-    cl->reverseConnection = 0;
-    if (!cl->onHold)
-        rfbStartOnHoldClient(cl);
-    return cl;
-}
 
 /*
  * The VM calls JNI_OnLoad when the native library is loaded (for example, through System.loadLibrary).
@@ -441,7 +405,7 @@ JNIEXPORT jlong JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncConn
             __android_log_print(ANDROID_LOG_ERROR, TAG, "vncConnectRepeater: failed getting repeater ID from JNI");
             return 0;
         }
-        rfbClientPtr cl = repeaterConnection(theScreen, cHost, port, cRepeaterIdentifier);
+        rfbClientPtr cl = rfbUltraVNCRepeaterMode2Connection(theScreen, cHost, port, cRepeaterIdentifier);
         (*env)->ReleaseStringUTFChars(env, host, cHost);
         (*env)->ReleaseStringUTFChars(env, repeaterIdentifier, cRepeaterIdentifier);
         return (jlong) cl;
