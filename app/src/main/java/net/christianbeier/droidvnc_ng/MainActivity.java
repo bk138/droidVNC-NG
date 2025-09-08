@@ -817,12 +817,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateAddressesDisplay() {
+        Log.d(TAG, "updateAddressesDisplay: " + MainService.isServerActive());
 
         if(!MainService.isServerActive()) {
+            mAddress.setVisibility(View.GONE);
             return;
         }
 
-        Log.d(TAG, "updateAddressesDisplay");
+        mAddress.setVisibility(View.VISIBLE);
 
         if(MainService.getPort() >= 0) {
             HashMap<ClickableSpan, Pair<Integer,Integer>> spans = new HashMap<>();
@@ -912,7 +914,8 @@ public class MainActivity extends AppCompatActivity {
             // let focus stay on button
             mButtonToggle.requestFocus();
         });
-        mAddress.post(() -> mAddress.setText(""));
+
+        updateAddressesDisplay();
 
         // hide outbound connection interface
         findViewById(R.id.outbound_text).setVisibility(View.GONE);
