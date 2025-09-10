@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     private Defaults mDefaults;
     private ConnectivityManager.NetworkCallback mNetworkCallback;
     private BroadcastReceiver mWifiApStateChangedReceiver;
-    private Handler mClientListHandler = new Handler(Looper.getMainLooper());
+    private final Handler mClientListHandler = new Handler(Looper.getMainLooper());
     private BroadcastReceiver mClientListBroadcastReceiver;
 
     @Override
