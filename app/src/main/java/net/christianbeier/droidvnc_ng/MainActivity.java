@@ -87,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFS_KEY_REPEATER_VNC_LAST_ID = "repeater_vnc_last_id" ;
 
     private Button mButtonToggle;
-    private Button mButtonSurvey;
     private TextView mAddress;
     private boolean mIsMainServiceRunning;
     private BroadcastReceiver mMainServiceBroadcastReceiver;
@@ -141,8 +140,8 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        mButtonSurvey = findViewById(R.id.survey);
-        mButtonSurvey.setOnClickListener(view -> {
+        Button buttonSurvey = findViewById(R.id.survey);
+        buttonSurvey.setOnClickListener(view -> {
             Intent intent = new Intent(this, WebViewActivity.class);
             String url = getString(R.string.survey_url);
             try {
