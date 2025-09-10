@@ -39,6 +39,7 @@
     <string name="main_activity_reconnect_tries_hint">Макс. попыток переподключения</string>
     <string name="main_activity_special_key_reference">В окне просмотра VNC сочетание клавиш <b>Ctrl-Shift-Esc</b> открывает обзор «Недавние приложения», <b>Home/Pos1</b> действует как кнопка «Домой», <b>End</b> действует как кнопка питания, <b>Escape</b> действует как кнопка «Назад», <b>Ctrl-Alt-PageUp/PageDown</b> изменяет громкость звука.</string>
     <string name="main_activity_about">Это droidVNC-NG %1$s. Обратите внимание, что в droidVNC-NG добавляются новые возможности. Вы можете сообщить о любых проблемах и предложить функциональность по адресу https://github.com/bk138/droidVNC-NG/issues</string>
+    <string name="main_activity_survey_button">Оставить отзыв</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">Не прослушивается входящие соединения, подключён %1$d клиент</item>
         <item quantity="other">Не прослушивается входящие соединения, подключено %1$d клиентов</item>

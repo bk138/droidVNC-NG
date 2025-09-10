@@ -39,6 +39,7 @@
     <string name="main_activity_reconnect_tries_hint">最大の接続リトライ数</string>
     <string name="main_activity_special_key_reference">VNC ビューアから、<b>Ctrl-Shift-Esc</b> で \'最近使ったアプリ\' の概要が起動し、<b>Home/Pos1</b> でホーム ボタン、<b>End</b> で電源ボタン、<b>Escape</b> で戻るボタン、<b>Ctrl-Alt-PageUp/PageDown</b> で音量が変更されます。</string>
     <string name="main_activity_about">このアプリはdroidVNC-NG %1$sです。 droidVNC-NGにはさらに多くの機能が追加されています。問題や機能要望は https://github.com/bk138/droidVNC-NG/issues で報告できます。</string>
+    <string name="main_activity_survey_button">フィードバックを提供する</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">サーバーは受信接続を待機していません。%1$d 台のクライアントが接続されています</item>
         <item quantity="other">サーバーは受信接続を待機していません。%1$d 台のクライアントが接続されています</item>

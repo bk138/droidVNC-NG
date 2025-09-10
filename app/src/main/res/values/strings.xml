@@ -40,6 +40,7 @@
     <string name="main_activity_reconnect_tries_hint">Max. reconnect tries</string>
     <string name="main_activity_special_key_reference">From a VNC viewer, <b>Ctrl-Shift-Esc</b> triggers \'Recent Apps\' overview, <b>Home/Pos1</b> acts as Home button, <b>End</b> acts as Power button, <b>Escape</b> acts as Back button, <b>Ctrl-Alt-PageUp/PageDown</b> change audio volume.</string>
     <string name="main_activity_about">This is droidVNC-NG %1$s. Please note that more features are still being added to droidVNC-NG. You can report any issues and feature requests at https://github.com/bk138/droidVNC-NG/issues</string>
+    <string name="main_activity_survey_button">Provide Feedback</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">Not listening for incoming connections, %1$d client connected</item>
         <item quantity="other">Not listening for incoming connections, %1$d clients connected</item>
@@ -76,4 +77,5 @@
     <string name="share_activtiy_shared_successfully">Shared text to clipboards of all connected clients.</string>
     <string name="settings_port_reverse" translatable="false">Reverse Port</string>
     <string name="settings_port_repeater" translatable="false">Repeater Port</string>
+    <string name="survey_url" translatable="false">https://forms.gle/WtzWv4BbR6D9xyno7</string>
 </resources>

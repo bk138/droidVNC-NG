@@ -39,6 +39,7 @@
     <string name="main_activity_reconnect_tries_hint">最大重新连接尝试次数</string>
     <string name="main_activity_special_key_reference">从 VNC 查看器中，<b>Ctrl-Shift-Esc</b> 触发“最近使用的应用程序”概览，<b>Home/Pos1</b> 充当“主页”按钮，<b>End</b> 充当“电源”按钮，<b>Escape</b> 充当“后退”按钮，<b>Ctrl-Alt-PageUp/PageDown</b> 更改音量。</string>
     <string name="main_activity_about">这是droidVNC-NG%1$s。请注意，更多功能仍在添加到droidVNC-NG中。请报告任何问题和功能请求 https://github.com/bk138/droidVNC-NG/issues</string>
+    <string name="main_activity_survey_button">提供反馈</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">服务器未监听传入连接，%1$d 个客户端已连接</item>
         <item quantity="other">服务器未监听传入连接，%1$d 个客户端已连接</item>

@@ -39,6 +39,7 @@
     <string name="main_activity_reconnect_tries_hint">Nombre de tentatives de connexion</string>
     <string name="main_activity_special_key_reference">À partir d\'une visionneuse VNC, <b>Ctrl-Maj-Échap</b> déclenche l\'aperçu des «Applications récentes», <b>Accueil/Pos1</b> agit comme le bouton Accueil, <b>Fin</b> agit comme le bouton Marche/Arrêt, <b>Échap</b> agit comme le bouton Retour, <b>Ctrl-Alt-Page précédente/Page suivante</b> modifie le volume audio.</string>
     <string name="main_activity_about">Vous êtes en utilisant droidVNC-NG %1$s. Des fonctionnalités supplémentaires sont en cours de développement, vous pouvez rapporter problèmes et feature requests à la page https://github.com/bk138/droidVNC-NG/issues</string>
+    <string name="main_activity_survey_button">Donner un Avis</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">Le serveur n\'est pas en écoute de connexions d\'entrée, %1$d client connecté</item>
         <item quantity="other">Le serveur n\'est pas en écoute de connexions d\'entrée, %1$d clients connectés</item>

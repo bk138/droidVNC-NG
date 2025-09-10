@@ -40,6 +40,7 @@
     <string name="main_activity_reconnect_tries_hint">最大重新連接嘗試次數</string>
     <string name="main_activity_special_key_reference">從VNC客戶端，<b>Ctrl-Shift-Esc</b> 打開 \'最近的app\' 預覽，<b>Home/Pos1</b> 作為Home鍵，<b>End</b> 充當電源按鈕，<b>Escape</b> 作為返回鍵，<b>Ctrl-Alt-PageUp/PageDown</b> 變更音量。</string>
     <string name="main_activity_about">這是droidVNC-NG%1$s。請注意，更多功能仍在添加到droidVNC-NG中。請報告任何問題和功能請求 https://github.com/bk138/droidVNC-NG/issues</string>
+    <string name="main_activity_survey_button">提供回饋</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">伺服器未監聽傳入連接，%1$d 個客戶端已連接</item>
         <item quantity="other">伺服器未監聽傳入連接，%1$d 個客戶端已連接</item>

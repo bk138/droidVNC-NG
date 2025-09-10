@@ -39,6 +39,7 @@
     <string name="main_activity_reconnect_tries_hint">Max. de tentativas de reconexão</string>
     <string name="main_activity_special_key_reference">Num visualizador VNC, <b>Ctrl-Shift-Esc</b> aciona a vista geral de \'Aplicações recentes\', <b>Home/Pos1</b> atua como botão Início, <b>End</b> atua como botão Ligar/Desligar, <b>Escape</b> atua como botão Voltar, <b>Ctrl-Alt-PageUp/PageDown</b> altera o volume do áudio.</string>
     <string name="main_activity_about">Aqui é droidVNC-NG %1$s. Observe que mais recursos ainda estão sendo adicionados ao droidVNC-NG. Relate quaisquer problemas e solicitações de recursos em https://github.com/bk138/droidVNC-NG/issues</string>
+    <string name="main_activity_survey_button">Fornecer Feedback</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">Servidor não está escutando conexões de entrada, %1$d cliente conectado</item>
         <item quantity="other">Servidor não está escutando conexões de entrada, %1$d clientes conectados</item>

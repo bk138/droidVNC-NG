@@ -40,6 +40,7 @@ import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.os.ConfigurationCompat;
 import androidx.core.text.BidiFormatter;
 import androidx.preference.PreferenceManager;
 
@@ -75,6 +76,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -85,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFS_KEY_REPEATER_VNC_LAST_ID = "repeater_vnc_last_id" ;
 
     private Button mButtonToggle;
+    private Button mButtonSurvey;
     private TextView mAddress;
     private boolean mIsMainServiceRunning;
     private BroadcastReceiver mMainServiceBroadcastReceiver;
@@ -136,6 +139,21 @@ public class MainActivity extends AppCompatActivity {
 
             ContextCompat.startForegroundService(MainActivity.this, intent);
 
+        });
+
+        mButtonSurvey = findViewById(R.id.survey);
+        mButtonSurvey.setOnClickListener(view -> {
+            Intent intent = new Intent(this, WebViewActivity.class);
+            String url = getString(R.string.survey_url);
+            try {
+                if (!Objects.requireNonNull(ConfigurationCompat.getLocales(getResources().getConfiguration()).get(0)).getLanguage().equals("en")) {
+                    url = "https://translate.google.com/translate?sl=en&u=" + url;
+                }
+            } catch (Exception ignored) {
+            }
+            intent.putExtra(WebViewActivity.EXTRA_URL, url);
+            intent.putExtra(WebViewActivity.EXTRA_TITLE, getString(R.string.main_activity_survey_button));
+            startActivity(intent);
         });
 
         mAddress = findViewById(R.id.address);

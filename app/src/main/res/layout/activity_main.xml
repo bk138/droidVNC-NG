@@ -548,6 +548,14 @@
             android:padding="10dp"
             android:autoLink="web" />
 
+        <Button
+            android:id="@+id/survey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/main_activity_survey_button"
+            />
+
     </LinearLayout>
 
 </ScrollView>
