@@ -821,12 +821,10 @@ public class MainActivity extends AppCompatActivity {
                 startOnBootStatus.setText(R.string.main_activity_denied);
                 startOnBootStatus.setTextColor(getColor(R.color.denied));
                 // wire this up only for denied status
-                startOnBootStatus.setOnClickListener(view -> {
-                    InputRequestActivity.requestIfNeededAndPostResult(this,
-                            false,
-                            PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()),
-                            true);
-                });
+                startOnBootStatus.setOnClickListener(view -> InputRequestActivity.requestIfNeededAndPostResult(this,
+                        false,
+                        PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()),
+                        true));
             }
         } else {
             findViewById(R.id.permission_row_start_on_boot).setVisibility(View.GONE);
