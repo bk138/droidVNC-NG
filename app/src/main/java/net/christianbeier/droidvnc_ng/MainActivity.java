@@ -717,7 +717,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (MainService.isServerActive()) {
-            startGettingClientClist();
+            startGettingClientList();
         }
         // onResume() is needed on API levels earlier than 26
         if(Build.VERSION.SDK_INT < 26) {
@@ -917,7 +917,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.settings_file_transfer).setEnabled(false);
         findViewById(R.id.settings_show_pointers).setEnabled(false);
 
-        startGettingClientClist();
+        startGettingClientList();
 
         mIsMainServiceRunning = true;
     }
@@ -953,7 +953,7 @@ public class MainActivity extends AppCompatActivity {
         mIsMainServiceRunning = false;
     }
 
-    private void startGettingClientClist() {
+    private void startGettingClientList() {
         stopGettingClientList();
 
         mClientListBroadcastReceiver = new BroadcastReceiver() {
