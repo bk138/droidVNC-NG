@@ -131,7 +131,7 @@ class Defaults {
                 val scaling = scalingStr.toFloat()
                 if (scaling > 0.0f)
                     this.scaling = scaling
-            } catch (e: NumberFormatException) {
+            } catch (_: NumberFormatException) {
                 Log.w(TAG, "Invalid scaling value in app restrictions: $scalingStr")
             }
 
