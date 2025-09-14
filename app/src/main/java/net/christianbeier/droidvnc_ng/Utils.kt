@@ -19,7 +19,7 @@ object Utils {
         try {
             val process = ProcessBuilder().command("/system/bin/getprop", prop).start()
             return BufferedReader(InputStreamReader(process.inputStream)).readLine()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return ""
         }
     }
@@ -38,7 +38,7 @@ object Utils {
         return try {
             // This is what we had until targetSDK 33.
             Settings.Secure.getString(ctx.contentResolver, "bluetooth_name")
-        } catch (ignored: SecurityException) {
+        } catch (_: SecurityException) {
             // throws on devices with API level 33, so use fallback
             if (Build.VERSION.SDK_INT > 25) {
                 Settings.Global.getString(ctx.contentResolver, Settings.Global.DEVICE_NAME)
