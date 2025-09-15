@@ -98,6 +98,7 @@
 
         <activity android:name=".MediaProjectionRequestActivity"
             android:theme="@style/TransparentTheme"
+            android:launchMode="singleTask"
             android:excludeFromRecents="true"
             />
 
