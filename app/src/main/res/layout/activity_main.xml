@@ -490,6 +490,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
             android:text="@string/start"
             style="@style/StartStopButtonStyle"
             />
@@ -544,7 +545,6 @@
             android:id="@+id/about"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:padding="10dp"
             android:autoLink="web" />
 
@@ -552,6 +552,7 @@
             android:id="@+id/survey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:layout_gravity="center_horizontal"
             android:text="@string/main_activity_survey_button"
             />
