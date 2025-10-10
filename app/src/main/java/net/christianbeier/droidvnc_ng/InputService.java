@@ -629,44 +629,45 @@ public class InputService extends AccessibilityService {
 				Get current keyboard focus node for input context's display.
 			 */
 			AccessibilityNodeInfo currentFocusNode = instance.mKeyboardFocusNodes.get(inputContext.getDisplayId());
-
-			if (currentFocusNode == null) {
-				Log.w(TAG, "onKeyEvent: no focus node for display " + inputContext.getDisplayId() + ", trying to find one");
-				if (Build.VERSION.SDK_INT >= 30) {
-					for (AccessibilityWindowInfo window : instance.getWindows()) {
-						if (window.getDisplayId() == inputContext.getDisplayId()) {
-							AccessibilityNodeInfo focusableNode = findFocusableNode(window.getRoot());
-							if (focusableNode != null) {
-								focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-								currentFocusNode = focusableNode;
-								Log.i(TAG, "onKeyEvent: Found and focused a new node.");
-								break;
-							}
-						}
-					}
-				} else {
-					// Fallback for older APIs
-					AccessibilityNodeInfo rootNode = instance.getRootInActiveWindow();
-					AccessibilityNodeInfo focusableNode = findFocusableNode(rootNode);
-					if (focusableNode != null) {
-						focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-						currentFocusNode = focusableNode;
-						Log.i(TAG, "onKeyEvent: Found and focused a new node in the active window.");
-					}
-				}
+			if (currentFocusNode != null) {
+				currentFocusNode.refresh();
 			}
-
-			if (currentFocusNode == null) {
-				Log.e(TAG, "onKeyEvent: Could not find any focusable node on display " + inputContext.getDisplayId() + ". Ignoring key event.");
-				return;
-			}
-			// refresh() is important to load the represented view's current text into the node
-			currentFocusNode.refresh();
 
 			/*
 			   DPAD Left/Right/Up/Down
 			 */
 			if ((keysym == 0xff51 || keysym == 0xff52 || keysym == 0xff53 || keysym == 0xff54) && down != 0) {
+
+        	                if (currentFocusNode == null) {
+	                       	        Log.w(TAG, "onKeyEvent: no focus node for display " + inputContext.getDisplayId() + ", trying to find one");
+                	                if (Build.VERSION.SDK_INT >= 30) {
+        	                                for (AccessibilityWindowInfo window : instance.getWindows()) {
+	                                                if (window.getDisplayId() == inputContext.getDisplayId()) {
+                                                        	AccessibilityNodeInfo focusableNode = findFocusableNode(window.getRoot());
+                                                	        if (focusableNode != null) {
+                                        	                        focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                                	                                currentFocusNode = focusableNode;
+                        	                                        Log.i(TAG, "onKeyEvent: Found and focused a new node.");
+                	                                                break;
+        	                                                }
+	                                                }
+                                        	}
+                                	} else {
+                        	                // Fallback for older APIs
+                	                        AccessibilityNodeInfo rootNode = instance.getRootInActiveWindow();
+        	                                AccessibilityNodeInfo focusableNode = findFocusableNode(rootNode);
+	                                        if (focusableNode != null) {
+                                        	        focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                                	                currentFocusNode = focusableNode;
+                        	                        Log.i(TAG, "onKeyEvent: Found and focused a new node in the active window.");
+                	                        }
+        	                        }
+	                        }
+
+                        	if (currentFocusNode == null) {
+                	                Log.e(TAG, "onKeyEvent: Could not find any focusable node on display " + inputContext.getDisplayId() + ". Ignoring key event.");
+        	                        return;
+	                        }
 
 				boolean supportsTextTraversal = false;
 				for (AccessibilityNodeInfo.AccessibilityAction a : currentFocusNode.getActionList()) {
