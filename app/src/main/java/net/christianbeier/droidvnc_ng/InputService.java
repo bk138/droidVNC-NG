@@ -46,6 +46,7 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import android.view.accessibility.AccessibilityWindowInfo;
 
 @SuppressLint("AccessibilityPolicy")
 public class InputService extends AccessibilityService {
@@ -628,8 +629,39 @@ public class InputService extends AccessibilityService {
 				Get current keyboard focus node for input context's display.
 			 */
 			AccessibilityNodeInfo currentFocusNode = instance.mKeyboardFocusNodes.get(inputContext.getDisplayId());
+
+			if (currentFocusNode == null) {
+				Log.w(TAG, "onKeyEvent: no focus node for display " + inputContext.getDisplayId() + ", trying to find one");
+				if (Build.VERSION.SDK_INT >= 30) {
+					for (AccessibilityWindowInfo window : instance.getWindows()) {
+						if (window.getDisplayId() == inputContext.getDisplayId()) {
+							AccessibilityNodeInfo focusableNode = findFocusableNode(window.getRoot());
+							if (focusableNode != null) {
+								focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+								currentFocusNode = focusableNode;
+								Log.i(TAG, "onKeyEvent: Found and focused a new node.");
+								break;
+							}
+						}
+					}
+				} else {
+					// Fallback for older APIs
+					AccessibilityNodeInfo rootNode = instance.getRootInActiveWindow();
+					AccessibilityNodeInfo focusableNode = findFocusableNode(rootNode);
+					if (focusableNode != null) {
+						focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+						currentFocusNode = focusableNode;
+						Log.i(TAG, "onKeyEvent: Found and focused a new node in the active window.");
+					}
+				}
+			}
+
+			if (currentFocusNode == null) {
+				Log.e(TAG, "onKeyEvent: Could not find any focusable node on display " + inputContext.getDisplayId() + ". Ignoring key event.");
+				return;
+			}
 			// refresh() is important to load the represented view's current text into the node
-			Objects.requireNonNull(currentFocusNode).refresh();
+			currentFocusNode.refresh();
 
 			/*
 			   DPAD Left/Right/Up/Down
@@ -638,14 +670,12 @@ public class InputService extends AccessibilityService {
 
 				boolean supportsTextTraversal = false;
 				for (AccessibilityNodeInfo.AccessibilityAction a : currentFocusNode.getActionList()) {
-					if (a.getId() == AccessibilityNodeInfo.AccessibilityAction.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY.getId() ||
-						a.getId() == AccessibilityNodeInfo.AccessibilityAction.ACTION_NEXT_AT_MOVEMENT_GRANULARITY.getId()) {
-						supportsTextTraversal = true;
-						break;
-					}
+                                        String className = currentFocusNode.getClassName().toString();
+                                        supportsTextTraversal = className.equals("android.widget.EditText") || className.contains("TextField");
 				}
 
 				if (supportsTextTraversal) {
+					// Text Traversal
 					Bundle action = new Bundle();
 					int granularity = (keysym == 0xff51 || keysym == 0xff53) ?
 							AccessibilityNodeInfo.MOVEMENT_GRANULARITY_CHARACTER :
@@ -658,16 +688,19 @@ public class InputService extends AccessibilityService {
 					else
 						Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_NEXT_AT_MOVEMENT_GRANULARITY.getId(), action);
 				} else {
+					// Focus Traversal
 					int direction = 0;
 					if(keysym == 0xff51) direction = View.FOCUS_LEFT;
 					if(keysym == 0xff52) direction = View.FOCUS_UP;
 					if(keysym == 0xff53) direction = View.FOCUS_RIGHT;
 					if(keysym == 0xff54) direction = View.FOCUS_DOWN;
-
 					AccessibilityNodeInfo nextFocus = Objects.requireNonNull(currentFocusNode).focusSearch(direction);
 					if (nextFocus != null) {
+						Log.d(TAG, "onKeyEvent: Focus changed");
 						nextFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
 						nextFocus.recycle();
+					} else {
+						Log.d(TAG, "onKeyEvent: No suitable focus change found");
 					}
 				}
 			}
@@ -1029,5 +1062,24 @@ public class InputService extends AccessibilityService {
 		action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, cursorPos);
 		action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, cursorPos);
 		node.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_SELECTION.getId(), action);
+	}
+
+	private static AccessibilityNodeInfo findFocusableNode(AccessibilityNodeInfo node) {
+		if (node == null) {
+			return null;
+		}
+
+		if (node.isFocusable()) {
+			return node;
+		}
+
+		for (int i = 0; i < node.getChildCount(); i++) {
+			AccessibilityNodeInfo focusableChild = findFocusableNode(node.getChild(i));
+			if (focusableChild != null) {
+				return focusableChild;
+			}
+		}
+
+		return null;
 	}
 }
