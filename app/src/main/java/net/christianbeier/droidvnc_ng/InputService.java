@@ -674,12 +674,15 @@ public class InputService extends AccessibilityService {
 			}
 
 			/*
-			    Enter, for API level 30+
+			    Enter, doing ACTION_IME_ENTER or ACTION_CLICK
 			 */
 			if (keysym == 0xff0d && down != 0) {
-				if (Build.VERSION.SDK_INT >= 30) {
-					Bundle action = new Bundle();
+				Bundle action = new Bundle();
+				if (Build.VERSION.SDK_INT >= 30 && currentFocusNode.getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER)) {
 					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.getId(), action);
+				}
+				if (currentFocusNode.getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)) {
+					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.getId(), action);
 				}
 			}
 
