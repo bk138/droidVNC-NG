@@ -16,6 +16,7 @@ package net.christianbeier.droidvnc_ng;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -45,6 +46,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+@SuppressLint("AccessibilityPolicy")
 public class InputService extends AccessibilityService {
 
 	/**
