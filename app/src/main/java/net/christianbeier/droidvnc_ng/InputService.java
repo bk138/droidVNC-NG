@@ -617,6 +617,7 @@ public class InputService extends AccessibilityService {
 					// if this succeeds, don't do the AccessibilityNodeInfo approach
 					return;
 				} catch (NullPointerException ignored) {
+					Log.w(TAG, "onKeyEvent: AccessibilityInputConnection key event handling failed, falling back to AccessibilityNodeInfo API");
 				}
 			}
 
