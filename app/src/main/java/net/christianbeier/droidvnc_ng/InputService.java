@@ -37,6 +37,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.ViewConfiguration;
 import android.graphics.Path;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -46,7 +47,6 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import android.view.accessibility.AccessibilityWindowInfo;
 
 @SuppressLint("AccessibilityPolicy")
 public class InputService extends AccessibilityService {
@@ -629,6 +629,7 @@ public class InputService extends AccessibilityService {
 				Get current keyboard focus node for input context's display.
 			 */
 			AccessibilityNodeInfo currentFocusNode = instance.mKeyboardFocusNodes.get(inputContext.getDisplayId());
+			// refresh() is important to load the represented view's current text into the node
 			if (currentFocusNode != null) {
 				currentFocusNode.refresh();
 			}
