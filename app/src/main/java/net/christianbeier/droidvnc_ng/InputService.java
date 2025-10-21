@@ -675,7 +675,29 @@ public class InputService extends AccessibilityService {
 					supportsTextTraversal = className.equals("android.widget.EditText") || className.contains("TextField");
 				}
 
+				boolean shouldDoFocusTraversal = false;
 				if (supportsTextTraversal) {
+					// Check if we're at text boundaries and should traverse focus instead
+					CharSequence text = currentFocusNode.getText();
+					int cursorPos = getCursorPos(currentFocusNode);
+					int textLength = (text != null) ? text.length() : 0;
+
+					// Left: traverse focus if cursor is at beginning
+					if (keysym == 0xff51 && cursorPos == 0) {
+						shouldDoFocusTraversal = true;
+					}
+					// Right: traverse focus if cursor is at end
+					else if (keysym == 0xff53 && cursorPos == textLength) {
+						shouldDoFocusTraversal = true;
+					}
+					// Up/Down: for multi-line text, we'd need line info which is harder to get
+					// For now, always allow Up/Down to traverse out of text fields
+					else if (keysym == 0xff52 || keysym == 0xff54) {
+						shouldDoFocusTraversal = true;
+					}
+				}
+
+				if (supportsTextTraversal && !shouldDoFocusTraversal) {
 					// Text Traversal
 					Bundle action = new Bundle();
 					int granularity = (keysym == 0xff51 || keysym == 0xff53) ?
