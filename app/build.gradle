@@ -19,7 +19,7 @@ android {
         externalNativeBuild {
             cmake {
                 // specify explicit target list to exclude examples, tests, utils. etc from used libraries
-                targets "turbojpeg-static", "vncserver", "droidvnc-ng"
+                targets "vncserver", "droidvnc-ng"
             }
         }
 
