@@ -21,6 +21,14 @@
     <string name="main_activity_notifications">सूचनाएं</string>
     <string name="main_activity_input">इनपुट</string>
     <string name="main_activity_start_on_boot">बूट पर शुरू करें</string>
+    <string name="main_activity_connections">कनेक्शन</string>
+    <string name="main_activity_connection_from">से %1$s</string>
+    <string name="main_activity_connection_to">को %1$s</string>
+    <string name="main_activity_connection_to_repeater">को %1$s आईडी %2$s के साथ</string>
+    <string name="main_activity_connection_to_now_reconnecting">%1$s से पुनः कनेक्ट हो रहा है</string>
+    <string name="main_activity_connection_to_repeater_now_reconnecting">%1$s आईडी %2$s के साथ पुनः कनेक्ट हो रहा है</string>
+    <string name="main_activity_connection_terminate_title">कनेक्शन समाप्त करें</string>
+    <string name="main_activity_connection_terminate_message">क्या आप इस कनेक्शन को समाप्त करना चाहते हैं?</string>
     <string name="main_activity_address">सर्वर अब इस पते पर उपलब्ध है</string>
     <string name="main_activity_share_link">ब्राउज़र एक्सेस लिंक साझा करें</string>
     <string name="main_activity_not_listening">सर्वर इनबाउंड कनेक्शन के लिए सुन नहीं रहा है।</string>

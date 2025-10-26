@@ -21,6 +21,14 @@
     <string name="main_activity_notifications">Notifiche</string>
     <string name="main_activity_input">Uso degli input</string>
     <string name="main_activity_start_on_boot">Esegui all\'avvio</string>
+    <string name="main_activity_connections">Connessioni</string>
+    <string name="main_activity_connection_from">Da %1$s</string>
+    <string name="main_activity_connection_to">A %1$s</string>
+    <string name="main_activity_connection_to_repeater">A %1$s con ID %2$s</string>
+    <string name="main_activity_connection_to_now_reconnecting">Riconnessione a %1$s</string>
+    <string name="main_activity_connection_to_repeater_now_reconnecting">Riconnessione a %1$s con ID %2$s</string>
+    <string name="main_activity_connection_terminate_title">Terminare la connessione</string>
+    <string name="main_activity_connection_terminate_message">Desidera davvero terminare questa connessione?</string>
     <string name="main_activity_address">Il server è raggiungibile presso</string>
     <string name="main_activity_share_link">Accedi da browser</string>
     <string name="main_activity_not_listening">Il server non è in ascolto di connessioni in entrata.</string>

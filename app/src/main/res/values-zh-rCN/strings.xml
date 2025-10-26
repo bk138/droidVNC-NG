@@ -21,6 +21,14 @@
     <string name="main_activity_notifications">通知</string>
     <string name="main_activity_input">输入</string>
     <string name="main_activity_start_on_boot">开机启动</string>
+    <string name="main_activity_connections">连接</string>
+    <string name="main_activity_connection_from">来自 %1$s</string>
+    <string name="main_activity_connection_to">到 %1$s</string>
+    <string name="main_activity_connection_to_repeater">到 %1$s，ID %2$s</string>
+    <string name="main_activity_connection_to_now_reconnecting">正在重新连接到 %1$s</string>
+    <string name="main_activity_connection_to_repeater_now_reconnecting">正在重新连接到 %1$s，ID %2$s</string>
+    <string name="main_activity_connection_terminate_title">终止连接</string>
+    <string name="main_activity_connection_terminate_message">您确定要终止此连接吗？</string>
     <string name="main_activity_address">可以访问当前服务在</string>
     <string name="main_activity_share_link">分享浏览器访问链接</string>
     <string name="main_activity_not_listening">该服务器没有监听传入的连接。</string>

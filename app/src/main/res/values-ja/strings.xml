@@ -21,6 +21,14 @@
     <string name="main_activity_notifications">通知</string>
     <string name="main_activity_input">入力</string>
     <string name="main_activity_start_on_boot">起動時に自動実行</string>
+    <string name="main_activity_connections">接続</string>
+    <string name="main_activity_connection_from">%1$s から</string>
+    <string name="main_activity_connection_to">%1$s へ</string>
+    <string name="main_activity_connection_to_repeater">ID %2$s の %1$s へ</string>
+    <string name="main_activity_connection_to_now_reconnecting">%1$s に再接続中</string>
+    <string name="main_activity_connection_to_repeater_now_reconnecting">ID %2$s の %1$s に再接続中</string>
+    <string name="main_activity_connection_terminate_title">接続を終了</string>
+    <string name="main_activity_connection_terminate_message">この接続を終了しますか？</string>
     <string name="main_activity_address">サーバーには次のアドレスから接続可能です:</string>
     <string name="main_activity_share_link">ブラウザアクセスリンクを共有する</string>
     <string name="main_activity_not_listening">サーバーは着信接続をリッスンしていません</string>

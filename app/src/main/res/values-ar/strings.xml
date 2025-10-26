@@ -21,6 +21,14 @@
     <string name="main_activity_notifications">الإشعارات</string>
     <string name="main_activity_input">الإدخال</string>
     <string name="main_activity_start_on_boot">البدء عند التشغيل</string>
+    <string name="main_activity_connections">الاتصالات</string>
+    <string name="main_activity_connection_from">من %1$s</string>
+    <string name="main_activity_connection_to">إلى %1$s</string>
+    <string name="main_activity_connection_to_repeater">إلى %1$s مع المعرف %2$s</string>
+    <string name="main_activity_connection_to_now_reconnecting">إعادة الاتصال بـ %1$s</string>
+    <string name="main_activity_connection_to_repeater_now_reconnecting">إعادة الاتصال بـ %1$s مع المعرف %2$s</string>
+    <string name="main_activity_connection_terminate_title">إنهاء الاتصال</string>
+    <string name="main_activity_connection_terminate_message">هل أنت متأكد من رغبتك في إنهاء هذا الاتصال؟</string>
     <string name="main_activity_address">الخادم جاهز للاستقبال على</string>
     <string name="main_activity_share_link">مشاركة رابط الوصول عبر المتصفح</string>
     <string name="main_activity_not_listening">الخادم لا يستمع للاتصالات الواردة.</string>

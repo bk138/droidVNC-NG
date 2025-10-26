@@ -63,8 +63,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -956,10 +958,72 @@ public class MainActivity extends AppCompatActivity {
     private void startGettingClientList() {
         stopGettingClientList();
 
+        TableLayout connectionsTable = findViewById(R.id.connectionsTable);
+
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+
         mClientListBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                //TODO actually display
+                connectionsTable.removeAllViews();
+                ClientList clientList = ClientList.fromJson(intent.getStringExtra(MainService.EXTRA_CLIENTS));
+                if(clientList.getClients().isEmpty()) {
+                    // hide connections list
+                    findViewById(R.id.connectionsHeading).setVisibility(View.GONE);
+                    findViewById(R.id.connectionsTable).setVisibility(View.GONE);
+                } else {
+                    // show connections list
+                    findViewById(R.id.connectionsHeading).setVisibility(View.VISIBLE);
+                    findViewById(R.id.connectionsTable).setVisibility(View.VISIBLE);
+                }
+                for (ClientList.Client client : clientList.getClients()) {
+                    View connectionRow = getLayoutInflater().inflate(R.layout.row_connection, connectionsTable, false);
+                    TextView description = connectionRow.findViewById(R.id.description);
+                    /*
+                        Fill description according to client setup
+                     */
+                    if(client.getConnectionId() != null && client.getPort() == null) {
+                        description.setText(getString(R.string.main_activity_connection_from, client.getHost()));
+                    }
+                    if(client.getConnectionId() != null && client.getPort() != null) {
+                        description.setText(getString(R.string.main_activity_connection_to, client.getHost()));
+                    }
+                    if(client.getConnectionId() != null && client.getPort() != null && client.getRepeaterId() != null) {
+                        description.setText(getString(R.string.main_activity_connection_to_repeater, client.getHost(), client.getRepeaterId()));
+                    }
+                    if(client.getConnectionId() == null && client.getPort() != null) {
+                        description.setText(getString(R.string.main_activity_connection_to_now_reconnecting, client.getHost()));
+                    }
+                    if(client.getConnectionId() == null && client.getPort() != null && client.getRepeaterId() != null) {
+                        description.setText(getString(R.string.main_activity_connection_to_repeater_now_reconnecting, client.getHost(), client.getRepeaterId()));
+                    }
+                    /*
+                        Wire up terminate button
+                     */
+                    Intent disconnectIntent = new Intent(MainActivity.this, MainService.class);
+                    disconnectIntent.setAction(MainService.ACTION_DISCONNECT);
+                    disconnectIntent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
+                    if (client.getConnectionId() != null) {
+                        // disconnect connected client
+                        disconnectIntent.putExtra(MainService.EXTRA_CLIENT_CONNECTION_ID, client.getConnectionId());
+                    }
+                    if (client.getRequestId() != null) {
+                        // disconnect client in reconnect mode
+                        disconnectIntent.putExtra(MainService.EXTRA_CLIENT_REQUEST_ID, client.getRequestId());
+                    }
+                    ImageButton buttonTerminate = connectionRow.findViewById(R.id.terminate);
+                    buttonTerminate.setOnClickListener(view -> new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(R.string.main_activity_connection_terminate_title)
+                            .setMessage(R.string.main_activity_connection_terminate_message)
+                            .setPositiveButton(R.string.yes, (dialog, which) -> ContextCompat.startForegroundService(MainActivity.this, disconnectIntent))
+                            .setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss())
+                            .show());
+                    buttonTerminate.setOnLongClickListener(view -> {
+                        ContextCompat.startForegroundService(MainActivity.this, disconnectIntent);
+                        return true;
+                    });
+                    connectionsTable.addView(connectionRow);
+                }
             }
         };
         ContextCompat.registerReceiver(
@@ -971,8 +1035,6 @@ public class MainActivity extends AppCompatActivity {
         mClientListHandler.post(new Runnable() {
             @Override
             public void run() {
-                final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-
                 Intent intent = new Intent(MainActivity.this, MainService.class);
                 intent.setAction(MainService.ACTION_GET_CLIENTS);
                 intent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
@@ -992,6 +1054,9 @@ public class MainActivity extends AppCompatActivity {
         } catch (IllegalArgumentException unused) {
             // not registered
         }
+        // hide client list
+        findViewById(R.id.connectionsHeading).setVisibility(View.GONE);
+        findViewById(R.id.connectionsTable).setVisibility(View.GONE);
     }
 
 }
