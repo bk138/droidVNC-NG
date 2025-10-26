@@ -29,6 +29,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.net.Network;
@@ -59,6 +60,7 @@ import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -508,7 +510,8 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        Slider scaling = findViewById(R.id.settings_scaling);
+        final TextView finalResolution = findViewById(R.id.final_resolution);
+        final Slider scaling = findViewById(R.id.settings_scaling);
         scaling.setValue(
                 prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING,
                         (float) Math.ceil(mDefaults.getScaling() * 100 / scaling.getStepSize()) * scaling.getStepSize() / 100)
@@ -518,7 +521,10 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor ed = prefs.edit();
             ed.putFloat(Constants.PREFS_KEY_SETTINGS_SCALING, value/100);
             ed.apply();
+            updateFinalResolution(finalResolution, value / 100);
         });
+
+        updateFinalResolution(finalResolution, scaling.getValue() / 100);
 
         final SwitchMaterial showPointers = findViewById(R.id.settings_show_pointers);
         showPointers.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_SHOW_POINTERS, mDefaults.getShowPointers()));
@@ -829,6 +835,22 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.permission_row_start_on_boot).setVisibility(View.GONE);
         }
 
+    }
+
+    private void updateFinalResolution(TextView finalResolution, float scaling) {
+        Point size = new Point();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Display display = getDisplay();
+            if (display != null) {
+                display.getRealSize(size);
+            }
+        } else {
+            getWindowManager().getDefaultDisplay().getRealSize(size);
+        }
+
+        int finalWidth = (int) (size.x * scaling);
+        int finalHeight = (int) (size.y * scaling);
+        finalResolution.setText(finalWidth + "x" + finalHeight);
     }
 
     private void updateAddressesDisplay() {

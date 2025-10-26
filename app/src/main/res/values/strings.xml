@@ -78,4 +78,6 @@
     <string name="settings_port_reverse" translatable="false">Reverse Port</string>
     <string name="settings_port_repeater" translatable="false">Repeater Port</string>
     <string name="survey_url" translatable="false">https://forms.gle/WtzWv4BbR6D9xyno7</string>
+    <string name="main_activity_screen_scaling">Placeholder for size calculation</string>
+    <string name="main_activity_final_resolution">Final Resolution</string>
 </resources>
