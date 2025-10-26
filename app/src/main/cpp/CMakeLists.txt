@@ -9,11 +9,11 @@ include(ExternalProject)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared Libs" FORCE)
 
-# Requred to enable SIMD support
-if (CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
-    set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} --target=aarch64-linux-android${ANDROID_VERSION}")
-elseif (CMAKE_ANDROID_ARCH_ABI MATCHES "^armeabi.*")  # armeabi-v7a || armeabi-v6 || armeabi
-    set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} --target=arm-linux-androideabi${ANDROID_VERSION}")
+# Required to enable SIMD support on ARM
+if (CMAKE_ANDROID_ARCH STREQUAL "arm64")
+    set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} --target=aarch64-linux-android${ANDROID_NATIVE_API_LEVEL}")
+elseif (CMAKE_ANDROID_ARCH STREQUAL "arm")
+    set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} --target=arm-linux-androideabi${ANDROID_NATIVE_API_LEVEL}")
 endif ()
 
 # libjpeg-turbo
