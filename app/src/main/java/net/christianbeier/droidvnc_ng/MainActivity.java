@@ -968,7 +968,7 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(MainService.ACTION_GET_CLIENTS),
                 ContextCompat.RECEIVER_NOT_EXPORTED);
 
-        mClientListHandler.postDelayed(new Runnable() {
+        mClientListHandler.post(new Runnable() {
             @Override
             public void run() {
                 final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
@@ -982,7 +982,7 @@ public class MainActivity extends AppCompatActivity {
 
                 mClientListHandler.postDelayed(this, 1000);
             }
-        }, 1000);
+        });
     }
 
     private void stopGettingClientList() {
