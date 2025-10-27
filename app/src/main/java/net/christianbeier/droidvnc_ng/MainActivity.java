@@ -654,20 +654,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAvailable(@NonNull Network network) {
                 Log.d(TAG, "NetworkCallback onAvailable");
-                updateAddressesDisplay();
+                runOnUiThread(() -> updateAddressesDisplay());
             }
 
             @Override
             public void onLinkPropertiesChanged(@NonNull Network network, @NonNull LinkProperties linkProperties) {
                 Log.d(TAG, "NetworkCallback onLinkPropertiesChanged");
-                updateAddressesDisplay();
+                runOnUiThread(() -> updateAddressesDisplay());
             }
 
 
             @Override
             public void onLost(@NonNull Network network) {
                 Log.d(TAG, "NetworkCallback onLost");
-                updateAddressesDisplay();
+                runOnUiThread(() -> updateAddressesDisplay());
             }
         };
         ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).registerNetworkCallback(
