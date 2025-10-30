@@ -130,6 +130,11 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(MainService.EXTRA_SHOW_POINTERS, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_SHOW_POINTERS, mDefaults.getShowPointers()));
             intent.putExtra(MainService.EXTRA_SCALING, prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling()));
             intent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
+            intent.putExtra(MainService.EXTRA_ZLIB_COMPRESSION, prefs.getInt(Constants.PREFS_KEY_SETTINGS_ZLIB_COMPRESSION, 1));
+            intent.putExtra(MainService.EXTRA_CROPPING_LEFT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_CROPPING_LEFT, 0));
+            intent.putExtra(MainService.EXTRA_CROPPING_TOP, prefs.getInt(Constants.PREFS_KEY_SETTINGS_CROPPING_TOP, 0));
+            intent.putExtra(MainService.EXTRA_CROPPING_WIDTH, prefs.getInt(Constants.PREFS_KEY_SETTINGS_CROPPING_WIDTH, 0));
+            intent.putExtra(MainService.EXTRA_CROPPING_HEIGHT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_CROPPING_HEIGHT, 0));
             if(mIsMainServiceRunning) {
                 intent.setAction(MainService.ACTION_STOP);
             }
@@ -545,6 +550,83 @@ public class MainActivity extends AppCompatActivity {
             showPointers.setEnabled(!b);
         });
 
+        final Slider zlibCompression = findViewById(R.id.settings_zlib_compression);
+        zlibCompression.setValue(prefs.getInt(Constants.PREFS_KEY_SETTINGS_ZLIB_COMPRESSION, 1));
+        zlibCompression.setLabelFormatter(value -> String.valueOf((int) value));
+        zlibCompression.addOnChangeListener((slider, value, fromUser) -> {
+            SharedPreferences.Editor ed = prefs.edit();
+            ed.putInt(Constants.PREFS_KEY_SETTINGS_ZLIB_COMPRESSION, (int) value);
+            ed.apply();
+        });
+
+        final EditText croppingLeft = findViewById(R.id.settings_cropping_left);
+        croppingLeft.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_CROPPING_LEFT, 0)));
+        croppingLeft.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                try {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putInt(Constants.PREFS_KEY_SETTINGS_CROPPING_LEFT, Integer.parseInt(charSequence.toString()));
+                    ed.apply();
+                } catch (NumberFormatException e) {}
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+
+        final EditText croppingTop = findViewById(R.id.settings_cropping_top);
+        croppingTop.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_CROPPING_TOP, 0)));
+        croppingTop.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                try {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putInt(Constants.PREFS_KEY_SETTINGS_CROPPING_TOP, Integer.parseInt(charSequence.toString()));
+                    ed.apply();
+                } catch (NumberFormatException e) {}
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+
+        final EditText croppingWidth = findViewById(R.id.settings_cropping_width);
+        croppingWidth.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_CROPPING_WIDTH, 0)));
+        croppingWidth.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                try {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putInt(Constants.PREFS_KEY_SETTINGS_CROPPING_WIDTH, Integer.parseInt(charSequence.toString()));
+                    ed.apply();
+                } catch (NumberFormatException e) {}
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+
+        final EditText croppingHeight = findViewById(R.id.settings_cropping_height);
+        croppingHeight.setText(String.valueOf(prefs.getInt(Constants.PREFS_KEY_SETTINGS_CROPPING_HEIGHT, 0)));
+        croppingHeight.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                try {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putInt(Constants.PREFS_KEY_SETTINGS_CROPPING_HEIGHT, Integer.parseInt(charSequence.toString()));
+                    ed.apply();
+                } catch (NumberFormatException e) {}
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+
         TextView about = findViewById(R.id.about);
         about.setText(getString(R.string.main_activity_about, BuildConfig.VERSION_NAME));
 
@@ -938,6 +1020,11 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.settings_view_only).setEnabled(false);
         findViewById(R.id.settings_file_transfer).setEnabled(false);
         findViewById(R.id.settings_show_pointers).setEnabled(false);
+        findViewById(R.id.settings_zlib_compression).setEnabled(false);
+        findViewById(R.id.settings_cropping_left).setEnabled(false);
+        findViewById(R.id.settings_cropping_top).setEnabled(false);
+        findViewById(R.id.settings_cropping_width).setEnabled(false);
+        findViewById(R.id.settings_cropping_height).setEnabled(false);
 
         startGettingClientList();
 
@@ -969,6 +1056,11 @@ public class MainActivity extends AppCompatActivity {
             // pointers depend on view-only being disabled
             findViewById(R.id.settings_show_pointers).setEnabled(true);
         }
+        findViewById(R.id.settings_zlib_compression).setEnabled(true);
+        findViewById(R.id.settings_cropping_left).setEnabled(true);
+        findViewById(R.id.settings_cropping_top).setEnabled(true);
+        findViewById(R.id.settings_cropping_width).setEnabled(true);
+        findViewById(R.id.settings_cropping_height).setEnabled(true);
 
         stopGettingClientList();
 

@@ -80,4 +80,10 @@
     <string name="survey_url" translatable="false">https://forms.gle/WtzWv4BbR6D9xyno7</string>
     <string name="main_activity_screen_scaling">Placeholder for size calculation</string>
     <string name="main_activity_final_resolution">Final Resolution</string>
+    <string name="main_activity_settings_cropping">Cropping</string>
+    <string name="main_activity_settings_cropping_left">Left</string>
+    <string name="main_activity_settings_cropping_top">Top</string>
+    <string name="main_activity_settings_cropping_width">Width</string>
+    <string name="main_activity_settings_cropping_height">Height</string>
+    <string name="main_activity_settings_zlib_compression">ZLIB Compression Level</string>
 </resources>

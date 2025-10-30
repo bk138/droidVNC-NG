@@ -214,7 +214,6 @@
 
             </TableRow>
 
-
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -235,50 +234,35 @@
                     android:padding="10dp"
                     android:text="@string/main_activity_colon" />
 
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/settings_scaling"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_column="2"
-                    android:layout_gravity="center"
                     android:layout_weight="3"
-                    android:stepSize="0.1"
-                    android:value="100"
-                    android:valueFrom="10"
-                    android:valueTo="100" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/settings_scaling"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:stepSize="1"
+                        android:value="100"
+                        android:valueFrom="10"
+                        android:valueTo="100" />
+
+                    <TextView
+                        android:id="@+id/final_resolution"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:minWidth="80dp"
+                        android:gravity="end"/>
+                </LinearLayout>
 
             </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:layout_column="0"
-                    android:padding="10dp"
-                    android:hyphenationFrequency="full"
-                    android:text="@string/main_activity_final_resolution" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_column="1"
-                    android:padding="10dp"
-                    android:text="@string/main_activity_colon" />
-
-                <TextView
-                    android:id="@+id/final_resolution"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_column="2"
-                    android:padding="10dp"
-                    android:layout_weight="3" />
-
-            </TableRow>
-
 
             <TableRow
                 android:layout_width="match_parent"
@@ -338,6 +322,160 @@
                     android:layout_weight="3"
                     android:text="" />
 
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:layout_column="0"
+                    android:padding="10dp"
+                    android:hyphenationFrequency="full"
+                    android:text="@string/main_activity_settings_zlib_compression" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_colon" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/settings_zlib_compression"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:layout_gravity="center"
+                    android:layout_weight="3"
+                    android:stepSize="1"
+                    android:value="1"
+                    android:valueFrom="0"
+                    android:valueTo="9" />
+
+            </TableRow>
+
+        </TableLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_activity_settings_cropping"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:padding="10dp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_column="0"
+                    android:padding="10dp"
+                    android:hyphenationFrequency="full"
+                    android:text="@string/main_activity_settings_cropping_left" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_colon" />
+
+                <EditText
+                    android:id="@+id/settings_cropping_left"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:layout_weight="1"
+                    android:inputType="number" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_column="3"
+                    android:padding="10dp"
+                    android:hyphenationFrequency="full"
+                    android:text="@string/main_activity_settings_cropping_top" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="4"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_colon" />
+
+                <EditText
+                    android:id="@+id/settings_cropping_top"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_column="5"
+                    android:layout_weight="1"
+                    android:inputType="number" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_column="0"
+                    android:padding="10dp"
+                    android:hyphenationFrequency="full"
+                    android:text="@string/main_activity_settings_cropping_width" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_colon" />
+
+                <EditText
+                    android:id="@+id/settings_cropping_width"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:layout_weight="1"
+                    android:inputType="number" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_column="3"
+                    android:padding="10dp"
+                    android:hyphenationFrequency="full"
+                    android:text="@string/main_activity_settings_cropping_height" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="4"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_colon" />
+
+                <EditText
+                    android:id="@+id/settings_cropping_height"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_column="5"
+                    android:layout_weight="1"
+                    android:inputType="number" />
             </TableRow>
 
         </TableLayout>
@@ -590,4 +728,3 @@
     </LinearLayout>
 
 </ScrollView>
-

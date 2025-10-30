@@ -31,6 +31,7 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.net.ConnectivityManager;
@@ -71,6 +72,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MainService extends Service {
 
+
+    public static final String EXTRA_ZLIB_COMPRESSION = "net.christianbeier.droidvnc_ng.EXTRA_ZLIB_COMPRESSION";
     private static final String TAG = "MainService";
     static final int NOTIFICATION_ID = 11;
     public final static String ACTION_START = "net.christianbeier.droidvnc_ng.ACTION_START";
@@ -88,6 +91,10 @@ public class MainService extends Service {
     public static final String EXTRA_VIEW_ONLY = "net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY";
     public static final String EXTRA_SHOW_POINTERS = "net.christianbeier.droidvnc_ng.EXTRA_SHOW_POINTERS";
     public static final String EXTRA_SCALING = "net.christianbeier.droidvnc_ng.EXTRA_SCALING";
+    public static final String EXTRA_CROPPING_LEFT = "net.christianbeier.droidvnc_ng.EXTRA_CROPPING_LEFT";
+    public static final String EXTRA_CROPPING_TOP = "net.christianbeier.droidvnc_ng.EXTRA_CROPPING_TOP";
+    public static final String EXTRA_CROPPING_WIDTH = "net.christianbeier.droidvnc_ng.EXTRA_CROPPING_WIDTH";
+    public static final String EXTRA_CROPPING_HEIGHT = "net.christianbeier.droidvnc_ng.EXTRA_CROPPING_HEIGHT";
     /**
      * Only used on Android 12 and earlier.
      */
@@ -205,7 +212,7 @@ public class MainService extends Service {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private native boolean vncStartServer(int width, int height, int port, String desktopName, String password, String httpRootDir);
+    private native boolean vncStartServer(int width, int height, int port, String desktopName, String password, String httpRootDir, int crop_left, int crop_top, int crop_width, int crop_height, int zlibCompression);
     private native boolean vncStopServer();
     private native boolean vncIsActive();
     private native long vncConnectReverse(String host, int port);
@@ -396,7 +403,6 @@ public class MainService extends Service {
                 Intent startIntent = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this));
                 int port = startIntent.getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
                 String password = startIntent.getStringExtra(EXTRA_PASSWORD) != null ? startIntent.getStringExtra(EXTRA_PASSWORD) : PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword());
-                // get device name
                 String name = Utils.getDeviceName(this);
 
                 boolean status = vncStartServer(displayMetrics.widthPixels,
@@ -404,7 +410,12 @@ public class MainService extends Service {
                         port,
                         name,
                         password,
-                        getFilesDir().getAbsolutePath() + File.separator + "novnc");
+                        getFilesDir().getAbsolutePath() + File.separator + "novnc",
+                        startIntent.getIntExtra(EXTRA_CROPPING_LEFT, 0),
+                        startIntent.getIntExtra(EXTRA_CROPPING_TOP, 0),
+                        startIntent.getIntExtra(EXTRA_CROPPING_WIDTH, 0),
+                        startIntent.getIntExtra(EXTRA_CROPPING_HEIGHT, 0),
+                        startIntent.getIntExtra(EXTRA_ZLIB_COMPRESSION, 1));
                 Intent answer = new Intent(ACTION_START);
                 answer.putExtra(EXTRA_REQUEST_ID, startIntent.getStringExtra(EXTRA_REQUEST_ID));
                 answer.putExtra(EXTRA_REQUEST_SUCCESS, status);
@@ -451,7 +462,12 @@ public class MainService extends Service {
                         port,
                         name,
                         password,
-                        getFilesDir().getAbsolutePath() + File.separator + "novnc");
+                        getFilesDir().getAbsolutePath() + File.separator + "novnc",
+                        startIntent.getIntExtra(EXTRA_CROPPING_LEFT, 0),
+                        startIntent.getIntExtra(EXTRA_CROPPING_TOP, 0),
+                        startIntent.getIntExtra(EXTRA_CROPPING_WIDTH, 0),
+                        startIntent.getIntExtra(EXTRA_CROPPING_HEIGHT, 0),
+                        startIntent.getIntExtra(EXTRA_ZLIB_COMPRESSION, 1));
 
                 Intent answer = new Intent(ACTION_START);
                 answer.putExtra(EXTRA_REQUEST_ID, startIntent.getStringExtra(EXTRA_REQUEST_ID));

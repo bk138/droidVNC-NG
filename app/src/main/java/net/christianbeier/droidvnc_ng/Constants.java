@@ -34,6 +34,11 @@ public class Constants {
     public static final String PREFS_KEY_SETTINGS_SHOW_POINTERS = "settings_show_pointers" ;
     public static final String PREFS_KEY_SETTINGS_ACCESS_KEY = "settings_access_key";
     public static final String PREFS_KEY_SETTINGS_FILE_TRANSFER = "settings_file_transfer";
+    public static final String PREFS_KEY_SETTINGS_ZLIB_COMPRESSION = "settings_zlib_compression";
+    public static final String PREFS_KEY_SETTINGS_CROPPING_LEFT = "settings_cropping_left";
+    public static final String PREFS_KEY_SETTINGS_CROPPING_TOP = "settings_cropping_top";
+    public static final String PREFS_KEY_SETTINGS_CROPPING_WIDTH = "settings_cropping_width";
+    public static final String PREFS_KEY_SETTINGS_CROPPING_HEIGHT = "settings_cropping_height";
 
     /*
         persisted runtime values shared between components
