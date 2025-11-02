@@ -68,6 +68,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MainService extends Service {
 
@@ -124,7 +125,7 @@ public class MainService extends Service {
     private PowerManager.WakeLock mWakeLock;
     private Notification mNotification;
 
-    private final List<Long> mConnectedClients = new ArrayList<>() ;
+    private final List<Long> mConnectedClients = new CopyOnWriteArrayList<>() ;
 
     private static class OutboundClientReconnectData {
         Intent intent;
