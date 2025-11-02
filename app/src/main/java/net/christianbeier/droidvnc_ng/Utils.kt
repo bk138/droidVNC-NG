@@ -33,19 +33,20 @@ object Utils {
     }
 
     @JvmStatic
-    fun getDeviceName(ctx: Context): String? {
-        // get device name
+    fun getDeviceName(ctx: Context): String {
         return try {
             // This is what we had until targetSDK 33.
             Settings.Secure.getString(ctx.contentResolver, "bluetooth_name")
         } catch (_: SecurityException) {
-            // throws on devices with API level 33, so use fallback
+            // throws on devices with API level 33, so trigger use of fallback
+            null
+        } ?: run {
             if (Build.VERSION.SDK_INT > 25) {
                 Settings.Global.getString(ctx.contentResolver, Settings.Global.DEVICE_NAME)
             } else {
-                ctx.getString(R.string.app_name)
+                null
             }
-        }
+        } ?: ctx.getString(R.string.app_name) // if any of these is null, return app name
     }
 
     @JvmStatic
