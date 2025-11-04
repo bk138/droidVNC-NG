@@ -43,7 +43,9 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.IntentSanitizer;
 import androidx.preference.PreferenceManager;
@@ -673,6 +675,7 @@ public class MainService extends Service {
 
     @SuppressLint("WakelockTimeout")
     @SuppressWarnings("unused")
+    @WorkerThread
     static void onClientConnected(long client) {
         Log.d(TAG, "onClientConnected: client " + client);
 
@@ -699,6 +702,7 @@ public class MainService extends Service {
     }
 
     @SuppressWarnings("unused")
+    @WorkerThread
     static void onClientDisconnected(long client) {
         Log.d(TAG, "onClientDisconnected: client " + client);
 
@@ -977,6 +981,7 @@ public class MainService extends Service {
         return mNotification;
     }
 
+    @AnyThread // as per https://stackoverflow.com/a/15803726/361413
     private void updateNotification(boolean isSilent) {
         // defaults
         int iconResource = R.drawable.ic_notification_normal;
