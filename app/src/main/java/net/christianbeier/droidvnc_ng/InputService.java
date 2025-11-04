@@ -39,6 +39,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.WorkerThread;
 import androidx.preference.PreferenceManager;
 
 import java.nio.ByteBuffer;
@@ -232,6 +233,7 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
+    @WorkerThread
 	public static void addClient(long client, boolean withPointer) {
 		// NB runs on a worker thread!
 		try {
@@ -239,15 +241,18 @@ public class InputService extends AccessibilityService {
 			InputContext inputContext = new InputContext();
 			inputContext.setDisplayId(displayId);
 			if(withPointer) {
-				inputContext.pointerView = new InputPointerView(
-						instance,
-						displayId,
-						0.4f * ((instance.mInputContexts.size() + 1) % 3),
-						0.2f * ((instance.mInputContexts.size() + 1) % 5),
-						1.0f * ((instance.mInputContexts.size() + 1) % 2)
-				);
 				// run this on UI thread (use main handler as view is not yet added)
-				instance.mMainHandler.post(() -> inputContext.pointerView.addView());
+                int inputContextsSize = instance.mInputContexts.size();
+                instance.mMainHandler.post(() -> {
+                    inputContext.pointerView = new InputPointerView(
+                            instance,
+                            displayId,
+                            0.4f * ((inputContextsSize + 1) % 3),
+                            0.2f * ((inputContextsSize + 1) % 5),
+                            1.0f * ((inputContextsSize + 1) % 2)
+                    );
+                    inputContext.pointerView.addView();
+               });
 			}
 			instance.mInputContexts.put(client, inputContext);
 		} catch (Exception e) {
@@ -255,6 +260,7 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
+    @WorkerThread
 	public static void removeClient(long client) {
 		// NB runs on a worker thread!
 		try {
@@ -270,6 +276,7 @@ public class InputService extends AccessibilityService {
 	}
 
 	@SuppressWarnings("unused")
+    @WorkerThread
 	public static void onPointerEvent(int buttonMask, int x, int y, long client) {
 
 		if(!isInputEnabled) {
@@ -349,6 +356,7 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
+    @WorkerThread
 	public static void onKeyEvent(int down, long keysym, long client) {
 
 		if(!isInputEnabled) {
@@ -727,6 +735,7 @@ public class InputService extends AccessibilityService {
 		}
 	}
 
+    @WorkerThread
 	public static void onCutText(String text, long client) {
 
 		if(!isInputEnabled) {
