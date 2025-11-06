@@ -70,6 +70,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MainService extends Service {
 
@@ -127,6 +128,7 @@ public class MainService extends Service {
     private Notification mNotification;
 
     private final List<Long> mConnectedClients = new ArrayList<>() ;
+    private final ReentrantReadWriteLock mConnectedClientsLock = new ReentrantReadWriteLock();
 
     private static class OutboundClientReconnectData {
         Intent intent;
@@ -594,13 +596,13 @@ public class MainService extends Service {
             if(vncIsActive()) {
                 ClientList clientList = ClientList.empty();
 
-                mConnectedClients.forEach(client -> clientList.insertOrUpdate(new ClientList.Client(
+                Utils.withLock(instance.mConnectedClientsLock.readLock(), () -> mConnectedClients.forEach(client -> clientList.insertOrUpdate(new ClientList.Client(
                         client,
                         vncGetRemoteHost(client),
                         vncGetDestinationPort(client) < 0 ? null : vncGetDestinationPort(client),
                         vncGetRepeaterId(client),
                         null
-                )));
+                ))));
 
                 mOutboundClientsToReconnect.forEach((key, value) -> clientList.insertOrUpdate(new ClientList.Client(
                         value.client,
@@ -633,7 +635,7 @@ public class MainService extends Service {
                 // if both are given, only connection id is handled
                 if (clientConnectionId != 0) {
                     // find client for connection id
-                    Optional<Long> client = mConnectedClients.stream().filter(clientPtr -> ClientList.isConnectionIdMatchingClient(clientConnectionId, clientPtr)).findFirst();
+                    Optional<Long> client = Utils.withLock(instance.mConnectedClientsLock.readLock(), () -> mConnectedClients.stream().filter(clientPtr -> ClientList.isConnectionIdMatchingClient(clientConnectionId, clientPtr)).findFirst());
                     if(client.isPresent()) {
                         status = vncDisconnect(client.get());
                     }
@@ -680,7 +682,7 @@ public class MainService extends Service {
 
         try {
             instance.mWakeLock.acquire();
-            instance.mConnectedClients.add(client);
+            Utils.withLock(instance.mConnectedClientsLock.writeLock(), () -> instance.mConnectedClients.add(client));
             instance.updateNotification(false);
             // showing pointers depends on view-only being false
             Intent startIntent = Objects.requireNonNull(MainServicePersistData.loadStartIntent(instance));
@@ -707,7 +709,7 @@ public class MainService extends Service {
 
         try {
             instance.mWakeLock.release();
-            instance.mConnectedClients.remove(client);
+            Utils.withLock(instance.mConnectedClientsLock.writeLock(), () -> instance.mConnectedClients.remove(client));
             if(!instance.mIsStopping) {
                 // don't show notifications when clients are disconnected on orderly server shutdown
                 instance.updateNotification(false);
@@ -875,7 +877,7 @@ public class MainService extends Service {
 
     static int getClientCount() {
         try {
-            return instance.mConnectedClients.size();
+            return Utils.withLock(instance.mConnectedClientsLock.readLock(), () -> instance.mConnectedClients.size());
         } catch (Exception ignored) {
             return 0;
         }
@@ -1017,10 +1019,11 @@ public class MainService extends Service {
 
         // notification text
         int port = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this)).getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
+        int clientCount = Utils.withLock(instance.mConnectedClientsLock.readLock(), () -> instance.mConnectedClients.size());
         String text = getResources().getQuantityString(
                 port < 0 ? R.plurals.main_service_notification_text_not_listening : R.plurals.main_service_notification_text_listening,
-                mConnectedClients.size(),
-                mConnectedClients.size());
+                clientCount,
+                clientCount);
 
         // notify!
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, getNotification(title, text, iconResource, isSilent, action));
