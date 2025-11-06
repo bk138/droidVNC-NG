@@ -11,6 +11,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.util.concurrent.locks.Lock
+import kotlin.concurrent.withLock
 
 object Utils {
 
@@ -95,6 +97,28 @@ object Utils {
     fun deleteRecursively(directory: String) {
         val directory = File(directory)
         directory.deleteRecursively()
+    }
+
+    /**
+     * Run action under lock with returning a value.
+     * Kotlin's kotlin.concurrent.withLock for Java.
+     */
+    @JvmStatic
+    fun <T> withLock(lock: Lock, action: () -> T): T {
+        return lock.withLock(action)
+    }
+
+    /**
+     * Run action under lock without returning a value.
+     */
+    @JvmStatic
+    fun withLock(lock: Lock, action: Runnable) {
+        lock.lock()
+        try {
+            action.run()
+        } finally {
+            lock.unlock()
+        }
     }
 
 }
