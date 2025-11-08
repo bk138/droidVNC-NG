@@ -37,7 +37,7 @@ set(JPEG_LIBRARY "${INSTALL_DIR}/lib/libturbojpeg.a" CACHE FILEPATH "")
 # LibVNC also does a test for libjpeg-turbo by looking at headers, in the configure phase these
 # are only available in its source dir.
 ExternalProject_Get_property(ep-libjpeg-turbo SOURCE_DIR)
-set(JPEG_INCLUDE_DIR ${SOURCE_DIR}  CACHE PATH "")
+set(JPEG_INCLUDE_DIR ${SOURCE_DIR}/src CACHE PATH "")
 # But: there are also generated headers needed in the build phase.
 include_directories(${INSTALL_DIR}/include)
 
