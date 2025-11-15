@@ -444,9 +444,24 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
     if(!theScreen || !theScreen->frameBuffer || !cBuf || bufSize < 0)
         return JNI_FALSE;
 
+    /* Lock out client reads. */
+    rfbClientIteratorPtr iterator;
+    rfbClientPtr cl;
+    iterator = rfbGetClientIterator(theScreen);
+    while ((cl = rfbClientIteratorNext(iterator))) {
+        LOCK(cl->sendMutex);
+    }
+    rfbReleaseClientIterator(iterator);
+
     // only comment in when needed
     //double t0 = getTime();
     memcpy(theScreen->frameBuffer, cBuf, bufSize);
+
+    iterator = rfbGetClientIterator(theScreen);
+    while ((cl = rfbClientIteratorNext(iterator))) {
+        UNLOCK(cl->sendMutex);
+    }
+    rfbReleaseClientIterator(iterator);
 
     // only comment in when needed
     //__android_log_print(ANDROID_LOG_DEBUG, TAG, "vncUpdateFramebuffer: copy took %.3f ms", (getTime()-t0)*1000);
