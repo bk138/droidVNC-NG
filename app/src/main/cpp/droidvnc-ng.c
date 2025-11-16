@@ -31,6 +31,8 @@ rfbScreenInfoPtr theScreen;
 jclass theInputService;
 jclass theMainService;
 JavaVM *theVM;
+/* Back buffer that is rendered to, swapped with the screen's framebuffer when done */
+char *backBuffer;
 
 /*
  * Modeled after rfbDefaultLog:
@@ -256,6 +258,8 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     rfbShutdownServer(theScreen, TRUE);
     free(theScreen->frameBuffer);
     theScreen->frameBuffer = NULL;
+    free(backBuffer);
+    backBuffer = NULL;
     free((char*)theScreen->desktopName); // always malloc'ed by us
     free(theScreen->httpDir); // always malloc'ed by us
     theScreen->desktopName = NULL;
@@ -289,7 +293,8 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     }
 
     theScreen->frameBuffer=(char*)calloc(width * height * 4, 1);
-    if(!theScreen->frameBuffer) {
+    backBuffer = (char*)calloc(width * height * 4, 1);
+    if(!theScreen->frameBuffer || !backBuffer) {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed allocating framebuffer");
         Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
         return JNI_FALSE;
@@ -418,9 +423,10 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncN
 {
     char *oldfb, *newfb;
 
-    if(!theScreen || !theScreen->frameBuffer)
+    if(!theScreen || !theScreen->frameBuffer || !backBuffer)
         return JNI_FALSE;
 
+    /* screen's framebuffer */
     oldfb = theScreen->frameBuffer;
     newfb = calloc(width * height * 4, 1);
     if(!newfb) {
@@ -431,6 +437,11 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncN
     rfbNewFramebuffer(theScreen, (char*)newfb, width, height, 8, 3, 4);
 
     free(oldfb);
+
+    /* back buffer */
+    free(backBuffer);
+    backBuffer = calloc(width * height * 4, 1);
+
     __android_log_print(ANDROID_LOG_INFO, TAG, "vncNewFramebuffer: allocated new framebuffer, %dx%d", width, height);
 
     return JNI_TRUE;
@@ -441,8 +452,17 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
     void *cBuf = (*env)->GetDirectBufferAddress(env, buf);
     jlong bufSize = (*env)->GetDirectBufferCapacity(env, buf);
 
-    if(!theScreen || !theScreen->frameBuffer || !cBuf || bufSize < 0)
+    if(!theScreen || !theScreen->frameBuffer || !backBuffer || !cBuf || bufSize < 0)
         return JNI_FALSE;
+
+    /*
+      Copy new frame to back buffer.
+    */
+    // only comment in when needed
+    //double t0 = getTime();
+    memcpy(backBuffer, cBuf, bufSize);
+    // only comment in when needed
+    //__android_log_print(ANDROID_LOG_DEBUG, TAG, "vncUpdateFramebuffer: copy took %.3f ms", (getTime()-t0)*1000);
 
     /* Lock out client reads. */
     rfbClientIteratorPtr iterator;
@@ -453,18 +473,16 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
     }
     rfbReleaseClientIterator(iterator);
 
-    // only comment in when needed
-    //double t0 = getTime();
-    memcpy(theScreen->frameBuffer, cBuf, bufSize);
+    /* Swap frame buffers. */
+    char *tmp = theScreen->frameBuffer;
+    theScreen->frameBuffer = backBuffer;
+    backBuffer = tmp;
 
     iterator = rfbGetClientIterator(theScreen);
     while ((cl = rfbClientIteratorNext(iterator))) {
         UNLOCK(cl->sendMutex);
     }
     rfbReleaseClientIterator(iterator);
-
-    // only comment in when needed
-    //__android_log_print(ANDROID_LOG_DEBUG, TAG, "vncUpdateFramebuffer: copy took %.3f ms", (getTime()-t0)*1000);
 
     rfbMarkRectAsModified(theScreen, 0, 0, theScreen->width, theScreen->height);
 
