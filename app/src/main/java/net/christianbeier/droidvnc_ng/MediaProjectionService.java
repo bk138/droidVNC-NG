@@ -181,6 +181,7 @@ public class MediaProjectionService extends Service {
         if(mMediaProjection == null)
             try {
                 mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mResultData);
+                Objects.requireNonNull(mMediaProjection).registerCallback(mMediaProjectionCallback, null);
             } catch (SecurityException e) {
                 Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
                 // This initiates a prompt dialog for the user to confirm screen projection.
@@ -188,16 +189,10 @@ public class MediaProjectionService extends Service {
                 mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(mediaProjectionRequestIntent);
                 return;
+            } catch (NullPointerException e) {
+                Log.e(TAG, "startScreenCapture: did not get a media projection, probably user denied");
+                return;
             }
-
-        if (mMediaProjection == null) {
-            Log.e(TAG, "startScreenCapture: did not get a media projection, probably user denied");
-            return;
-        }
-
-        // (Re)setup callback (we might come here several times on screen rotation)
-        mMediaProjection.unregisterCallback(mMediaProjectionCallback);
-        mMediaProjection.registerCallback(mMediaProjectionCallback, null);
 
         if (mImageReader != null)
             mImageReader.close();
