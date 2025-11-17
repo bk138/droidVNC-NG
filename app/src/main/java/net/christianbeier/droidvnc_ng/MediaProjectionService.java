@@ -21,7 +21,6 @@
 
 package net.christianbeier.droidvnc_ng;
 
-import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -177,8 +176,6 @@ public class MediaProjectionService extends Service {
         return START_NOT_STICKY;
     }
 
-
-    @SuppressLint("WrongConstant")
     private void startScreenCapture() {
 
         if(mMediaProjection == null)
