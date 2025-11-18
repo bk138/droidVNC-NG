@@ -178,6 +178,7 @@ public class MediaProjectionService extends Service {
 
     private void startScreenCapture() {
 
+        // init case
         if(mMediaProjection == null)
             try {
                 mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mResultData);
@@ -194,8 +195,12 @@ public class MediaProjectionService extends Service {
                 return;
             }
 
-        if (mImageReader != null)
+        // restart case
+        if (mImageReader != null) {
+            //  Important: detach image reader's surface from virtual display before closing
+            mVirtualDisplay.setSurface(null);
             mImageReader.close();
+        }
 
         final DisplayMetrics metrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
 
