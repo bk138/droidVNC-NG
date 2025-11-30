@@ -11,8 +11,8 @@ android {
         applicationId "net.christianbeier.droidvnc_ng"
         minSdk 24
         targetSdk 35
-        versionCode 54
-        versionName "2.16.1"
+        versionCode 55
+        versionName "2.17.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
