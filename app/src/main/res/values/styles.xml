@@ -18,7 +18,7 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
-    <style name="StartStopButtonStyle" parent="Widget.MaterialComponents.Button"/>
+    <style name="MainButtonStyle" parent="Widget.MaterialComponents.Button"/>
 
     <style name="ActionBarStyle" parent="Widget.MaterialComponents.Light.ActionBar.Solid">
         <item name="background">@color/colorPrimary</item>

@@ -510,7 +510,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
             android:text="@string/start"
-            style="@style/StartStopButtonStyle"
+            style="@style/MainButtonStyle"
             />
 
         <TextView
@@ -573,6 +573,7 @@
             android:layout_margin="10dp"
             android:layout_gravity="center_horizontal"
             android:text="@string/main_activity_survey_button"
+            style="@style/MainButtonStyle"
             />
 
     </LinearLayout>
