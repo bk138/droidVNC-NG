@@ -494,6 +494,8 @@ public class MainActivity extends AppCompatActivity {
             ed.putBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, b);
             ed.apply();
             startOnBootDelay.setEnabled(b);
+            // what's display in permissions display depends on the state of the just changed pref
+            updatePermissionsDisplay();
         });
 
         if(Build.VERSION.SDK_INT >= 33) {
@@ -816,19 +818,27 @@ public class MainActivity extends AppCompatActivity {
          */
         if (Build.VERSION.SDK_INT >= 30) {
             TextView startOnBootStatus = findViewById(R.id.permission_status_start_on_boot);
-            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot())
-                    && InputService.isConnected()) {
-                startOnBootStatus.setText(R.string.main_activity_granted);
-                startOnBootStatus.setTextColor(getColor(R.color.granted));
-                startOnBootStatus.setOnClickListener(null);
+            startOnBootStatus.setFocusable(false);
+            startOnBootStatus.setOnClickListener(null);
+            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot())) {
+                // start on boot wanted
+                if (InputService.isConnected()) {
+                    startOnBootStatus.setText(R.string.main_activity_granted);
+                    startOnBootStatus.setTextColor(getColor(R.color.granted));
+                } else {
+                    startOnBootStatus.setText(R.string.main_activity_denied);
+                    startOnBootStatus.setTextColor(getColor(R.color.denied));
+                    // wire this up only for denied status
+                    startOnBootStatus.setFocusable(true);
+                    startOnBootStatus.setOnClickListener(view -> InputRequestActivity.requestIfNeededAndPostResult(this,
+                            false,
+                            PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()),
+                            true));
+                }
             } else {
+                // start on boot not wanted
                 startOnBootStatus.setText(R.string.main_activity_denied);
                 startOnBootStatus.setTextColor(getColor(R.color.denied));
-                // wire this up only for denied status
-                startOnBootStatus.setOnClickListener(view -> InputRequestActivity.requestIfNeededAndPostResult(this,
-                        false,
-                        PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_START_ON_BOOT, mDefaults.getStartOnBoot()),
-                        true));
             }
         } else {
             findViewById(R.id.permission_row_start_on_boot).setVisibility(View.GONE);
