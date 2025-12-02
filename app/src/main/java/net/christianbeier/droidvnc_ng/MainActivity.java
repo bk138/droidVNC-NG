@@ -933,6 +933,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         updateAddressesDisplay();
+        updatePermissionsDisplay();
 
         // hide outbound connection interface
         findViewById(R.id.outbound_text).setVisibility(View.GONE);
