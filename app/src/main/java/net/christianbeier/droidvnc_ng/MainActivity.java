@@ -545,8 +545,19 @@ public class MainActivity extends AppCompatActivity {
             showPointers.setEnabled(!b);
         });
 
+        // Setup About text
+        SpannableString aboutText = new SpannableString(getString(R.string.main_activity_about, BuildConfig.VERSION_NAME));
+        int versionStart = getString(R.string.main_activity_about).indexOf("%1$s");
+        int versionEnd =  versionStart + BuildConfig.VERSION_NAME.length();
+        ClickableSpan versionSpan = new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View widget) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/bk138/droidVNC-NG/releases")));
+            }
+        };
+        aboutText.setSpan(versionSpan, versionStart, versionEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         TextView about = findViewById(R.id.about);
-        about.setText(getString(R.string.main_activity_about, BuildConfig.VERSION_NAME));
+        about.setText(aboutText);
 
         mMainServiceBroadcastReceiver = new BroadcastReceiver() {
             @Override
