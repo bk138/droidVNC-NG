@@ -496,6 +496,7 @@ public class MainActivity extends AppCompatActivity {
             ed.apply();
             startOnBootDelay.setEnabled(b);
             startOnBootDelay.setFocusable(b);
+            startOnBootDelay.setFocusableInTouchMode(b);
             // what's display in permissions display depends on the state of the just changed pref
             updatePermissionsDisplay();
         });
