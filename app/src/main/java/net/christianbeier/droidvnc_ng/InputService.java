@@ -678,11 +678,8 @@ public class InputService extends AccessibilityService {
                     return;
                 }
 
-                boolean supportsTextTraversal = false;
-                for (AccessibilityNodeInfo.AccessibilityAction a : currentFocusNode.getActionList()) {
-                    String className = currentFocusNode.getClassName().toString();
-                    supportsTextTraversal = className.equals("android.widget.EditText") || className.contains("TextField");
-                }
+                String className = currentFocusNode.getClassName().toString();
+                boolean supportsTextTraversal = className.equals("android.widget.EditText") || className.contains("TextField");
 
                 boolean shouldDoFocusTraversal = false;
                 if (supportsTextTraversal) {
