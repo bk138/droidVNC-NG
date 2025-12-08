@@ -645,97 +645,97 @@ public class InputService extends AccessibilityService {
 			/*
 			   DPAD Left/Right/Up/Down
 			 */
-			if ((keysym == 0xff51 || keysym == 0xff52 || keysym == 0xff53 || keysym == 0xff54) && down != 0) {
+            if ((keysym == 0xff51 || keysym == 0xff52 || keysym == 0xff53 || keysym == 0xff54) && down != 0) {
 
-			if (currentFocusNode == null) {
-				Log.w(TAG, "onKeyEvent: no focus node for display " + inputContext.getDisplayId() + ", trying to find one");
-				if (Build.VERSION.SDK_INT >= 30) {
-					for (AccessibilityWindowInfo window : instance.getWindows()) {
-						if (window.getDisplayId() == inputContext.getDisplayId()) {
-							AccessibilityNodeInfo focusableNode = findFocusableNode(window.getRoot());
-							if (focusableNode != null) {
-								focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-								currentFocusNode = focusableNode;
-								Log.i(TAG, "onKeyEvent: Found and focused a new node.");
-								break;
-							}
-						}
-					}
-				} else {
-					// Fallback for older APIs
-					AccessibilityNodeInfo rootNode = instance.getRootInActiveWindow();
-					AccessibilityNodeInfo focusableNode = findFocusableNode(rootNode);
-					if (focusableNode != null) {
-						focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-						currentFocusNode = focusableNode;
-						Log.i(TAG, "onKeyEvent: Found and focused a new node in the active window.");
-					}
-				}
-			}
+                if (currentFocusNode == null) {
+                    Log.w(TAG, "onKeyEvent: no focus node for display " + inputContext.getDisplayId() + ", trying to find one");
+                    if (Build.VERSION.SDK_INT >= 30) {
+                        for (AccessibilityWindowInfo window : instance.getWindows()) {
+                            if (window.getDisplayId() == inputContext.getDisplayId()) {
+                                AccessibilityNodeInfo focusableNode = findFocusableNode(window.getRoot());
+                                if (focusableNode != null) {
+                                    focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                                    currentFocusNode = focusableNode;
+                                    Log.i(TAG, "onKeyEvent: Found and focused a new node.");
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        // Fallback for older APIs
+                        AccessibilityNodeInfo rootNode = instance.getRootInActiveWindow();
+                        AccessibilityNodeInfo focusableNode = findFocusableNode(rootNode);
+                        if (focusableNode != null) {
+                            focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                            currentFocusNode = focusableNode;
+                            Log.i(TAG, "onKeyEvent: Found and focused a new node in the active window.");
+                        }
+                    }
+                }
 
-			if (currentFocusNode == null) {
-				Log.e(TAG, "onKeyEvent: Could not find any focusable node on display " + inputContext.getDisplayId() + ". Ignoring key event.");
-				return;
-			}
+                if (currentFocusNode == null) {
+                    Log.e(TAG, "onKeyEvent: Could not find any focusable node on display " + inputContext.getDisplayId() + ". Ignoring key event.");
+                    return;
+                }
 
-				boolean supportsTextTraversal = false;
-				for (AccessibilityNodeInfo.AccessibilityAction a : currentFocusNode.getActionList()) {
-					String className = currentFocusNode.getClassName().toString();
-					supportsTextTraversal = className.equals("android.widget.EditText") || className.contains("TextField");
-				}
+                boolean supportsTextTraversal = false;
+                for (AccessibilityNodeInfo.AccessibilityAction a : currentFocusNode.getActionList()) {
+                    String className = currentFocusNode.getClassName().toString();
+                    supportsTextTraversal = className.equals("android.widget.EditText") || className.contains("TextField");
+                }
 
-				boolean shouldDoFocusTraversal = false;
-				if (supportsTextTraversal) {
-					// Check if we're at text boundaries and should traverse focus instead
-					CharSequence text = currentFocusNode.getText();
-					int cursorPos = getCursorPos(currentFocusNode);
-					int textLength = (text != null) ? text.length() : 0;
+                boolean shouldDoFocusTraversal = false;
+                if (supportsTextTraversal) {
+                    // Check if we're at text boundaries and should traverse focus instead
+                    CharSequence text = currentFocusNode.getText();
+                    int cursorPos = getCursorPos(currentFocusNode);
+                    int textLength = (text != null) ? text.length() : 0;
 
-					// Left: traverse focus if cursor is at beginning
-					if (keysym == 0xff51 && cursorPos == 0) {
-						shouldDoFocusTraversal = true;
-					}
-					// Right: traverse focus if cursor is at end
-					else if (keysym == 0xff53 && cursorPos == textLength) {
-						shouldDoFocusTraversal = true;
-					}
-					// Up/Down: for multi-line text, we'd need line info which is harder to get
-					// For now, always allow Up/Down to traverse out of text fields
-					else if (keysym == 0xff52 || keysym == 0xff54) {
-						shouldDoFocusTraversal = true;
-					}
-				}
+                    // Left: traverse focus if cursor is at beginning
+                    if (keysym == 0xff51 && cursorPos == 0) {
+                        shouldDoFocusTraversal = true;
+                    }
+                    // Right: traverse focus if cursor is at end
+                    else if (keysym == 0xff53 && cursorPos == textLength) {
+                        shouldDoFocusTraversal = true;
+                    }
+                    // Up/Down: for multi-line text, we'd need line info which is harder to get
+                    // For now, always allow Up/Down to traverse out of text fields
+                    else if (keysym == 0xff52 || keysym == 0xff54) {
+                        shouldDoFocusTraversal = true;
+                    }
+                }
 
-				if (supportsTextTraversal && !shouldDoFocusTraversal) {
-					// Text Traversal
-					Bundle action = new Bundle();
-					int granularity = (keysym == 0xff51 || keysym == 0xff53) ?
-							AccessibilityNodeInfo.MOVEMENT_GRANULARITY_CHARACTER :
-							AccessibilityNodeInfo.MOVEMENT_GRANULARITY_LINE;
-					action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT, granularity);
-					action.putBoolean(AccessibilityNodeInfo.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN, false);
+                if (supportsTextTraversal && !shouldDoFocusTraversal) {
+                    // Text Traversal
+                    Bundle action = new Bundle();
+                    int granularity = (keysym == 0xff51 || keysym == 0xff53) ?
+                            AccessibilityNodeInfo.MOVEMENT_GRANULARITY_CHARACTER :
+                            AccessibilityNodeInfo.MOVEMENT_GRANULARITY_LINE;
+                    action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT, granularity);
+                    action.putBoolean(AccessibilityNodeInfo.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN, false);
 
-					if(keysym == 0xff51 || keysym == 0xff52)
-						Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY.getId(), action);
-					else
-						Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_NEXT_AT_MOVEMENT_GRANULARITY.getId(), action);
-				} else {
-					// Focus Traversal
-					int direction = 0;
-					if(keysym == 0xff51) direction = View.FOCUS_LEFT;
-					if(keysym == 0xff52) direction = View.FOCUS_UP;
-					if(keysym == 0xff53) direction = View.FOCUS_RIGHT;
-					if(keysym == 0xff54) direction = View.FOCUS_DOWN;
-					AccessibilityNodeInfo nextFocus = Objects.requireNonNull(currentFocusNode).focusSearch(direction);
-					if (nextFocus != null) {
-						Log.d(TAG, "onKeyEvent: Focus changed");
-						nextFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-						nextFocus.recycle();
-					} else {
-						Log.d(TAG, "onKeyEvent: No suitable focus change found");
-					}
-				}
-			}
+                    if (keysym == 0xff51 || keysym == 0xff52)
+                        Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY.getId(), action);
+                    else
+                        Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_NEXT_AT_MOVEMENT_GRANULARITY.getId(), action);
+                } else {
+                    // Focus Traversal
+                    int direction = 0;
+                    if (keysym == 0xff51) direction = View.FOCUS_LEFT;
+                    if (keysym == 0xff52) direction = View.FOCUS_UP;
+                    if (keysym == 0xff53) direction = View.FOCUS_RIGHT;
+                    if (keysym == 0xff54) direction = View.FOCUS_DOWN;
+                    AccessibilityNodeInfo nextFocus = Objects.requireNonNull(currentFocusNode).focusSearch(direction);
+                    if (nextFocus != null) {
+                        Log.d(TAG, "onKeyEvent: Focus changed");
+                        nextFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                        nextFocus.recycle();
+                    } else {
+                        Log.d(TAG, "onKeyEvent: No suitable focus change found");
+                    }
+                }
+            }
 
 			/*
 			    Backspace/Delete
