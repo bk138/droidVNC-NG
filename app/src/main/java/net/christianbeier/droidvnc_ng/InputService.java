@@ -678,32 +678,12 @@ public class InputService extends AccessibilityService {
                     return;
                 }
 
-                String className = currentFocusNode.getClassName().toString();
-                boolean supportsTextTraversal = className.equals("android.widget.EditText") || className.contains("TextField");
-
-                boolean shouldDoFocusTraversal = false;
-                if (supportsTextTraversal) {
-                    // Check if we're at text boundaries and should traverse focus instead
-                    CharSequence text = currentFocusNode.getText();
-                    int cursorPos = getCursorPos(currentFocusNode);
-                    int textLength = (text != null) ? text.length() : 0;
-
-                    // Left: traverse focus if cursor is at beginning
-                    if (keysym == 0xff51 && cursorPos == 0) {
-                        shouldDoFocusTraversal = true;
-                    }
-                    // Right: traverse focus if cursor is at end
-                    else if (keysym == 0xff53 && cursorPos == textLength) {
-                        shouldDoFocusTraversal = true;
-                    }
-                    // Up/Down: for multi-line text, we'd need line info which is harder to get
-                    // For now, always allow Up/Down to traverse out of text fields
-                    else if (keysym == 0xff52 || keysym == 0xff54) {
-                        shouldDoFocusTraversal = true;
-                    }
-                }
-
-                if (supportsTextTraversal && !shouldDoFocusTraversal) {
+                /*
+                    Try do to text traversal first, if this does not happen due the widget not being
+                    editable or text at end, do focus traversal.
+                 */
+                boolean didTextTraversal = false;
+                if (currentFocusNode.isEditable()) {
                     // Text Traversal
                     Bundle action = new Bundle();
                     int granularity = (keysym == 0xff51 || keysym == 0xff53) ?
@@ -713,10 +693,12 @@ public class InputService extends AccessibilityService {
                     action.putBoolean(AccessibilityNodeInfo.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN, false);
 
                     if (keysym == 0xff51 || keysym == 0xff52)
-                        Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY.getId(), action);
+                        didTextTraversal = currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY.getId(), action);
                     else
-                        Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_NEXT_AT_MOVEMENT_GRANULARITY.getId(), action);
-                } else {
+                        didTextTraversal = currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_NEXT_AT_MOVEMENT_GRANULARITY.getId(), action);
+                }
+
+                if (!didTextTraversal) {
                     // Focus Traversal
                     int direction = 0;
                     if (keysym == 0xff51) direction = View.FOCUS_LEFT;
