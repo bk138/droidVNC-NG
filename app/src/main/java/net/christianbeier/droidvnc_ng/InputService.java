@@ -738,10 +738,10 @@ public class InputService extends AccessibilityService {
 			 */
 			if (keysym == 0xff0d && down != 0) {
 				Bundle action = new Bundle();
-				if (Build.VERSION.SDK_INT >= 30 && currentFocusNode.getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER)) {
+				if (Build.VERSION.SDK_INT >= 30 && Objects.requireNonNull(currentFocusNode).getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER)) {
 					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.getId(), action);
 				}
-				if (currentFocusNode.getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)) {
+				if (Objects.requireNonNull(currentFocusNode).getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)) {
 					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.getId(), action);
 				}
 			}
