@@ -649,27 +649,11 @@ public class InputService extends AccessibilityService {
 
                 if (currentFocusNode == null) {
                     Log.w(TAG, "onKeyEvent: no focus node for display " + inputContext.getDisplayId() + ", trying to find one");
-                    if (Build.VERSION.SDK_INT >= 30) {
-                        for (AccessibilityWindowInfo window : instance.getWindows()) {
-                            if (window.getDisplayId() == inputContext.getDisplayId()) {
-                                AccessibilityNodeInfo focusableNode = findFocusableNode(window.getRoot());
-                                if (focusableNode != null) {
-                                    focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-                                    currentFocusNode = focusableNode;
-                                    Log.i(TAG, "onKeyEvent: Found and focused a new node.");
-                                    break;
-                                }
-                            }
-                        }
-                    } else {
-                        // Fallback for older APIs
-                        AccessibilityNodeInfo rootNode = instance.getRootInActiveWindow();
-                        AccessibilityNodeInfo focusableNode = findFocusableNode(rootNode);
-                        if (focusableNode != null) {
-                            focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-                            currentFocusNode = focusableNode;
-                            Log.i(TAG, "onKeyEvent: Found and focused a new node in the active window.");
-                        }
+                    AccessibilityNodeInfo focusableNode = findFocusableNodeFromRoot(inputContext.getDisplayId());
+                    if (focusableNode != null) {
+                        focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                        currentFocusNode = focusableNode;
+                        Log.i(TAG, "onKeyEvent: Found and focused a new node.");
                     }
                 }
 
@@ -1075,6 +1059,19 @@ public class InputService extends AccessibilityService {
 		action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, cursorPos);
 		node.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_SELECTION.getId(), action);
 	}
+
+    private static AccessibilityNodeInfo findFocusableNodeFromRoot(int displayId) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            for (AccessibilityWindowInfo window : instance.getWindows()) {
+                if (window.getDisplayId() == displayId) {
+                    return findFocusableNode(window.getRoot());
+                }
+            }
+        } else {
+            return findFocusableNode(instance.getRootInActiveWindow());
+        }
+        return null;
+    }
 
 	private static AccessibilityNodeInfo findFocusableNode(AccessibilityNodeInfo node) {
 		if (node == null) {
