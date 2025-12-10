@@ -479,7 +479,7 @@ public class InputService extends AccessibilityService {
 					if (keysym == 0xff63) keyCode = KeyEvent.KEYCODE_INSERT;
 					// Enter
 					if (keysym == 0xff0d) keyCode = KeyEvent.KEYCODE_ENTER;
-					// Tab - the AccessibilityNodeInfo approach does not have this
+					// Tab
 					if (keysym == 0xff09) keyCode = KeyEvent.KEYCODE_TAB;
 					// PageUp/PageDown - the AccessibilityNodeInfo approach does not have this
 					if (keysym == 0xff55) keyCode = KeyEvent.KEYCODE_PAGE_UP;
@@ -704,6 +704,43 @@ public class InputService extends AccessibilityService {
                         } else {
                             Log.w(TAG, "onKeyEvent: no new focus found");
                         }
+                    }
+                }
+            }
+
+            /*
+                Tab
+            */
+            if (keysym == 0xff09 && down != 0) {
+                if (currentFocusNode == null) {
+                    Log.w(TAG, "onKeyEvent: no focus node for display " + inputContext.getDisplayId() + ", trying to find one");
+                    AccessibilityNodeInfo focusableNode = findFocusableNodeFromRoot(inputContext.getDisplayId());
+                    if (focusableNode != null) {
+                        focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                        currentFocusNode = focusableNode;
+                        Log.i(TAG, "onKeyEvent: Found and focused a new node.");
+                    }
+                }
+
+                if (currentFocusNode == null) {
+                    Log.e(TAG, "onKeyEvent: Could not find any focusable node on display " + inputContext.getDisplayId() + ". Ignoring key event.");
+                    return;
+                }
+
+                AccessibilityNodeInfo nextFocus = currentFocusNode.focusSearch(View.FOCUS_FORWARD);
+                if (nextFocus != null) {
+                    boolean focusChanged = nextFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                    nextFocus.recycle();
+                    Log.d(TAG, "onKeyEvent: next focus found, change: " + focusChanged);
+                } else {
+                    Log.d(TAG, "onKeyEvent: no next focus found, looking for new one");
+                    AccessibilityNodeInfo newFocus = findFocusableNodeFromRoot(inputContext.getDisplayId());
+                    if (newFocus != null) {
+                        boolean focusChanged = newFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                        newFocus.recycle();
+                        Log.d(TAG, "onKeyEvent: new focus found, change: " + focusChanged);
+                    } else {
+                        Log.w(TAG, "onKeyEvent: no new focus found");
                     }
                 }
             }
