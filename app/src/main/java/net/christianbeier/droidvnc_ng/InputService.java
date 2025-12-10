@@ -689,13 +689,21 @@ public class InputService extends AccessibilityService {
                     if (keysym == 0xff52) direction = View.FOCUS_UP;
                     if (keysym == 0xff53) direction = View.FOCUS_RIGHT;
                     if (keysym == 0xff54) direction = View.FOCUS_DOWN;
-                    AccessibilityNodeInfo nextFocus = Objects.requireNonNull(currentFocusNode).focusSearch(direction);
+                    AccessibilityNodeInfo nextFocus = currentFocusNode.focusSearch(direction);
                     if (nextFocus != null) {
-                        Log.d(TAG, "onKeyEvent: Focus changed");
-                        nextFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                        boolean focusChanged = nextFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
                         nextFocus.recycle();
+                        Log.d(TAG, "onKeyEvent: next focus found, change: " + focusChanged);
                     } else {
-                        Log.d(TAG, "onKeyEvent: No suitable focus change found");
+                        Log.d(TAG, "onKeyEvent: no next focus found, looking for new one");
+                        AccessibilityNodeInfo newFocus = findFocusableNodeFromRoot(inputContext.getDisplayId());
+                        if (newFocus != null ) {
+                            boolean focusChanged = newFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                            newFocus.recycle();
+                            Log.d(TAG, "onKeyEvent: new focus found, change: " + focusChanged);
+                        } else {
+                            Log.w(TAG, "onKeyEvent: no new focus found");
+                        }
                     }
                 }
             }
