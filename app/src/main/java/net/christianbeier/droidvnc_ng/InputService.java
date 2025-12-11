@@ -779,7 +779,7 @@ public class InputService extends AccessibilityService {
 			}
 
 			/*
-			    Enter, doing ACTION_IME_ENTER or ACTION_CLICK
+			    Enter, doing ACTION_IME_ENTER or ACTION_CLICK or GLOBAL_ACTION_DPAD_CENTER
 			 */
 			if (keysym == 0xff0d && down != 0) {
 				Bundle action = new Bundle();
