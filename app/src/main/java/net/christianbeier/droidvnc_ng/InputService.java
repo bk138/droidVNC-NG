@@ -139,7 +139,9 @@ public class InputService extends AccessibilityService {
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event) {
 		try {
-			Log.d(TAG, "onAccessibilityEvent: " + event);
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "onAccessibilityEvent: " + event);
+            }
 
 			int displayId;
 			if (Build.VERSION.SDK_INT >= 30) {
