@@ -648,63 +648,80 @@ public class InputService extends AccessibilityService {
 			   DPAD Left/Right/Up/Down
 			 */
             if ((keysym == 0xff51 || keysym == 0xff52 || keysym == 0xff53 || keysym == 0xff54) && down != 0) {
-
-                if (currentFocusNode == null) {
-                    Log.w(TAG, "onKeyEvent: no focus node for display " + inputContext.getDisplayId() + ", trying to find one");
-                    AccessibilityNodeInfo focusableNode = findFocusableNodeFromRoot(inputContext.getDisplayId());
-                    if (focusableNode != null) {
-                        focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-                        currentFocusNode = focusableNode;
-                        Log.i(TAG, "onKeyEvent: Found and focused a new node.");
+                if (Build.VERSION.SDK_INT >= 33) {
+                    // On API 33 and newer, simply send DPAD events and leave choice of text vs focus
+                    // traversal to the system
+                    if (keysym == 0xff51) {
+                        instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_DPAD_LEFT);
                     }
-                }
+                    if (keysym == 0xff52) {
+                        instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_DPAD_UP);
+                    }
+                    if (keysym == 0xff53) {
+                        instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_DPAD_RIGHT);
+                    }
+                    if (keysym == 0xff54) {
+                        instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_DPAD_DOWN);
+                    }
+                } else {
+                    // On API before 33, do text/focus traversal
+                    if (currentFocusNode == null) {
+                        Log.w(TAG, "onKeyEvent: no focus node for display " + inputContext.getDisplayId() + ", trying to find one");
+                        AccessibilityNodeInfo focusableNode = findFocusableNodeFromRoot(inputContext.getDisplayId());
+                        if (focusableNode != null) {
+                            focusableNode.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                            currentFocusNode = focusableNode;
+                            Log.i(TAG, "onKeyEvent: Found and focused a new node.");
+                        }
+                    }
 
-                if (currentFocusNode == null) {
-                    Log.e(TAG, "onKeyEvent: Could not find any focusable node on display " + inputContext.getDisplayId() + ". Ignoring key event.");
-                    return;
-                }
+                    if (currentFocusNode == null) {
+                        Log.e(TAG, "onKeyEvent: Could not find any focusable node on display " + inputContext.getDisplayId() + ". Ignoring key event.");
+                        return;
+                    }
 
-                /*
-                    Try do to text traversal first, if this does not happen due the widget not being
-                    editable or text at end, do focus traversal.
-                 */
-                boolean didTextTraversal = false;
-                if (currentFocusNode.isEditable()) {
-                    // Text Traversal
-                    Bundle action = new Bundle();
-                    int granularity = (keysym == 0xff51 || keysym == 0xff53) ?
-                            AccessibilityNodeInfo.MOVEMENT_GRANULARITY_CHARACTER :
-                            AccessibilityNodeInfo.MOVEMENT_GRANULARITY_LINE;
-                    action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT, granularity);
-                    action.putBoolean(AccessibilityNodeInfo.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN, false);
+                   /*
+                       Try do to text traversal first, if this does not happen due the widget not being
+                       editable or text at end, do focus traversal.
+                    */
+                    boolean didTextTraversal = false;
+                    if (currentFocusNode.isEditable()) {
+                        // Text Traversal
+                        Bundle action = new Bundle();
+                        int granularity = (keysym == 0xff51 || keysym == 0xff53) ?
+                                AccessibilityNodeInfo.MOVEMENT_GRANULARITY_CHARACTER :
+                                AccessibilityNodeInfo.MOVEMENT_GRANULARITY_LINE;
+                        action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT, granularity);
+                        action.putBoolean(AccessibilityNodeInfo.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN, false);
 
-                    if (keysym == 0xff51 || keysym == 0xff52)
-                        didTextTraversal = currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY.getId(), action);
-                    else
-                        didTextTraversal = currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_NEXT_AT_MOVEMENT_GRANULARITY.getId(), action);
-                }
+                        if (keysym == 0xff51 || keysym == 0xff52)
+                            didTextTraversal = currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY.getId(), action);
+                        else
+                            didTextTraversal = currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_NEXT_AT_MOVEMENT_GRANULARITY.getId(), action);
+                    }
 
-                if (!didTextTraversal) {
-                    // Focus Traversal
-                    int direction = 0;
-                    if (keysym == 0xff51) direction = View.FOCUS_LEFT;
-                    if (keysym == 0xff52) direction = View.FOCUS_UP;
-                    if (keysym == 0xff53) direction = View.FOCUS_RIGHT;
-                    if (keysym == 0xff54) direction = View.FOCUS_DOWN;
-                    AccessibilityNodeInfo nextFocus = currentFocusNode.focusSearch(direction);
-                    if (nextFocus != null) {
-                        boolean focusChanged = nextFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-                        nextFocus.recycle();
-                        Log.d(TAG, "onKeyEvent: next focus found, change: " + focusChanged);
-                    } else {
-                        Log.d(TAG, "onKeyEvent: no next focus found, looking for new one");
-                        AccessibilityNodeInfo newFocus = findFocusableNodeFromRoot(inputContext.getDisplayId());
-                        if (newFocus != null ) {
-                            boolean focusChanged = newFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-                            newFocus.recycle();
-                            Log.d(TAG, "onKeyEvent: new focus found, change: " + focusChanged);
+                    if (!didTextTraversal) {
+                        // Focus Traversal
+                        int direction = 0;
+                        if (keysym == 0xff51) direction = View.FOCUS_LEFT;
+                        if (keysym == 0xff52) direction = View.FOCUS_UP;
+                        if (keysym == 0xff53) direction = View.FOCUS_RIGHT;
+                        if (keysym == 0xff54) direction = View.FOCUS_DOWN;
+                        AccessibilityNodeInfo nextFocus = currentFocusNode.focusSearch(direction);
+                        if (nextFocus != null) {
+                            boolean focusChanged = nextFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                            nextFocus.recycle();
+                            Log.d(TAG, "onKeyEvent: next focus found, change: " + focusChanged);
                         } else {
-                            Log.w(TAG, "onKeyEvent: no new focus found");
+                            Log.d(TAG, "onKeyEvent: no next focus found, looking for new one");
+                            AccessibilityNodeInfo newFocus = findFocusableNodeFromRoot(inputContext.getDisplayId());
+                            if (newFocus != null) {
+                                boolean focusChanged = newFocus.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                                newFocus.recycle();
+                                Log.d(TAG, "onKeyEvent: new focus found, change: " + focusChanged);
+                            } else {
+                                Log.w(TAG, "onKeyEvent: no new focus found");
+                            }
                         }
                     }
                 }
