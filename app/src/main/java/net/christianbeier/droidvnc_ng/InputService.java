@@ -365,7 +365,9 @@ public class InputService extends AccessibilityService {
 			return;
 		}
 
-		Log.d(TAG, "onKeyEvent: keysym 0x" + Long.toHexString(keysym) + " down " + down + " by client " + client);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onKeyEvent: keysym 0x" + Long.toHexString(keysym) + " down " + down + " by client " + client);
+        }
 
 		try {
 			InputContext inputContext = instance.mInputContexts.get(client);
@@ -838,7 +840,9 @@ public class InputService extends AccessibilityService {
 			return;
 		}
 
-		Log.d(TAG, "onCutText: text '" + text + "' by client " + client);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onCutText: text '" + text + "' by client " + client);
+        }
 
 		try {
 			instance.mMainHandler.post(() -> {
