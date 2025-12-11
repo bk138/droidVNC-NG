@@ -785,11 +785,13 @@ public class InputService extends AccessibilityService {
 				Bundle action = new Bundle();
 				if (Build.VERSION.SDK_INT >= 30 && Objects.requireNonNull(currentFocusNode).getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER)) {
 					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.getId(), action);
-				}
-				if (Objects.requireNonNull(currentFocusNode).getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)) {
+				} else if (Objects.requireNonNull(currentFocusNode).getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)) {
 					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.getId(), action);
-				}
-			}
+				} else if (Build.VERSION.SDK_INT >= 33) {
+                    // do this after ACTION_IME_ENTER and ACTION_CLICK are tried
+                    instance.performGlobalAction(GLOBAL_ACTION_DPAD_CENTER);
+                }
+            }
 
 			/*
 			    ISO-8859-1 input
