@@ -471,7 +471,7 @@ public class InputService extends AccessibilityService {
 					//  Left/Right
 					if (keysym == 0xff51) keyCode = KeyEvent.KEYCODE_DPAD_LEFT;
 					if (keysym == 0xff53) keyCode = KeyEvent.KEYCODE_DPAD_RIGHT;
-					//  Up/Down - the AccessibilityNodeInfo approach does not have this
+					//  Up/Down
 					if (keysym == 0xff52) keyCode = KeyEvent.KEYCODE_DPAD_UP;
 					if (keysym == 0xff54) keyCode = KeyEvent.KEYCODE_DPAD_DOWN;
 					// Backspace/Delete
