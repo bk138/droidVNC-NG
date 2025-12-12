@@ -5,6 +5,9 @@ import android.hardware.display.DisplayManager
 import android.os.Build
 import android.provider.Settings
 import android.util.DisplayMetrics
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
@@ -97,6 +100,21 @@ object Utils {
     fun deleteRecursively(directory: String) {
         val directory = File(directory)
         directory.deleteRecursively()
+    }
+
+    /**
+     * Rename a file. Does not overwrite!
+     */
+    @JvmStatic
+    fun rename(src: String, dst: String): Boolean {
+        return File(src).renameTo(File(dst))
+    }
+
+    @JvmStatic
+    fun runOnIoThread(runnable: Runnable) {
+        CoroutineScope(Dispatchers.IO).launch {
+            runnable.run()
+        }
     }
 
     /**
