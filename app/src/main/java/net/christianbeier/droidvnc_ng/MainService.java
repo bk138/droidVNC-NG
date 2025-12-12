@@ -276,9 +276,16 @@ public class MainService extends Service {
         /*
             Copy embedded HTML VNC client to directory accessible by embedded HTTP server.
          */
-        String clientPath = getFilesDir().getAbsolutePath() + File.separator + "novnc";
-        Utils.deleteRecursively(clientPath);
-        Utils.copyAssetsToDir(this, "novnc", clientPath);
+        Utils.runOnIoThread(() -> {
+            String clientPath = getFilesDir().getAbsolutePath() + File.separator + "novnc";
+            String clientPathTmp = getFilesDir().getAbsolutePath() + File.separator + "novnc_new";
+            // use a temporary output path...
+            Utils.deleteRecursively(clientPathTmp);
+            Utils.copyAssetsToDir(this, "novnc", clientPathTmp);
+            // ...and final rename to minimise the time window the final dir has incomplete data
+            Utils.deleteRecursively(clientPath);
+            Utils.rename(clientPathTmp, clientPath);
+        });
     }
 
 
