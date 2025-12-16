@@ -78,6 +78,8 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -987,13 +989,12 @@ public class MainActivity extends AppCompatActivity {
         stopGettingClientList();
 
         TableLayout connectionsTable = findViewById(R.id.connectionsTable);
-
+        final Map<Pair<Long,String>, View> connectionsViews = new HashMap<>();
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
         mClientListBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                connectionsTable.removeAllViews();
                 ClientList clientList = ClientList.fromJson(intent.getStringExtra(MainService.EXTRA_CLIENTS));
                 if(clientList.getClients().isEmpty()) {
                     // hide connections list
@@ -1004,8 +1005,42 @@ public class MainActivity extends AppCompatActivity {
                     findViewById(R.id.connectionsHeading).setVisibility(View.VISIBLE);
                     findViewById(R.id.connectionsTable).setVisibility(View.VISIBLE);
                 }
+                // remove connections not in client list anymore
+                Iterator<Map.Entry<Pair<Long, String>, View>> connectionViewsIterator = connectionsViews.entrySet().iterator();
+                while (connectionViewsIterator.hasNext()) {
+                    Map.Entry<Pair<Long, String>, View> connectionViewsEntry = connectionViewsIterator.next();
+                    boolean found = false;
+                    for (ClientList.Client client : clientList.getClients()) {
+                        if (connectionViewsEntry.getKey().first != null && connectionViewsEntry.getKey().first.equals(client.getConnectionId())
+                                || connectionViewsEntry.getKey().second != null && connectionViewsEntry.getKey().second.equals(client.getRequestId())) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        connectionsTable.removeView(connectionViewsEntry.getValue());
+                        connectionViewsIterator.remove();
+                    }
+                }
+
+                // add or update connections
                 for (ClientList.Client client : clientList.getClients()) {
-                    View connectionRow = getLayoutInflater().inflate(R.layout.row_connection, connectionsTable, false);
+                    View connectionRow = null;
+                    for (Map.Entry<Pair<Long, String>, View> connectionViewsEntry : connectionsViews.entrySet()) {
+                        if (connectionViewsEntry.getKey().first != null && connectionViewsEntry.getKey().first.equals(client.getConnectionId())
+                                || connectionViewsEntry.getKey().second != null && connectionViewsEntry.getKey().second.equals(client.getRequestId())) {
+                            // cached view found, use that
+                            connectionRow = connectionViewsEntry.getValue();
+                            break;
+                        }
+                    }
+                    if (connectionRow == null) {
+                        // none found, make a new one
+                        connectionRow = getLayoutInflater().inflate(R.layout.row_connection, connectionsTable, false);
+                        connectionsTable.addView(connectionRow);
+                        connectionsViews.put(new Pair<>(client.getConnectionId(), client.getRequestId()), connectionRow);
+                    }
+
                     TextView description = connectionRow.findViewById(R.id.description);
                     /*
                         Fill description according to client setup
@@ -1050,7 +1085,6 @@ public class MainActivity extends AppCompatActivity {
                         ContextCompat.startForegroundService(MainActivity.this, disconnectIntent);
                         return true;
                     });
-                    connectionsTable.addView(connectionRow);
                 }
             }
         };
