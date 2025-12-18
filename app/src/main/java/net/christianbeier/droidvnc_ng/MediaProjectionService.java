@@ -198,7 +198,9 @@ public class MediaProjectionService extends Service {
         // restart case
         if (mImageReader != null) {
             //  Important: detach image reader's surface from virtual display before closing
-            mVirtualDisplay.setSurface(null);
+            if (mVirtualDisplay != null) {
+                mVirtualDisplay.setSurface(null);
+            }
             mImageReader.close();
         }
 
