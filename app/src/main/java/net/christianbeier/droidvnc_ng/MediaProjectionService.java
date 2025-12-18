@@ -278,6 +278,13 @@ public class MediaProjectionService extends Service {
                 startActivity(mediaProjectionRequestIntent);
             }
 
+            // tell MainService that MediaProjection is up
+            Intent intent = new Intent(MediaProjectionService.this, MainService.class);
+            intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
+            intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(MediaProjectionService.this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(MediaProjectionService.this).getAccessKey()));
+            intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_STATE, true); // on
+            ContextCompat.startForegroundService(MediaProjectionService.this, intent);
+
             return;
         }
 
