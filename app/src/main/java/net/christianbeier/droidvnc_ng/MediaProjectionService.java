@@ -345,6 +345,15 @@ public class MediaProjectionService extends Service {
     }
 
     private void stopScreenCapture() {
+        if (mImageReader != null) {
+            //  Important: detach image reader's surface from virtual display before closing
+            if (mVirtualDisplay != null) {
+                mVirtualDisplay.setSurface(null);
+            }
+            mImageReader.close();
+            mImageReader = null;
+        }
+
         try {
             mVirtualDisplay.release();
             mVirtualDisplay = null;
