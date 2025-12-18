@@ -276,6 +276,7 @@ public class MediaProjectionService extends Service {
                 Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
                 mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(mediaProjectionRequestIntent);
+                return; // no telling MainService just yet
             }
 
             // tell MainService that MediaProjection is up
@@ -332,6 +333,7 @@ public class MediaProjectionService extends Service {
             Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
             mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(mediaProjectionRequestIntent);
+            return; // no telling MainService just yet
         }
 
         // tell MainService that MediaProjection is up
