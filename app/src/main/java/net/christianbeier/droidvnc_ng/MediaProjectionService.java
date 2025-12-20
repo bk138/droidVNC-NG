@@ -121,11 +121,7 @@ public class MediaProjectionService extends Service {
 
                 if(MainService.isServerActive()) {
                     // tell MainService, it will take care of stopping us and maybe use a fallback
-                    Intent intent = new Intent(MediaProjectionService.this, MainService.class);
-                    intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
-                    intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(MediaProjectionService.this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(MediaProjectionService.this).getAccessKey()));
-                    intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_STATE, false); // off
-                    ContextCompat.startForegroundService(MediaProjectionService.this, intent);
+                    postResult(false);
                 }
             }
 
@@ -184,11 +180,9 @@ public class MediaProjectionService extends Service {
                 mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mResultData);
                 Objects.requireNonNull(mMediaProjection).registerCallback(mMediaProjectionCallback, null);
             } catch (SecurityException e) {
-                Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
-                // This initiates a prompt dialog for the user to confirm screen projection.
-                Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
-                mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(mediaProjectionRequestIntent);
+                Log.w(TAG, "startScreenCapture: got SecurityException", e);
+                // tell MainService, it will take care of stopping us and maybe use a fallback
+                postResult(false);
                 return;
             } catch (NullPointerException e) {
                 Log.e(TAG, "startScreenCapture: did not get a media projection, probably user denied");
@@ -273,21 +267,14 @@ public class MediaProjectionService extends Service {
                     mVirtualDisplay.setSurface(mImageReader.getSurface());
                 }
             } catch (SecurityException e) {
-                Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
-                // This initiates a prompt dialog for the user to confirm screen projection.
-                Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
-                mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(mediaProjectionRequestIntent);
-                return; // no telling MainService just yet
+                Log.w(TAG, "startScreenCapture: got SecurityException", e);
+                // tell MainService, it will take care of stopping us and maybe use a fallback
+                postResult(false);
+                return;
             }
 
             // tell MainService that MediaProjection is up
-            Intent intent = new Intent(MediaProjectionService.this, MainService.class);
-            intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
-            intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(MediaProjectionService.this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(MediaProjectionService.this).getAccessKey()));
-            intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_STATE, true); // on
-            ContextCompat.startForegroundService(MediaProjectionService.this, intent);
-
+            postResult(true);
             return;
         }
 
@@ -330,20 +317,14 @@ public class MediaProjectionService extends Service {
                 mVirtualDisplay.setSurface(mImageReader.getSurface());
             }
         } catch (SecurityException e) {
-            Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
-            // This initiates a prompt dialog for the user to confirm screen projection.
-            Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
-            mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(mediaProjectionRequestIntent);
-            return; // no telling MainService just yet
+            Log.w(TAG, "startScreenCapture: got SecurityException", e);
+            // tell MainService, it will take care of stopping us and maybe use a fallback
+            postResult(false);
+            return;
         }
 
         // tell MainService that MediaProjection is up
-        Intent intent = new Intent(MediaProjectionService.this, MainService.class);
-        intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
-        intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(MediaProjectionService.this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(MediaProjectionService.this).getAccessKey()));
-        intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_STATE, true); // on
-        ContextCompat.startForegroundService(MediaProjectionService.this, intent);
+        postResult(true);
     }
 
     private void stopScreenCapture() {
@@ -367,6 +348,14 @@ public class MediaProjectionService extends Service {
             mMediaProjection.stop();
             mMediaProjection = null;
         }
+    }
+
+    private void postResult(boolean isMediaProjectionEnabled) {
+        Intent intent = new Intent(this, MainService.class);
+        intent.setAction(MainService.ACTION_HANDLE_MEDIA_PROJECTION_RESULT);
+        intent.putExtra(MainService.EXTRA_ACCESS_KEY, PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, new Defaults(this).getAccessKey()));
+        intent.putExtra(MainService.EXTRA_MEDIA_PROJECTION_STATE, isMediaProjectionEnabled);
+        ContextCompat.startForegroundService(this, intent);
     }
 
 
