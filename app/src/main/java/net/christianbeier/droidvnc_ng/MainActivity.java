@@ -989,6 +989,7 @@ public class MainActivity extends AppCompatActivity {
         stopGettingClientList();
 
         TableLayout connectionsTable = findViewById(R.id.connectionsTable);
+        connectionsTable.removeAllViews();
         final Map<Pair<Long,String>, View> connectionsViews = new HashMap<>();
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
