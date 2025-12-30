@@ -19,3 +19,4 @@ jobs:
         cache: gradle
     - name: Assemble Release Build
       run: ./gradlew assembleRelease
+      
