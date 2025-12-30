@@ -20,3 +20,4 @@ jobs:
     - name: Assemble Release Build
       run: ./gradlew assembleRelease
       
+      
