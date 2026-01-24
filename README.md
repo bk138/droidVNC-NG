@@ -161,3 +161,9 @@ turned to off.
 
 * Due to [limitations in Android API](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/media/java/android/media/projection/MediaProjectionConfig.java#72),
   secondary displays are not supported.
+
+* On some Android TVs, mouse input is not routed through. This seems to be an OS issue caused by the
+  manufacturer's build config. You can still navigate the TV user interface via a VNC viewer by using
+  cursor keys and Enter.
+
+
