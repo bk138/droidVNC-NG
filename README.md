@@ -159,4 +159,5 @@ VNC session, setting the interface to a slower speed might help. This workaround
 on your screen after enabling accessibility, make sure you have the "shortcut" option in accessibility settings
 turned to off.
 
-* Due to [limitations in Android API](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/media/java/android/media/projection/MediaProjectionConfig.java#72), secondary displays are not supported.
+* Due to [limitations in Android API](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/media/java/android/media/projection/MediaProjectionConfig.java#72),
+  secondary displays are not supported.
