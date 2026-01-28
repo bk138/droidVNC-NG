@@ -1,6 +1,8 @@
 <resources>
     <string name="main_activity_title">droidVNC-NG管理パネル</string>
     <string name="main_activity_settings">設定</string>
+    <string name="main_activity_settings_listening_interface">リスニングインターフェース</string>
+    <string name="main_activity_settings_listenif_spin_any">全て</string>
     <string name="main_activity_settings_port">ポート</string>
     <string name="main_activity_settings_port_not_listening">インバウンド接続は無効です</string>
     <string name="main_activity_settings_password">パスワード</string>
