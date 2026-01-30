@@ -4,7 +4,7 @@
 
 This is an Android VNC server using contemporary Android 7+ APIs. It therefore does not require
 root access. In reverence to the venerable [droid-VNC-server](https://github.com/oNaiPs/droidVncServer)
-is is called droidVNC-NG.
+it is called droidVNC-NG.
 
 If you have a general question, it's best to [ask in the community chat](https://gitter.im/droidVNC-NG/community). If your concern is about a bug or feature request instead, please use [the issue tracker](https://github.com/bk138/droidVNC-NG/issues).
 
