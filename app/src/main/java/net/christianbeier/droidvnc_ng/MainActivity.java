@@ -61,6 +61,7 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -69,6 +70,9 @@ import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Spinner;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.AdapterView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -82,6 +86,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
+import net.christianbeier.droidvnc_ng.ifaceutils.NetIfData;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -125,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonToggle.setOnClickListener(view -> {
 
             Intent intent = new Intent(MainActivity.this, MainService.class);
+            intent.putExtra(MainService.EXTRA_LISTEN_INTERFACE, prefs.getString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, mDefaults.getListenInterface()));
             intent.putExtra(MainService.EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
             intent.putExtra(MainService.EXTRA_PASSWORD, prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
             intent.putExtra(MainService.EXTRA_FILE_TRANSFER, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTransfer()));
@@ -329,6 +336,34 @@ public class MainActivity extends AppCompatActivity {
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             dialog.show();
         });
+
+
+
+        ListenIfAdapter lsif = new ListenIfAdapter(this);
+        final Spinner listenInterfaceSpin = findViewById(R.id.settings_listening_interface);
+        listenInterfaceSpin.setAdapter(lsif);
+        listenInterfaceSpin.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                NetIfData d = (NetIfData)parent.getItemAtPosition(pos);
+                if(!(prefs.getString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, null) == null && d.getName().equals(mDefaults.getListenInterface()))) {
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, d.getName());
+                    ed.apply();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        // Restore last selected interface
+        listenInterfaceSpin.setSelection(
+            lsif.getItemPositionByOptionId(
+               prefs.getString(Constants.PREFS_KEY_SETTINGS_LISTEN_INTERFACE, mDefaults.getListenInterface())));
+
+
 
 
         final EditText port = findViewById(R.id.settings_port);
@@ -875,7 +910,8 @@ public class MainActivity extends AppCompatActivity {
         if(MainService.getPort() >= 0) {
             HashMap<ClickableSpan, Pair<Integer,Integer>> spans = new HashMap<>();
             // uhh there must be a nice functional way for this
-            ArrayList<String> hosts = MainService.getIPv4s();
+            ArrayList<String> hosts = MainService.getReachableIPv4s();
+
             StringBuilder sb = new StringBuilder();
             sb.append(getString(R.string.main_activity_address)).append(" ");
             if(hosts.isEmpty()) {
@@ -940,6 +976,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.outbound_buttons).setVisibility(View.VISIBLE);
 
         // indicate that changing these settings does not have an effect when the server is running
+        findViewById(R.id.settings_listening_interface).setEnabled(false);
         findViewById(R.id.settings_port).setEnabled(false);
         findViewById(R.id.settings_password).setEnabled(false);
         findViewById(R.id.settings_access_key).setEnabled(false);
@@ -969,6 +1006,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.outbound_buttons).setVisibility(View.GONE);
 
         // indicate that changing these settings does have an effect when the server is stopped
+        findViewById(R.id.settings_listening_interface).setEnabled(true);
         findViewById(R.id.settings_port).setEnabled(true);
         findViewById(R.id.settings_password).setEnabled(true);
         findViewById(R.id.settings_access_key).setEnabled(true);
