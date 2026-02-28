@@ -166,4 +166,8 @@ turned to off.
   manufacturer's build config. You can still navigate the TV user interface via a VNC viewer by using
   cursor keys and Enter.
 
+* Starting with Android 16, [app components can opt-out of of accepting input from AccessibilityService](https://android-developers.googleblog.com/2025/12/enhancing-android-security-stop-malware.html),
+  so these will not be getting input from droidVNC-NG.
+
+
 
