@@ -95,6 +95,7 @@ If you want to accept incoming connections from VNC viewers:
 Here's how to connect to a listening VNC viewer or repeater without opening a server port:
 1. Leave the VNC port **blank**, which will get the Admin Panel to state the server **isn't** listening for incoming connections.
 2. Make outbound connections by choosing either "Connect to a **listening viewer**" or "Connect to a **repeater**".
+3. The optional **Max. reconnect tries** field defaults to `0` (disabled). Enter a value greater than `0` to enable automatic reconnect attempts.
 
 
 ### How to Pre-seed Preferences
