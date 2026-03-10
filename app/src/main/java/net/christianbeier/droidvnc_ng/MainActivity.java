@@ -32,6 +32,7 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
@@ -207,6 +208,14 @@ public class MainActivity extends AppCompatActivity {
                                 // stays at default reverse port
                             }
                         }
+                        if (isOnWifi() && isNonLocalHost(host)) {
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle(R.string.error)
+                                    .setMessage(R.string.main_activity_wifi_block_message)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show();
+                            return;
+                        }
                         Log.d(TAG, "reverse vnc " + host + ":" + port);
                         mLastMainServiceRequestId = UUID.randomUUID().toString();
                         mLastReverseHost = host;
@@ -294,6 +303,14 @@ public class MainActivity extends AppCompatActivity {
                         // sanity-check
                         if (host.isEmpty() || repeaterId.isEmpty()) {
                             Toast.makeText(MainActivity.this, getString(R.string.main_activity_repeater_vnc_input_missing), Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        if (isOnWifi() && isNonLocalHost(host)) {
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle(R.string.error)
+                                    .setMessage(R.string.main_activity_wifi_block_message)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show();
                             return;
                         }
                         // done
@@ -914,6 +931,23 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mAddress.post(() -> mAddress.setText(R.string.main_activity_not_listening));
         }
+    }
+
+    private boolean isOnWifi() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network activeNetwork = cm.getActiveNetwork();
+        if (activeNetwork == null) return false;
+        NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
+        return caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+    }
+
+    static boolean isNonLocalHost(String host) {
+        if (host.matches("^10\\.\\d+\\.\\d+\\.\\d+$")) return false;
+        if (host.matches("^172\\.(1[6-9]|2\\d|3[01])\\.\\d+\\.\\d+$")) return false;
+        if (host.matches("^192\\.168\\.\\d+\\.\\d+$")) return false;
+        if (host.matches("^127\\.\\d+\\.\\d+\\.\\d+$")) return false;
+        if (host.equalsIgnoreCase("localhost")) return false;
+        return true;
     }
 
     @Override
