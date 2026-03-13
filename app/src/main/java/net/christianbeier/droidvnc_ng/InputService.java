@@ -904,7 +904,8 @@ public class InputService extends AccessibilityService {
 							if (bitmap.getWidth() != MainService.vncGetFramebufferWidth() || bitmap.getHeight() != MainService.vncGetFramebufferHeight())
 								MainService.vncNewFramebuffer(bitmap.getWidth(), bitmap.getHeight());
 
-							MainService.vncUpdateFramebuffer(byteBuffer);
+							// Bitmap buffers are contiguous (no padding), so rowStride = width * 4 bytes per pixel
+							MainService.vncUpdateFramebuffer(byteBuffer, bitmap.getWidth() * 4);
 
 							// important, otherwise getting "A resource failed to call close." warnings from System
 							screenshot.getHardwareBuffer().close();

@@ -251,7 +251,8 @@ public class MediaProjectionService extends Service {
                     if (scaledWidth != MainService.vncGetFramebufferWidth() || scaledHeight != MainService.vncGetFramebufferHeight())
                         MainService.vncNewFramebuffer(scaledWidth, scaledHeight);
 
-                    MainService.vncUpdateFramebuffer(croppedBuffer);
+                    // croppedBuffer is contiguous (no padding), so rowStride = width * 4 bytes per pixel
+                    MainService.vncUpdateFramebuffer(croppedBuffer, scaledWidth * 4);
                 } catch (Exception ignored) {
                 }
             }, null);
@@ -290,18 +291,15 @@ public class MediaProjectionService extends Service {
 
                 final Image.Plane[] planes = image.getPlanes();
                 final ByteBuffer buffer = planes[0].getBuffer();
-                int pixelStride = planes[0].getPixelStride();
                 int rowStride = planes[0].getRowStride();
-                int rowPadding = rowStride - pixelStride * scaledWidth;
-                int w = scaledWidth + rowPadding / pixelStride;
 
-                // if needed, setup a new VNC framebuffer that matches the image plane's parameters
-                if (w != MainService.vncGetFramebufferWidth() || scaledHeight != MainService.vncGetFramebufferHeight())
-                    MainService.vncNewFramebuffer(w, scaledHeight);
+                // if needed, set up a new VNC framebuffer that matches the actual image dimensions
+                if (scaledWidth != MainService.vncGetFramebufferWidth() || scaledHeight != MainService.vncGetFramebufferHeight())
+                    MainService.vncNewFramebuffer(scaledWidth, scaledHeight);
 
                 buffer.rewind();
 
-                MainService.vncUpdateFramebuffer(buffer);
+                MainService.vncUpdateFramebuffer(buffer, rowStride);
             } catch (Exception ignored) {
             }
         }, null);

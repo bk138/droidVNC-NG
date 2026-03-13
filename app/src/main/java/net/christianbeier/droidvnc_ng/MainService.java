@@ -215,7 +215,7 @@ public class MainService extends Service {
     private native long vncConnectReverse(String host, int port);
     private native long vncConnectRepeater(String host, int port, String repeaterIdentifier);
     static native boolean vncNewFramebuffer(int width, int height);
-    static native boolean vncUpdateFramebuffer(ByteBuffer buf);
+    static native boolean vncUpdateFramebuffer(ByteBuffer buf, int rowStride);
     static native int vncGetFramebufferWidth();
     static native int vncGetFramebufferHeight();
     static native void vncSendCutText(String text);

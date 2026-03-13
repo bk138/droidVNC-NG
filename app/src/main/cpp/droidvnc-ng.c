@@ -447,7 +447,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncN
     return JNI_TRUE;
 }
 
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncUpdateFramebuffer(JNIEnv *env, jobject  __unused thiz, jobject buf)
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncUpdateFramebuffer(JNIEnv *env, jobject  __unused thiz, jobject buf, jint rowStride)
 {
     void *cBuf = (*env)->GetDirectBufferAddress(env, buf);
     jlong bufSize = (*env)->GetDirectBufferCapacity(env, buf);
@@ -460,7 +460,17 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
     */
     // only comment in when needed
     //double t0 = getTime();
-    memcpy(backBuffer, cBuf, bufSize);
+
+    // Copy row by row, skipping padding bytes
+    char *src = (char *)cBuf;
+    char *dest = backBuffer;
+    int rowSize = theScreen->width * 4; // pixelStride is always 4 for us
+    for(int y = 0; y < theScreen->height; y++) {
+        memcpy(dest, src, rowSize);
+        src += rowStride;
+        dest += rowSize;
+    }
+
     // only comment in when needed
     //__android_log_print(ANDROID_LOG_DEBUG, TAG, "vncUpdateFramebuffer: copy took %.3f ms", (getTime()-t0)*1000);
 
