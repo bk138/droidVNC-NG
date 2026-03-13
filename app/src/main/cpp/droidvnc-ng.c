@@ -277,7 +277,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 }
 
 
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jint port, jstring desktopname, jstring password, jstring httpRootDir) {
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jstring listenIf, jint port, jstring desktopname, jstring password, jstring httpRootDir) {
 
     int argc = 0;
 
@@ -305,6 +305,22 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     theScreen->setXCutTextUTF8 = onCutTextUTF8;
     theScreen->newClientHook = onClientConnected;
 
+    in_addr_t address = 0; // Default is 0.0.0.0
+    if (listenIf != NULL) {
+        const char *cListenInterface = (*env)->GetStringUTFChars(env, listenIf, NULL);
+        int addrConvSucceded = rfbStringToAddr((char*)cListenInterface, &address);
+        (*env)->ReleaseStringUTFChars(env, listenIf, cListenInterface);
+
+        if (!addrConvSucceded) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: invalid listen address");
+            Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
+            return JNI_FALSE;
+        }
+    }
+
+
+    // With the listenInterface property one can define where the server will be available
+    theScreen->listenInterface = address;
     theScreen->port = port;
     theScreen->ipv6port = port;
 
