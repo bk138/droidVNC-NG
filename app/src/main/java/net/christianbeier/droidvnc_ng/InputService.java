@@ -683,7 +683,7 @@ public class InputService extends AccessibilityService {
                     }
 
                    /*
-                       Try do to text traversal first, if this does not happen due the widget not being
+                       Try to do text traversal first, if this does not happen due the widget not being
                        editable or text at end, do focus traversal.
                     */
                     boolean didTextTraversal = false;
