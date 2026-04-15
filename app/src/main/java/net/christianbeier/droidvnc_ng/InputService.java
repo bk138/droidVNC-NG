@@ -501,6 +501,24 @@ public class InputService extends AccessibilityService {
 					if (keysym == 0xffc7) keyCode = KeyEvent.KEYCODE_F10;
 					if (keysym == 0xffc8) keyCode = KeyEvent.KEYCODE_F11;
 					if (keysym == 0xffc9) keyCode = KeyEvent.KEYCODE_F12;
+					// Numpad keys
+					if (keysym == 0xff8d) keyCode = KeyEvent.KEYCODE_NUMPAD_ENTER;
+					if (keysym == 0xffaa) keyCode = KeyEvent.KEYCODE_NUMPAD_MULTIPLY;
+					if (keysym == 0xffab) keyCode = KeyEvent.KEYCODE_NUMPAD_ADD;
+					if (keysym == 0xffac) keyCode = KeyEvent.KEYCODE_NUMPAD_COMMA;
+					if (keysym == 0xffad) keyCode = KeyEvent.KEYCODE_NUMPAD_SUBTRACT;
+					if (keysym == 0xffae) keyCode = KeyEvent.KEYCODE_NUMPAD_DOT;
+					if (keysym == 0xffaf) keyCode = KeyEvent.KEYCODE_NUMPAD_DIVIDE;
+					if (keysym == 0xffb0) keyCode = KeyEvent.KEYCODE_NUMPAD_0;
+					if (keysym == 0xffb1) keyCode = KeyEvent.KEYCODE_NUMPAD_1;
+					if (keysym == 0xffb2) keyCode = KeyEvent.KEYCODE_NUMPAD_2;
+					if (keysym == 0xffb3) keyCode = KeyEvent.KEYCODE_NUMPAD_3;
+					if (keysym == 0xffb4) keyCode = KeyEvent.KEYCODE_NUMPAD_4;
+					if (keysym == 0xffb5) keyCode = KeyEvent.KEYCODE_NUMPAD_5;
+					if (keysym == 0xffb6) keyCode = KeyEvent.KEYCODE_NUMPAD_6;
+					if (keysym == 0xffb7) keyCode = KeyEvent.KEYCODE_NUMPAD_7;
+					if (keysym == 0xffb8) keyCode = KeyEvent.KEYCODE_NUMPAD_8;
+					if (keysym == 0xffb9) keyCode = KeyEvent.KEYCODE_NUMPAD_9;
 
 					/*
 					    ASCII input, we use a translation to KeyEvents w/ keycodes as some apps
@@ -802,7 +820,7 @@ public class InputService extends AccessibilityService {
 			/*
 			    Enter, doing ACTION_IME_ENTER or ACTION_CLICK or GLOBAL_ACTION_DPAD_CENTER
 			 */
-			if (keysym == 0xff0d && down != 0) {
+			if ((keysym == 0xff0d || keysym == 0xff8d) && down != 0) {
 				Bundle action = new Bundle();
 				if (Build.VERSION.SDK_INT >= 30 && Objects.requireNonNull(currentFocusNode).getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER)) {
 					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.getId(), action);
@@ -813,6 +831,32 @@ public class InputService extends AccessibilityService {
                     instance.performGlobalAction(GLOBAL_ACTION_DPAD_CENTER);
                 }
             }
+
+			/*
+			    Numpad input (numlock on)
+			 */
+			if (down != 0 && ((keysym >= 0xffb0 && keysym <= 0xffb9) || (keysym >= 0xffaa && keysym <= 0xffaf))) {
+				char[] numpadOps = {'*', '+', ',', '-', '.', '/'};
+				char ch = (keysym >= 0xffb0) ? (char) ('0' + (keysym - 0xffb0)) : numpadOps[(int) (keysym - 0xffaa)];
+				CharSequence currentFocusText = Objects.requireNonNull(currentFocusNode).getText();
+				if (currentFocusText == null)
+					currentFocusText = "";
+				int cursorPos = getCursorPos(currentFocusNode);
+				String textBeforeCursor = "";
+				try {
+					textBeforeCursor = String.valueOf(currentFocusText.subSequence(0, cursorPos));
+				} catch (IndexOutOfBoundsException ignored) {
+				}
+				String textAfterCursor = "";
+				try {
+					textAfterCursor = String.valueOf(currentFocusText.subSequence(cursorPos, currentFocusText.length()));
+				} catch (IndexOutOfBoundsException ignored) {
+				}
+				Bundle action = new Bundle();
+				action.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, textBeforeCursor + ch + textAfterCursor);
+				currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_TEXT.getId(), action);
+				setCursorPos(currentFocusNode, cursorPos > 0 ? cursorPos + 1 : 1);
+			}
 
 			/*
 			    ISO-8859-1 input
