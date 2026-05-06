@@ -17,31 +17,27 @@ If you have a general question, it's best to [ask in the community chat](https:/
 
 ## Features
 
-* Network export of device frame buffer with optional server-side scaling.
-* Injection of remote pointer and basic keyboard events (Latin-1 charset plus some special keys,
+* View your Android device remotely with optional screen scaling for better performance.
+* Remote-control your Android device with mouse and keyboard (for keyboard Latin-1 charset plus some special keys,
   supporting any kind of UI widget on Android 14 and newer, on older devices into EditText widgets only).
-* Handling of client-to-server text copy & paste. Note that server-to-client copy & paste only works
+* Copy text from a VNC viewer and paste it to your Android device. Server-to-client copy & paste works
   automatically for text selected in editable text fields or manually by sharing text to droidVNC-NG
   via Android's Share-To functionality.
-* Handling of special keys to trigger 'Recent Apps' overview, Home button, Back button, Power button
-  and volume controls.
-* Android permission handling.
-* Screen rotation handling.
-* File transfer via the local network, assuming TightVNC viewer for Windows version 1.3.x is used.
-* Password protection for secure-in-terms-of-VNC connection. Note that setting a password is mandatory
+* Use keyboard shortcuts to trigger 'Recent Apps' overview, Home, Back, Power, and volume controls.
+* Transfer files between an Android device and computer using TightVNC viewer for Windows version 1.3.x.
+* Secure your connection with a password. Note that setting a password is mandatory
   in case you want to access the server using MacOS's built-in Screen Sharing app.
-* Ability to specify the port used.
-* Start of background service on device boot. On Android 11 and newer this also works with kiosk-mode
+* Choose a custom port for the VNC server.
+* Start the server automatically when your Android device boots. On Android 11 and newer this also works with kiosk-mode
   launchers and [lock task mode](https://developer.android.com/work/dpc/dedicated-devices/lock-task-mode).
-* [Reverse VNC](#reverse-vnc).
-* Ability to [connect to a UltraVNC-style Mode-2 repeater](#reverse-vnc).
-* Functionality to provide default configuration via a JSON file or
+* [Connect from your Android device to a listening VNC viewer](#reverse-vnc) without opening ports on your router.
+* [Connect to a UltraVNC-style Mode-2 repeater](#reverse-vnc) for remote access through a mediator server.
+* Pre-configure default settings via a JSON file or
   [Mobile Device Management](https://developer.android.com/work/managed-configurations).
-* Zeroconf/Bonjour publishing for VNC server auto-discovery.
-* Per-client mouse pointers on the controlled device.
-* Ability to control a device’s shared screen directly from a web browser by shipping the fabulous
-  [noVNC](https://github.com/novnc/noVNC) client with the server app. This alleviates the need for a
-  native VNC client.
+* Discover your device automatically on the local network via Zeroconf/Bonjour.
+* See individual mouse pointers for each connected client on your device.
+* Control your Android device directly from any web browser using the built-in
+  [noVNC](https://github.com/novnc/noVNC) client — no separate VNC viewer required.
 
 ## How to use
 
