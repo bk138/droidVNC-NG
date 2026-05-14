@@ -20,6 +20,7 @@ If you have a general question, it's best to [ask in the community chat](https:/
 * View your Android device remotely with optional screen scaling for better performance.
 * Remote-control your Android device with mouse and keyboard (for keyboard Latin-1 charset plus some special keys,
   supporting any kind of UI widget on Android 14 and newer, on older devices into EditText widgets only).
+  To enable this, you need to activate the AccessibilityService for the app on your device.
 * Copy text from a VNC viewer and paste it to your Android device. Server-to-client copy & paste works
   automatically for text selected in editable text fields or manually by sharing text to droidVNC-NG
   via Android's Share-To functionality.
