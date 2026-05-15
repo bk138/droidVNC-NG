@@ -243,9 +243,11 @@ public class MediaProjectionService extends Service {
 
                     // get the portrait portion that's in the center of the landscape bitmap
                     Bitmap croppedDest = Bitmap.createBitmap(dest, quirkyLandscapeWidth / 2 - scaledWidth / 2, 0, scaledWidth, scaledHeight);
+                    dest.recycle();
 
                     ByteBuffer croppedBuffer = ByteBuffer.allocateDirect(scaledWidth * scaledHeight * 4);
                     croppedDest.copyPixelsToBuffer(croppedBuffer);
+                    croppedDest.recycle();
 
                     // if needed, setup a new VNC framebuffer that matches the new buffer's dimensions
                     if (scaledWidth != MainService.vncGetFramebufferWidth() || scaledHeight != MainService.vncGetFramebufferHeight())
