@@ -33,7 +33,6 @@ import java.util.UUID
 import androidx.core.content.edit
 
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 class Defaults {
     companion object {
