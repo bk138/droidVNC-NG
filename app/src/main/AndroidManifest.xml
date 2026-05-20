@@ -37,6 +37,9 @@
             android:name="android.content.APP_RESTRICTIONS"
             android:resource="@xml/app_restrictions" />
 
+        <!-- TV: Signal whether the app supports pointer remotes -->
+        <meta-data android:name="android.software.leanback.supports_touch" android:value="true"/>
+
         <receiver android:name=".OnBootReceiver"
             android:exported="true">
             <intent-filter>
