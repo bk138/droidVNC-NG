@@ -61,11 +61,13 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,6 +81,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -160,6 +163,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mAddress = findViewById(R.id.address);
+
+        // Wire up network interface spinner
+        final Spinner interfaceSpinner = findViewById(R.id.settings_interface);
+        final List<String> interfaceNames = new java.util.ArrayList<>();
+        interfaceNames.add(getString(R.string.main_activity_settings_interface_any));
+        interfaceNames.addAll(Utils.getUpNetworkInterfaceNames());
+        ArrayAdapter<String> interfaceAdapter = new ArrayAdapter<>(
+            this, android.R.layout.simple_spinner_item, interfaceNames);
+        interfaceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        interfaceSpinner.setAdapter(interfaceAdapter);
+        // Set "Any" as default selection
+        interfaceSpinner.setSelection(0);
 
         Button reverseVNC = findViewById(R.id.reverse_vnc);
         reverseVNC.setOnClickListener(view -> {
