@@ -1,6 +1,8 @@
 <resources>
     <string name="main_activity_title">Administración de droidVNC-NG</string>
     <string name="main_activity_settings">Configuración</string>
+    <string name="main_activity_settings_interface">Interfaz de red</string>
+    <string name="main_activity_settings_interface_any">Cualquiera</string>
     <string name="main_activity_settings_port">Puerto</string>
     <string name="main_activity_settings_port_not_listening">Conexiones entrantes deshabilitadas</string>
     <string name="main_activity_settings_password">Contraseña</string>

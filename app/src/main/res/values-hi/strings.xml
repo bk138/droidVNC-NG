@@ -1,6 +1,8 @@
 <resources>
     <string name="main_activity_title">droidVNC-NG प्रशासन पैनल</string>
     <string name="main_activity_settings">सेटिंग्स</string>
+    <string name="main_activity_settings_interface">नेटवर्क इंटरफेस</string>
+    <string name="main_activity_settings_interface_any">कोई भी</string>
     <string name="main_activity_settings_port">पोर्ट</string>
     <string name="main_activity_settings_port_not_listening">इनबाउंड कनेक्शन अक्षम</string>
     <string name="main_activity_settings_password">पासवर्ड</string>

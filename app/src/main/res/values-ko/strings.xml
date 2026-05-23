@@ -1,6 +1,8 @@
 <resources>
     <string name="main_activity_title">droidVNC-NG 관리 패널</string>
     <string name="main_activity_settings">설정</string>
+    <string name="main_activity_settings_interface">네트워크 인터페이스</string>
+    <string name="main_activity_settings_interface_any">모두</string>
     <string name="main_activity_settings_port">포트</string>
     <string name="main_activity_settings_port_not_listening">들어오는 연결 비활성화</string>
     <string name="main_activity_settings_password">비밀번호</string>

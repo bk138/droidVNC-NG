@@ -1,6 +1,8 @@
 <resources>
     <string name="main_activity_title">Панель адміністратора droidVNC-NG</string>
     <string name="main_activity_settings">Налаштування</string>
+    <string name="main_activity_settings_interface">Мережевий інтерфейс</string>
+    <string name="main_activity_settings_interface_any">Будь-який</string>
     <string name="main_activity_settings_port">Порт</string>
     <string name="main_activity_settings_port_not_listening">Вхідні з\'єднання вимкнено</string>
     <string name="main_activity_settings_password">Пароль</string>

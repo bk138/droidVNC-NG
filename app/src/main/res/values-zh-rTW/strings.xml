@@ -2,6 +2,8 @@
 <resources>
     <string name="main_activity_title">droidVNC-NG管理面板</string>
     <string name="main_activity_settings">設置</string>
+    <string name="main_activity_settings_interface">網路介面</string>
+    <string name="main_activity_settings_interface_any">任何</string>
     <string name="main_activity_settings_port">連接埠</string>
     <string name="main_activity_settings_port_not_listening">禁用傳入連接</string>
     <string name="main_activity_settings_password">密碼</string>
