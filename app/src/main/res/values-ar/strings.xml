@@ -1,6 +1,8 @@
 <resources>
     <string name="main_activity_title">لوحة إدارة droidVNC-NG</string>
     <string name="main_activity_settings">الإعدادات</string>
+    <string name="main_activity_settings_interface">واجهة الشبكة</string>
+    <string name="main_activity_settings_interface_any">أي واجهة</string>
     <string name="main_activity_settings_port">المنفذ</string>
     <string name="main_activity_settings_port_not_listening">الاتصالات الواردة معطلة</string>
     <string name="main_activity_settings_password">كلمة المرور</string>

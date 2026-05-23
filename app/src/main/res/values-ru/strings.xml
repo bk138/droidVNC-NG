@@ -1,6 +1,8 @@
 <resources>
     <string name="main_activity_title">Админ панель droidVNC-NG</string>
     <string name="main_activity_settings">Настройки</string>
+    <string name="main_activity_settings_interface">Сетевой интерфейс</string>
+    <string name="main_activity_settings_interface_any">Любой</string>
     <string name="main_activity_settings_port">Порт</string>
     <string name="main_activity_settings_port_not_listening">Входящие подключения отключены</string>
     <string name="main_activity_settings_password">Пароль</string>

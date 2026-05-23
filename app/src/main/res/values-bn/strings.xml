@@ -1,6 +1,8 @@
 <resources>
     <string name="main_activity_title">droidVNC-NG এডমিন প্যানেল</string>
     <string name="main_activity_settings">সেটিংস</string>
+    <string name="main_activity_settings_interface">নেটওয়ার্ক ইন্টারফেস</string>
+    <string name="main_activity_settings_interface_any">যেকোনো</string>
     <string name="main_activity_settings_port">পোর্ট</string>
     <string name="main_activity_settings_port_not_listening">ইনকামিং কানেকশন নিষ্ক্রিয়</string>
     <string name="main_activity_settings_password">পাসওয়ার্ড</string>
