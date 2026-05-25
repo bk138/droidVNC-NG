@@ -25,6 +25,7 @@ public class Constants {
     /*
         user settings
      */
+    public static final String PREFS_KEY_SETTINGS_INTERFACE = "settings_interface";
     public static final String PREFS_KEY_SETTINGS_PORT = "settings_port";
     public static final String PREFS_KEY_SETTINGS_PASSWORD = "settings_password" ;
     public static final String PREFS_KEY_SETTINGS_START_ON_BOOT = "settings_start_on_boot" ;
