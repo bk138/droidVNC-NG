@@ -213,6 +213,7 @@ public class MainService extends Service {
     private native boolean vncStartServer(int width, int height, String listenInterface, int port, String desktopName, String password, String httpRootDir);
     private native boolean vncStopServer();
     private native boolean vncIsActive();
+    private native String vncGetBoundIPv4();
     private native long vncConnectReverse(String host, int port);
     private native long vncConnectRepeater(String host, int port, String repeaterIdentifier);
     static native boolean vncNewFramebuffer(int width, int height);
