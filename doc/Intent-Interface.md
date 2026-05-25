@@ -15,6 +15,7 @@ the following Actions and associated Extras set:
 * `net.christianbeier.droidvnc_ng.ACTION_START`: Starts the server.
   * `net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY`: Required String Extra containing the remote control interface's access key. You can get/set this from the Admin Panel. 
   * `net.christianbeier.droidvnc_ng.EXTRA_REQUEST_ID`: Optional String Extra containing a unique id for this request. Used to identify the answer from the service.
+  * `net.christianbeier.droidvnc_ng.EXTRA_INTERFACE`: Optional String Extra containing the network interface name (e.g., `wlan0`, `eth0`) or empty string to bind to all interfaces. If not provided, defaults to empty string (all interfaces).
   * `net.christianbeier.droidvnc_ng.EXTRA_PORT`: Optional Integer Extra setting the listening port. Set to `-1` to disable listening.
   * `net.christianbeier.droidvnc_ng.EXTRA_PASSWORD`: Optional String Extra containing VNC password.
   * `net.christianbeier.droidvnc_ng.EXTRA_SCALING`: Optional Float Extra between 0.0 and 1.0 describing the server-side framebuffer scaling.
@@ -101,6 +102,20 @@ adb shell am start-foreground-service \
  --es net.christianbeier.droidvnc_ng.EXTRA_PASSWORD supersecure \
  --ez net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY true
 ```
+
+### Start a server bound to a specific network interface
+
+Using `adb shell am` syntax to bind to the `wlan0` interface:
+
+```shell
+adb shell am start-foreground-service \
+ -n net.christianbeier.droidvnc_ng/.MainService \
+ -a net.christianbeier.droidvnc_ng.ACTION_START \
+ --es net.christianbeier.droidvnc_ng.EXTRA_ACCESS_KEY de32550a6efb43f8a5d145e6c07b2cde \
+ --es net.christianbeier.droidvnc_ng.EXTRA_INTERFACE wlan0
+```
+
+Note: Pass an empty string for `EXTRA_INTERFACE` or omit it entirely to bind to all interfaces.
 
 ### Start a server with defaults from Tasker
 
