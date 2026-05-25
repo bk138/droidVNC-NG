@@ -41,6 +41,10 @@ class Defaults {
     }
 
     @EncodeDefault
+    var interfaceName = ""
+        private set
+
+    @EncodeDefault
     var port = 5900
         private set
 
@@ -115,6 +119,7 @@ class Defaults {
         val appConfig = (context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager).applicationRestrictions
         if (appConfig != null && appConfig.size() > 0) {
             Log.i(TAG, "Loading defaults from app restrictions")
+            this.interfaceName = appConfig.getString("interfaceName", this.interfaceName) ?: this.interfaceName
             this.port = appConfig.getInt("port", this.port)
             this.portReverse = appConfig.getInt("portReverse", this.portReverse)
             this.portRepeater = appConfig.getInt("portRepeater", this.portRepeater)
@@ -149,6 +154,7 @@ class Defaults {
             val jsonString = jsonFile.readText()
             val readDefault = Json.decodeFromString<Defaults>(jsonString)
             Log.i(TAG, "Loading defaults from json file")
+            this.interfaceName = readDefault.interfaceName
             this.port = readDefault.port
             this.portReverse = readDefault.portReverse
             this.portRepeater = readDefault.portRepeater
