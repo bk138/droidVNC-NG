@@ -892,7 +892,7 @@ public class MainActivity extends AppCompatActivity {
                             Intent sendIntent = new Intent();
                             sendIntent.setAction(Intent.ACTION_SEND);
                             sendIntent.putExtra(Intent.EXTRA_TEXT,
-                                    "http://" + host + ":" + (MainService.getPort() - 100) + "/vnc.html?autoconnect=true&show_dot=true&&host=" + host + "&port=" + MainService.getPort());
+                                    "http://" + host + ":" + (MainService.getPort() - 100) + "/vnc.html?autoconnect=true&show_dot=true&host=" + host + "&port=" + MainService.getPort());
                             sendIntent.setType("text/plain");
                             startActivity(Intent.createChooser(sendIntent, null));
                         }
