@@ -23,6 +23,11 @@
 #include <android/log.h>
 #include <time.h>
 #include <errno.h>
+#include <ifaddrs.h>
+#include <net/if.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "rfb/rfb.h"
 
 #define TAG "droidvnc-ng (native)"
@@ -263,6 +268,8 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     free((char*)theScreen->desktopName); // always malloc'ed by us
     free(theScreen->httpDir); // always malloc'ed by us
     theScreen->desktopName = NULL;
+    free(theScreen->listen6Interface); // freed by us if we set it via strdup()
+    theScreen->listen6Interface = NULL;
     if(theScreen->authPasswdData) { // if this is set, it was malloc'ed by us and has one password in there
         char **passwordList = theScreen->authPasswdData;
         free(passwordList[0]); // free the password created by strdup()
@@ -277,7 +284,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 }
 
 
-JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jint port, jstring desktopname, jstring password, jstring httpRootDir) {
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncStartServer(JNIEnv *env, jobject thiz, jint width, jint height, jstring listenIf, jint port, jstring desktopname, jstring password, jstring httpRootDir) {
 
     int argc = 0;
 
@@ -307,6 +314,92 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
 
     theScreen->port = port;
     theScreen->ipv6port = port;
+
+    /* Handle binding to specific interface */
+    if (listenIf) {
+        const char *cListenIf = (*env)->GetStringUTFChars(env, listenIf, NULL);
+        if (cListenIf && strlen(cListenIf)) {
+            __android_log_print(ANDROID_LOG_DEBUG, TAG, "vncStartServer: resolving IPs for interface: %s", cListenIf);
+            /* Resolve interface name to IP addresses */
+            struct ifaddrs *ifaddr, *ifa;
+            int foundIpv4 = 0;
+            int bestIpv6Prio = -1;  /* Track best IPv6 priority for this interface */
+            if (getifaddrs(&ifaddr) == 0) {
+                for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+                    if (strcmp(ifa->ifa_name, cListenIf) == 0) {
+                        if (ifa->ifa_addr->sa_family == AF_INET) {
+                            struct sockaddr_in *sa = (struct sockaddr_in *)ifa->ifa_addr;
+                            theScreen->listenInterface = sa->sin_addr.s_addr;
+                            __android_log_print(ANDROID_LOG_DEBUG, TAG, "vncStartServer: resolved interface %s to IPv4 %s", cListenIf, inet_ntoa(sa->sin_addr));
+                            foundIpv4 = 1;
+                        }
+#ifdef LIBVNCSERVER_IPv6
+                        if (ifa->ifa_addr->sa_family == AF_INET6) {
+                            struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *)ifa->ifa_addr;
+                            const uint8_t *addr = sa6->sin6_addr.s6_addr;
+                            int prio = -1;  /* -1 = skip this address */
+
+                            if (IN6_IS_ADDR_MULTICAST(&sa6->sin6_addr) ||
+                                IN6_IS_ADDR_UNSPECIFIED(&sa6->sin6_addr)) {
+                                continue;  /* Skip multicast and unspecified */
+                            } else if ((addr[0] & 0xe0) == 0x20) {          /* 2000::/3 (bits 0-2=001) - global unicast, prio 4 */
+                                prio = 4;
+                            } else if ((addr[0] & 0xfe) == 0xfc) {           /* fc00::/7 (bits 0-6=1111110) - ULA, prio 3 */
+                                prio = 3;
+                            } else if (addr[0] == 0xfe && (addr[1] & 0xc0) == 0xc0) { /* fec0::/10 (bits 0-9=1111111000) - site-local, prio 2 */
+                                prio = 2;
+                            } else if (IN6_IS_ADDR_LINKLOCAL(&sa6->sin6_addr)) {  /* fe80::/10 - link-local, prio 1 */
+                                prio = 1;
+                            } else if (IN6_IS_ADDR_LOOPBACK(&sa6->sin6_addr)) {  /* ::1 - loopback for SSH tunneling, prio 0 */
+                                prio = 0;
+                            }
+
+                            if (prio < 0) continue;  /* Skip unwanted address types */
+
+                            if (prio > bestIpv6Prio) {
+                                /* Found a better IPv6 address */
+                                char ipv6Addr[INET6_ADDRSTRLEN];
+                                inet_ntop(AF_INET6, &(sa6->sin6_addr), ipv6Addr, INET6_ADDRSTRLEN);
+                                free(theScreen->listen6Interface);  /* Free previous best */
+                                theScreen->listen6Interface = strdup(ipv6Addr);
+                                bestIpv6Prio = prio;
+                                __android_log_print(ANDROID_LOG_DEBUG, TAG, "vncStartServer: resolved interface %s to IPv6 %s with prio %d", cListenIf, ipv6Addr, prio);
+                            }
+                        }
+#endif
+                    }
+                }
+                freeifaddrs(ifaddr);
+                /* Handle single-family binding: disable the other family */
+                if (foundIpv4 && bestIpv6Prio < 0) {
+                    /* Interface has only IPv4 - disable IPv6 */
+                    theScreen->ipv6port = -1;
+                    __android_log_print(ANDROID_LOG_INFO, TAG, "vncStartServer: interface %s has only IPv4, disabling IPv6", cListenIf);
+                } else if (!foundIpv4 && bestIpv6Prio >= 0) {
+                    /* Interface has only IPv6 - disable IPv4 */
+                    theScreen->port = -1;
+                    __android_log_print(ANDROID_LOG_INFO, TAG, "vncStartServer: interface %s has only IPv6, disabling IPv4", cListenIf);
+                }
+                /* If interface was specified but no addresses found, fail */
+                if (!foundIpv4 && bestIpv6Prio < 0) {
+                    __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: no IP addresses found for interface %s", cListenIf);
+                    goto interface_resolve_fail;
+                }
+            } else {
+                __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: getifaddrs failed for interface %s: %s", cListenIf, strerror(errno));
+                goto interface_resolve_fail;
+            }
+            (*env)->ReleaseStringUTFChars(env, listenIf, cListenIf);
+            goto interface_resolve_ok;
+
+interface_resolve_fail:
+            (*env)->ReleaseStringUTFChars(env, listenIf, cListenIf);
+            Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
+            return JNI_FALSE;
+
+interface_resolve_ok:
+        }
+    }
 
     // don't show X cursor
     theScreen->cursor = NULL;
@@ -360,7 +453,8 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     rfbInitServer(theScreen);
 
     if (port != -1) {
-        if (theScreen->listenSock == RFB_INVALID_SOCKET || theScreen->listen6Sock == RFB_INVALID_SOCKET) {
+        /* Only fail if both address families failed to initialize */
+        if (theScreen->listenSock == RFB_INVALID_SOCKET && theScreen->listen6Sock == RFB_INVALID_SOCKET) {
             __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed starting (%s)", strerror(errno));
             Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
             return JNI_FALSE;
