@@ -408,7 +408,7 @@ public class MainService extends Service {
             } else {
                 DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
                 Intent startIntent = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this));
-                String listenInterface = startIntent.getStringExtra(EXTRA_INTERFACE);
+                String listenInterface = startIntent.getStringExtra(EXTRA_INTERFACE) != null ? startIntent.getStringExtra(EXTRA_INTERFACE) : PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_INTERFACE, mDefaults.getInterfaceName());
                 int port = startIntent.getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
                 String password = startIntent.getStringExtra(EXTRA_PASSWORD) != null ? startIntent.getStringExtra(EXTRA_PASSWORD) : PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword());
                 // get device name
@@ -459,7 +459,7 @@ public class MainService extends Service {
             if (mResultCode != 0 && mResultData != null
                     || (Build.VERSION.SDK_INT >= 30 && startIntent.getBooleanExtra(EXTRA_FALLBACK_SCREEN_CAPTURE, false))) {
                 DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
-                String listenInterface = startIntent.getStringExtra(EXTRA_INTERFACE);
+                String listenInterface = startIntent.getStringExtra(EXTRA_INTERFACE) != null ? startIntent.getStringExtra(EXTRA_INTERFACE) : PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_INTERFACE, mDefaults.getInterfaceName());
                 int port = startIntent.getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
                 String password = startIntent.getStringExtra(EXTRA_PASSWORD) != null ? startIntent.getStringExtra(EXTRA_PASSWORD) : PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword());
                 String name = Utils.getDeviceName(this);
