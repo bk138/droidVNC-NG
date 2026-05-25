@@ -936,11 +936,20 @@ public class MainActivity extends AppCompatActivity {
             HashMap<ClickableSpan, Pair<Integer,Integer>> spans = new HashMap<>();
             // uhh there must be a nice functional way for this
             ArrayList<String> hosts = MainService.getIPv4s();
+            if (hosts.isEmpty()) {
+                // IPv4 configured by port >= 0, but no IPv4 address available.
+                // We might still be listening on IPv6.
+                // Simply hide the address display UI in this case.
+                mAddress.setVisibility(View.GONE);
+                return;
+            }
             StringBuilder sb = new StringBuilder();
             sb.append(getString(R.string.main_activity_address)).append(" ");
-            if(hosts.isEmpty()) {
+            if(hosts.size() == 1 && hosts.get(0).equals("127.0.0.1")) {
                 sb.append("localhost");
             } else {
+                // don't display this as a shareable link, this will just confuse users
+                hosts.removeIf(s -> s.equals("127.0.0.1"));
                 for (int i = 0; i < hosts.size(); ++i) {
                     String host = hosts.get(i);
                     sb.append(host).append(":").append(MainService.getPort()).append(" (");
