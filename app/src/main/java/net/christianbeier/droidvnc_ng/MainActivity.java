@@ -61,6 +61,7 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -109,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver mWifiApStateChangedReceiver;
     private final Handler mClientListHandler = new Handler(Looper.getMainLooper());
     private BroadcastReceiver mClientListBroadcastReceiver;
+    private Spinner mInterfaceSpinner;
+    private ArrayAdapter<String> mInterfaceAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         mButtonToggle.setOnClickListener(view -> {
 
             Intent intent = new Intent(MainActivity.this, MainService.class);
+            intent.putExtra(MainService.EXTRA_INTERFACE, prefs.getString(Constants.PREFS_KEY_SETTINGS_INTERFACE, ""));
             intent.putExtra(MainService.EXTRA_PORT, prefs.getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
             intent.putExtra(MainService.EXTRA_PASSWORD, prefs.getString(Constants.PREFS_KEY_SETTINGS_PASSWORD, mDefaults.getPassword()));
             intent.putExtra(MainService.EXTRA_FILE_TRANSFER, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTransfer()));
@@ -165,16 +169,23 @@ public class MainActivity extends AppCompatActivity {
         mAddress = findViewById(R.id.address);
 
         // Wire up network interface spinner
-        final Spinner interfaceSpinner = findViewById(R.id.settings_interface);
-        final List<String> interfaceNames = new java.util.ArrayList<>();
-        interfaceNames.add(getString(R.string.main_activity_settings_interface_any));
-        interfaceNames.addAll(Utils.getUpNetworkInterfaceNames());
-        ArrayAdapter<String> interfaceAdapter = new ArrayAdapter<>(
-            this, android.R.layout.simple_spinner_item, interfaceNames);
-        interfaceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        interfaceSpinner.setAdapter(interfaceAdapter);
-        // Set "Any" as default selection
-        interfaceSpinner.setSelection(0);
+        mInterfaceSpinner = findViewById(R.id.settings_interface);
+        mInterfaceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new java.util.ArrayList<>());
+        mInterfaceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mInterfaceSpinner.setAdapter(mInterfaceAdapter);
+        mInterfaceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Position 0 = "any", pass empty string meaning bind to all
+                // Position > 0 = actual interface name
+                String selectedInterface = (position == 0) ? "" : (String) parent.getItemAtPosition(position);
+                // Store selection for when user starts the server
+                prefs.edit().putString(Constants.PREFS_KEY_SETTINGS_INTERFACE, selectedInterface).apply();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        updateInterfaceSpinner();
 
         Button reverseVNC = findViewById(R.id.reverse_vnc);
         reverseVNC.setOnClickListener(view -> {
@@ -687,20 +698,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAvailable(@NonNull Network network) {
                 Log.d(TAG, "NetworkCallback onAvailable");
-                runOnUiThread(() -> updateAddressesDisplay());
+                runOnUiThread(() -> {
+                    updateAddressesDisplay();
+                    updateInterfaceSpinner();
+                });
             }
 
             @Override
             public void onLinkPropertiesChanged(@NonNull Network network, @NonNull LinkProperties linkProperties) {
                 Log.d(TAG, "NetworkCallback onLinkPropertiesChanged");
-                runOnUiThread(() -> updateAddressesDisplay());
+                runOnUiThread(() -> {
+                    updateAddressesDisplay();
+                    updateInterfaceSpinner();
+                });
             }
 
 
             @Override
             public void onLost(@NonNull Network network) {
                 Log.d(TAG, "NetworkCallback onLost");
-                runOnUiThread(() -> updateAddressesDisplay());
+                runOnUiThread(() -> {
+                    updateAddressesDisplay();
+                    updateInterfaceSpinner();
+                });
             }
         };
         ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).registerNetworkCallback(
@@ -711,7 +731,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(TAG, "WIFI_AP_STATE_CHANGED");
-                updateAddressesDisplay();
+                runOnUiThread(() -> {
+                    updateAddressesDisplay();
+                    updateInterfaceSpinner();
+                });
             }
         };
         ContextCompat.registerReceiver(
@@ -875,6 +898,28 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.permission_row_start_on_boot).setVisibility(View.GONE);
         }
 
+    }
+
+    private void updateInterfaceSpinner() {
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        final List<String> interfaceNames = new java.util.ArrayList<>();
+        interfaceNames.add(getString(R.string.main_activity_settings_interface_any));
+        interfaceNames.addAll(Utils.getUpNetworkInterfaceNames());
+
+        runOnUiThread(() -> {
+            mInterfaceAdapter.clear();
+            mInterfaceAdapter.addAll(interfaceNames);
+
+            // Restore saved selection if still valid
+            String savedInterface = prefs.getString(Constants.PREFS_KEY_SETTINGS_INTERFACE, "");
+            int savedIndex = interfaceNames.indexOf(savedInterface);
+            if (savedIndex >= 0) {
+                mInterfaceSpinner.setSelection(savedIndex);
+            } else {
+                // Saved interface no longer exists, select "any"
+                mInterfaceSpinner.setSelection(0);
+            }
+        });
     }
 
     private void updateAddressesDisplay() {
