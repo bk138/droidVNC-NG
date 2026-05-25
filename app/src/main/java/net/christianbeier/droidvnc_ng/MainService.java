@@ -38,6 +38,7 @@ import android.net.Network;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
+import java.util.Collections;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -897,42 +898,57 @@ public class MainService extends Service {
     }
 
     /**
-     * Get non-loopback IPv4 addresses.
+     * Get IPv4 addresses the server is reachable under.
      * @return A list of strings, each containing one IPv4 address.
      */
     static ArrayList<String> getIPv4s() {
-
-        Set<String> hosts = new LinkedHashSet<>();
-
-        // if running on Chrome OS, this prop is set and contains the device's IPv4 address,
-        // see https://chromeos.dev/en/games/optimizing-games-networking
-        String prop = Utils.getProp("arc.net.ipv4.host_address");
-        if(!prop.isEmpty()) {
-            hosts.add(prop);
+        String boundIPv4;
+        try {
+            boundIPv4 = instance.vncGetBoundIPv4();
+        } catch (NullPointerException ignored) {
+            boundIPv4 = null;
         }
 
-        // not running on Chrome OS
-        try {
-            // thanks go to https://stackoverflow.com/a/20103869/361413
-            Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
-            NetworkInterface ni;
-            while (nis.hasMoreElements()) {
-                ni = nis.nextElement();
-                if (!ni.isLoopback()/*not loopback*/ && ni.isUp()/*it works now*/) {
-                    for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
-                        //filter for ipv4/ipv6
-                        if (ia.getAddress().getAddress().length == 4) {
-                            //4 for ipv4, 16 for ipv6
-                            hosts.add(ia.getAddress().toString().replaceAll("/", ""));
+        if (boundIPv4 == null) {
+            // Server not started or IPv4 disabled
+            return new ArrayList<>();
+        } else if (boundIPv4.equals("0.0.0.0")) {
+            // Bound to all interfaces - enumerate all system IPv4s
+            Set<String> hosts = new LinkedHashSet<>();
+
+            // if running on Chrome OS, this prop is set and contains the device's IPv4 address,
+            // see https://chromeos.dev/en/games/optimizing-games-networking
+            String prop = Utils.getProp("arc.net.ipv4.host_address");
+            if(!prop.isEmpty()) {
+                hosts.add(prop);
+            }
+
+            // not running on Chrome OS
+            try {
+                // thanks go to https://stackoverflow.com/a/20103869/361413
+                Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
+                NetworkInterface ni;
+                while (nis.hasMoreElements()) {
+                    ni = nis.nextElement();
+                    if (ni.isUp()) {
+                        for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
+                            //filter for ipv4
+                            if (ia.getAddress().getAddress().length == 4) {
+                                //4 for ipv4, 16 for ipv6
+                                hosts.add(ia.getAddress().toString().replaceAll("/", ""));
+                            }
                         }
                     }
                 }
+            } catch (SocketException e) {
+                //unused
             }
-        } catch (SocketException e) {
-            //unused
-        }
 
-        return new ArrayList<>(hosts);
+            return new ArrayList<>(hosts);
+        } else {
+            // Bound to specific IPv4 address
+            return new ArrayList<>(Collections.singletonList(boundIPv4));
+        }
     }
 
     static int getPort() {
