@@ -613,6 +613,13 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncI
     return theScreen && rfbIsActive(theScreen);
 }
 
+JNIEXPORT jstring JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetBoundIPv4(JNIEnv *env, __unused jobject thiz) {
+    if (!theScreen || theScreen->port == -1) return NULL;  // Server not started or IPv4 disabled
+    struct in_addr addr;
+    addr.s_addr = theScreen->listenInterface;
+    return (*env)->NewStringUTF(env, inet_ntoa(addr));
+}
+
 JNIEXPORT void JNICALL
 Java_net_christianbeier_droidvnc_1ng_MainService_vncSendCutText(JNIEnv *env, __unused jclass clazz,
                                                                 jstring text) {
