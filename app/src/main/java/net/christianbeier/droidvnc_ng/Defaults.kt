@@ -65,6 +65,10 @@ class Defaults {
         private set
 
     @EncodeDefault
+    var translateNumpad = false
+        private set
+
+    @EncodeDefault
     var fileTransfer = true
         private set
 
@@ -121,6 +125,7 @@ class Defaults {
             this.fileTransfer = appConfig.getBoolean("fileTransfer", this.fileTransfer)
             this.viewOnly = appConfig.getBoolean("viewOnly", this.viewOnly)
             this.showPointers = appConfig.getBoolean("showPointers", this.showPointers)
+            this.translateNumpad = appConfig.getBoolean("translateNumpad", this.translateNumpad)
             this.password = appConfig.getString("password", this.password) ?: this.password
             this.startOnBoot = appConfig.getBoolean("startOnBoot", this.startOnBoot)
             this.startOnBootDelay = appConfig.getInt("startOnBootDelay", this.startOnBootDelay)
@@ -158,6 +163,7 @@ class Defaults {
                 this.scaling = readDefault.scaling
             this.viewOnly = readDefault.viewOnly
             this.showPointers = readDefault.showPointers
+            this.translateNumpad = readDefault.translateNumpad
             this.password = readDefault.password
             // only set new access key if there is one given; i.e. don't overwrite generated default
             // with empty string
