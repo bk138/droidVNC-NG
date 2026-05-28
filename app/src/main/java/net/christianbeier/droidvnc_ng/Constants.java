@@ -32,6 +32,7 @@ public class Constants {
     public static final String PREFS_KEY_SETTINGS_SCALING = "settings_scaling" ;
     public static final String PREFS_KEY_SETTINGS_VIEW_ONLY = "settings_view_only" ;
     public static final String PREFS_KEY_SETTINGS_SHOW_POINTERS = "settings_show_pointers" ;
+    public static final String PREFS_KEY_SETTINGS_TRANSLATE_NUMPAD = "settings_translate_numpad" ;
     public static final String PREFS_KEY_SETTINGS_ACCESS_KEY = "settings_access_key";
     public static final String PREFS_KEY_SETTINGS_FILE_TRANSFER = "settings_file_transfer";
 
