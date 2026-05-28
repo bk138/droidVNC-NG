@@ -130,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(MainService.EXTRA_FILE_TRANSFER, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_FILE_TRANSFER, mDefaults.getFileTransfer()));
             intent.putExtra(MainService.EXTRA_VIEW_ONLY, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()));
             intent.putExtra(MainService.EXTRA_SHOW_POINTERS, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_SHOW_POINTERS, mDefaults.getShowPointers()));
+            intent.putExtra(MainService.EXTRA_TRANSLATE_NUMPAD, prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_TRANSLATE_NUMPAD, mDefaults.getTranslateNumpad()));
             intent.putExtra(MainService.EXTRA_SCALING, prefs.getFloat(Constants.PREFS_KEY_SETTINGS_SCALING, mDefaults.getScaling()));
             intent.putExtra(MainService.EXTRA_ACCESS_KEY, prefs.getString(Constants.PREFS_KEY_SETTINGS_ACCESS_KEY, mDefaults.getAccessKey()));
             if(mIsMainServiceRunning) {
@@ -537,6 +538,14 @@ public class MainActivity extends AppCompatActivity {
             ed.apply();
         });
         showPointers.setEnabled(!prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()));
+
+        final SwitchMaterial translateNumpad = findViewById(R.id.settings_translate_numpad);
+        translateNumpad.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_TRANSLATE_NUMPAD, mDefaults.getTranslateNumpad()));
+        translateNumpad.setOnCheckedChangeListener((compoundButton, b) -> {
+            SharedPreferences.Editor ed = prefs.edit();
+            ed.putBoolean(Constants.PREFS_KEY_SETTINGS_TRANSLATE_NUMPAD, b);
+            ed.apply();
+        });
 
         final SwitchMaterial viewOnly = findViewById(R.id.settings_view_only);
         viewOnly.setChecked(prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()));
@@ -947,6 +956,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.settings_view_only).setEnabled(false);
         findViewById(R.id.settings_file_transfer).setEnabled(false);
         findViewById(R.id.settings_show_pointers).setEnabled(false);
+        findViewById(R.id.settings_translate_numpad).setEnabled(false);
 
         startGettingClientList();
 
@@ -979,6 +989,7 @@ public class MainActivity extends AppCompatActivity {
             // pointers depend on view-only being disabled
             findViewById(R.id.settings_show_pointers).setEnabled(true);
         }
+        findViewById(R.id.settings_translate_numpad).setEnabled(true);
 
         stopGettingClientList();
 
