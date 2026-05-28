@@ -37,6 +37,12 @@
         android:title="@string/main_activity_settings_show_pointers" />
 
     <restriction
+        android:defaultValue="false"
+        android:key="translateNumpad"
+        android:restrictionType="bool"
+        android:title="@string/main_activity_settings_translate_numpad" />
+
+    <restriction
         android:defaultValue="true"
         android:key="fileTransfer"
         android:restrictionType="bool"
