@@ -20,6 +20,7 @@ the following Actions and associated Extras set:
   * `net.christianbeier.droidvnc_ng.EXTRA_SCALING`: Optional Float Extra between 0.0 and 1.0 describing the server-side framebuffer scaling.
   * `net.christianbeier.droidvnc_ng.EXTRA_VIEW_ONLY`:  Optional Boolean Extra toggling view-only mode.
   * `net.christianbeier.droidvnc_ng.EXTRA_SHOW_POINTERS`:  Optional Boolean Extra toggling per-client mouse pointers.
+  * `net.christianbeier.droidvnc_ng.EXTRA_TRANSLATE_NUMPAD`:  Optional Boolean Extra toggling the translation of numpad input into their non-numpad equivalents.
   * `net.christianbeier.droidvnc_ng.EXTRA_FILE_TRANSFER`: Optional Boolean Extra toggling the file transfer feature.
   * `net.christianbeier.droidvnc_ng.EXTRA_FALLBACK_SCREEN_CAPTURE`: Optional Boolean Extra indicating whether to start with fallback screen capture that does not need a
      user interaction to start but is slow and needs view-only to be off. Only applicable to Android 10 and newer.
