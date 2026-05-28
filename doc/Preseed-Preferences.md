@@ -19,6 +19,7 @@ An example `defaults.json` with completely new defaults (not all entries need to
     "scaling": 0.7,
     "viewOnly": false,
     "showPointers": true,
+    "translateNumpad": true,
     "fileTransfer": true,
     "password": "supersecure",
     "accessKey": "evenmoresecure",
