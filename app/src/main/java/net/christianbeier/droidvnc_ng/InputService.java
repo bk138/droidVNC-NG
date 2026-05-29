@@ -121,6 +121,7 @@ public class InputService extends AccessibilityService {
 	 */
 	static float scaling;
 	static boolean isInputEnabled;
+	static boolean translateNumpad;
 
 	private TakeScreenshotCallback mTakeScreenShotCallback;
 	private static final int TAKE_SCREEN_SHOT_DELAY_MS_INITIAL = 100;
@@ -185,6 +186,7 @@ public class InputService extends AccessibilityService {
 		instance = this;
 		isInputEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !new Defaults(this).getViewOnly());
 		scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
+		translateNumpad = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_TRANSLATE_NUMPAD, new Defaults(this).getTranslateNumpad());
 		mMainHandler = new Handler(instance.getMainLooper());
 		Log.i(TAG, "onServiceConnected");
 	}
@@ -502,7 +504,7 @@ public class InputService extends AccessibilityService {
 					if (keysym == 0xffc8) keyCode = KeyEvent.KEYCODE_F11;
 					if (keysym == 0xffc9) keyCode = KeyEvent.KEYCODE_F12;
 
-					if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_SETTINGS_TRANSLATE_NUMPAD, new Defaults(this).getTranslateNumpad())) {
+					if (translateNumpad) {
 						// Numpad keys, translated
 						if (keysym == 0xff8d) keyCode = KeyEvent.KEYCODE_ENTER;
 						if (keysym == 0xffaa) keyCode = KeyEvent.KEYCODE_STAR;
