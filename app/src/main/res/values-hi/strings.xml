@@ -11,6 +11,7 @@
     <string name="main_activity_settings_scaling">स्केलिंग</string>
     <string name="main_activity_settings_view_only">केवल देखें</string>
     <string name="main_activity_settings_show_pointers">माउस कर्सर</string>
+    <string name="main_activity_settings_translate_numpad">न्यूमपैड का अनुवाद करें</string>
     <string name="main_activity_permissions_dashboard">अनुमति डैशबोर्ड</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">स्क्रीन कैप्चर</string>

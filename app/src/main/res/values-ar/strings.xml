@@ -11,6 +11,7 @@
     <string name="main_activity_settings_scaling">التكبير/التقليل</string>
     <string name="main_activity_settings_view_only">عرض فقط</string>
     <string name="main_activity_settings_show_pointers">مؤشرات الماوس</string>
+    <string name="main_activity_settings_translate_numpad">ترجمة لوحة الأرقام</string>
     <string name="main_activity_permissions_dashboard">لوحة الأذونات</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">التقاط الشاشة</string>

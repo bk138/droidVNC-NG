@@ -11,6 +11,7 @@
     <string name="main_activity_settings_scaling">Skalowanie</string>
     <string name="main_activity_settings_view_only">Tylko podgląd</string>
     <string name="main_activity_settings_show_pointers">Wskaźniki myszy</string>
+    <string name="main_activity_settings_translate_numpad">Przetłumacz klawiaturę numeryczną</string>
     <string name="main_activity_permissions_dashboard">Panel uprawnień</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Przechwytywanie ekranu</string>

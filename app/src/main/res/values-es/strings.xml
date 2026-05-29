@@ -11,6 +11,7 @@
     <string name="main_activity_settings_scaling">Escala resolución</string>
     <string name="main_activity_settings_view_only">Modo espectador</string>
     <string name="main_activity_settings_show_pointers">Muestra punteros</string>
+    <string name="main_activity_settings_translate_numpad">Traducir teclado numérico</string>
     <string name="main_activity_permissions_dashboard">Panel de los permisos</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Captura de pantalla</string>

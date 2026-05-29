@@ -11,6 +11,7 @@
     <string name="main_activity_settings_scaling">拡大率</string>
     <string name="main_activity_settings_view_only">クライアントに操作を許可しない</string>
     <string name="main_activity_settings_show_pointers">マウスカーソル</string>
+    <string name="main_activity_settings_translate_numpad">テンキーの翻訳</string>
     <string name="main_activity_permissions_dashboard">権限ダッシュボード</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">スクリーンキャプチャ</string>

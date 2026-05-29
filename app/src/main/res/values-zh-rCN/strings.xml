@@ -11,6 +11,7 @@
     <string name="main_activity_settings_scaling">缩放</string>
     <string name="main_activity_settings_view_only">只读</string>
     <string name="main_activity_settings_show_pointers">鼠标指针</string>
+    <string name="main_activity_settings_translate_numpad">数字键盘翻译</string>
     <string name="main_activity_permissions_dashboard">权限仪表盘</string>
     <string name="main_activity_colon">：</string>
     <string name="main_activity_screen_capturing">截屏</string>

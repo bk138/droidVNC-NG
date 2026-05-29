@@ -11,6 +11,7 @@
     <string name="main_activity_settings_scaling">Масштабирование</string>
     <string name="main_activity_settings_view_only">Только просмотр</string>
     <string name="main_activity_settings_show_pointers">Курсоры мыши</string>
+    <string name="main_activity_settings_translate_numpad">Перевод цифровой клавиатуры</string>
     <string name="main_activity_permissions_dashboard">Панель управления разрешениями</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Захват экрана</string>

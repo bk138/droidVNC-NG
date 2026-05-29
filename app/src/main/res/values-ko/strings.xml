@@ -11,6 +11,7 @@
     <string name="main_activity_settings_scaling">확대/축소</string>
     <string name="main_activity_settings_view_only">보기만 허용</string>
     <string name="main_activity_settings_show_pointers">마우스 커서 표시</string>
+    <string name="main_activity_settings_translate_numpad">숫자 키패드 번역</string>
     <string name="main_activity_permissions_dashboard">권한 대시보드</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">화면 캡처</string>

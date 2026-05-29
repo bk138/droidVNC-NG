@@ -11,6 +11,7 @@
     <string name="main_activity_settings_scaling">Масштабування</string>
     <string name="main_activity_settings_view_only">Тільки перегляд</string>
     <string name="main_activity_settings_show_pointers">Курсори миші</string>
+    <string name="main_activity_settings_translate_numpad">Перекласти цифрову клавіатуру</string>
     <string name="main_activity_permissions_dashboard">Панель дозволів</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Захват екрану</string>

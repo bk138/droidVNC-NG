@@ -11,6 +11,7 @@
     <string name="main_activity_settings_scaling">Mise à l\'échelle de la résolution</string>
     <string name="main_activity_settings_view_only">Mode spectateur</string>
     <string name="main_activity_settings_show_pointers">Montrer curseurs</string>
+    <string name="main_activity_settings_translate_numpad">Traduire le pavé numérique</string>
     <string name="main_activity_permissions_dashboard">Panneau des autorisations</string>
     <string name="main_activity_colon">:</string>
     <string name="main_activity_screen_capturing">Capture d\'écran</string>
