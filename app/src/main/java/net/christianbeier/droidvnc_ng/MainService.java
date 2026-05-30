@@ -143,7 +143,7 @@ public class MainService extends Service {
     /// This maps the Intent's request id to an OutboundClientReconnectData entry
     private final ConcurrentHashMap<String, OutboundClientReconnectData> mOutboundClientsToReconnect = new ConcurrentHashMap<>();
     private final Handler mOutboundClientReconnectHandler = new Handler(Looper.getMainLooper());
-    private final ConnectivityManager.NetworkCallback mNetworkChangeListener = new ConnectivityManager.NetworkCallback() {
+    private final ConnectivityManager.NetworkCallback mDefaultNetworkAvailableCallback = new ConnectivityManager.NetworkCallback() {
         @Override
         public void onAvailable(@NonNull Network network) {
             // fires when wifi lost and mobile data selected as well, but that won't hurt...
@@ -269,7 +269,7 @@ public class MainService extends Service {
         /*
             Register a listener for network-up events
          */
-        ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).registerDefaultNetworkCallback(mNetworkChangeListener);
+        ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).registerDefaultNetworkCallback(mDefaultNetworkAvailableCallback);
 
         /*
             Load defaults
@@ -318,7 +318,7 @@ public class MainService extends Service {
 
         // unregister network change listener
         try {
-            ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).unregisterNetworkCallback(mNetworkChangeListener);
+            ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).unregisterNetworkCallback(mDefaultNetworkAvailableCallback);
         } catch (Exception ignored) {
             // was not registered
         }
