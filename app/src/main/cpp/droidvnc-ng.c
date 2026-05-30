@@ -620,6 +620,12 @@ JNIEXPORT jstring JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGe
     return (*env)->NewStringUTF(env, inet_ntoa(addr));
 }
 
+JNIEXPORT jstring JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetBoundIPv6(JNIEnv *env, __unused jobject thiz) {
+    if (!theScreen || theScreen->ipv6port == -1) return NULL;  // Server not started or IPv6 disabled
+    // listen6Interface NULL means libvncserver binds the wildcard; report it as such for symmetry with v4 returning "0.0.0.0"
+    return (*env)->NewStringUTF(env, theScreen->listen6Interface ? theScreen->listen6Interface : "::");
+}
+
 JNIEXPORT void JNICALL
 Java_net_christianbeier_droidvnc_1ng_MainService_vncSendCutText(JNIEnv *env, __unused jclass clazz,
                                                                 jstring text) {
