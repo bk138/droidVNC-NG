@@ -722,7 +722,9 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).registerNetworkCallback(
-                new NetworkRequest.Builder().build(),
+                new NetworkRequest.Builder()
+                        .removeCapability(android.net.NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+                        .build(),
                 mNetworkCallback);
         // Access Points opened by us
         mWifiApStateChangedReceiver = new BroadcastReceiver() {
