@@ -79,13 +79,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -110,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver mWifiApStateChangedReceiver;
     private final Handler mClientListHandler = new Handler(Looper.getMainLooper());
     private BroadcastReceiver mClientListBroadcastReceiver;
+    private final ConcurrentHashMap<Long, String> mNetworkInterfaces = new ConcurrentHashMap<>();
     private Spinner mInterfaceSpinner;
     private ArrayAdapter<String> mInterfaceAdapter;
 
@@ -695,28 +700,21 @@ public class MainActivity extends AppCompatActivity {
          */
         // Client networks
         mNetworkCallback = new ConnectivityManager.NetworkCallback() {
-            @Override
-            public void onAvailable(@NonNull Network network) {
-                Log.d(TAG, "NetworkCallback onAvailable");
-                runOnUiThread(() -> {
-                    updateAddressesDisplay();
-                    updateInterfaceSpinner();
-                });
-            }
 
             @Override
             public void onLinkPropertiesChanged(@NonNull Network network, @NonNull LinkProperties linkProperties) {
-                Log.d(TAG, "NetworkCallback onLinkPropertiesChanged");
+                Log.d(TAG, "NetworkCallback onLinkPropertiesChanged for " + network.getNetworkHandle());
+                mNetworkInterfaces.put(network.getNetworkHandle(), linkProperties.getInterfaceName() != null ? linkProperties.getInterfaceName() : "");
                 runOnUiThread(() -> {
                     updateAddressesDisplay();
                     updateInterfaceSpinner();
                 });
             }
 
-
             @Override
             public void onLost(@NonNull Network network) {
-                Log.d(TAG, "NetworkCallback onLost");
+                Log.d(TAG, "NetworkCallback onLost for " + network.getNetworkHandle());
+                mNetworkInterfaces.remove(network.getNetworkHandle());
                 runOnUiThread(() -> {
                     updateAddressesDisplay();
                     updateInterfaceSpinner();
@@ -731,6 +729,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(TAG, "WIFI_AP_STATE_CHANGED");
+                int apState = intent.getIntExtra("wifi_state", 14);
+                String apName = intent.getStringExtra("android.net.wifi.extra.WIFI_AP_INTERFACE_NAME");
+                if (apState == 11) { // WIFI_AP_STATE_DISABLED
+                    Log.d(TAG, "WIFI_AP_STATE_CHANGED got WIFI_AP_STATE_DISABLED for " + apName);
+                    mNetworkInterfaces.remove(-1L);
+                }
+                if (apName != null && apState == 13) { // WIFI_AP_STATE_ENABLED
+                    Log.d(TAG, "WIFI_AP_STATE_CHANGED got WIFI_AP_STATE_ENABLED for " + apName);
+                    mNetworkInterfaces.put(-1L, apName);
+                }
                 runOnUiThread(() -> {
                     updateAddressesDisplay();
                     updateInterfaceSpinner();
@@ -903,8 +911,24 @@ public class MainActivity extends AppCompatActivity {
     private void updateInterfaceSpinner() {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         final List<String> interfaceNames = new java.util.ArrayList<>();
+        // and "any" first!
         interfaceNames.add(getString(R.string.main_activity_settings_interface_any));
-        interfaceNames.addAll(Utils.getUpNetworkInterfaceNames());
+        // then loopback. it very probably is "lo" but query for the loopback device here
+        // to be absolutely sure
+        try {
+            for (NetworkInterface iface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+                if (iface.isLoopback() && iface.getName() != null) {
+                    interfaceNames.add(iface.getName());
+                    break;
+                }
+            }
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+        // add the others
+        interfaceNames.addAll(mNetworkInterfaces.values());
+
+        Log.d(TAG, "updateInterfaceSpinner: interfaces:" + String.join(", ", interfaceNames));
 
         runOnUiThread(() -> {
             mInterfaceAdapter.clear();
