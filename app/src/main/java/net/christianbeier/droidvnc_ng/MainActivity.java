@@ -115,8 +115,8 @@ public class MainActivity extends AppCompatActivity {
     private final Handler mClientListHandler = new Handler(Looper.getMainLooper());
     private BroadcastReceiver mClientListBroadcastReceiver;
     private final ConcurrentHashMap<Long, String> mNetworkInterfaces = new ConcurrentHashMap<>();
-    private Spinner mInterfaceSpinner;
-    private ArrayAdapter<String> mInterfaceAdapter;
+    private Spinner mNetworkInterfaceSpinner;
+    private ArrayAdapter<String> mNetworkInterfaceAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,11 +174,11 @@ public class MainActivity extends AppCompatActivity {
         mAddress = findViewById(R.id.address);
 
         // Wire up network interface spinner
-        mInterfaceSpinner = findViewById(R.id.settings_interface);
-        mInterfaceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new java.util.ArrayList<>());
-        mInterfaceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mInterfaceSpinner.setAdapter(mInterfaceAdapter);
-        mInterfaceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mNetworkInterfaceSpinner = findViewById(R.id.settings_interface);
+        mNetworkInterfaceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new java.util.ArrayList<>());
+        mNetworkInterfaceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mNetworkInterfaceSpinner.setAdapter(mNetworkInterfaceAdapter);
+        mNetworkInterfaceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 // Position 0 = "any", pass empty string meaning bind to all
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
-        updateInterfaceSpinner();
+        updateNetworkInterfaceSpinner();
 
         Button reverseVNC = findViewById(R.id.reverse_vnc);
         reverseVNC.setOnClickListener(view -> {
@@ -707,7 +707,7 @@ public class MainActivity extends AppCompatActivity {
                 mNetworkInterfaces.put(network.getNetworkHandle(), linkProperties.getInterfaceName() != null ? linkProperties.getInterfaceName() : "");
                 runOnUiThread(() -> {
                     updateAddressesDisplay();
-                    updateInterfaceSpinner();
+                    updateNetworkInterfaceSpinner();
                 });
             }
 
@@ -717,7 +717,7 @@ public class MainActivity extends AppCompatActivity {
                 mNetworkInterfaces.remove(network.getNetworkHandle());
                 runOnUiThread(() -> {
                     updateAddressesDisplay();
-                    updateInterfaceSpinner();
+                    updateNetworkInterfaceSpinner();
                 });
             }
         };
@@ -741,7 +741,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 runOnUiThread(() -> {
                     updateAddressesDisplay();
-                    updateInterfaceSpinner();
+                    updateNetworkInterfaceSpinner();
                 });
             }
         };
@@ -908,7 +908,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void updateInterfaceSpinner() {
+    private void updateNetworkInterfaceSpinner() {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         final List<String> interfaceNames = new java.util.ArrayList<>();
         // and "any" first!
@@ -931,17 +931,17 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "updateInterfaceSpinner: interfaces:" + String.join(", ", interfaceNames));
 
         runOnUiThread(() -> {
-            mInterfaceAdapter.clear();
-            mInterfaceAdapter.addAll(interfaceNames);
+            mNetworkInterfaceAdapter.clear();
+            mNetworkInterfaceAdapter.addAll(interfaceNames);
 
             // Restore saved selection if still valid
             String savedInterface = prefs.getString(Constants.PREFS_KEY_SETTINGS_INTERFACE, "");
             int savedIndex = interfaceNames.indexOf(savedInterface);
             if (savedIndex >= 0) {
-                mInterfaceSpinner.setSelection(savedIndex);
+                mNetworkInterfaceSpinner.setSelection(savedIndex);
             } else {
                 // Saved interface no longer exists, select "any"
-                mInterfaceSpinner.setSelection(0);
+                mNetworkInterfaceSpinner.setSelection(0);
             }
         });
     }
