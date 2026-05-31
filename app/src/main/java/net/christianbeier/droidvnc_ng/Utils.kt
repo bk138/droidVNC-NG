@@ -14,10 +14,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.net.Inet4Address
-import java.net.Inet6Address
-import java.net.NetworkInterface
-import java.net.SocketException
 import java.util.concurrent.locks.Lock
 import kotlin.concurrent.withLock
 
@@ -141,22 +137,6 @@ object Utils {
         } finally {
             lock.unlock()
         }
-    }
-
-    /**
-     * Get names of all up network interfaces that have IPv4 or IPv6 addresses assigned.
-     */
-    @JvmStatic
-    fun getUpNetworkInterfaceNames(): List<String> = try {
-        NetworkInterface.getNetworkInterfaces()?.asSequence()
-            ?.filter { it.isUp }
-            ?.filter { ni ->
-                ni.interfaceAddresses.any { it.address is Inet4Address || it.address is Inet6Address }
-            }
-            ?.map { it.name }
-            ?.toList() ?: emptyList()
-    } catch (_: SocketException) {
-        emptyList()
     }
 
 }
