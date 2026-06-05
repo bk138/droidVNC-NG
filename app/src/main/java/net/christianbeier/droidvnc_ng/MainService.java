@@ -34,7 +34,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.net.ConnectivityManager;
+import android.net.LinkAddress;
+import android.net.LinkProperties;
 import android.net.Network;
+import android.net.NetworkRequest;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
@@ -58,6 +61,9 @@ import android.view.Display;
 import androidx.core.app.NotificationCompat;
 
 import java.io.File;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -175,6 +181,50 @@ public class MainService extends Service {
         }
     };
 
+    // A watcher for link-property changes on any network, so we can detect when the bound
+    // interface's IP changes underneath us. SO_BINDTODEVICE would be nicer, but this is only
+    // supported on Kernel >= 5.7.
+    private final ConnectivityManager.NetworkCallback mAnyNetworkLinkPropertiesChangedCallback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onLinkPropertiesChanged(@NonNull Network network, @NonNull LinkProperties lp) {
+            if (!vncIsActive()) return;
+
+            // get whether interface-specific binding was wanted
+            Intent startIntent = MainServicePersistData.loadStartIntent(MainService.this);
+            String ifname = startIntent != null ? startIntent.getStringExtra(EXTRA_INTERFACE) : null;
+            if (ifname == null) {
+                ifname = PreferenceManager.getDefaultSharedPreferences(MainService.this)
+                        .getString(Constants.PREFS_KEY_SETTINGS_INTERFACE, mDefaults.getInterfaceName());
+            }
+            if (ifname.isEmpty()) return;                            // no interface specific binding wanted
+            if (!ifname.equals(lp.getInterfaceName())) return;       // not our bound interface
+
+            String boundV4 = vncGetBoundIPv4();
+            String boundV6 = vncGetBoundIPv6();
+
+            boolean v4StillPresent = false, v6StillPresent = false;
+            List<String> currentV4s = new ArrayList<>(), currentV6s = new ArrayList<>();
+            for (LinkAddress la : lp.getLinkAddresses()) {
+                InetAddress a = la.getAddress();
+                String s = a.getHostAddress();
+                if (a instanceof Inet4Address) {
+                    currentV4s.add(s);
+                    if (s != null && s.equals(boundV4)) v4StillPresent = true;
+                } else if (a instanceof Inet6Address) {
+                    currentV6s.add(s);
+                    if (s != null && s.equals(boundV6)) v6StillPresent = true;
+                }
+            }
+
+            if (boundV4 != null && !v4StillPresent) {
+                Log.i(TAG, "Interface " + ifname + " IPv4 bind " + boundV4 + " stale; new IPv4: " + currentV4s);
+            }
+            if (boundV6 != null && !v6StillPresent) {
+                Log.i(TAG, "Interface " + ifname + " IPv6 bind " + boundV6 + " stale; new IPv6: " + currentV6s);
+            }
+        }
+    };
+
     private boolean mIsStopping;
     // service is stopping on OUR initiative, NOT by stopService()
     private boolean mIsStoppingByUs;
@@ -268,9 +318,15 @@ public class MainService extends Service {
         mWakeLock = ((PowerManager) instance.getSystemService(Context.POWER_SERVICE)).newWakeLock((PowerManager.SCREEN_DIM_WAKE_LOCK| PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE), TAG + ":clientsConnected");
 
         /*
-            Register a listener for network-up events
+            Register a listener for default network-up events
          */
         ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).registerDefaultNetworkCallback(mDefaultNetworkAvailableCallback);
+
+        /*
+            Register a watcher for link-property changes on any network, so we can detect when the
+            bound interface's IP changes underneath us.
+         */
+        ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).registerNetworkCallback(new NetworkRequest.Builder().build(), mAnyNetworkLinkPropertiesChangedCallback);
 
         /*
             Load defaults
@@ -320,6 +376,13 @@ public class MainService extends Service {
         // unregister network change listener
         try {
             ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).unregisterNetworkCallback(mDefaultNetworkAvailableCallback);
+        } catch (Exception ignored) {
+            // was not registered
+        }
+
+        // unregister bound-interface address watcher
+        try {
+            ((ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE)).unregisterNetworkCallback(mAnyNetworkLinkPropertiesChangedCallback);
         } catch (Exception ignored) {
             // was not registered
         }
