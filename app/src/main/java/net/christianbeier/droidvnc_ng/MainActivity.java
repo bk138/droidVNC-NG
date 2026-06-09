@@ -1035,6 +1035,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.outbound_buttons).setVisibility(View.VISIBLE);
 
         // indicate that changing these settings does not have an effect when the server is running
+        findViewById(R.id.settings_interface).setEnabled(false);
         findViewById(R.id.settings_port).setEnabled(false);
         findViewById(R.id.settings_password).setEnabled(false);
         findViewById(R.id.settings_access_key).setEnabled(false);
@@ -1064,6 +1065,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.outbound_buttons).setVisibility(View.GONE);
 
         // indicate that changing these settings does have an effect when the server is stopped
+        findViewById(R.id.settings_interface).setEnabled(true);
         findViewById(R.id.settings_port).setEnabled(true);
         findViewById(R.id.settings_password).setEnabled(true);
         findViewById(R.id.settings_access_key).setEnabled(true);
