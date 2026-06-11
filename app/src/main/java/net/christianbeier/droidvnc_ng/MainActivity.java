@@ -911,6 +911,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateNetworkInterfaceSpinner() {
+        if(mIsMainServiceRunning) {
+            // don't update the disabled UI (but take care to update in onServerStopped())!
+            return;
+        }
+
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         final List<String> interfaceNames = new java.util.ArrayList<>();
         // and "any" first!
@@ -1080,6 +1085,9 @@ public class MainActivity extends AppCompatActivity {
         stopGettingClientList();
 
         mIsMainServiceRunning = false;
+
+        // this will not be updated when server is running, do it here explicitly
+        updateNetworkInterfaceSpinner();
     }
 
     private void startGettingClientList() {
