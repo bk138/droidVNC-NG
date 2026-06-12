@@ -671,6 +671,31 @@ JNIEXPORT jstring JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGe
     return (*env)->NewStringUTF(env, theScreen->listen6Interface ? theScreen->listen6Interface : "::");
 }
 
+JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncRebindInterface(JNIEnv *env, __unused jobject thiz, jstring listenIf, jint port) {
+    if (!theScreen) {
+        return JNI_FALSE;
+    }
+
+    const char *cListenIf = listenIf ? (*env)->GetStringUTFChars(env, listenIf, NULL) : NULL;
+    int rc = set_listener_addresses(theScreen, cListenIf, port);
+    if (cListenIf) {
+        (*env)->ReleaseStringUTFChars(env, listenIf, cListenIf);
+    }
+
+    if (rc != 0) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "vncRebindInterface: could not resolve listener addresses, keeping current sockets");
+        return JNI_FALSE;
+    }
+
+    // Hand the actual close()/socket() swap to the listener thread so it cannot race its own select().
+    rfbRequestListenRebind(theScreen);
+    struct in_addr v4addr = { .s_addr = theScreen->listenInterface };
+    __android_log_print(ANDROID_LOG_INFO, TAG, "vncRebindInterface: requested rebind (IPv4 %s port %d, IPv6 %s port %d)",
+                        theScreen->port > 0 ? inet_ntoa(v4addr) : "disabled", theScreen->port,
+                        theScreen->ipv6port > 0 ? (theScreen->listen6Interface ? theScreen->listen6Interface : "::") : "disabled", theScreen->ipv6port);
+    return JNI_TRUE;
+}
+
 JNIEXPORT void JNICALL
 Java_net_christianbeier_droidvnc_1ng_MainService_vncSendCutText(JNIEnv *env, __unused jclass clazz,
                                                                 jstring text) {
