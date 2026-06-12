@@ -634,15 +634,39 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncI
     return theScreen && rfbIsActive(theScreen);
 }
 
+/*
+ * Return the bound IPv4 address as a tri-state:
+ *   NULL          -- IPv4 is disabled (port == -1)
+ *   empty string  -- IPv4 enabled but the listening socket is no longer in LISTEN
+ *                    state, e.g. some Android versions (12) drop it when the bound
+ *                    interface goes down while others (16) keep it
+ *   an IP string  -- IPv4 enabled and actually listening
+ */
 JNIEXPORT jstring JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetBoundIPv4(JNIEnv *env, __unused jobject thiz) {
-    if (!theScreen || theScreen->port == -1) return NULL;  // Server not started or IPv4 disabled
+    if (!theScreen || theScreen->port == -1) return NULL;  // IPv4 disabled
+    int val = 0;
+    socklen_t len = sizeof(val);
+    if (getsockopt(theScreen->listenSock, SOL_SOCKET, SO_ACCEPTCONN, &val, &len) != 0 || val == 0)
+        return (*env)->NewStringUTF(env, "");  // enabled but not listening
     struct in_addr addr;
     addr.s_addr = theScreen->listenInterface;
     return (*env)->NewStringUTF(env, inet_ntoa(addr));
 }
 
+/*
+ * Return the bound IPv6 address as a tri-state:
+ *   NULL          -- IPv6 is disabled (port == -1)
+ *   empty string  -- IPv6 enabled but the listening socket is no longer in LISTEN
+ *                    state, e.g. some Android versions (12) drop it when the bound
+ *                    interface goes down while others (16) keep it
+ *   an IP string  -- IPv6 enabled and actually listening
+ */
 JNIEXPORT jstring JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetBoundIPv6(JNIEnv *env, __unused jobject thiz) {
-    if (!theScreen || theScreen->ipv6port == -1) return NULL;  // Server not started or IPv6 disabled
+    if (!theScreen || theScreen->ipv6port == -1) return NULL;  // IPv6 disabled
+    int val = 0;
+    socklen_t len = sizeof(val);
+    if (getsockopt(theScreen->listen6Sock, SOL_SOCKET, SO_ACCEPTCONN, &val, &len) != 0 || val == 0)
+        return (*env)->NewStringUTF(env, "");  // enabled but not listening
     // listen6Interface NULL means libvncserver binds the wildcard; report it as such for symmetry with v4 returning "0.0.0.0"
     return (*env)->NewStringUTF(env, theScreen->listen6Interface ? theScreen->listen6Interface : "::");
 }
