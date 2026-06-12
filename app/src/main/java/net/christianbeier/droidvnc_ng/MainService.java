@@ -182,8 +182,8 @@ public class MainService extends Service {
     };
 
     // A watcher for link-property changes on any network, so we can detect when the bound
-    // interface's IP changes underneath us. SO_BINDTODEVICE would be nicer, but this is only
-    // supported on Kernel >= 5.7.
+    // interface's IP changes underneath us and re-bind the listening sockets to the new IPs.
+    // SO_BINDTODEVICE would be nicer, but this is only supported on Kernel >= 5.7.
     private final ConnectivityManager.NetworkCallback mAnyNetworkLinkPropertiesChangedCallback = new ConnectivityManager.NetworkCallback() {
         @Override
         public void onLinkPropertiesChanged(@NonNull Network network, @NonNull LinkProperties lp) {
@@ -220,11 +220,18 @@ public class MainService extends Service {
                 }
             }
 
-            if (boundV4 != null && !v4StillPresent) {
-                Log.i(TAG, "Interface " + ifname + " IPv4 bind '" + boundV4 + "' stale; new IPv4: " + currentV4s);
-            }
-            if (boundV6 != null && !v6StillPresent) {
-                Log.i(TAG, "Interface " + ifname + " IPv6 bind '" + boundV6 + "' stale; new IPv6: " + currentV6s);
+            boolean v4Stale = boundV4 != null && !v4StillPresent;
+            boolean v6Stale = boundV6 != null && !v6StillPresent;
+            if (!v4Stale && !v6Stale) return;                        // our bound IP(s) still there, nothing to do
+
+            if (v4Stale) Log.i(TAG, "Interface " + ifname + " IPv4 bind '" + boundV4 + "' stale; new IPv4: " + currentV4s);
+            if (v6Stale) Log.i(TAG, "Interface " + ifname + " IPv6 bind '" + boundV6 + "' stale; new IPv6: " + currentV6s);
+
+            int port = getPort();
+            if (!vncRebindInterface(ifname, port)) {
+                Log.e(TAG, "Rebind to interface " + ifname + " failed");
+            } else {
+                Log.i(TAG, "Rebind to interface " + ifname + " on port " + port + " succeeded");
             }
         }
     };
@@ -270,6 +277,7 @@ public class MainService extends Service {
     private native boolean vncIsActive();
     private native String vncGetBoundIPv4();
     private native String vncGetBoundIPv6();
+    private native boolean vncRebindInterface(String interfaceName, int port);
     private native long vncConnectReverse(String host, int port);
     private native long vncConnectRepeater(String host, int port, String repeaterIdentifier);
     static native boolean vncNewFramebuffer(int width, int height);
