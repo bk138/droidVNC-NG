@@ -199,6 +199,10 @@ public class MainService extends Service {
             if (ifname.isEmpty()) return;                            // no interface specific binding wanted
             if (!ifname.equals(lp.getInterfaceName())) return;       // not our bound interface
 
+            //   null         -> this family is disabled, ignore it
+            //   empty string -> family enabled but its socket is no longer listening (OS dropped it
+            //                   when the interface went down)
+            //   an IP string -> family enabled and actually listening
             String boundV4 = vncGetBoundIPv4();
             String boundV6 = vncGetBoundIPv6();
 
@@ -217,10 +221,10 @@ public class MainService extends Service {
             }
 
             if (boundV4 != null && !v4StillPresent) {
-                Log.i(TAG, "Interface " + ifname + " IPv4 bind " + boundV4 + " stale; new IPv4: " + currentV4s);
+                Log.i(TAG, "Interface " + ifname + " IPv4 bind '" + boundV4 + "' stale; new IPv4: " + currentV4s);
             }
             if (boundV6 != null && !v6StillPresent) {
-                Log.i(TAG, "Interface " + ifname + " IPv6 bind " + boundV6 + " stale; new IPv6: " + currentV6s);
+                Log.i(TAG, "Interface " + ifname + " IPv6 bind '" + boundV6 + "' stale; new IPv6: " + currentV6s);
             }
         }
     };
