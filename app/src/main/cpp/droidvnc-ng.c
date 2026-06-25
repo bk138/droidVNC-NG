@@ -209,7 +209,7 @@ static void onKeyEvent(rfbBool down, rfbKeySym key, rfbClientPtr cl)
     (*theVM)->DetachCurrentThread(theVM);
 }
 
-static void onCutText(char *text, __unused int len, rfbClientPtr cl)
+static void onCutText(char *text, int len, rfbClientPtr cl)
 {
     JNIEnv *env = NULL;
     if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
@@ -223,7 +223,7 @@ static void onCutText(char *text, __unused int len, rfbClientPtr cl)
     jobject charset = (*env)->CallStaticObjectMethod(env, clsCharset, midCharsetForName, (*env)->NewStringUTF(env, "ISO-8859-1"));
 
     //CharBuffer charBuffer = charset.decode(byteBuffer)
-    jobject byteBuffer = (*env)->NewDirectByteBuffer(env, (jbyte *)text, strlen(text));
+    jobject byteBuffer = (*env)->NewDirectByteBuffer(env, (jbyte *)text, len);
     jmethodID midCharsetDecode = (*env)->GetMethodID(env, clsCharset, "decode", "(Ljava/nio/ByteBuffer;)Ljava/nio/CharBuffer;");
     jobject charBuffer = (*env)->CallObjectMethod(env, charset, midCharsetDecode, byteBuffer);
     (*env)->DeleteLocalRef(env, byteBuffer);
@@ -244,7 +244,7 @@ static void onCutText(char *text, __unused int len, rfbClientPtr cl)
     (*theVM)->DetachCurrentThread(theVM);
 }
 
-static void onCutTextUTF8(char *text, __unused int len, rfbClientPtr cl)
+static void onCutTextUTF8(char *text, int len, rfbClientPtr cl)
 {
     JNIEnv *env = NULL;
     if ((*theVM)->AttachCurrentThread(theVM, &env, NULL) != 0) {
@@ -252,7 +252,22 @@ static void onCutTextUTF8(char *text, __unused int len, rfbClientPtr cl)
         return;
     }
 
-    jstring jText = (*env)->NewStringUTF(env, text);
+    //Charset charset = Charset.forName("UTF-8")
+    jclass clsCharset =  (*env)->FindClass(env,"java/nio/charset/Charset");
+    jmethodID midCharsetForName = (*env)->GetStaticMethodID(env, clsCharset, "forName", "(Ljava/lang/String;)Ljava/nio/charset/Charset;");
+    jobject charset = (*env)->CallStaticObjectMethod(env, clsCharset, midCharsetForName, (*env)->NewStringUTF(env, "UTF-8"));
+
+    //CharBuffer charBuffer = charset.decode(byteBuffer)
+    jobject byteBuffer = (*env)->NewDirectByteBuffer(env, (jbyte *)text, len);
+    jmethodID midCharsetDecode = (*env)->GetMethodID(env, clsCharset, "decode", "(Ljava/nio/ByteBuffer;)Ljava/nio/CharBuffer;");
+    jobject charBuffer = (*env)->CallObjectMethod(env, charset, midCharsetDecode, byteBuffer);
+    (*env)->DeleteLocalRef(env, byteBuffer);
+
+    //String jText = charBuffer.toString();
+    jclass clsCharBuffer = (*env)->FindClass(env, "java/nio/CharBuffer");
+    jmethodID midCharBufferToString = (*env)->GetMethodID(env, clsCharBuffer, "toString", "()Ljava/lang/String;");
+    jstring jText = (*env)->CallObjectMethod(env, charBuffer, midCharBufferToString);
+    (*env)->DeleteLocalRef(env, charBuffer);
 
     jmethodID mid = (*env)->GetStaticMethodID(env, theInputService, "onCutText", "(Ljava/lang/String;J)V");
     (*env)->CallStaticVoidMethod(env, theInputService, mid, jText, (jlong)cl);
