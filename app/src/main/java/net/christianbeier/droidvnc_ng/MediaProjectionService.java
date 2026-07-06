@@ -101,8 +101,10 @@ public class MediaProjectionService extends Service {
                     // throws IllegalArgumentException if no notification
                     startForeground(MainService.NOTIFICATION_ID, MainService.getCurrentNotification());
                 }
-            } catch (Exception ignored) {
-                Log.e(TAG, "Not starting because MainService quit");
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to start", e);
+                // cancel framework timer waiting for startForeground()
+                stopSelf();
             }
         }
 
