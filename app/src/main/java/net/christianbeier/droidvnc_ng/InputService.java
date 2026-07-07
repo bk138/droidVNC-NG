@@ -502,23 +502,23 @@ public class InputService extends AccessibilityService {
 					if (keysym == 0xffc8) keyCode = KeyEvent.KEYCODE_F11;
 					if (keysym == 0xffc9) keyCode = KeyEvent.KEYCODE_F12;
 					// Numpad keys
-					if (keysym == 0xff8d) keyCode = KeyEvent.KEYCODE_NUMPAD_ENTER;
-					if (keysym == 0xffaa) keyCode = KeyEvent.KEYCODE_NUMPAD_MULTIPLY;
-					if (keysym == 0xffab) keyCode = KeyEvent.KEYCODE_NUMPAD_ADD;
-					if (keysym == 0xffac) keyCode = KeyEvent.KEYCODE_NUMPAD_COMMA;
-					if (keysym == 0xffad) keyCode = KeyEvent.KEYCODE_NUMPAD_SUBTRACT;
-					if (keysym == 0xffae) keyCode = KeyEvent.KEYCODE_NUMPAD_DOT;
-					if (keysym == 0xffaf) keyCode = KeyEvent.KEYCODE_NUMPAD_DIVIDE;
-					if (keysym == 0xffb0) keyCode = KeyEvent.KEYCODE_NUMPAD_0;
-					if (keysym == 0xffb1) keyCode = KeyEvent.KEYCODE_NUMPAD_1;
-					if (keysym == 0xffb2) keyCode = KeyEvent.KEYCODE_NUMPAD_2;
-					if (keysym == 0xffb3) keyCode = KeyEvent.KEYCODE_NUMPAD_3;
-					if (keysym == 0xffb4) keyCode = KeyEvent.KEYCODE_NUMPAD_4;
-					if (keysym == 0xffb5) keyCode = KeyEvent.KEYCODE_NUMPAD_5;
-					if (keysym == 0xffb6) keyCode = KeyEvent.KEYCODE_NUMPAD_6;
-					if (keysym == 0xffb7) keyCode = KeyEvent.KEYCODE_NUMPAD_7;
-					if (keysym == 0xffb8) keyCode = KeyEvent.KEYCODE_NUMPAD_8;
-					if (keysym == 0xffb9) keyCode = KeyEvent.KEYCODE_NUMPAD_9;
+					if (keysym == 0xff8d) keyCode = KeyEvent.KEYCODE_ENTER;
+					if (keysym == 0xffaa) keyCode = KeyEvent.KEYCODE_STAR;
+					if (keysym == 0xffab) keyCode = KeyEvent.KEYCODE_PLUS;
+					if (keysym == 0xffac) keyCode = KeyEvent.KEYCODE_COMMA;
+					if (keysym == 0xffad) keyCode = KeyEvent.KEYCODE_MINUS;
+					if (keysym == 0xffae) keyCode = KeyEvent.KEYCODE_PERIOD;
+					if (keysym == 0xffaf) keyCode = KeyEvent.KEYCODE_SLASH;
+					if (keysym == 0xffb0) keyCode = KeyEvent.KEYCODE_0;
+					if (keysym == 0xffb1) keyCode = KeyEvent.KEYCODE_1;
+					if (keysym == 0xffb2) keyCode = KeyEvent.KEYCODE_2;
+					if (keysym == 0xffb3) keyCode = KeyEvent.KEYCODE_3;
+					if (keysym == 0xffb4) keyCode = KeyEvent.KEYCODE_4;
+					if (keysym == 0xffb5) keyCode = KeyEvent.KEYCODE_5;
+					if (keysym == 0xffb6) keyCode = KeyEvent.KEYCODE_6;
+					if (keysym == 0xffb7) keyCode = KeyEvent.KEYCODE_7;
+					if (keysym == 0xffb8) keyCode = KeyEvent.KEYCODE_8;
+					if (keysym == 0xffb9) keyCode = KeyEvent.KEYCODE_9;
 
 					/*
 					    ASCII input, we use a translation to KeyEvents w/ keycodes as some apps
