@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.ViewConfiguration;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
@@ -75,6 +76,9 @@ public class InputService extends AccessibilityService {
 	private static class InputContext {
 		// pointer-related
 		boolean isButtonOneDown;
+		int pointerDownX;
+		int pointerDownY;
+		boolean pointerMoved;
 		Path path = new Path();
 		GestureDescription.StrokeDescription stroke;
 		long lastGestureStartTime;
@@ -312,21 +316,38 @@ public class InputService extends AccessibilityService {
 			    left mouse button
 			 */
 
+			boolean buttonOneDown = (buttonMask & (1 << 0)) != 0;
+			boolean buttonOneWasDown = inputContext.isButtonOneDown;
+
 			// down, was up
-			if ((buttonMask & (1 << 0)) != 0 && !inputContext.isButtonOneDown) {
+			if (buttonOneDown && !buttonOneWasDown) {
 				inputContext.isButtonOneDown = true;
+				inputContext.pointerDownX = x;
+				inputContext.pointerDownY = y;
+				inputContext.pointerMoved = false;
 				instance.startStroke(inputContext, x, y);
 			}
 
 			// down, was down
-			if ((buttonMask & (1 << 0)) != 0 && inputContext.isButtonOneDown) {
-				instance.continueStroke(inputContext, x, y);
+			if (buttonOneDown && buttonOneWasDown) {
+				int touchSlop = ViewConfiguration.get(instance).getScaledTouchSlop();
+				if (Math.abs(x - inputContext.pointerDownX) > touchSlop
+						|| Math.abs(y - inputContext.pointerDownY) > touchSlop) {
+					inputContext.pointerMoved = true;
+				}
+				if (inputContext.pointerMoved) {
+					instance.continueStroke(inputContext, x, y);
+				}
 			}
 
 			// up, was down
-			if ((buttonMask & (1 << 0)) == 0 && inputContext.isButtonOneDown) {
+			if (!buttonOneDown && buttonOneWasDown) {
 				inputContext.isButtonOneDown = false;
-				instance.endStroke(inputContext, x, y);
+				if (inputContext.pointerMoved) {
+					instance.endStroke(inputContext, x, y);
+				} else {
+					instance.clickAtCoordinates(inputContext, x, y);
+				}
 			}
 
 
@@ -1105,6 +1126,70 @@ public class InputService extends AccessibilityService {
 		// Docs says: Any gestures currently in progress, whether from the user, this service, or another service, will be cancelled.
 		// But at least on API level 32, setting different display ids with the builder allows for parallel input.
 		dispatchGesture(builder.build(), null, null);
+	}
+
+	/**
+	 * Some Android TV builds do not route injected tap gestures to applications. Prefer clicking
+	 * the deepest accessibility node at the pointer coordinates, then fall back to a standalone
+	 * tap for surfaces that do not expose a clickable accessibility node.
+	 */
+	private void clickAtCoordinates(InputContext inputContext, int x, int y) {
+		if (!performAccessibleClickAt(inputContext.getDisplayId(), x, y)) {
+			mMainHandler.post(() ->
+					dispatchGesture(
+							createClick(inputContext, x, y, Math.max(1, ViewConfiguration.getTapTimeout())),
+							inputContext.gestureCallback,
+							null
+					)
+			);
+		}
+	}
+
+	private boolean performAccessibleClickAt(int displayId, int x, int y) {
+		for (AccessibilityWindowInfo window : getWindows()) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && window.getDisplayId() != displayId) {
+				continue;
+			}
+
+			AccessibilityNodeInfo root = window.getRoot();
+			if (root == null) {
+				continue;
+			}
+
+			try {
+				if (performAccessibleClickAt(root, x, y)) {
+					return true;
+				}
+			} finally {
+				root.recycle();
+			}
+		}
+		return false;
+	}
+
+	private boolean performAccessibleClickAt(AccessibilityNodeInfo node, int x, int y) {
+		Rect bounds = new Rect();
+		node.getBoundsInScreen(bounds);
+		if (!bounds.contains(x, y) || !node.isVisibleToUser() || !node.isEnabled()) {
+			return false;
+		}
+
+		// Children are more specific than their containers, especially for WebView content.
+		for (int index = node.getChildCount() - 1; index >= 0; index--) {
+			AccessibilityNodeInfo child = node.getChild(index);
+			if (child == null) {
+				continue;
+			}
+			try {
+				if (performAccessibleClickAt(child, x, y)) {
+					return true;
+				}
+			} finally {
+				child.recycle();
+			}
+		}
+
+		return node.isClickable() && node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
 	}
 
 
