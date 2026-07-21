@@ -84,6 +84,10 @@ public class InputService extends AccessibilityService {
 		long lastGestureStartTime;
 		GestureCallback gestureCallback = new GestureCallback();
 		InputPointerView pointerView;
+		boolean withPointer;
+		float pointerRed;
+		float pointerGreen;
+		float pointerBlue;
 		// keyboard-related
 		boolean isKeyCtrlDown;
 		boolean isKeyAltDown;
@@ -103,22 +107,37 @@ public class InputService extends AccessibilityService {
 			this.displayId = displayId;
 			// and if there is a pointer, recreate it with the new display id
 			if(pointerView != null) {
-				pointerView.removeView();
-				pointerView = new InputPointerView(
-						instance,
-						displayId,
-						pointerView.getRed(),
-						pointerView.getGreen(),
-						pointerView.getBlue()
-				);
-				pointerView.addView();
+				detachPointerView();
+				attachPointerView();
 			}
+		}
+
+		void attachPointerView() {
+			if (!withPointer || pointerView != null || instance == null) {
+				return;
+			}
+			pointerView = new InputPointerView(
+					instance,
+					displayId,
+					pointerRed,
+					pointerGreen,
+					pointerBlue
+			);
+			pointerView.addView();
+		}
+
+		void detachPointerView() {
+			if (pointerView == null) {
+				return;
+			}
+			pointerView.removeView();
+			pointerView = null;
 		}
 	}
 
 	private static final String TAG = "InputService";
 
-	private static InputService instance;
+	private static volatile InputService instance;
 	/**
 	 * Scaling factor that's applied to incoming pointer events by dividing coordinates by
 	 * the given factor.
@@ -132,7 +151,9 @@ public class InputService extends AccessibilityService {
 
 	private Handler mMainHandler;
 
-	private final Map<Long, InputContext> mInputContexts = new ConcurrentHashMap<>();
+	// The AccessibilityService can be rebound while VNC clients remain connected. Keep their
+	// input state for the process lifetime and recreate service-owned pointer views on rebind.
+	private static final Map<Long, InputContext> mInputContexts = new ConcurrentHashMap<>();
 	/**
 	 * System keyboard input foci, display-specific starting on Android 10 (really 11 in higher layers),
 	 * see <a href="https://source.android.com/docs/core/display/multi_display/displays#focus">Android docs</a>
@@ -190,12 +211,18 @@ public class InputService extends AccessibilityService {
 		isInputEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !new Defaults(this).getViewOnly());
 		scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
 		mMainHandler = new Handler(instance.getMainLooper());
+		for (InputContext inputContext : mInputContexts.values()) {
+			mMainHandler.post(inputContext::attachPointerView);
+		}
 		Log.i(TAG, "onServiceConnected");
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		for (InputContext inputContext : mInputContexts.values()) {
+			inputContext.detachPointerView();
+		}
 		instance = null;
 		Log.i(TAG, "onDestroy");
 	}
@@ -248,21 +275,16 @@ public class InputService extends AccessibilityService {
 			int displayId = Display.DEFAULT_DISPLAY;
 			InputContext inputContext = new InputContext();
 			inputContext.setDisplayId(displayId);
+			inputContext.withPointer = withPointer;
 			if(withPointer) {
 				// run this on UI thread (use main handler as view is not yet added)
-                int inputContextsSize = instance.mInputContexts.size();
-                instance.mMainHandler.post(() -> {
-                    inputContext.pointerView = new InputPointerView(
-                            instance,
-                            displayId,
-                            0.4f * ((inputContextsSize + 1) % 3),
-                            0.2f * ((inputContextsSize + 1) % 5),
-                            1.0f * ((inputContextsSize + 1) % 2)
-                    );
-                    inputContext.pointerView.addView();
-               });
+				int inputContextsSize = mInputContexts.size();
+				inputContext.pointerRed = 0.4f * ((inputContextsSize + 1) % 3);
+				inputContext.pointerGreen = 0.2f * ((inputContextsSize + 1) % 5);
+				inputContext.pointerBlue = 1.0f * ((inputContextsSize + 1) % 2);
+				instance.mMainHandler.post(inputContext::attachPointerView);
 			}
-			instance.mInputContexts.put(client, inputContext);
+			mInputContexts.put(client, inputContext);
 		} catch (Exception e) {
 			Log.e(TAG, "addClient: " + e);
 		}
@@ -272,12 +294,12 @@ public class InputService extends AccessibilityService {
 	public static void removeClient(long client) {
 		// NB runs on a worker thread!
 		try {
-			InputContext inputContext = instance.mInputContexts.get(client);
+			InputContext inputContext = mInputContexts.get(client);
 			if(inputContext != null && inputContext.pointerView != null) {
 				// run this on UI thread
 				inputContext.pointerView.post(inputContext.pointerView::removeView);
 			}
-			instance.mInputContexts.remove(client);
+			mInputContexts.remove(client);
 		} catch (Exception e) {
 			Log.e(TAG, "removeClient: " + e);
 		}
@@ -291,8 +313,17 @@ public class InputService extends AccessibilityService {
 			return;
 		}
 
+		InputService connectedInstance = instance;
+		if (connectedInstance == null) {
+			int pendingButtonMask = buttonMask;
+			int pendingX = x;
+			int pendingY = y;
+			runWhenConnected(() -> onPointerEvent(pendingButtonMask, pendingX, pendingY, client));
+			return;
+		}
+
 		try {
-			InputContext inputContext = instance.mInputContexts.get(client);
+			InputContext inputContext = mInputContexts.get(client);
 
 			if(inputContext == null) {
 				throw new IllegalStateException("Client " + client + " was not added or is already removed");
@@ -325,7 +356,7 @@ public class InputService extends AccessibilityService {
 				inputContext.pointerDownX = x;
 				inputContext.pointerDownY = y;
 				inputContext.pointerMoved = false;
-				instance.startStroke(inputContext, x, y);
+				connectedInstance.startStroke(inputContext, x, y);
 			}
 
 			// down, was down
@@ -336,7 +367,7 @@ public class InputService extends AccessibilityService {
 					inputContext.pointerMoved = true;
 				}
 				if (inputContext.pointerMoved) {
-					instance.continueStroke(inputContext, x, y);
+					connectedInstance.continueStroke(inputContext, x, y);
 				}
 			}
 
@@ -344,36 +375,36 @@ public class InputService extends AccessibilityService {
 			if (!buttonOneDown && buttonOneWasDown) {
 				inputContext.isButtonOneDown = false;
 				if (inputContext.pointerMoved) {
-					instance.endStroke(inputContext, x, y);
+					connectedInstance.endStroke(inputContext, x, y);
 				} else {
-					instance.clickAtCoordinates(inputContext, x, y);
+					connectedInstance.clickAtCoordinates(inputContext, x, y);
 				}
 			}
 
 
 			// right mouse button
 			if ((buttonMask & (1 << 2)) != 0) {
-				instance.longPress(inputContext, x, y);
+				connectedInstance.longPress(inputContext, x, y);
 			}
 
 			// scroll up
 			if ((buttonMask & (1 << 3)) != 0) {
 
 				DisplayMetrics displayMetrics = new DisplayMetrics();
-				WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+				WindowManager wm = (WindowManager) connectedInstance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
 				wm.getDefaultDisplay().getRealMetrics(displayMetrics);
 
-				instance.scroll(inputContext, x, y, -displayMetrics.heightPixels / 2);
+				connectedInstance.scroll(inputContext, x, y, -displayMetrics.heightPixels / 2);
 			}
 
 			// scroll down
 			if ((buttonMask & (1 << 4)) != 0) {
 
 				DisplayMetrics displayMetrics = new DisplayMetrics();
-				WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+				WindowManager wm = (WindowManager) connectedInstance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
 				wm.getDefaultDisplay().getRealMetrics(displayMetrics);
 
-				instance.scroll(inputContext, x, y, displayMetrics.heightPixels / 2);
+				connectedInstance.scroll(inputContext, x, y, displayMetrics.heightPixels / 2);
 			}
 		} catch (Exception e) {
 			// instance probably null
@@ -388,12 +419,17 @@ public class InputService extends AccessibilityService {
 			return;
 		}
 
+		if (!isConnected()) {
+			runWhenConnected(() -> onKeyEvent(down, keysym, client));
+			return;
+		}
+
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onKeyEvent: keysym 0x" + Long.toHexString(keysym) + " down " + down + " by client " + client);
         }
 
 		try {
-			InputContext inputContext = instance.mInputContexts.get(client);
+			InputContext inputContext = mInputContexts.get(client);
 
 			if(inputContext == null) {
 				throw new IllegalStateException("Client " + client + " was not added or is already removed");
@@ -1134,7 +1170,13 @@ public class InputService extends AccessibilityService {
 	 * tap for surfaces that do not expose a clickable accessibility node.
 	 */
 	private void clickAtCoordinates(InputContext inputContext, int x, int y) {
-		if (!performAccessibleClickAt(inputContext.getDisplayId(), x, y)) {
+		boolean handledByAccessibilityNode = performAccessibleClickAt(inputContext.getDisplayId(), x, y);
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "clickAtCoordinates: " + x + "," + y
+					+ " display=" + inputContext.getDisplayId()
+					+ " nodeHandled=" + handledByAccessibilityNode);
+		}
+		if (!handledByAccessibilityNode) {
 			mMainHandler.post(() ->
 					dispatchGesture(
 							createClick(inputContext, x, y, Math.max(1, ViewConfiguration.getTapTimeout())),
