@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.ViewConfiguration;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
@@ -75,11 +76,18 @@ public class InputService extends AccessibilityService {
 	private static class InputContext {
 		// pointer-related
 		boolean isButtonOneDown;
+		int pointerDownX;
+		int pointerDownY;
+		boolean pointerMoved;
 		Path path = new Path();
 		GestureDescription.StrokeDescription stroke;
 		long lastGestureStartTime;
 		GestureCallback gestureCallback = new GestureCallback();
 		InputPointerView pointerView;
+		boolean withPointer;
+		float pointerRed;
+		float pointerGreen;
+		float pointerBlue;
 		// keyboard-related
 		boolean isKeyCtrlDown;
 		boolean isKeyAltDown;
@@ -99,22 +107,37 @@ public class InputService extends AccessibilityService {
 			this.displayId = displayId;
 			// and if there is a pointer, recreate it with the new display id
 			if(pointerView != null) {
-				pointerView.removeView();
-				pointerView = new InputPointerView(
-						instance,
-						displayId,
-						pointerView.getRed(),
-						pointerView.getGreen(),
-						pointerView.getBlue()
-				);
-				pointerView.addView();
+				detachPointerView();
+				attachPointerView();
 			}
+		}
+
+		void attachPointerView() {
+			if (!withPointer || pointerView != null || instance == null) {
+				return;
+			}
+			pointerView = new InputPointerView(
+					instance,
+					displayId,
+					pointerRed,
+					pointerGreen,
+					pointerBlue
+			);
+			pointerView.addView();
+		}
+
+		void detachPointerView() {
+			if (pointerView == null) {
+				return;
+			}
+			pointerView.removeView();
+			pointerView = null;
 		}
 	}
 
 	private static final String TAG = "InputService";
 
-	private static InputService instance;
+	private static volatile InputService instance;
 	/**
 	 * Scaling factor that's applied to incoming pointer events by dividing coordinates by
 	 * the given factor.
@@ -128,7 +151,9 @@ public class InputService extends AccessibilityService {
 
 	private Handler mMainHandler;
 
-	private final Map<Long, InputContext> mInputContexts = new ConcurrentHashMap<>();
+	// The AccessibilityService can be rebound while VNC clients remain connected. Keep their
+	// input state for the process lifetime and recreate service-owned pointer views on rebind.
+	private static final Map<Long, InputContext> mInputContexts = new ConcurrentHashMap<>();
 	/**
 	 * System keyboard input foci, display-specific starting on Android 10 (really 11 in higher layers),
 	 * see <a href="https://source.android.com/docs/core/display/multi_display/displays#focus">Android docs</a>
@@ -186,12 +211,18 @@ public class InputService extends AccessibilityService {
 		isInputEnabled = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !new Defaults(this).getViewOnly());
 		scaling = PreferenceManager.getDefaultSharedPreferences(this).getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, new Defaults(this).getScaling());
 		mMainHandler = new Handler(instance.getMainLooper());
+		for (InputContext inputContext : mInputContexts.values()) {
+			mMainHandler.post(inputContext::attachPointerView);
+		}
 		Log.i(TAG, "onServiceConnected");
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		for (InputContext inputContext : mInputContexts.values()) {
+			inputContext.detachPointerView();
+		}
 		instance = null;
 		Log.i(TAG, "onDestroy");
 	}
@@ -244,21 +275,16 @@ public class InputService extends AccessibilityService {
 			int displayId = Display.DEFAULT_DISPLAY;
 			InputContext inputContext = new InputContext();
 			inputContext.setDisplayId(displayId);
+			inputContext.withPointer = withPointer;
 			if(withPointer) {
 				// run this on UI thread (use main handler as view is not yet added)
-                int inputContextsSize = instance.mInputContexts.size();
-                instance.mMainHandler.post(() -> {
-                    inputContext.pointerView = new InputPointerView(
-                            instance,
-                            displayId,
-                            0.4f * ((inputContextsSize + 1) % 3),
-                            0.2f * ((inputContextsSize + 1) % 5),
-                            1.0f * ((inputContextsSize + 1) % 2)
-                    );
-                    inputContext.pointerView.addView();
-               });
+				int inputContextsSize = mInputContexts.size();
+				inputContext.pointerRed = 0.4f * ((inputContextsSize + 1) % 3);
+				inputContext.pointerGreen = 0.2f * ((inputContextsSize + 1) % 5);
+				inputContext.pointerBlue = 1.0f * ((inputContextsSize + 1) % 2);
+				instance.mMainHandler.post(inputContext::attachPointerView);
 			}
-			instance.mInputContexts.put(client, inputContext);
+			mInputContexts.put(client, inputContext);
 		} catch (Exception e) {
 			Log.e(TAG, "addClient: " + e);
 		}
@@ -268,12 +294,12 @@ public class InputService extends AccessibilityService {
 	public static void removeClient(long client) {
 		// NB runs on a worker thread!
 		try {
-			InputContext inputContext = instance.mInputContexts.get(client);
+			InputContext inputContext = mInputContexts.get(client);
 			if(inputContext != null && inputContext.pointerView != null) {
 				// run this on UI thread
 				inputContext.pointerView.post(inputContext.pointerView::removeView);
 			}
-			instance.mInputContexts.remove(client);
+			mInputContexts.remove(client);
 		} catch (Exception e) {
 			Log.e(TAG, "removeClient: " + e);
 		}
@@ -287,8 +313,17 @@ public class InputService extends AccessibilityService {
 			return;
 		}
 
+		InputService connectedInstance = instance;
+		if (connectedInstance == null) {
+			int pendingButtonMask = buttonMask;
+			int pendingX = x;
+			int pendingY = y;
+			runWhenConnected(() -> onPointerEvent(pendingButtonMask, pendingX, pendingY, client));
+			return;
+		}
+
 		try {
-			InputContext inputContext = instance.mInputContexts.get(client);
+			InputContext inputContext = mInputContexts.get(client);
 
 			if(inputContext == null) {
 				throw new IllegalStateException("Client " + client + " was not added or is already removed");
@@ -312,47 +347,64 @@ public class InputService extends AccessibilityService {
 			    left mouse button
 			 */
 
+			boolean buttonOneDown = (buttonMask & (1 << 0)) != 0;
+			boolean buttonOneWasDown = inputContext.isButtonOneDown;
+
 			// down, was up
-			if ((buttonMask & (1 << 0)) != 0 && !inputContext.isButtonOneDown) {
+			if (buttonOneDown && !buttonOneWasDown) {
 				inputContext.isButtonOneDown = true;
-				instance.startStroke(inputContext, x, y);
+				inputContext.pointerDownX = x;
+				inputContext.pointerDownY = y;
+				inputContext.pointerMoved = false;
+				connectedInstance.startStroke(inputContext, x, y);
 			}
 
 			// down, was down
-			if ((buttonMask & (1 << 0)) != 0 && inputContext.isButtonOneDown) {
-				instance.continueStroke(inputContext, x, y);
+			if (buttonOneDown && buttonOneWasDown) {
+				int touchSlop = ViewConfiguration.get(instance).getScaledTouchSlop();
+				if (Math.abs(x - inputContext.pointerDownX) > touchSlop
+						|| Math.abs(y - inputContext.pointerDownY) > touchSlop) {
+					inputContext.pointerMoved = true;
+				}
+				if (inputContext.pointerMoved) {
+					connectedInstance.continueStroke(inputContext, x, y);
+				}
 			}
 
 			// up, was down
-			if ((buttonMask & (1 << 0)) == 0 && inputContext.isButtonOneDown) {
+			if (!buttonOneDown && buttonOneWasDown) {
 				inputContext.isButtonOneDown = false;
-				instance.endStroke(inputContext, x, y);
+				if (inputContext.pointerMoved) {
+					connectedInstance.endStroke(inputContext, x, y);
+				} else {
+					connectedInstance.clickAtCoordinates(inputContext, x, y);
+				}
 			}
 
 
 			// right mouse button
 			if ((buttonMask & (1 << 2)) != 0) {
-				instance.longPress(inputContext, x, y);
+				connectedInstance.longPress(inputContext, x, y);
 			}
 
 			// scroll up
 			if ((buttonMask & (1 << 3)) != 0) {
 
 				DisplayMetrics displayMetrics = new DisplayMetrics();
-				WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+				WindowManager wm = (WindowManager) connectedInstance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
 				wm.getDefaultDisplay().getRealMetrics(displayMetrics);
 
-				instance.scroll(inputContext, x, y, -displayMetrics.heightPixels / 2);
+				connectedInstance.scroll(inputContext, x, y, -displayMetrics.heightPixels / 2);
 			}
 
 			// scroll down
 			if ((buttonMask & (1 << 4)) != 0) {
 
 				DisplayMetrics displayMetrics = new DisplayMetrics();
-				WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+				WindowManager wm = (WindowManager) connectedInstance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
 				wm.getDefaultDisplay().getRealMetrics(displayMetrics);
 
-				instance.scroll(inputContext, x, y, displayMetrics.heightPixels / 2);
+				connectedInstance.scroll(inputContext, x, y, displayMetrics.heightPixels / 2);
 			}
 		} catch (Exception e) {
 			// instance probably null
@@ -367,12 +419,17 @@ public class InputService extends AccessibilityService {
 			return;
 		}
 
+		if (!isConnected()) {
+			runWhenConnected(() -> onKeyEvent(down, keysym, client));
+			return;
+		}
+
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onKeyEvent: keysym 0x" + Long.toHexString(keysym) + " down " + down + " by client " + client);
         }
 
 		try {
-			InputContext inputContext = instance.mInputContexts.get(client);
+			InputContext inputContext = mInputContexts.get(client);
 
 			if(inputContext == null) {
 				throw new IllegalStateException("Client " + client + " was not added or is already removed");
@@ -1105,6 +1162,76 @@ public class InputService extends AccessibilityService {
 		// Docs says: Any gestures currently in progress, whether from the user, this service, or another service, will be cancelled.
 		// But at least on API level 32, setting different display ids with the builder allows for parallel input.
 		dispatchGesture(builder.build(), null, null);
+	}
+
+	/**
+	 * Some Android TV builds do not route injected tap gestures to applications. Prefer clicking
+	 * the deepest accessibility node at the pointer coordinates, then fall back to a standalone
+	 * tap for surfaces that do not expose a clickable accessibility node.
+	 */
+	private void clickAtCoordinates(InputContext inputContext, int x, int y) {
+		boolean handledByAccessibilityNode = performAccessibleClickAt(inputContext.getDisplayId(), x, y);
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "clickAtCoordinates: " + x + "," + y
+					+ " display=" + inputContext.getDisplayId()
+					+ " nodeHandled=" + handledByAccessibilityNode);
+		}
+		if (!handledByAccessibilityNode) {
+			mMainHandler.post(() ->
+					dispatchGesture(
+							createClick(inputContext, x, y, Math.max(1, ViewConfiguration.getTapTimeout())),
+							inputContext.gestureCallback,
+							null
+					)
+			);
+		}
+	}
+
+	private boolean performAccessibleClickAt(int displayId, int x, int y) {
+		for (AccessibilityWindowInfo window : getWindows()) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && window.getDisplayId() != displayId) {
+				continue;
+			}
+
+			AccessibilityNodeInfo root = window.getRoot();
+			if (root == null) {
+				continue;
+			}
+
+			try {
+				if (performAccessibleClickAt(root, x, y)) {
+					return true;
+				}
+			} finally {
+				root.recycle();
+			}
+		}
+		return false;
+	}
+
+	private boolean performAccessibleClickAt(AccessibilityNodeInfo node, int x, int y) {
+		Rect bounds = new Rect();
+		node.getBoundsInScreen(bounds);
+		if (!bounds.contains(x, y) || !node.isVisibleToUser() || !node.isEnabled()) {
+			return false;
+		}
+
+		// Children are more specific than their containers, especially for WebView content.
+		for (int index = node.getChildCount() - 1; index >= 0; index--) {
+			AccessibilityNodeInfo child = node.getChild(index);
+			if (child == null) {
+				continue;
+			}
+			try {
+				if (performAccessibleClickAt(child, x, y)) {
+					return true;
+				}
+			} finally {
+				child.recycle();
+			}
+		}
+
+		return node.isClickable() && node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
 	}
 
 
