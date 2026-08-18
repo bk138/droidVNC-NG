@@ -471,13 +471,14 @@ public class InputService extends AccessibilityService {
 						Keypad translations
 					*/
 					// Symbols
-					if (keysym == 0xff8d || keysym == 0xffbd) keysym = 0x3d; // KP_ENTER || KP_EQUAL -> Enter
 					if (keysym == 0xffaa) keysym = 0x2A; // KP_Multiply  -> Asterisk
 					if (keysym == 0xffab) keysym = 0x2B; // KP_Add       -> Plus
 					if (keysym == 0xffac) keysym = 0x2C; // KP_Separator -> Comma
 					if (keysym == 0xffad) keysym = 0x2D; // KP_Subtract  -> Minus
 					if (keysym == 0xffae) keysym = 0x2E; // KP_Decimal   -> Period
 					if (keysym == 0xffaf) keysym = 0x2F; // KP_Divide    -> Slash
+					if (keysym == 0xffbd) keysym = 0x3D; // KP_Equal     -> Equal
+					if (keysym == 0xff8d) keysym = 0xff0d; // KP_Enter   -> Enter
 					// NumLock-off keypad
 					if (keysym == 0xff95) keysym = 0xff50; // KP_Home   -> Home
 					if (keysym == 0xff96) keysym = 0xff51; // KP_Left   -> Left
