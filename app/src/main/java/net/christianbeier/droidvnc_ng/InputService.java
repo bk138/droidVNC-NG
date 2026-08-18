@@ -468,6 +468,23 @@ public class InputService extends AccessibilityService {
 					int keyCode = KeyEvent.KEYCODE_UNKNOWN;
 
 					/*
+						NumLock-off keypad: these emit navigation keysyms instead of XK_KP_0..9.
+						Fold them onto their ordinary equivalents so the table below handles them;
+						XK_KP_Equal folds onto '=' for the character path.
+					 */
+					if (keysym == 0xff95) keysym = 0xff50; // KP_Home
+					if (keysym == 0xff96) keysym = 0xff51; // KP_Left
+					if (keysym == 0xff97) keysym = 0xff52; // KP_Up
+					if (keysym == 0xff98) keysym = 0xff53; // KP_Right
+					if (keysym == 0xff99) keysym = 0xff54; // KP_Down
+					if (keysym == 0xff9a) keysym = 0xff55; // KP_Prior -> PageUp
+					if (keysym == 0xff9b) keysym = 0xff56; // KP_Next  -> PageDown
+					if (keysym == 0xff9c) keysym = 0xff57; // KP_End
+					if (keysym == 0xff9e) keysym = 0xff63; // KP_Insert
+					if (keysym == 0xff9f) keysym = 0xffff; // KP_Delete
+					if (keysym == 0xffbd) keysym = 0x3d;   // KP_Equal -> '='
+
+					/*
 						First, non-character keys
 					 */
 					//  Left/Right
@@ -488,6 +505,9 @@ public class InputService extends AccessibilityService {
 					// PageUp/PageDown - the AccessibilityNodeInfo approach does not have this
 					if (keysym == 0xff55) keyCode = KeyEvent.KEYCODE_PAGE_UP;
 					if (keysym == 0xff56) keyCode = KeyEvent.KEYCODE_PAGE_DOWN;
+					// Home/End
+					if (keysym == 0xff50) keyCode = KeyEvent.KEYCODE_MOVE_HOME;
+					if (keysym == 0xff57) keyCode = KeyEvent.KEYCODE_MOVE_END;
 					// Function keys - the AccessibilityNodeInfo approach does not have this
 					if (keysym == 0xffbe) keyCode = KeyEvent.KEYCODE_F1;
 					if (keysym == 0xffbf) keyCode = KeyEvent.KEYCODE_F2;
