@@ -468,21 +468,38 @@ public class InputService extends AccessibilityService {
 					int keyCode = KeyEvent.KEYCODE_UNKNOWN;
 
 					/*
-						NumLock-off keypad: these emit navigation keysyms instead of XK_KP_0..9.
-						Fold them onto their ordinary equivalents so the table below handles them;
-						XK_KP_Equal folds onto '=' for the character path.
-					 */
-					if (keysym == 0xff95) keysym = 0xff50; // KP_Home
-					if (keysym == 0xff96) keysym = 0xff51; // KP_Left
-					if (keysym == 0xff97) keysym = 0xff52; // KP_Up
-					if (keysym == 0xff98) keysym = 0xff53; // KP_Right
-					if (keysym == 0xff99) keysym = 0xff54; // KP_Down
-					if (keysym == 0xff9a) keysym = 0xff55; // KP_Prior -> PageUp
-					if (keysym == 0xff9b) keysym = 0xff56; // KP_Next  -> PageDown
-					if (keysym == 0xff9c) keysym = 0xff57; // KP_End
-					if (keysym == 0xff9e) keysym = 0xff63; // KP_Insert
-					if (keysym == 0xff9f) keysym = 0xffff; // KP_Delete
-					if (keysym == 0xffbd) keysym = 0x3d;   // KP_Equal -> '='
+						Keypad translations
+					*/
+					// Symbols
+					if (keysym == 0xff8d || keysym == 0xffbd) keysym = 0x3d; // KP_ENTER || KP_EQUAL -> Enter
+					if (keysym == 0xffaa) keysym = 0x2A; // KP_Multiply  -> Asterisk
+					if (keysym == 0xffab) keysym = 0x2B; // KP_Add       -> Plus
+					if (keysym == 0xffac) keysym = 0x2C; // KP_Separator -> Comma
+					if (keysym == 0xffad) keysym = 0x2D; // KP_Subtract  -> Minus
+					if (keysym == 0xffae) keysym = 0x2E; // KP_Decimal   -> Period
+					if (keysym == 0xffaf) keysym = 0x2F; // KP_Divide    -> Slash
+					// NumLock-off keypad
+					if (keysym == 0xff95) keysym = 0xff50; // KP_Home   -> Home
+					if (keysym == 0xff96) keysym = 0xff51; // KP_Left   -> Left
+					if (keysym == 0xff97) keysym = 0xff52; // KP_Up     -> Up
+					if (keysym == 0xff98) keysym = 0xff53; // KP_Right  -> Right
+					if (keysym == 0xff99) keysym = 0xff54; // KP_Down   -> Down
+					if (keysym == 0xff9a) keysym = 0xff55; // KP_Prior  -> PageUp
+					if (keysym == 0xff9b) keysym = 0xff56; // KP_Next   -> PageDown
+					if (keysym == 0xff9c) keysym = 0xff57; // KP_End    -> End
+					if (keysym == 0xff9e) keysym = 0xff63; // KP_Insert -> Insert
+					if (keysym == 0xff9f) keysym = 0xffff; // KP_Delete -> Delete
+					//NumLock-on keypad
+					if (keysym == 0xffb0) keysym = 0x30; // KP_0 -> 0
+					if (keysym == 0xffb1) keysym = 0x31; // KP_1 -> 1
+					if (keysym == 0xffb2) keysym = 0x32; // KP_2 -> 2
+					if (keysym == 0xffb3) keysym = 0x33; // KP_3 -> 3
+					if (keysym == 0xffb4) keysym = 0x34; // KP_4 -> 4
+					if (keysym == 0xffb5) keysym = 0x35; // KP_5 -> 5
+					if (keysym == 0xffb6) keysym = 0x36; // KP_6 -> 6
+					if (keysym == 0xffb7) keysym = 0x37; // KP_7 -> 7
+					if (keysym == 0xffb8) keysym = 0x38; // KP_8 -> 8
+					if (keysym == 0xffb9) keysym = 0x39; // KP_9 -> 9
 
 					/*
 						First, non-character keys
@@ -521,24 +538,6 @@ public class InputService extends AccessibilityService {
 					if (keysym == 0xffc7) keyCode = KeyEvent.KEYCODE_F10;
 					if (keysym == 0xffc8) keyCode = KeyEvent.KEYCODE_F11;
 					if (keysym == 0xffc9) keyCode = KeyEvent.KEYCODE_F12;
-					// Numpad keys
-					if (keysym == 0xff8d) keyCode = KeyEvent.KEYCODE_ENTER;
-					if (keysym == 0xffaa) keyCode = KeyEvent.KEYCODE_STAR;
-					if (keysym == 0xffab) keyCode = KeyEvent.KEYCODE_PLUS;
-					if (keysym == 0xffac) keyCode = KeyEvent.KEYCODE_COMMA;
-					if (keysym == 0xffad) keyCode = KeyEvent.KEYCODE_MINUS;
-					if (keysym == 0xffae) keyCode = KeyEvent.KEYCODE_PERIOD;
-					if (keysym == 0xffaf) keyCode = KeyEvent.KEYCODE_SLASH;
-					if (keysym == 0xffb0) keyCode = KeyEvent.KEYCODE_0;
-					if (keysym == 0xffb1) keyCode = KeyEvent.KEYCODE_1;
-					if (keysym == 0xffb2) keyCode = KeyEvent.KEYCODE_2;
-					if (keysym == 0xffb3) keyCode = KeyEvent.KEYCODE_3;
-					if (keysym == 0xffb4) keyCode = KeyEvent.KEYCODE_4;
-					if (keysym == 0xffb5) keyCode = KeyEvent.KEYCODE_5;
-					if (keysym == 0xffb6) keyCode = KeyEvent.KEYCODE_6;
-					if (keysym == 0xffb7) keyCode = KeyEvent.KEYCODE_7;
-					if (keysym == 0xffb8) keyCode = KeyEvent.KEYCODE_8;
-					if (keysym == 0xffb9) keyCode = KeyEvent.KEYCODE_9;
 
 					/*
 					    ASCII input, we use a translation to KeyEvents w/ keycodes as some apps
