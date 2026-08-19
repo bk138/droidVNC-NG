@@ -227,7 +227,11 @@ public class InputService extends AccessibilityService {
 			// send any text selection over to the client as cut text
 			if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED
 					&& Objects.requireNonNull(event.getSource()).getTextSelectionStart() != event.getSource().getTextSelectionEnd()) {
-				CharSequence selection = event.getSource().getText().subSequence(event.getSource().getTextSelectionStart(), event.getSource().getTextSelectionEnd());
+				// #385: a backwards selection (e.g. Shift+Left) reports start > end, so clamp with
+				// min/max -- subSequence(start, end) would otherwise throw StringIndexOutOfBounds.
+				int selStart = event.getSource().getTextSelectionStart();
+				int selEnd = event.getSource().getTextSelectionEnd();
+				CharSequence selection = event.getSource().getText().subSequence(Math.min(selStart, selEnd), Math.max(selStart, selEnd));
 				MainService.vncSendCutText(selection.toString());
 			}
 		} catch (Exception e) {
@@ -544,6 +548,11 @@ public class InputService extends AccessibilityService {
 					if (keysym == 0xffff) keyCode = KeyEvent.KEYCODE_FORWARD_DEL;
 					// Insert
 					if (keysym == 0xff63) keyCode = KeyEvent.KEYCODE_INSERT;
+					// Shift: deliver as a real modifier key so the editor's MetaKeyKeyListener tracks
+					// it as held, which is what makes Shift+navigation extend the text selection (#385).
+					// Without this the Shift keysym maps to KEYCODE_UNKNOWN and the held state is lost.
+					if (keysym == 0xffe1) keyCode = KeyEvent.KEYCODE_SHIFT_LEFT;
+					if (keysym == 0xffe2) keyCode = KeyEvent.KEYCODE_SHIFT_RIGHT;
 					// Enter
 					if (keysym == 0xff0d) keyCode = KeyEvent.KEYCODE_ENTER;
 					// Tab
