@@ -196,7 +196,6 @@ public class InputService extends AccessibilityService {
 	 */
 	private final Map<Integer, AccessibilityNodeInfo> mKeyboardFocusNodes = new ConcurrentHashMap<>();
 
-
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event) {
 		try {
@@ -736,11 +735,14 @@ public class InputService extends AccessibilityService {
 					);
 
 					/*
-						Rest of ISO-8859-1 input using KeyEvent from characters.
-						API does not allow setting meta state for these.
+						Rest of ISO-8859-1 input using KeyEvent from characters, plus
+						legacy Cyrillic keysyms and the RFB Unicode-keysym range so
+						non-Latin scripts can be typed too. API does not allow setting
+						meta state for these.
 					 */
-					if (keysym >= 0xa0 && keysym <= 0xff && down != 0) {
-						keyEvent = new KeyEvent(SystemClock.uptimeMillis(), Character.toString((char) keysym), 0, 0);
+					int charCodePoint = InputKeysymToUnicode.keysymToUnicode(keysym);
+					if (charCodePoint >= 0xa0 && down != 0) {
+						keyEvent = new KeyEvent(SystemClock.uptimeMillis(), new String(Character.toChars(charCodePoint)), 0, 0);
 					}
 
 					/*
@@ -966,9 +968,12 @@ public class InputService extends AccessibilityService {
 			}
 
 			/*
-			    ISO-8859-1 input
+			    Printable character input: Latin-1, legacy Cyrillic keysyms and the
+			    RFB Unicode-keysym range (see keysymToUnicode). This is the path used
+			    on older devices (e.g. Android 7) that don't take the API 34+ branch.
 			 */
-			if (keysym >= 32 && keysym <= 255 && down != 0) {
+			int typedCodePoint = InputKeysymToUnicode.keysymToUnicode(keysym);
+			if (typedCodePoint >= 32 && down != 0) {
 				CharSequence currentFocusText = Objects.requireNonNull(currentFocusNode).getText();
 				// some implementations return null for empty text, work around that
 				if (currentFocusText == null)
@@ -987,14 +992,15 @@ public class InputService extends AccessibilityService {
 					textAfterCursor = String.valueOf(currentFocusText.subSequence(cursorPos, currentFocusText.length()));
 				} catch (IndexOutOfBoundsException ignored) {
 				}
-				String newFocusText = textBeforeCursor + (char) keysym + textAfterCursor;
+				String typed = new String(Character.toChars(typedCodePoint));
+				String newFocusText = textBeforeCursor + typed + textAfterCursor;
 
 				Bundle action = new Bundle();
 				action.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, newFocusText);
 				currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_TEXT.getId(), action);
 
 				// ACTION_SET_TEXT moves cursor to the end, move cursor back to where it should be
-				setCursorPos(currentFocusNode, cursorPos > 0 ? cursorPos + 1 : 1);
+				setCursorPos(currentFocusNode, cursorPos > 0 ? cursorPos + typed.length() : typed.length());
 			}
 
 		} catch (Exception e) {
