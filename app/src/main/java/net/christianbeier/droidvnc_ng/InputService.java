@@ -175,7 +175,7 @@ public class InputService extends AccessibilityService {
 
 	private static final String TAG = "InputService";
 
-	private static InputService instance;
+	private static volatile InputService instance;
 	/**
 	 * Scaling factor that's applied to incoming pointer events by dividing coordinates by
 	 * the given factor.
