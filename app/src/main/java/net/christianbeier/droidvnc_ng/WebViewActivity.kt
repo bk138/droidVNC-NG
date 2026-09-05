@@ -33,6 +33,7 @@ class WebViewActivity : AppCompatActivity() {
             this.enableEdgeToEdge()
         }
         setContentView(R.layout.activity_webview)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         progressBar = findViewById(R.id.progress_bar)
         webView = findViewById(R.id.webview)

@@ -137,6 +137,7 @@
 
         <activity
             android:name=".WebViewActivity"
+            android:parentActivityName=".MainActivity"
             android:configChanges="screenLayout|orientation|screenSize|keyboard|keyboardHidden|smallestScreenSize" />
 
     </application>
