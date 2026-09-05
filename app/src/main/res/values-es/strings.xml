@@ -50,7 +50,6 @@
     <string name="main_activity_special_key_reference">Desde un visor VNC, los atajos de teclado asignados arriba activan sus acciones de Android correspondientes.</string>
     <string name="main_activity_settings_key_shortcuts">Atajos de teclado</string>
     <string name="main_activity_settings_key_shortcuts_button">Configurar</string>
-    <string name="main_activity_settings_key_shortcuts_close">Cerrar</string>
     <string name="main_activity_settings_chord_recents">Aplicaciones recientes</string>
     <string name="main_activity_settings_chord_home">Inicio</string>
     <string name="main_activity_settings_chord_back">Atrás</string>

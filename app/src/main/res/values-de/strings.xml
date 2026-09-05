@@ -50,7 +50,6 @@
     <string name="main_activity_special_key_reference">Von einem VNC-Viewer aus lösen die oben zugewiesenen Tastenkürzel ihre jeweiligen Android-Aktionen aus.</string>
     <string name="main_activity_settings_key_shortcuts">Tastaturkürzel</string>
     <string name="main_activity_settings_key_shortcuts_button">Konfigurieren</string>
-    <string name="main_activity_settings_key_shortcuts_close">Schließen</string>
     <string name="main_activity_settings_chord_recents">Letzte Apps</string>
     <string name="main_activity_settings_chord_home">Home</string>
     <string name="main_activity_settings_chord_back">Zurück</string>

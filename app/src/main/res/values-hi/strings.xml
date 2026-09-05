@@ -50,7 +50,6 @@
     <string name="main_activity_special_key_reference">VNC व्यूअर से, ऊपर असाइन किए गए कीबोर्ड शॉर्टकट अपनी संबंधित Android क्रियाएँ चलाते हैं।</string>
     <string name="main_activity_settings_key_shortcuts">कीबोर्ड शॉर्टकट</string>
     <string name="main_activity_settings_key_shortcuts_button">कॉन्फ़िगर करें</string>
-    <string name="main_activity_settings_key_shortcuts_close">बंद करें</string>
     <string name="main_activity_settings_chord_recents">हाल के ऐप्स</string>
     <string name="main_activity_settings_chord_home">होम</string>
     <string name="main_activity_settings_chord_back">बैक</string>

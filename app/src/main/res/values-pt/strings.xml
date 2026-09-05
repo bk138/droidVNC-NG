@@ -50,7 +50,6 @@
     <string name="main_activity_special_key_reference">Num visualizador VNC, os atalhos de teclado atribuídos acima acionam as respetivas ações do Android.</string>
     <string name="main_activity_settings_key_shortcuts">Atalhos de teclado</string>
     <string name="main_activity_settings_key_shortcuts_button">Configurar</string>
-    <string name="main_activity_settings_key_shortcuts_close">Fechar</string>
     <string name="main_activity_settings_chord_recents">Aplicações recentes</string>
     <string name="main_activity_settings_chord_home">Início</string>
     <string name="main_activity_settings_chord_back">Voltar</string>

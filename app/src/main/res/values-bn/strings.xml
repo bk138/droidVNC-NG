@@ -50,7 +50,6 @@
     <string name="main_activity_special_key_reference">একটি VNC ভিউয়ার থেকে, উপরে নির্ধারিত কীবোর্ড শর্টকাটগুলি তাদের সংশ্লিষ্ট Android অ্যাকশন চালু করে।</string>
     <string name="main_activity_settings_key_shortcuts">কীবোর্ড শর্টকাট</string>
     <string name="main_activity_settings_key_shortcuts_button">কনফিগার করুন</string>
-    <string name="main_activity_settings_key_shortcuts_close">বন্ধ করুন</string>
     <string name="main_activity_settings_chord_recents">রিসেন্ট অ্যাপস</string>
     <string name="main_activity_settings_chord_home">হোম</string>
     <string name="main_activity_settings_chord_back">ব্যাক</string>

@@ -51,7 +51,6 @@
     <string name="main_activity_special_key_reference">From a VNC viewer, the keyboard shortcuts assigned above trigger their Android actions.</string>
     <string name="main_activity_settings_key_shortcuts">Keyboard Shortcuts</string>
     <string name="main_activity_settings_key_shortcuts_button">Configure</string>
-    <string name="main_activity_settings_key_shortcuts_close">Close</string>
     <string name="main_activity_settings_chord_recents">Recent apps</string>
     <string name="main_activity_settings_chord_home">Home</string>
     <string name="main_activity_settings_chord_back">Back</string>

@@ -48,7 +48,6 @@
     <string name="main_activity_special_key_reference">W kliencie VNC skróty klawiszowe przypisane powyżej wyzwalają odpowiadające im akcje Androida.</string>
     <string name="main_activity_settings_key_shortcuts">Skróty klawiszowe</string>
     <string name="main_activity_settings_key_shortcuts_button">Konfiguruj</string>
-    <string name="main_activity_settings_key_shortcuts_close">Zamknij</string>
     <string name="main_activity_settings_chord_recents">Ostatnie aplikacje</string>
     <string name="main_activity_settings_chord_home">Ekran główny</string>
     <string name="main_activity_settings_chord_back">Wstecz</string>

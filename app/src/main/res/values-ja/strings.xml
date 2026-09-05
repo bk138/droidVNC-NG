@@ -50,7 +50,6 @@
     <string name="main_activity_special_key_reference">VNC ビューアから、上で割り当てたキーボードショートカットで対応する Android の操作が実行されます。</string>
     <string name="main_activity_settings_key_shortcuts">キーボードショートカット</string>
     <string name="main_activity_settings_key_shortcuts_button">設定</string>
-    <string name="main_activity_settings_key_shortcuts_close">閉じる</string>
     <string name="main_activity_settings_chord_recents">最近使ったアプリ</string>
     <string name="main_activity_settings_chord_home">ホーム</string>
     <string name="main_activity_settings_chord_back">戻る</string>

@@ -50,7 +50,6 @@
     <string name="main_activity_special_key_reference">Depuis une visionneuse VNC, les raccourcis clavier attribués ci-dessus déclenchent leurs actions Android respectives.</string>
     <string name="main_activity_settings_key_shortcuts">Raccourcis clavier</string>
     <string name="main_activity_settings_key_shortcuts_button">Configurer</string>
-    <string name="main_activity_settings_key_shortcuts_close">Fermer</string>
     <string name="main_activity_settings_chord_recents">Applications récentes</string>
     <string name="main_activity_settings_chord_home">Accueil</string>
     <string name="main_activity_settings_chord_back">Retour</string>

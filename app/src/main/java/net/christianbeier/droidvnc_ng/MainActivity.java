@@ -172,10 +172,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // The keyboard-shortcut rows would crowd the settings list, so they live in a full-screen
-        // dialog opened from this button rather than inline. The dialog owns its own chrome and the
+        // screen opened from this button rather than inline. That screen owns its own chrome and the
         // loading and persisting of every chord.
         final Button keyShortcutsButton = findViewById(R.id.key_shortcut_setup_button);
-        keyShortcutsButton.setOnClickListener(view -> new InputKeyShortcutSetupDialog(this).show());
+        keyShortcutsButton.setOnClickListener(view ->
+                startActivity(new Intent(this, InputKeyShortcutSetupActivity.class)));
         // shortcuts only fire when input is enabled, so gate the button on view-only like the pointers
         keyShortcutsButton.setEnabled(!prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()));
 

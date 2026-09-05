@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- One configurable-action row for the keyboard-shortcut dialog, inflated once per
-     InputKeyShortcut.Action by InputKeyShortcutSetupDialog. The action label stacks above a row of
+<!-- One configurable-action row for the keyboard-shortcut screen, inflated once per
+     InputKeyShortcut.Action by InputKeyShortcutSetupActivity. The action label stacks above a row of
      three modifier checkboxes (Ctrl/Alt/Shift) and a trigger-key spinner that takes the remaining
      width; stacking keeps the row from being cut off on the right on narrow portrait screens. The
      ids repeat across the inflated copies but are only ever looked up within one row's view. -->

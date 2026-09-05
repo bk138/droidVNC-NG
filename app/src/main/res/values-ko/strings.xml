@@ -50,7 +50,6 @@
     <string name="main_activity_special_key_reference">VNC 뷰어에서 위에 지정한 키보드 단축키로 해당 Android 동작이 실행됩니다.</string>
     <string name="main_activity_settings_key_shortcuts">키보드 단축키</string>
     <string name="main_activity_settings_key_shortcuts_button">설정</string>
-    <string name="main_activity_settings_key_shortcuts_close">닫기</string>
     <string name="main_activity_settings_chord_recents">최근 앱</string>
     <string name="main_activity_settings_chord_home">홈</string>
     <string name="main_activity_settings_chord_back">뒤로</string>

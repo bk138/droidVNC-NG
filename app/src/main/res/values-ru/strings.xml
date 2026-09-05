@@ -50,7 +50,6 @@
     <string name="main_activity_special_key_reference">В клиенте VNC назначенные выше сочетания клавиш выполняют соответствующие действия Android.</string>
     <string name="main_activity_settings_key_shortcuts">Сочетания клавиш</string>
     <string name="main_activity_settings_key_shortcuts_button">Настроить</string>
-    <string name="main_activity_settings_key_shortcuts_close">Закрыть</string>
     <string name="main_activity_settings_chord_recents">Недавние приложения</string>
     <string name="main_activity_settings_chord_home">Домой</string>
     <string name="main_activity_settings_chord_back">Назад</string>

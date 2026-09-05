@@ -131,6 +131,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".InputKeyShortcutSetupActivity"
+            android:label="@string/main_activity_settings_key_shortcuts"
+            android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".WebViewActivity"
             android:configChanges="screenLayout|orientation|screenSize|keyboard|keyboardHidden|smallestScreenSize" />

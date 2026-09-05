@@ -51,7 +51,6 @@
     <string name="main_activity_special_key_reference">在 VNC 客戶端中，上面指派的鍵盤快速鍵會觸發對應的 Android 操作。</string>
     <string name="main_activity_settings_key_shortcuts">鍵盤快速鍵</string>
     <string name="main_activity_settings_key_shortcuts_button">設定</string>
-    <string name="main_activity_settings_key_shortcuts_close">關閉</string>
     <string name="main_activity_settings_chord_recents">最近的App</string>
     <string name="main_activity_settings_chord_home">主頁</string>
     <string name="main_activity_settings_chord_back">返回</string>

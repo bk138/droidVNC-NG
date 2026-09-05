@@ -50,7 +50,6 @@
     <string name="main_activity_special_key_reference">Da un visualizzatore VNC, le scorciatoie da tastiera assegnate sopra attivano le rispettive azioni Android.</string>
     <string name="main_activity_settings_key_shortcuts">Scorciatoie da tastiera</string>
     <string name="main_activity_settings_key_shortcuts_button">Configura</string>
-    <string name="main_activity_settings_key_shortcuts_close">Chiudi</string>
     <string name="main_activity_settings_chord_recents">App recenti</string>
     <string name="main_activity_settings_chord_home">Home</string>
     <string name="main_activity_settings_chord_back">Indietro</string>

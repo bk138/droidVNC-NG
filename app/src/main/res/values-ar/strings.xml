@@ -50,7 +50,6 @@
     <string name="main_activity_special_key_reference">من عارض VNC، تؤدي اختصارات لوحة المفاتيح المعيّنة أعلاه إلى تنفيذ إجراءات Android المقابلة لها.</string>
     <string name="main_activity_settings_key_shortcuts">اختصارات لوحة المفاتيح</string>
     <string name="main_activity_settings_key_shortcuts_button">تهيئة</string>
-    <string name="main_activity_settings_key_shortcuts_close">إغلاق</string>
     <string name="main_activity_settings_chord_recents">التطبيقات الأخيرة</string>
     <string name="main_activity_settings_chord_home">الصفحة الرئيسية</string>
     <string name="main_activity_settings_chord_back">رجوع</string>

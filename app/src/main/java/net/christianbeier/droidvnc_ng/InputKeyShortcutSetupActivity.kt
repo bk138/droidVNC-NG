@@ -15,12 +15,9 @@
 
 package net.christianbeier.droidvnc_ng
 
-import android.app.Dialog
-import android.content.Context
+import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
@@ -29,18 +26,19 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import com.google.android.material.appbar.MaterialToolbar
 
 /**
- * Full-screen dialog for the configurable keyboard shortcuts (issue #13). It inflates one row per
- * [InputKeyShortcut.Action] -- three modifier checkboxes (Ctrl/Alt/Shift) plus a trigger-key
+ * Full-screen settings screen for the configurable keyboard shortcuts (issue #13). It inflates one
+ * row per [InputKeyShortcut.Action] -- three modifier checkboxes (Ctrl/Alt/Shift) plus a trigger-key
  * [Spinner] -- and owns their whole lifecycle: loading the persisted chords, offering localized key
  * labels, rejecting a chord already assigned to another action, persisting a change and live-updating
  * the running [InputService]. It iterates the [InputKeyShortcut.Action] constants rather than listing
- * the actions here, so the caller only has to construct and [show] it.
+ * the actions here, so the caller only has to start it.
  */
-class InputKeyShortcutSetupDialog(context: Context) : Dialog(context, R.style.FullScreenDialog) {
+class InputKeyShortcutSetupActivity : AppCompatActivity() {
 
     /** Runtime state for one action row: its action, resolved controls and last-good chord. */
     private class Row(
@@ -65,19 +63,22 @@ class InputKeyShortcutSetupDialog(context: Context) : Dialog(context, R.style.Fu
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.dialog_key_shortcut_setup)
-        window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        // The toolbar's navigation icon dismisses the dialog, matching the system Back button.
-        findViewById<MaterialToolbar>(R.id.key_shortcut_setup_toolbar)
-            .setNavigationOnClickListener { dismiss() }
+        // On Android 15 and later, calling enableEdgeToEdge ensures system bar icon colors update
+        // when the device theme changes. Because calling it on pre-Android 15 has the side effect of
+        // enabling EdgeToEdge there as well, we only use it on Android 15 and later.
+        if (Build.VERSION.SDK_INT >= 35) {
+            this.enableEdgeToEdge()
+        }
+        setContentView(R.layout.activity_key_shortcut_setup)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setupRows()
     }
 
     private fun setupRows() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val defaults = Defaults(context)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val defaults = Defaults(this)
         val container = findViewById<LinearLayout>(R.id.key_shortcut_rows)
-        val inflater = LayoutInflater.from(context)
+        val inflater = layoutInflater
 
         // inflate a row per action and set its initial state with the listeners still detached
         updating = true
@@ -126,14 +127,14 @@ class InputKeyShortcutSetupDialog(context: Context) : Dialog(context, R.style.Fu
         val labels = ArrayList<String>(KEY_CHOICES.size + 1)
         val keysyms = ArrayList<Long>(KEY_CHOICES.size + 1)
         for (choice in KEY_CHOICES) {
-            labels.add(context.getString(choice.labelRes))
+            labels.add(getString(choice.labelRes))
             keysyms.add(choice.keysym)
         }
         if (keysym != 0L && KEY_CHOICES.none { it.keysym == keysym }) {
             labels.add(InputKeysyms.nameOf(keysym) ?: "0x" + keysym.toString(16))
             keysyms.add(keysym)
         }
-        val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, labels)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, labels)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         row.key.adapter = adapter
         row.keysyms = keysyms
@@ -174,8 +175,8 @@ class InputKeyShortcutSetupDialog(context: Context) : Dialog(context, R.style.Fu
             }
             if (chord in proposed.conflicts) {
                 Toast.makeText(
-                    context,
-                    context.getString(R.string.main_activity_settings_chord_conflict, value),
+                    this,
+                    getString(R.string.main_activity_settings_chord_conflict, value),
                     Toast.LENGTH_SHORT
                 ).show()
                 updating = true
@@ -185,7 +186,7 @@ class InputKeyShortcutSetupDialog(context: Context) : Dialog(context, R.style.Fu
             }
         }
         row.selected = value
-        PreferenceManager.getDefaultSharedPreferences(context)
+        PreferenceManager.getDefaultSharedPreferences(this)
             .edit().putString(row.action.prefKey, value).apply()
         // live-reload the running input service from prefs (a no-op when it is not connected)
         InputService.reloadShortcuts()
