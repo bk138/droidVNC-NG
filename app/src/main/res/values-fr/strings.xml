@@ -47,7 +47,18 @@
     <string name="main_activity_repeater_vnc_fail">Connexion à %1$s avec ID %2$s échouée</string>
     <string name="main_activity_repeater_vnc_input_missing">Host et/ou ID manquantes</string>
     <string name="main_activity_reconnect_tries_hint">Nombre de tentatives de connexion</string>
-    <string name="main_activity_special_key_reference">À partir d\'une visionneuse VNC, <b>Ctrl-Maj-Échap</b> déclenche l\'aperçu des «Applications récentes», <b>Accueil/Pos1</b> agit comme le bouton Accueil, <b>Fin</b> agit comme le bouton Marche/Arrêt, <b>Échap</b> agit comme le bouton Retour, <b>Ctrl-Alt-Page précédente/Page suivante</b> modifie le volume audio.</string>
+    <string name="main_activity_special_key_reference">Depuis une visionneuse VNC, les raccourcis clavier attribués ci-dessus déclenchent leurs actions Android respectives.</string>
+    <string name="main_activity_settings_key_shortcuts">Raccourcis clavier</string>
+    <string name="main_activity_settings_key_shortcuts_button">Configurer</string>
+    <string name="main_activity_settings_key_shortcuts_close">Fermer</string>
+    <string name="main_activity_settings_chord_recents">Applications récentes</string>
+    <string name="main_activity_settings_chord_home">Accueil</string>
+    <string name="main_activity_settings_chord_back">Retour</string>
+    <string name="main_activity_settings_chord_power">Dialogue d\'alimentation</string>
+    <string name="main_activity_settings_chord_volume_up">Augmenter le volume</string>
+    <string name="main_activity_settings_chord_volume_down">Baisser le volume</string>
+    <string name="main_activity_settings_chord_rotate">Rotation</string>
+    <string name="main_activity_settings_chord_conflict">%1$s est déjà attribué à une autre action</string>
     <string name="main_activity_about">Vous êtes en utilisant droidVNC-NG %1$s. Des fonctionnalités supplémentaires sont en cours de développement, vous pouvez rapporter problèmes et feature requests à la page https://github.com/bk138/droidVNC-NG/issues</string>
     <string name="main_activity_survey_button">Donner un Avis</string>
     <plurals name="main_service_notification_text_not_listening">
@@ -84,4 +95,7 @@
     <string name="share_activtiy_server_not_running">Texte non partagé, le serveur n\'est pas en cours d\'exécution.</string>
     <string name="share_activtiy_no_clients_connected">Texte non partagé, aucun client connecté.</string>
     <string name="share_activtiy_shared_successfully">Texte partagé dans les presse-papiers de tous les clients connectés.</string>
+    <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
+    <string name="key_label_none">Aucune</string>
+    <string name="key_modifier_shift">Maj</string>
 </resources>

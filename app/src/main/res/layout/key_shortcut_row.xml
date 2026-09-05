@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One configurable-action row for the keyboard-shortcut dialog, inflated once per
+     InputKeyShortcut.Action by InputKeyShortcutSetupDialog. The action label stacks above a row of
+     three modifier checkboxes (Ctrl/Alt/Shift) and a trigger-key spinner that takes the remaining
+     width; stacking keeps the row from being cut off on the right on narrow portrait screens. The
+     ids repeat across the inflated copies but are only ever looked up within one row's view. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
+
+    <TextView
+        android:id="@+id/key_shortcut_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <CheckBox
+            android:id="@+id/key_shortcut_ctrl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/key_modifier_ctrl" />
+
+        <CheckBox
+            android:id="@+id/key_shortcut_alt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/key_modifier_alt" />
+
+        <CheckBox
+            android:id="@+id/key_shortcut_shift"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/key_modifier_shift" />
+
+        <Spinner
+            android:id="@+id/key_shortcut_key"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:minWidth="80dp" />
+    </LinearLayout>
+</LinearLayout>

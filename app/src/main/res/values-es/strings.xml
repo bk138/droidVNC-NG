@@ -47,7 +47,18 @@
     <string name="main_activity_repeater_vnc_fail">Conexión a %1$s con ID %2$s fallida</string>
     <string name="main_activity_repeater_vnc_input_missing">Falta(n) el Host y/o el ID</string>
     <string name="main_activity_reconnect_tries_hint">Número de intentos de conexión</string>
-    <string name="main_activity_special_key_reference">Desde un visor VNC, <b>Ctrl-Shift-Esc</b> activa la vista general de \'Aplicaciones recientes\', <b>Inicio/Pos1</b> actúa como botón de Inicio, <b>Fin</b> actúa como botón de Encendido, <b>Escape</b> actúa como botón Atrás, <b>Ctrl-Alt-Re Pág/Av Pág</b> cambia el volumen del audio.</string>
+    <string name="main_activity_special_key_reference">Desde un visor VNC, los atajos de teclado asignados arriba activan sus acciones de Android correspondientes.</string>
+    <string name="main_activity_settings_key_shortcuts">Atajos de teclado</string>
+    <string name="main_activity_settings_key_shortcuts_button">Configurar</string>
+    <string name="main_activity_settings_key_shortcuts_close">Cerrar</string>
+    <string name="main_activity_settings_chord_recents">Aplicaciones recientes</string>
+    <string name="main_activity_settings_chord_home">Inicio</string>
+    <string name="main_activity_settings_chord_back">Atrás</string>
+    <string name="main_activity_settings_chord_power">Diálogo de encendido</string>
+    <string name="main_activity_settings_chord_volume_up">Subir volumen</string>
+    <string name="main_activity_settings_chord_volume_down">Bajar volumen</string>
+    <string name="main_activity_settings_chord_rotate">Rotar</string>
+    <string name="main_activity_settings_chord_conflict">%1$s ya está asignado a otra acción</string>
     <string name="main_activity_about">Estas usando droidVNC-NG %1$s. Muchas más funcionalidades estan en desarollo, problemas y feature requests se pueden reportar a la página https://github.com/bk138/droidVNC-NG/issues</string>
     <string name="main_activity_survey_button">Proporcionar Comentarios</string>
     <plurals name="main_service_notification_text_not_listening">
@@ -84,4 +95,6 @@
     <string name="share_activtiy_server_not_running">Texto no compartido, el servidor no está en ejecución.</string>
     <string name="share_activtiy_no_clients_connected">Texto no compartido, ningún cliente conectado.</string>
     <string name="share_activtiy_shared_successfully">Texto compartido en los portapapeles de todos los clientes conectados.</string>
+    <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
+    <string name="key_label_none">Ninguna</string>
 </resources>

@@ -35,6 +35,13 @@ public class Constants {
     public static final String PREFS_KEY_SETTINGS_SHOW_POINTERS = "settings_show_pointers" ;
     public static final String PREFS_KEY_SETTINGS_ACCESS_KEY = "settings_access_key";
     public static final String PREFS_KEY_SETTINGS_FILE_TRANSFER = "settings_file_transfer";
+    public static final String PREFS_KEY_SETTINGS_CHORD_RECENTS = "settings_chord_recents";
+    public static final String PREFS_KEY_SETTINGS_CHORD_HOME = "settings_chord_home";
+    public static final String PREFS_KEY_SETTINGS_CHORD_BACK = "settings_chord_back";
+    public static final String PREFS_KEY_SETTINGS_CHORD_POWER = "settings_chord_power";
+    public static final String PREFS_KEY_SETTINGS_CHORD_VOLUME_UP = "settings_chord_volume_up";
+    public static final String PREFS_KEY_SETTINGS_CHORD_VOLUME_DOWN = "settings_chord_volume_down";
+    public static final String PREFS_KEY_SETTINGS_CHORD_ROTATE = "settings_chord_rotate";
 
     /*
         persisted runtime values shared between components

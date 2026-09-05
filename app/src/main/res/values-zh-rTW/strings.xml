@@ -48,7 +48,18 @@
     <string name="main_activity_repeater_vnc_fail">連接%1$s失敗；ID%2$s</string>
     <string name="main_activity_repeater_vnc_input_missing">域名/ID遺失</string>
     <string name="main_activity_reconnect_tries_hint">最大重新連接嘗試次數</string>
-    <string name="main_activity_special_key_reference">從VNC客戶端，<b>Ctrl-Shift-Esc</b> 打開 \'最近的app\' 預覽，<b>Home/Pos1</b> 作為Home鍵，<b>End</b> 充當電源按鈕，<b>Escape</b> 作為返回鍵，<b>Ctrl-Alt-PageUp/PageDown</b> 變更音量。</string>
+    <string name="main_activity_special_key_reference">在 VNC 用戶端中，上方指派的鍵盤快速鍵會觸發對應的 Android 操作。</string>
+    <string name="main_activity_settings_key_shortcuts">鍵盤快速鍵</string>
+    <string name="main_activity_settings_key_shortcuts_button">設定</string>
+    <string name="main_activity_settings_key_shortcuts_close">關閉</string>
+    <string name="main_activity_settings_chord_recents">最近的App</string>
+    <string name="main_activity_settings_chord_home">主畫面</string>
+    <string name="main_activity_settings_chord_back">返回</string>
+    <string name="main_activity_settings_chord_power">電源選單</string>
+    <string name="main_activity_settings_chord_volume_up">增大音量</string>
+    <string name="main_activity_settings_chord_volume_down">減小音量</string>
+    <string name="main_activity_settings_chord_rotate">旋轉螢幕</string>
+    <string name="main_activity_settings_chord_conflict">%1$s 已指派給其他動作</string>
     <string name="main_activity_about">這是droidVNC-NG%1$s。請注意，更多功能仍在添加到droidVNC-NG中。請報告任何問題和功能請求 https://github.com/bk138/droidVNC-NG/issues</string>
     <string name="main_activity_survey_button">提供回饋</string>
     <plurals name="main_service_notification_text_not_listening">
@@ -85,4 +96,6 @@
     <string name="share_activtiy_server_not_running">未共享文本，伺服器未運行。</string>
     <string name="share_activtiy_no_clients_connected">未共享文本，未連接客戶端。</string>
     <string name="share_activtiy_shared_successfully">已將文本共享到所有連接客戶端的剪貼板。</string>
+    <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
+    <string name="key_label_none">無</string>
 </resources>

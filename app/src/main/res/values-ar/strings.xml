@@ -47,7 +47,18 @@
     <string name="main_activity_repeater_vnc_fail">فشل الاتصال بـ %1$s باستخدام المعرف %2$s</string>
     <string name="main_activity_repeater_vnc_input_missing">المضيف و/أو المعرف مفقود</string>
     <string name="main_activity_reconnect_tries_hint">أقصى عدد لمحاولات إعادة الاتصال</string>
-    <string name="main_activity_special_key_reference">من عارض VNC، يؤدي الضغط على <b>Ctrl-Shift-Esc</b> إلى تشغيل نظرة عامة على \'التطبيقات الأخيرة\'، ويعمل <b>Home/Pos1</b> كزر الصفحة الرئيسية، ويعمل <b>End</b> كزر الطاقة، ويعمل <b>Escape</b> كزر الرجوع، ويغير الضغط على <b>Ctrl-Alt-PageUp/PageDown</b> مستوى الصوت.</string>
+    <string name="main_activity_special_key_reference">من عارض VNC، تؤدي اختصارات لوحة المفاتيح المعيّنة أعلاه إلى تنفيذ إجراءات Android المقابلة لها.</string>
+    <string name="main_activity_settings_key_shortcuts">اختصارات لوحة المفاتيح</string>
+    <string name="main_activity_settings_key_shortcuts_button">تهيئة</string>
+    <string name="main_activity_settings_key_shortcuts_close">إغلاق</string>
+    <string name="main_activity_settings_chord_recents">التطبيقات الأخيرة</string>
+    <string name="main_activity_settings_chord_home">الصفحة الرئيسية</string>
+    <string name="main_activity_settings_chord_back">رجوع</string>
+    <string name="main_activity_settings_chord_power">قائمة الطاقة</string>
+    <string name="main_activity_settings_chord_volume_up">رفع مستوى الصوت</string>
+    <string name="main_activity_settings_chord_volume_down">خفض مستوى الصوت</string>
+    <string name="main_activity_settings_chord_rotate">تدوير الشاشة</string>
+    <string name="main_activity_settings_chord_conflict">‏%1$s معيّن بالفعل لإجراء آخر</string>
     <string name="main_activity_about">هذا هو droidVNC-NG %1$s. يرجى ملاحظة أن المزيد من الميزات لا تزال تُضاف إلى droidVNC-NG. يمكنك الإبلاغ عن أي مشاكل وطلبات الميزات على https://github.com/bk138/droidVNC-NG/issues</string>
     <string name="main_activity_survey_button">قدم تعليقاتك</string>
     <plurals name="main_service_notification_text_not_listening">
@@ -84,4 +95,6 @@
     <string name="share_activtiy_server_not_running">لم يتم مشاركة النص، الخادم غير قيد التشغيل.</string>
     <string name="share_activtiy_no_clients_connected">لم يتم مشاركة النص، لا يوجد عملاء متصلون.</string>
     <string name="share_activtiy_shared_successfully">تم مشاركة النص إلى الحافظة لجميع العملاء المتصلين.</string>
+    <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
+    <string name="key_label_none">بلا</string>
 </resources>

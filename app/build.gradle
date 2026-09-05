@@ -57,6 +57,89 @@ android {
     }
 }
 
+// Generates InputKeysymTable.kt from libvncserver's rfb/keysym.h: a data-only object shaped like
+// libxkbcommon's ks_tables.h -- one case-sensitively sorted name blob plus parallel offset/keysym
+// arrays and a keysym-ordered index. The lookups over that data are hand-written in InputKeysyms.kt.
+// The source is registered through the AGP variant API (addGeneratedSourceDirectory) so Android
+// Studio lists it under generated sources; it is not checked in.
+abstract class GenerateKeysyms extends DefaultTask {
+    @InputFile
+    abstract RegularFileProperty getKeysymHeader()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDir()
+
+    @TaskAction
+    void generate() {
+        def pkgDir = new File(outputDir.get().asFile, 'net/christianbeier/droidvnc_ng')
+        pkgDir.mkdirs()
+        // Parse `#define XK_<Name> 0x<hex>` lines, keeping header order and the first of any
+        // duplicate macro name.
+        def entries = []
+        def seen = new HashSet<String>()
+        int order = 0
+        keysymHeader.get().asFile.eachLine('UTF-8') { line ->
+            def m = (line =~ /^#define\s+XK_(\w+)\s+0x([0-9A-Fa-f]+)\b/)
+            if (m && seen.add(m[0][1])) {
+                entries << [name: m[0][1], hex: m[0][2], sym: Long.parseLong(m[0][2], 16), header: order++]
+            }
+        }
+        // NAMES/OFFSETS/KEYSYMS share one case-sensitive by-name order, so the blob's physical layout
+        // doubles as the search index for name -> keysym.
+        def byName = entries.sort(false) { it.name }
+        def names = new StringBuilder()
+        def offsets = []
+        byName.each { e -> offsets << names.length(); names << e.name }
+        offsets << names.length()
+        // A single Kotlin string literal must stay under the 64KB UTF-8 constant-pool limit; all XK_
+        // names are ASCII so length == bytes. rfb/keysym.h sits near 20KB, but fail loudly if it grows.
+        if (names.length() >= 60000) {
+            throw new GradleException("keysym NAMES blob is ${names.length()} chars -- too large for one string literal")
+        }
+        // BY_KEYSYM indexes every entry (into the by-name arrays) ordered by keysym, header order kept
+        // within a keysym's aliases, so a reverse lookup lands on a contiguous run in header order.
+        def byKeysym = (0..<byName.size()).toList().sort(false) { a, b ->
+            (byName[a].sym <=> byName[b].sym) ?: (byName[a].header <=> byName[b].header)
+        }
+
+        def sb = new StringBuilder()
+        sb << '/* Generated from libvncserver rfb/keysym.h -- do not edit. */\n'
+        sb << 'package net.christianbeier.droidvnc_ng\n\n'
+        sb << '/**\n'
+        sb << " * Keysym name table generated at build time from libvncserver's rfb/keysym.h, laid out the way\n"
+        sb << ' * libxkbcommon\'s ks_tables.h is. [NAMES] is every XK_ name ("XK_" prefix stripped) concatenated\n'
+        sb << ' * with no separators, ordered case-sensitively by name; [OFFSETS] holds each name\'s half-open\n'
+        sb << ' * span in [NAMES] (entry i is NAMES[OFFSETS[i] until OFFSETS[i + 1]]); [KEYSYMS] is the parallel\n'
+        sb << " * keysym for each name. [BY_KEYSYM] lists every entry index ordered by keysym, a keysym's\n"
+        sb << ' * aliases kept in header order. The searches over this data live in the hand-written\n'
+        sb << ' * [InputKeysyms].\n'
+        sb << ' */\n'
+        sb << 'internal object InputKeysymTable {\n'
+        sb << "    const val NAMES =\n        \"${names}\"\n\n"
+
+        def emitArray = { String decl, List vals, Closure fmt ->
+            sb << "    val $decl = ${decl == 'KEYSYMS' ? 'longArrayOf' : 'intArrayOf'}(\n"
+            vals.collate(16).each { row -> sb << '        ' << row.collect(fmt).join(', ') << ',\n' }
+            sb << '    )\n\n'
+        }
+        emitArray('OFFSETS', offsets) { it.toString() }
+        emitArray('KEYSYMS', byName) { "0x${it.hex}L" }
+        emitArray('BY_KEYSYM', byKeysym) { it.toString() }
+        sb << '}\n'
+        new File(pkgDir, 'InputKeysymTable.kt').text = sb.toString()
+    }
+}
+
+def generateKeysyms = tasks.register('generateKeysyms', GenerateKeysyms) {
+    keysymHeader.set(rootProject.file('libvncserver/include/rfb/keysym.h'))
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.kotlin.addGeneratedSourceDirectory(generateKeysyms) { it.getOutputDir() }
+    }
+}
+
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.preference:preference:1.2.1'

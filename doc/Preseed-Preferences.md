@@ -23,7 +23,14 @@ An example `defaults.json` with completely new defaults (not all entries need to
     "password": "supersecure",
     "accessKey": "evenmoresecure",
     "startOnBoot": true,
-    "startOnBootDelay": 0
+    "startOnBootDelay": 0,
+    "chordRecents": "Control_L+Shift_L+Escape",
+    "chordHome": "Home",
+    "chordBack": "Escape",
+    "chordPower": "End",
+    "chordVolumeUp": "Control_L+Alt_L+Page_Up",
+    "chordVolumeDown": "Control_L+Alt_L+Page_Down",
+    "chordRotate": "Control_L+Alt_L+Delete"
 }
 ```
 

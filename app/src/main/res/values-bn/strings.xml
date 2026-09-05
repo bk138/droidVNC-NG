@@ -47,7 +47,18 @@
     <string name="main_activity_repeater_vnc_fail">%1$s-এ আইডি %2$s সহ সংযোগ ব্যর্থ</string>
     <string name="main_activity_repeater_vnc_input_missing">হোস্ট এবং/অথবা আইডি অনুপস্থিত</string>
     <string name="main_activity_reconnect_tries_hint">সর্বোচ্চ পুনরায় সংযোগের চেষ্টা</string>
-    <string name="main_activity_special_key_reference">VNC ভিউয়ার থেকে, <b>Ctrl-Shift-Esc</b> রিসেন্ট অ্যাপস ওভারভিউ ট্রিগার করে, <b>Home/Pos1</b> হোম বাটনের মতো কাজ করে, <b>End</b> পাওয়ার বাটনের মতো কাজ করে, <b>Escape</b> ব্যাক বাটনের মতো কাজ করে, <b>Ctrl-Alt-PageUp/PageDown</b> ভলিউম পরিবর্তন করে।</string>
+    <string name="main_activity_special_key_reference">একটি VNC ভিউয়ার থেকে, উপরে নির্ধারিত কীবোর্ড শর্টকাটগুলি তাদের সংশ্লিষ্ট Android অ্যাকশন চালু করে।</string>
+    <string name="main_activity_settings_key_shortcuts">কীবোর্ড শর্টকাট</string>
+    <string name="main_activity_settings_key_shortcuts_button">কনফিগার করুন</string>
+    <string name="main_activity_settings_key_shortcuts_close">বন্ধ করুন</string>
+    <string name="main_activity_settings_chord_recents">রিসেন্ট অ্যাপস</string>
+    <string name="main_activity_settings_chord_home">হোম</string>
+    <string name="main_activity_settings_chord_back">ব্যাক</string>
+    <string name="main_activity_settings_chord_power">পাওয়ার ডায়ালগ</string>
+    <string name="main_activity_settings_chord_volume_up">ভলিউম বাড়ান</string>
+    <string name="main_activity_settings_chord_volume_down">ভলিউম কমান</string>
+    <string name="main_activity_settings_chord_rotate">স্ক্রিন ঘোরান</string>
+    <string name="main_activity_settings_chord_conflict">%1$s ইতিমধ্যে অন্য একটি অ্যাকশনে বরাদ্দ করা হয়েছে</string>
     <string name="main_activity_about">এটি droidVNC-NG %1$s। মনে রাখবেন droidVNC-NG-তে এখনও নতুন ফিচার যোগ করা হচ্ছে। কোনও সমস্যা বা ফিচার রিকোয়েস্ট https://github.com/bk138/droidVNC-NG/issues-এ রিপোর্ট করুন।</string>
     <string name="main_activity_survey_button">ফিডব্যাক দিন</string>
     <plurals name="main_service_notification_text_not_listening">
@@ -84,4 +95,6 @@
     <string name="share_activtiy_server_not_running">টেক্সট শেয়ার করা হয়নি, সার্ভার চালু নয়</string>
     <string name="share_activtiy_no_clients_connected">টেক্সট শেয়ার করা হয়নি, কোন ক্লায়েন্ট সংযুক্ত নয়</string>
     <string name="share_activtiy_shared_successfully">টেক্সট সব সংযুক্ত ক্লায়েন্টের ক্লিপবোর্ডে শেয়ার করা হয়েছে</string>
+    <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
+    <string name="key_label_none">কোনোটিই নয়</string>
 </resources>

@@ -47,7 +47,18 @@
     <string name="main_activity_repeater_vnc_fail">Не удалось подключиться к %1$s с идентификатором %2$s</string>
     <string name="main_activity_repeater_vnc_input_missing">Хост и/или идентификатор отсутствуют</string>
     <string name="main_activity_reconnect_tries_hint">Макс. попыток переподключения</string>
-    <string name="main_activity_special_key_reference">В окне просмотра VNC сочетание клавиш <b>Ctrl-Shift-Esc</b> открывает обзор «Недавние приложения», <b>Home/Pos1</b> действует как кнопка «Домой», <b>End</b> действует как кнопка питания, <b>Escape</b> действует как кнопка «Назад», <b>Ctrl-Alt-PageUp/PageDown</b> изменяет громкость звука.</string>
+    <string name="main_activity_special_key_reference">В клиенте VNC назначенные выше сочетания клавиш выполняют соответствующие действия Android.</string>
+    <string name="main_activity_settings_key_shortcuts">Сочетания клавиш</string>
+    <string name="main_activity_settings_key_shortcuts_button">Настроить</string>
+    <string name="main_activity_settings_key_shortcuts_close">Закрыть</string>
+    <string name="main_activity_settings_chord_recents">Недавние приложения</string>
+    <string name="main_activity_settings_chord_home">Домой</string>
+    <string name="main_activity_settings_chord_back">Назад</string>
+    <string name="main_activity_settings_chord_power">Меню питания</string>
+    <string name="main_activity_settings_chord_volume_up">Увеличить громкость</string>
+    <string name="main_activity_settings_chord_volume_down">Уменьшить громкость</string>
+    <string name="main_activity_settings_chord_rotate">Повернуть</string>
+    <string name="main_activity_settings_chord_conflict">%1$s уже назначено другому действию</string>
     <string name="main_activity_about">Это droidVNC-NG %1$s. Обратите внимание, что в droidVNC-NG добавляются новые возможности. Вы можете сообщить о любых проблемах и предложить функциональность по адресу https://github.com/bk138/droidVNC-NG/issues</string>
     <string name="main_activity_survey_button">Оставить отзыв</string>
     <plurals name="main_service_notification_text_not_listening">
@@ -84,4 +95,6 @@
     <string name="share_activtiy_server_not_running">Текст не передан, сервер не запущен.</string>
     <string name="share_activtiy_no_clients_connected">Текст не передан, нет подключенных клиентов.</string>
     <string name="share_activtiy_shared_successfully">Текст передан в буферы обмена всех подключенных клиентов.</string>
+    <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
+    <string name="key_label_none">Нет</string>
 </resources>

@@ -47,7 +47,18 @@
     <string name="main_activity_repeater_vnc_fail">%1$s의 ID %2$s에 연결 실패</string>
     <string name="main_activity_repeater_vnc_input_missing">호스트 및/또는 ID 누락</string>
     <string name="main_activity_reconnect_tries_hint">최대 재연결 시도 수</string>
-    <string name="main_activity_special_key_reference">VNC 뷰어에서 <b>Ctrl-Shift-Esc</b>는 최신 앱 개요를, <b>Home/Pos1</b>은 홈 버튼을, <b>End</b>는 전원 버튼을, <b>Esc</b>는 뒤로 가기 버튼을, <b>Ctrl-Alt-PageUp/PageDown</b>은 음량 조절을 트리거합니다.</string>
+    <string name="main_activity_special_key_reference">VNC 뷰어에서 위에 지정한 키보드 단축키로 해당 Android 동작이 실행됩니다.</string>
+    <string name="main_activity_settings_key_shortcuts">키보드 단축키</string>
+    <string name="main_activity_settings_key_shortcuts_button">설정</string>
+    <string name="main_activity_settings_key_shortcuts_close">닫기</string>
+    <string name="main_activity_settings_chord_recents">최근 앱</string>
+    <string name="main_activity_settings_chord_home">홈</string>
+    <string name="main_activity_settings_chord_back">뒤로</string>
+    <string name="main_activity_settings_chord_power">전원 메뉴</string>
+    <string name="main_activity_settings_chord_volume_up">음량 높이기</string>
+    <string name="main_activity_settings_chord_volume_down">음량 낮추기</string>
+    <string name="main_activity_settings_chord_rotate">화면 회전</string>
+    <string name="main_activity_settings_chord_conflict">%1$s은(는) 이미 다른 동작에 할당되어 있습니다</string>
     <string name="main_activity_about">이것은 droidVNC-NG %1$s입니다. 아직 droidVNC-NG에 더 많은 기능이 추가되고 있습니다. 문제 및 기능 요청은 https://github.com/bk138/droidVNC-NG/issues에서 신고할 수 있습니다.</string>
     <string name="main_activity_survey_button">피드백 제공</string>
     <plurals name="main_service_notification_text_not_listening">
@@ -84,4 +95,6 @@
     <string name="share_activtiy_server_not_running">텍스트 공유 실패, 서버가 실행 중이 아닙니다.</string>
     <string name="share_activtiy_no_clients_connected">텍스트 공유 실패, 연결된 클라이언트가 없습니다.</string>
     <string name="share_activtiy_shared_successfully">텍스트를 모든 연결된 클라이언트의 클립보드에 공유했습니다.</string>
+    <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
+    <string name="key_label_none">없음</string>
 </resources>

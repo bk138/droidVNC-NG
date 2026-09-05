@@ -20,6 +20,17 @@
 
     <style name="MainButtonStyle" parent="Widget.MaterialComponents.Button"/>
 
+    <!-- Non-floating (full-screen) dialog used to host the keyboard-shortcut setup, so the rows get
+         the whole screen instead of crowding the settings list. DayNight to follow the app theme. -->
+    <style name="FullScreenDialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">?android:attr/colorBackground</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
     <style name="ActionBarStyle" parent="Widget.MaterialComponents.Light.ActionBar.Solid">
         <item name="background">@color/colorPrimary</item>
     </style>

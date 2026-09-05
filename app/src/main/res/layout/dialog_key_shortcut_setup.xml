@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Full-screen keyboard-shortcut dialog, driven by InputKeyShortcutSetupDialog: a top app-bar
+     (a MaterialToolbar with a back/close navigation icon) over the scrollable shortcut rows and the
+     reference note. One key_shortcut_row.xml is inflated per InputKeyShortcut.Action into the
+     key_shortcut_rows container below, so the per-action controls and their wiring stay in one place
+     rather than being repeated here. The toolbar's navigation icon dismisses the dialog, matching
+     what the system Back button already does. fitsSystemWindows keeps the content clear of the
+     status bar under the edge-to-edge main activity. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?android:attr/colorBackground"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/key_shortcut_setup_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:navigationContentDescription="@string/main_activity_settings_key_shortcuts_close"
+        app:title="@string/main_activity_settings_key_shortcuts"
+        app:titleTextColor="@android:color/white" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:id="@+id/key_shortcut_rows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/special_key_reference"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:padding="10dp"
+                android:text="@string/main_activity_special_key_reference" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

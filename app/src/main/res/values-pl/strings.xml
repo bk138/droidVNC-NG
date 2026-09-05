@@ -45,7 +45,18 @@
     <string name="main_activity_repeater_vnc_fail">Połączenie z %1$s z ID %2$s nie powiodło się</string>
     <string name="main_activity_repeater_vnc_input_missing">Brakuje hosta i/lub ID</string>
     <string name="main_activity_reconnect_tries_hint">Maks. liczba prób ponownego połączenia</string>
-    <string name="main_activity_special_key_reference">Z klienta VNC, <b>Ctrl-Shift-Esc</b> wywołuje podgląd "Ostatnie aplikacje", <b>Home/Pos1</b> działa jako przycisk Home, <b>End</b> działa jako przycisk zasilania, <b>Escape</b> działa jako przycisk Wstecz, <b>Ctrl-Alt-PageUp/PageDown</b> zmienia głośność dźwięku.</string>
+    <string name="main_activity_special_key_reference">W kliencie VNC skróty klawiszowe przypisane powyżej wyzwalają odpowiadające im akcje Androida.</string>
+    <string name="main_activity_settings_key_shortcuts">Skróty klawiszowe</string>
+    <string name="main_activity_settings_key_shortcuts_button">Konfiguruj</string>
+    <string name="main_activity_settings_key_shortcuts_close">Zamknij</string>
+    <string name="main_activity_settings_chord_recents">Ostatnie aplikacje</string>
+    <string name="main_activity_settings_chord_home">Ekran główny</string>
+    <string name="main_activity_settings_chord_back">Wstecz</string>
+    <string name="main_activity_settings_chord_power">Menu zasilania</string>
+    <string name="main_activity_settings_chord_volume_up">Głośniej</string>
+    <string name="main_activity_settings_chord_volume_down">Ciszej</string>
+    <string name="main_activity_settings_chord_rotate">Obróć</string>
+    <string name="main_activity_settings_chord_conflict">%1$s jest już przypisany do innej akcji</string>
     <string name="main_activity_about">To jest droidVNC-NG %1$s. Pamiętaj, że wciąż dodawane są nowe funkcje do droidVNC-NG. Zgłoś jakiekolwiek problemy i prośby o funkcje na stronie https://github.com/bk138/droidVNC-NG/issues</string>
     <string name="main_activity_survey_button">Prześlij opinię</string>
     <plurals name="main_service_notification_text_not_listening">
@@ -86,4 +97,6 @@
     <string name="share_activtiy_server_not_running">Tekst nieudostępniony, serwer nie działa.</string>
     <string name="share_activtiy_no_clients_connected">Tekst nieudostępniony, żaden klient nie jest podłączony.</string>
     <string name="share_activtiy_shared_successfully">Tekst udostępniony do schowków wszystkich podłączonych klientów.</string>
+    <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
+    <string name="key_label_none">Brak</string>
 </resources>

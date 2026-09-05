@@ -47,7 +47,18 @@
     <string name="main_activity_repeater_vnc_fail">%1$s (ID %2$s) への接続に失敗しました</string>
     <string name="main_activity_repeater_vnc_input_missing">ホスト名またはIDが入力されていません</string>
     <string name="main_activity_reconnect_tries_hint">最大の接続リトライ数</string>
-    <string name="main_activity_special_key_reference">VNC ビューアから、<b>Ctrl-Shift-Esc</b> で \'最近使ったアプリ\' の概要が起動し、<b>Home/Pos1</b> でホーム ボタン、<b>End</b> で電源ボタン、<b>Escape</b> で戻るボタン、<b>Ctrl-Alt-PageUp/PageDown</b> で音量が変更されます。</string>
+    <string name="main_activity_special_key_reference">VNC ビューアから、上で割り当てたキーボードショートカットで対応する Android の操作が実行されます。</string>
+    <string name="main_activity_settings_key_shortcuts">キーボードショートカット</string>
+    <string name="main_activity_settings_key_shortcuts_button">設定</string>
+    <string name="main_activity_settings_key_shortcuts_close">閉じる</string>
+    <string name="main_activity_settings_chord_recents">最近使ったアプリ</string>
+    <string name="main_activity_settings_chord_home">ホーム</string>
+    <string name="main_activity_settings_chord_back">戻る</string>
+    <string name="main_activity_settings_chord_power">電源メニュー</string>
+    <string name="main_activity_settings_chord_volume_up">音量＋</string>
+    <string name="main_activity_settings_chord_volume_down">音量−</string>
+    <string name="main_activity_settings_chord_rotate">画面回転</string>
+    <string name="main_activity_settings_chord_conflict">%1$s は既に別のアクションに割り当てられています</string>
     <string name="main_activity_about">このアプリはdroidVNC-NG %1$sです。 droidVNC-NGにはさらに多くの機能が追加されています。問題や機能要望は https://github.com/bk138/droidVNC-NG/issues で報告できます。</string>
     <string name="main_activity_survey_button">フィードバックを提供する</string>
     <plurals name="main_service_notification_text_not_listening">
@@ -84,4 +95,6 @@
     <string name="share_activtiy_server_not_running">テキストは共有されていません。サーバーは実行されていません。</string>
     <string name="share_activtiy_no_clients_connected">テキストは共有されていません。クライアントが接続されていません。</string>
     <string name="share_activtiy_shared_successfully">接続されているすべてのクライアントのクリップボードにテキストを共有しました。</string>
+    <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
+    <string name="key_label_none">なし</string>
 </resources>

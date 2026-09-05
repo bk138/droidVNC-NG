@@ -88,6 +88,34 @@ class Defaults {
     var startOnBootDelay = 0
         private set
 
+    @EncodeDefault
+    var chordRecents = "Control_L+Shift_L+Escape"
+        private set
+
+    @EncodeDefault
+    var chordHome = "Home"
+        private set
+
+    @EncodeDefault
+    var chordBack = "Escape"
+        private set
+
+    @EncodeDefault
+    var chordPower = "End"
+        private set
+
+    @EncodeDefault
+    var chordVolumeUp = "Control_L+Alt_L+Page_Up"
+        private set
+
+    @EncodeDefault
+    var chordVolumeDown = "Control_L+Alt_L+Page_Down"
+        private set
+
+    @EncodeDefault
+    var chordRotate = "Control_L+Alt_L+Delete"
+        private set
+
     /*
        NB if adding fields here, don't forget to add their copying in the constructor as well!
      */
@@ -129,6 +157,13 @@ class Defaults {
             this.password = appConfig.getString("password", this.password) ?: this.password
             this.startOnBoot = appConfig.getBoolean("startOnBoot", this.startOnBoot)
             this.startOnBootDelay = appConfig.getInt("startOnBootDelay", this.startOnBootDelay)
+            this.chordRecents = appConfig.getString("chordRecents", this.chordRecents) ?: this.chordRecents
+            this.chordHome = appConfig.getString("chordHome", this.chordHome) ?: this.chordHome
+            this.chordBack = appConfig.getString("chordBack", this.chordBack) ?: this.chordBack
+            this.chordPower = appConfig.getString("chordPower", this.chordPower) ?: this.chordPower
+            this.chordVolumeUp = appConfig.getString("chordVolumeUp", this.chordVolumeUp) ?: this.chordVolumeUp
+            this.chordVolumeDown = appConfig.getString("chordVolumeDown", this.chordVolumeDown) ?: this.chordVolumeDown
+            this.chordRotate = appConfig.getString("chordRotate", this.chordRotate) ?: this.chordRotate
 
             val scalingStr = appConfig.getString("scaling", "0.0")
             try {
@@ -171,6 +206,13 @@ class Defaults {
                 this.accessKey = readDefault.accessKey
             this.startOnBoot = readDefault.startOnBoot
             this.startOnBootDelay = readDefault.startOnBootDelay
+            this.chordRecents = readDefault.chordRecents
+            this.chordHome = readDefault.chordHome
+            this.chordBack = readDefault.chordBack
+            this.chordPower = readDefault.chordPower
+            this.chordVolumeUp = readDefault.chordVolumeUp
+            this.chordVolumeDown = readDefault.chordVolumeDown
+            this.chordRotate = readDefault.chordRotate
             // add here!
         } catch (e: Exception) {
             Log.w(TAG, "${e.message}")

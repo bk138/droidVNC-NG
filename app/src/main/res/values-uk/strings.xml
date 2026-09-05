@@ -47,7 +47,18 @@
     <string name="main_activity_repeater_vnc_fail">Під\'єднання до %1$s з ID %2$s не вдалося</string>
     <string name="main_activity_repeater_vnc_input_missing">Відсутній хост і/або ID</string>
     <string name="main_activity_reconnect_tries_hint">Макс. спроби повторного під\'єднання</string>
-    <string name="main_activity_special_key_reference">У VNC-переглядачі <b>Ctrl-Shift-Esc</b> викликає огляд \"Нещодавні програми\", <b>Home/Pos1</b> діє як кнопка "Додому", <b>End</b> діє як кнопка живлення, <b>Escape</b> діє як кнопка "Назад", <b>Ctrl-Alt-PageUp/PageDown</b> змінює гучність звуку.</string>
+    <string name="main_activity_special_key_reference">У VNC-переглядачі призначені вище комбінації клавіш виконують відповідні дії Android.</string>
+    <string name="main_activity_settings_key_shortcuts">Комбінації клавіш</string>
+    <string name="main_activity_settings_key_shortcuts_button">Налаштувати</string>
+    <string name="main_activity_settings_key_shortcuts_close">Закрити</string>
+    <string name="main_activity_settings_chord_recents">Нещодавні програми</string>
+    <string name="main_activity_settings_chord_home">Додому</string>
+    <string name="main_activity_settings_chord_back">Назад</string>
+    <string name="main_activity_settings_chord_power">Меню живлення</string>
+    <string name="main_activity_settings_chord_volume_up">Збільшити гучність</string>
+    <string name="main_activity_settings_chord_volume_down">Зменшити гучність</string>
+    <string name="main_activity_settings_chord_rotate">Повернути</string>
+    <string name="main_activity_settings_chord_conflict">%1$s вже призначено іншій дії</string>
     <string name="main_activity_about">Це droidVNC-NG %1$s. Зверніть увагу, що до droidVNC-NG все ще додаються нові функції. Ви можете повідомляти про будь-які проблеми та запити на функції на https://github.com/bk138/droidVNC-NG/issues</string>
     <string name="main_activity_survey_button">Надати відгук</string>
     <plurals name="main_service_notification_text_not_listening">
@@ -84,4 +95,6 @@
     <string name="share_activtiy_server_not_running">Текст не поділено, сервер не працює.</string>
     <string name="share_activtiy_no_clients_connected">Текст не поділено, немає підключених клієнтів.</string>
     <string name="share_activtiy_shared_successfully">Текст поділено з буферами обміну всіх підключених клієнтів.</string>
+    <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
+    <string name="key_label_none">Немає</string>
 </resources>

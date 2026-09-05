@@ -171,6 +171,14 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // The keyboard-shortcut rows would crowd the settings list, so they live in a full-screen
+        // dialog opened from this button rather than inline. The dialog owns its own chrome and the
+        // loading and persisting of every chord.
+        final Button keyShortcutsButton = findViewById(R.id.key_shortcut_setup_button);
+        keyShortcutsButton.setOnClickListener(view -> new InputKeyShortcutSetupDialog(this).show());
+        // shortcuts only fire when input is enabled, so gate the button on view-only like the pointers
+        keyShortcutsButton.setEnabled(!prefs.getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, mDefaults.getViewOnly()));
+
         mAddress = findViewById(R.id.address);
 
         // Wire up network interface spinner
@@ -575,8 +583,9 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor ed = prefs.edit();
             ed.putBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, b);
             ed.apply();
-            // pointers depend on this one
+            // pointers and the keyboard shortcuts depend on this one
             showPointers.setEnabled(!b);
+            keyShortcutsButton.setEnabled(!b);
         });
 
         // Setup About text

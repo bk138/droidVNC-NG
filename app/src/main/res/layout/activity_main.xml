@@ -336,8 +336,38 @@
 
             </TableRow>
 
-        </TableLayout>
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:layout_column="0"
+                    android:padding="10dp"
+                    android:hyphenationFrequency="full"
+                    android:text="@string/main_activity_settings_key_shortcuts" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:padding="10dp"
+                    android:text="@string/main_activity_colon" />
+
+                <Button
+                    android:id="@+id/key_shortcut_setup_button"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:layout_weight="3"
+                    android:text="@string/main_activity_settings_key_shortcuts_button" />
+
+            </TableRow>
+
+        </TableLayout>
 
 
         <TextView
@@ -576,14 +606,6 @@
                 style="?android:attr/buttonBarButtonStyle" />
 
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/special_key_reference"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="10dp"
-            android:text="@string/main_activity_special_key_reference"/>
 
         <TextView
             android:id="@+id/about"

@@ -66,4 +66,46 @@
         android:restrictionType="integer"
         android:title="@string/main_activity_settings_start_on_boot_delay" />
 
+    <restriction
+        android:defaultValue="Control_L+Shift_L+Escape"
+        android:key="chordRecents"
+        android:restrictionType="string"
+        android:title="@string/main_activity_settings_chord_recents" />
+
+    <restriction
+        android:defaultValue="Home"
+        android:key="chordHome"
+        android:restrictionType="string"
+        android:title="@string/main_activity_settings_chord_home" />
+
+    <restriction
+        android:defaultValue="Escape"
+        android:key="chordBack"
+        android:restrictionType="string"
+        android:title="@string/main_activity_settings_chord_back" />
+
+    <restriction
+        android:defaultValue="End"
+        android:key="chordPower"
+        android:restrictionType="string"
+        android:title="@string/main_activity_settings_chord_power" />
+
+    <restriction
+        android:defaultValue="Control_L+Alt_L+Page_Up"
+        android:key="chordVolumeUp"
+        android:restrictionType="string"
+        android:title="@string/main_activity_settings_chord_volume_up" />
+
+    <restriction
+        android:defaultValue="Control_L+Alt_L+Page_Down"
+        android:key="chordVolumeDown"
+        android:restrictionType="string"
+        android:title="@string/main_activity_settings_chord_volume_down" />
+
+    <restriction
+        android:defaultValue="Control_L+Alt_L+Delete"
+        android:key="chordRotate"
+        android:restrictionType="string"
+        android:title="@string/main_activity_settings_chord_rotate" />
+
 </restrictions>
