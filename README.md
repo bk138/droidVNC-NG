@@ -92,7 +92,7 @@ If you want to accept incoming connections from VNC viewers:
 Here's how to connect to a listening VNC viewer or repeater without opening a server port:
 1. Leave the VNC port **blank**, which will get the Admin Panel to state the server **isn't** listening for incoming connections.
 2. Make outbound connections by choosing either "Connect to a **listening viewer**" or "Connect to a **repeater**".
-3. Optionally fill **Max. reconnect tries**. If you leave it empty, they are set from the default or from the intent.
+3. Optionally fill **Max. reconnect tries**. If you leave it empty, the default is **0** (no reconnect), unless a reverse/repeater [intent](doc/Intent-Interface.md) set `EXTRA_RECONNECT_TRIES`.
 
 
 ### How to Pre-seed Preferences
