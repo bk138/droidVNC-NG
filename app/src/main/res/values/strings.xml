@@ -47,7 +47,7 @@
     <string name="main_activity_repeater_vnc_success">Connection to %1$s with ID %2$s succeeded</string>
     <string name="main_activity_repeater_vnc_fail">Connection to %1$s with ID %2$s failed</string>
     <string name="main_activity_repeater_vnc_input_missing">Host and/or ID missing</string>
-    <string name="main_activity_reconnect_tries_hint">Max. reconnect tries (default 0)</string>
+    <string name="main_activity_reconnect_tries_hint">Max. reconnect tries</string>
     <string name="main_activity_special_key_reference">From a VNC viewer, the keyboard shortcuts assigned above trigger their Android actions.</string>
     <string name="main_activity_settings_key_shortcuts">Keyboard Shortcuts</string>
     <string name="main_activity_settings_key_shortcuts_button">Configure</string>
