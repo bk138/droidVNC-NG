@@ -97,4 +97,9 @@
     <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
     <string name="key_label_none">Aucune</string>
     <string name="key_modifier_shift">Maj</string>
+    <string name="key_label_home">⇱</string>
+    <string name="key_label_end">Fin</string>
+    <string name="key_label_esc">Échap</string>
+    <string name="key_label_pageup">⇞</string>
+    <string name="key_label_pagedown">⇟</string>
 </resources>

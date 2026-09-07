@@ -96,4 +96,8 @@
     <string name="share_activtiy_shared_successfully">Texto compartido en los portapapeles de todos los clientes conectados.</string>
     <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
     <string name="key_label_none">Ninguna</string>
+    <string name="key_label_home">Inicio</string>
+    <string name="key_label_end">Fin</string>
+    <string name="key_label_pageup">Re Pág</string>
+    <string name="key_label_pagedown">Av Pág</string>
 </resources>
