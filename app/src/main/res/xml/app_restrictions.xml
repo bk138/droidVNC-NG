@@ -68,42 +68,49 @@
 
     <restriction
         android:defaultValue="Control_L+Shift_L+Escape"
+        android:description="@string/settings_chord_description"
         android:key="chordRecents"
         android:restrictionType="string"
         android:title="@string/main_activity_settings_chord_recents" />
 
     <restriction
         android:defaultValue="Home"
+        android:description="@string/settings_chord_description"
         android:key="chordHome"
         android:restrictionType="string"
         android:title="@string/main_activity_settings_chord_home" />
 
     <restriction
         android:defaultValue="Escape"
+        android:description="@string/settings_chord_description"
         android:key="chordBack"
         android:restrictionType="string"
         android:title="@string/main_activity_settings_chord_back" />
 
     <restriction
         android:defaultValue="End"
+        android:description="@string/settings_chord_description"
         android:key="chordPower"
         android:restrictionType="string"
         android:title="@string/main_activity_settings_chord_power" />
 
     <restriction
         android:defaultValue="Control_L+Alt_L+Page_Up"
+        android:description="@string/settings_chord_description"
         android:key="chordVolumeUp"
         android:restrictionType="string"
         android:title="@string/main_activity_settings_chord_volume_up" />
 
     <restriction
         android:defaultValue="Control_L+Alt_L+Page_Down"
+        android:description="@string/settings_chord_description"
         android:key="chordVolumeDown"
         android:restrictionType="string"
         android:title="@string/main_activity_settings_chord_volume_down" />
 
     <restriction
         android:defaultValue="Control_L+Alt_L+Delete"
+        android:description="@string/settings_chord_description"
         android:key="chordRotate"
         android:restrictionType="string"
         android:title="@string/main_activity_settings_chord_rotate" />
