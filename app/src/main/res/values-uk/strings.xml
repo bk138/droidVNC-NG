@@ -47,7 +47,7 @@
     <string name="main_activity_repeater_vnc_fail">Під\'єднання до %1$s з ID %2$s не вдалося</string>
     <string name="main_activity_repeater_vnc_input_missing">Відсутній хост і/або ID</string>
     <string name="main_activity_reconnect_tries_hint">Макс. спроби повторного під\'єднання</string>
-    <string name="main_activity_special_key_reference">У VNC-переглядачі призначені вище комбінації клавіш виконують відповідні дії Android.</string>
+    <string name="main_activity_special_key_reference">У VNC-переглядачі &lt;b&gt;%1$s&lt;/b&gt; викликає огляд \"Нещодавні програми\", &lt;b&gt;%2$s&lt;/b&gt; діє як кнопка "Додому", &lt;b&gt;%3$s&lt;/b&gt; діє як кнопка живлення, &lt;b&gt;%4$s&lt;/b&gt; діє як кнопка "Назад", &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; змінює гучність звуку.</string>
     <string name="main_activity_settings_key_shortcuts">Комбінації клавіш</string>
     <string name="main_activity_settings_key_shortcuts_button">Налаштувати</string>
     <string name="main_activity_settings_chord_recents">Нещодавні програми</string>

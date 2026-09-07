@@ -47,7 +47,7 @@
     <string name="main_activity_repeater_vnc_fail">%1$s (ID %2$s) への接続に失敗しました</string>
     <string name="main_activity_repeater_vnc_input_missing">ホスト名またはIDが入力されていません</string>
     <string name="main_activity_reconnect_tries_hint">最大の接続リトライ数</string>
-    <string name="main_activity_special_key_reference">VNC ビューアから、上で割り当てたキーボードショートカットで対応する Android の操作が実行されます。</string>
+    <string name="main_activity_special_key_reference">VNC ビューアから、&lt;b&gt;%1$s&lt;/b&gt; で \'最近使ったアプリ\' の概要が起動し、&lt;b&gt;%2$s&lt;/b&gt; でホーム ボタン、&lt;b&gt;%3$s&lt;/b&gt; で電源ボタン、&lt;b&gt;%4$s&lt;/b&gt; で戻るボタン、&lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; で音量が変更されます。</string>
     <string name="main_activity_settings_key_shortcuts">キーボードショートカット</string>
     <string name="main_activity_settings_key_shortcuts_button">設定</string>
     <string name="main_activity_settings_chord_recents">最近使ったアプリ</string>

@@ -48,7 +48,7 @@
     <string name="main_activity_repeater_vnc_fail">Connection to %1$s with ID %2$s failed</string>
     <string name="main_activity_repeater_vnc_input_missing">Host and/or ID missing</string>
     <string name="main_activity_reconnect_tries_hint">Max. reconnect tries</string>
-    <string name="main_activity_special_key_reference">From a VNC viewer, the keyboard shortcuts assigned above trigger their Android actions.</string>
+    <string name="main_activity_special_key_reference">From a VNC viewer, &lt;b&gt;%1$s&lt;/b&gt; triggers \'Recent Apps\' overview, &lt;b&gt;%2$s&lt;/b&gt; acts as Home button, &lt;b&gt;%3$s&lt;/b&gt; acts as Power button, &lt;b&gt;%4$s&lt;/b&gt; acts as Back button, &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; change audio volume.</string>
     <string name="main_activity_settings_key_shortcuts">Keyboard Shortcuts</string>
     <string name="main_activity_settings_key_shortcuts_button">Configure</string>
     <string name="main_activity_settings_chord_recents">Recent apps</string>

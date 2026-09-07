@@ -42,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.os.ConfigurationCompat;
 import androidx.core.text.BidiFormatter;
+import androidx.core.text.HtmlCompat;
 import androidx.preference.PreferenceManager;
 
 import android.os.Handler;
@@ -51,6 +52,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -801,6 +803,45 @@ public class MainActivity extends AppCompatActivity {
         if(Build.VERSION.SDK_INT < 26) {
             updatePermissionsDisplay();
         }
+        updateSpecialKeyReference();
+    }
+
+    /** Shows the currently configured chord for each action the shortcuts can trigger. */
+    private void updateSpecialKeyReference() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String reference = getString(
+                R.string.main_activity_special_key_reference,
+                chordLabel(prefs, Constants.PREFS_KEY_SETTINGS_CHORD_RECENTS, mDefaults.getChordRecents()),
+                chordLabel(prefs, Constants.PREFS_KEY_SETTINGS_CHORD_HOME, mDefaults.getChordHome()),
+                chordLabel(prefs, Constants.PREFS_KEY_SETTINGS_CHORD_POWER, mDefaults.getChordPower()),
+                chordLabel(prefs, Constants.PREFS_KEY_SETTINGS_CHORD_BACK, mDefaults.getChordBack()),
+                chordLabel(prefs, Constants.PREFS_KEY_SETTINGS_CHORD_VOLUME_UP, mDefaults.getChordVolumeUp()),
+                chordLabel(prefs, Constants.PREFS_KEY_SETTINGS_CHORD_VOLUME_DOWN, mDefaults.getChordVolumeDown()));
+        ((TextView) findViewById(R.id.special_key_reference))
+                .setText(HtmlCompat.fromHtml(reference, HtmlCompat.FROM_HTML_MODE_LEGACY));
+    }
+
+    /**
+     * The chord configured under prefsKey the way the settings screen shows it, e.g. "Ctrl+Shift+Esc".
+     * A key outside the picker's curated set keeps its X11 name. Html-encoded because the reference
+     * string it goes into carries markup that is parsed after the values are substituted.
+     */
+    private String chordLabel(SharedPreferences prefs, String prefsKey, String defaultChord) {
+        InputKeyShortcut.Chord chord = InputKeyShortcut.Chord.fromString(prefs.getString(prefsKey, defaultChord));
+        StringBuilder label = new StringBuilder();
+        if (chord.getCtrl()) {
+            label.append(getString(R.string.key_modifier_ctrl)).append('+');
+        }
+        if (chord.getAlt()) {
+            label.append(getString(R.string.key_modifier_alt)).append('+');
+        }
+        if (chord.getShift()) {
+            label.append(getString(R.string.key_modifier_shift)).append('+');
+        }
+        InputKeyShortcut.TriggerKey key = InputKeyShortcut.TriggerKey.of(chord.getKeysym());
+        String name = key != null ? getString(key.getLabelRes()) : InputKeysyms.INSTANCE.nameOf(chord.getKeysym());
+        label.append(name != null ? name : getString(R.string.key_label_none));
+        return TextUtils.htmlEncode(label.toString());
     }
 
     private void updatePermissionsDisplay() {

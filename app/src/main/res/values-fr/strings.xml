@@ -47,7 +47,7 @@
     <string name="main_activity_repeater_vnc_fail">Connexion à %1$s avec ID %2$s échouée</string>
     <string name="main_activity_repeater_vnc_input_missing">Host et/ou ID manquantes</string>
     <string name="main_activity_reconnect_tries_hint">Nombre de tentatives de connexion</string>
-    <string name="main_activity_special_key_reference">Depuis une visionneuse VNC, les raccourcis clavier attribués ci-dessus déclenchent leurs actions Android respectives.</string>
+    <string name="main_activity_special_key_reference">À partir d\'une visionneuse VNC, &lt;b&gt;%1$s&lt;/b&gt; déclenche l\'aperçu des «Applications récentes», &lt;b&gt;%2$s&lt;/b&gt; agit comme le bouton Accueil, &lt;b&gt;%3$s&lt;/b&gt; agit comme le bouton Marche/Arrêt, &lt;b&gt;%4$s&lt;/b&gt; agit comme le bouton Retour, &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; modifie le volume audio.</string>
     <string name="main_activity_settings_key_shortcuts">Raccourcis clavier</string>
     <string name="main_activity_settings_key_shortcuts_button">Configurer</string>
     <string name="main_activity_settings_chord_recents">Applications récentes</string>

@@ -47,7 +47,7 @@
     <string name="main_activity_repeater_vnc_fail">فشل الاتصال بـ %1$s باستخدام المعرف %2$s</string>
     <string name="main_activity_repeater_vnc_input_missing">المضيف و/أو المعرف مفقود</string>
     <string name="main_activity_reconnect_tries_hint">أقصى عدد لمحاولات إعادة الاتصال</string>
-    <string name="main_activity_special_key_reference">من عارض VNC، تؤدي اختصارات لوحة المفاتيح المعيّنة أعلاه إلى تنفيذ إجراءات Android المقابلة لها.</string>
+    <string name="main_activity_special_key_reference">من عارض VNC، يؤدي الضغط على &lt;b&gt;%1$s&lt;/b&gt; إلى تشغيل نظرة عامة على \'التطبيقات الأخيرة\'، ويعمل &lt;b&gt;%2$s&lt;/b&gt; كزر الصفحة الرئيسية، ويعمل &lt;b&gt;%3$s&lt;/b&gt; كزر الطاقة، ويعمل &lt;b&gt;%4$s&lt;/b&gt; كزر الرجوع، ويغير الضغط على &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; مستوى الصوت.</string>
     <string name="main_activity_settings_key_shortcuts">اختصارات لوحة المفاتيح</string>
     <string name="main_activity_settings_key_shortcuts_button">تهيئة</string>
     <string name="main_activity_settings_chord_recents">التطبيقات الأخيرة</string>

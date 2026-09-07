@@ -47,7 +47,7 @@
     <string name="main_activity_repeater_vnc_fail">%1$s의 ID %2$s에 연결 실패</string>
     <string name="main_activity_repeater_vnc_input_missing">호스트 및/또는 ID 누락</string>
     <string name="main_activity_reconnect_tries_hint">최대 재연결 시도 수</string>
-    <string name="main_activity_special_key_reference">VNC 뷰어에서 위에 지정한 키보드 단축키로 해당 Android 동작이 실행됩니다.</string>
+    <string name="main_activity_special_key_reference">VNC 뷰어에서 &lt;b&gt;%1$s&lt;/b&gt;는 최신 앱 개요를, &lt;b&gt;%2$s&lt;/b&gt;은 홈 버튼을, &lt;b&gt;%3$s&lt;/b&gt;는 전원 버튼을, &lt;b&gt;%4$s&lt;/b&gt;는 뒤로 가기 버튼을, &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt;은 음량 조절을 트리거합니다.</string>
     <string name="main_activity_settings_key_shortcuts">키보드 단축키</string>
     <string name="main_activity_settings_key_shortcuts_button">설정</string>
     <string name="main_activity_settings_chord_recents">최근 앱</string>
