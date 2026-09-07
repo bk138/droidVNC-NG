@@ -104,4 +104,11 @@
     <string name="key_label_esc">Échap</string>
     <string name="key_label_pageup">⇞</string>
     <string name="key_label_pagedown">⇟</string>
+    <string name="key_label_del">Suppr</string>
+    <string name="key_label_ins">Inser</string>
+    <string name="key_label_enter">Entrée</string>
+    <string name="key_label_left">Gauche</string>
+    <string name="key_label_right">Droite</string>
+    <string name="key_label_up">Haut</string>
+    <string name="key_label_down">Bas</string>
 </resources>

@@ -100,4 +100,11 @@
     <string name="key_label_none">Nessuno</string>
     <string name="key_label_pageup">Pag ↑</string>
     <string name="key_label_pagedown">Pag ↓</string>
+    <string name="key_modifier_shift">Maiusc</string>
+    <string name="key_label_del">Canc</string>
+    <string name="key_label_enter">Invio</string>
+    <string name="key_label_left">Sinistra</string>
+    <string name="key_label_right">Destra</string>
+    <string name="key_label_up">Su</string>
+    <string name="key_label_down">Giù</string>
 </resources>

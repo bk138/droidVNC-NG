@@ -102,4 +102,11 @@
     <string name="key_label_end">Fin</string>
     <string name="key_label_pageup">Re Pág</string>
     <string name="key_label_pagedown">Av Pág</string>
+    <string name="key_modifier_shift">Mayús</string>
+    <string name="key_label_del">Supr</string>
+    <string name="key_label_enter">Intro</string>
+    <string name="key_label_left">Izquierda</string>
+    <string name="key_label_right">Derecha</string>
+    <string name="key_label_up">Arriba</string>
+    <string name="key_label_down">Abajo</string>
 </resources>

@@ -98,4 +98,8 @@
     <string name="share_activtiy_shared_successfully">تم مشاركة النص إلى الحافظة لجميع العملاء المتصلين.</string>
     <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
     <string name="key_label_none">بلا</string>
+    <string name="key_label_left">يسار</string>
+    <string name="key_label_right">يمين</string>
+    <string name="key_label_up">أعلى</string>
+    <string name="key_label_down">أسفل</string>
 </resources>

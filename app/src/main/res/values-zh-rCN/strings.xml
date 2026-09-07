@@ -98,4 +98,8 @@
     <string name="share_activtiy_shared_successfully">已将文本共享到所有连接客户端的剪贴板。</string>
     <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
     <string name="key_label_none">无</string>
+    <string name="key_label_left">左</string>
+    <string name="key_label_right">右</string>
+    <string name="key_label_up">上</string>
+    <string name="key_label_down">下</string>
 </resources>

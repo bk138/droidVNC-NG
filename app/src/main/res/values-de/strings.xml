@@ -106,4 +106,8 @@
     <string name="key_label_ins">Einfg</string>
     <string name="key_label_pageup">Bild auf</string>
     <string name="key_label_pagedown">Bild ab</string>
+    <string name="key_label_left">Links</string>
+    <string name="key_label_right">Rechts</string>
+    <string name="key_label_up">Hoch</string>
+    <string name="key_label_down">Runter</string>
 </resources>

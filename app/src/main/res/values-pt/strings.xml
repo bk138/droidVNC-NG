@@ -98,4 +98,8 @@
     <string name="share_activtiy_shared_successfully">Texto partilhado nas pranchetas de todos os clientes ligados.</string>
     <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
     <string name="key_label_none">Nenhum</string>
+    <string name="key_label_left">Esquerda</string>
+    <string name="key_label_right">Direita</string>
+    <string name="key_label_up">Cima</string>
+    <string name="key_label_down">Baixo</string>
 </resources>

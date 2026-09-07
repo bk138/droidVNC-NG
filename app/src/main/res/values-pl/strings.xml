@@ -100,4 +100,8 @@
     <string name="share_activtiy_shared_successfully">Tekst udostępniony do schowków wszystkich podłączonych klientów.</string>
     <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
     <string name="key_label_none">Brak</string>
+    <string name="key_label_left">W lewo</string>
+    <string name="key_label_right">W prawo</string>
+    <string name="key_label_up">W górę</string>
+    <string name="key_label_down">W dół</string>
 </resources>

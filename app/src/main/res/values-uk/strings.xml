@@ -98,4 +98,8 @@
     <string name="share_activtiy_shared_successfully">Текст поділено з буферами обміну всіх підключених клієнтів.</string>
     <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
     <string name="key_label_none">Немає</string>
+    <string name="key_label_left">Вліво</string>
+    <string name="key_label_right">Вправо</string>
+    <string name="key_label_up">Вгору</string>
+    <string name="key_label_down">Вниз</string>
 </resources>

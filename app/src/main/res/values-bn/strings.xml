@@ -98,4 +98,8 @@
     <string name="share_activtiy_shared_successfully">টেক্সট সব সংযুক্ত ক্লায়েন্টের ক্লিপবোর্ডে শেয়ার করা হয়েছে</string>
     <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
     <string name="key_label_none">কোনোটিই নয়</string>
+    <string name="key_label_left">বাম</string>
+    <string name="key_label_right">ডান</string>
+    <string name="key_label_up">উপরে</string>
+    <string name="key_label_down">নিচে</string>
 </resources>

@@ -98,4 +98,8 @@
     <string name="share_activtiy_shared_successfully">接続されているすべてのクライアントのクリップボードにテキストを共有しました。</string>
     <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
     <string name="key_label_none">なし</string>
+    <string name="key_label_left">左</string>
+    <string name="key_label_right">右</string>
+    <string name="key_label_up">上</string>
+    <string name="key_label_down">下</string>
 </resources>

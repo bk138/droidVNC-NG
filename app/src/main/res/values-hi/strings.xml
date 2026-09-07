@@ -98,4 +98,8 @@
     <string name="share_activtiy_shared_successfully">सभी कनेक्टेड क्लाइंट्स के क्लिपबोर्ड पर साझा किया गया।</string>
     <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
     <string name="key_label_none">कोई नहीं</string>
+    <string name="key_label_left">बाएँ</string>
+    <string name="key_label_right">दाएँ</string>
+    <string name="key_label_up">ऊपर</string>
+    <string name="key_label_down">नीचे</string>
 </resources>

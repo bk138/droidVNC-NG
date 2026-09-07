@@ -98,4 +98,8 @@
     <string name="share_activtiy_shared_successfully">텍스트를 모든 연결된 클라이언트의 클립보드에 공유했습니다.</string>
     <!-- Keyboard-shortcut labels: "None" plus keycap legends that differ from English (see values/strings.xml) -->
     <string name="key_label_none">없음</string>
+    <string name="key_label_left">왼쪽</string>
+    <string name="key_label_right">오른쪽</string>
+    <string name="key_label_up">위</string>
+    <string name="key_label_down">아래</string>
 </resources>
