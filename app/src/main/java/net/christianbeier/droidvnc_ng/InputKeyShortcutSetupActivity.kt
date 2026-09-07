@@ -15,9 +15,11 @@
 
 package net.christianbeier.droidvnc_ng
 
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -132,7 +134,10 @@ class InputKeyShortcutSetupActivity : AppCompatActivity() {
         // attach the change listeners now that the initial state is in place
         for (i in rows.indices) {
             val row = rows[i]
-            val onChecked = CompoundButton.OnCheckedChangeListener { _, _ -> onChordChanged(i) }
+            val onChecked = CompoundButton.OnCheckedChangeListener { button, checked ->
+                button.setTypeface(null, if (checked) Typeface.BOLD else Typeface.NORMAL)
+                onChordChanged(i)
+            }
             row.ctrl.setOnCheckedChangeListener(onChecked)
             row.alt.setOnCheckedChangeListener(onChecked)
             row.shift.setOnCheckedChangeListener(onChecked)
@@ -166,7 +171,17 @@ class InputKeyShortcutSetupActivity : AppCompatActivity() {
             labels.add(InputKeysyms.nameOf(keysym) ?: "0x" + keysym.toString(16))
             keysyms.add(keysym)
         }
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, labels)
+        val adapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, labels) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getView(position, convertView, parent)
+                // an assigned key reads bold, like a ticked modifier's label; "None" stays regular.
+                // Set both ways round because the spinner recycles this view.
+                (view as TextView).setTypeface(
+                    null, if (keysyms[position] == 0L) Typeface.NORMAL else Typeface.BOLD
+                )
+                return view
+            }
+        }
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         row.key.adapter = adapter
         row.keysyms = keysyms
@@ -177,6 +192,10 @@ class InputKeyShortcutSetupActivity : AppCompatActivity() {
         row.ctrl.isChecked = chord.ctrl
         row.alt.isChecked = chord.alt
         row.shift.isChecked = chord.shift
+        // bold-marks a modifier as part of the chord, like the spinner marks an assigned key
+        for (box in listOf(row.ctrl, row.alt, row.shift)) {
+            box.setTypeface(null, if (box.isChecked) Typeface.BOLD else Typeface.NORMAL)
+        }
         row.key.setSelection(row.keysyms.indexOf(chord.keysym).coerceAtLeast(0))
     }
 
