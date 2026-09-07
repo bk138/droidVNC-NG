@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wide-screen variant of key_shortcut_row.xml: with the width to spare, the action label sits on
+     the same line as its controls instead of above them, which halves the row height (landscape is
+     short on vertical space) and gives the leftover width to the label rather than to a spinner
+     stretched across the screen. Same ids as the portrait layout, so the wiring is unchanged. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
+
+    <TextView
+        android:id="@+id/key_shortcut_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingEnd="8dp"
+        android:paddingRight="8dp" />
+
+    <CheckBox
+        android:id="@+id/key_shortcut_ctrl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/key_modifier_ctrl" />
+
+    <CheckBox
+        android:id="@+id/key_shortcut_alt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/key_modifier_alt" />
+
+    <CheckBox
+        android:id="@+id/key_shortcut_shift"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/key_modifier_shift" />
+
+    <!-- A fixed width, not wrap_content: the label takes up the slack, so a spinner that sized to
+         its own content would make the checkbox column start at a different x in every row. -->
+    <Spinner
+        android:id="@+id/key_shortcut_key"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp" />
+</LinearLayout>

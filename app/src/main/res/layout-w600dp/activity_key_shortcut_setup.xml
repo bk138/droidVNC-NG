@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wide-screen variant of activity_key_shortcut_setup.xml: the rows are a settings list, so rather
+     than stretching them over the full width of a tablet or a landscape screen the column is capped
+     and centred, turning the leftover width into even margins. Same ids as the portrait layout. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fitsSystemWindows="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="600dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/key_shortcut_rows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/key_shortcut_restore_defaults"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/main_activity_settings_key_shortcuts_restore"
+            style="@style/MainButtonStyle"
+            />
+    </LinearLayout>
+</ScrollView>
