@@ -108,6 +108,14 @@ class InputKeyShortcutSetupActivity : AppCompatActivity() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         val defaults = Defaults(this)
         val container = findViewById<LinearLayout>(R.id.key_shortcut_rows)
+        /*
+            Keep the framework from saving and restoring the rows' view state across a configuration
+            change. The inflated rows all carry the same ids, and view state is saved per id, so one
+            row's checkboxes and spinner would be restored onto every row -- which then reads as a
+            pile of duplicate chords and toasts. There is nothing to restore anyway: every change is
+            persisted as it is made and the rows are rebuilt from prefs right here.
+         */
+        container.isSaveFromParentEnabled = false
         val inflater = layoutInflater
 
         // inflate a row per action and set its initial state with the listeners still detached
