@@ -33,6 +33,21 @@ An example `defaults.json` with completely new defaults (not all entries need to
     "chordRotate": "Control_L+Alt_L+Delete"
 }
 ```
+The `chord*` values are the key combinations a VNC client can use to trigger a keyboard shortcut
+action. A chord is one or more keys joined with `+`, each named after its X11 keysym with the `XK_`
+prefix stripped, matched case-sensitively:
+
+* any of the modifiers `Control_L`/`Control_R`, `Alt_L`/`Alt_R`, `Shift_L`/`Shift_R` -- either side
+  matches, and they may appear in any order
+* one trigger key, which can be **any** X11 key name, not only the ones the in-app picker provides. 
+  See [rfb/keysym.h](https://github.com/LibVNC/libvncserver/blob/master/include/rfb/keysym.h) for
+  the full set.
+
+An empty/unknown value turns that keyboard shortcut off. A chord assigned to two keyboard shortcut
+actions leaves only the first working -- both are logged as warnings by InputService.
+
+**NOTE**: a key bound to a shortcut is consumed and no longer reaches the app on the device, so avoid
+binding keys that get typed.
 
 ## Via Managed App Restrictions
 If you are using a device owner app, you can also preseed the preferences via [managed app restrictions](https://developer.android.com/work/managed-configurations). The same keys as in the JSON file above can be used.
