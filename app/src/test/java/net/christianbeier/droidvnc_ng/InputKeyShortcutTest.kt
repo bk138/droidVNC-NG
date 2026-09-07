@@ -85,4 +85,23 @@ class InputKeyShortcutTest {
         val keys = Action.entries.map { it.prefKey }
         assertEquals(keys.size, keys.toSet().size)
     }
+
+    @Test
+    fun managerReportsUnusableChords() {
+        val manager = InputKeyShortcut.Manager.from { action ->
+            when (action) {
+                InputKeyShortcut.Action.RECENTS -> "NotAKey"          // unknown trigger
+                InputKeyShortcut.Action.HOME -> "Control_L"           // modifiers, no trigger
+                InputKeyShortcut.Action.BACK -> ""                    // deliberately unassigned
+                else -> null                                          // ditto
+            }
+        }
+        assertEquals(
+            mapOf(
+                InputKeyShortcut.Action.RECENTS to "NotAKey",
+                InputKeyShortcut.Action.HOME to "Control_L",
+            ),
+            manager.unparsed
+        )
+    }
 }

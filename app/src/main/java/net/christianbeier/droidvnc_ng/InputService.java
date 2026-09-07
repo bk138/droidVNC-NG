@@ -259,8 +259,7 @@ public class InputService extends AccessibilityService {
 		Defaults defaults = new Defaults(this);
 		// Build the shortcut bindings before publishing `instance`, so onKeyEvent() (VNC worker
 		// thread) never sees a non-null instance whose mShortcuts is not yet assigned.
-		mShortcuts = InputKeyShortcut.Manager.from(action ->
-				prefs.getString(action.getPrefKey(), action.defaultChord(defaults)));
+		mShortcuts = buildShortcuts(prefs, defaults);
 		instance = this;
 		isInputEnabled = prefs.getBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !defaults.getViewOnly());
 		scaling = prefs.getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, defaults.getScaling());
@@ -494,11 +493,30 @@ public class InputService extends AccessibilityService {
 			InputService s = instance;
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(s);
 			Defaults defaults = new Defaults(s);
-			s.mShortcuts = InputKeyShortcut.Manager.from(action ->
-					prefs.getString(action.getPrefKey(), action.defaultChord(defaults)));
+			s.mShortcuts = buildShortcuts(prefs, defaults);
 		} catch (Exception e) {
 			Log.e(TAG, "reloadShortcuts: failed: " + e);
 		}
+	}
+
+	/**
+	 * Reads the per-action chords from prefs (falling back to {@code defaults}) into a
+	 * {@link InputKeyShortcut.Manager}, warning about anything the config got wrong. Those chords can
+	 * come from defaults.json or managed app configuration, which have no UI to reject a bad value,
+	 * so the log is the only feedback an administrator gets.
+	 */
+	private static InputKeyShortcut.Manager buildShortcuts(SharedPreferences prefs, Defaults defaults) {
+		InputKeyShortcut.Manager shortcuts = InputKeyShortcut.Manager.from(action ->
+				prefs.getString(action.getPrefKey(), action.defaultChord(defaults)));
+		for (Map.Entry<InputKeyShortcut.Action, String> unparsed : shortcuts.getUnparsed().entrySet()) {
+			Log.w(TAG, "buildShortcuts: no usable trigger key in chord \"" + unparsed.getValue()
+					+ "\" for " + unparsed.getKey() + ", so that shortcut is off");
+		}
+		for (InputKeyShortcut.Chord conflict : shortcuts.getConflicts()) {
+			Log.w(TAG, "buildShortcuts: chord \"" + conflict
+					+ "\" is assigned to more than one action, only the first one gets it");
+		}
+		return shortcuts;
 	}
 
     @WorkerThread

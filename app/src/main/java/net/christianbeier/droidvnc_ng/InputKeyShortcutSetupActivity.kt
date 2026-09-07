@@ -33,8 +33,8 @@ import androidx.preference.PreferenceManager
 /**
  * Full-screen settings screen for the configurable keyboard shortcuts (issue #13). It inflates one
  * row per [InputKeyShortcut.Action] -- three modifier checkboxes (Ctrl/Alt/Shift) plus a trigger-key
- * [Spinner] -- and owns their whole lifecycle: loading the persisted chords, offering localized key
- * labels, rejecting a chord already assigned to another action, persisting a change and live-updating
+ * [Spinner] -- and owns their whole lifecycle: loading the persisted chords, offering the
+ * [InputKeyShortcut.TriggerKey] entries and their localized labels, rejecting a chord already assigned to another action, persisting a change and live-updating
  * the running [InputService]. It iterates the [InputKeyShortcut.Action] constants rather than listing
  * the actions here, so the caller only has to start it.
  */
@@ -118,19 +118,23 @@ class InputKeyShortcutSetupActivity : AppCompatActivity() {
     }
 
     /**
-     * Populates a row's key spinner with the curated [KEY_CHOICES] and, when [keysym] is an assigned
-     * key outside that list (e.g. an exotic key set via managed config), a trailing entry labelled
-     * with that key's own XK token -- so it stays visible and editable instead of collapsing to
-     * "None". [Row.keysyms] mirrors the resulting adapter positions for read-back.
+     * Populates a row's key spinner with "None" and the curated [InputKeyShortcut.TriggerKey] entries
+     * and, when [keysym] is an assigned key outside that set (e.g. a key bound through defaults.json
+     * or managed config), a trailing entry labelled with that key's own XK name -- so it stays
+     * visible and editable instead of collapsing to "None". [Row.keysyms] mirrors the resulting
+     * adapter positions for read-back.
      */
     private fun bindKeyChoices(row: Row, keysym: Long) {
-        val labels = ArrayList<String>(KEY_CHOICES.size + 1)
-        val keysyms = ArrayList<Long>(KEY_CHOICES.size + 1)
-        for (choice in KEY_CHOICES) {
-            labels.add(getString(choice.labelRes))
-            keysyms.add(choice.keysym)
+        val keys = InputKeyShortcut.TriggerKey.entries
+        val labels = ArrayList<String>(keys.size + 2)
+        val keysyms = ArrayList<Long>(keys.size + 2)
+        labels.add(getString(R.string.key_label_none))
+        keysyms.add(0L)
+        for (key in keys) {
+            labels.add(getString(key.labelRes))
+            keysyms.add(key.keysym)
         }
-        if (keysym != 0L && KEY_CHOICES.none { it.keysym == keysym }) {
+        if (keysym != 0L && InputKeyShortcut.TriggerKey.of(keysym) == null) {
             labels.add(InputKeysyms.nameOf(keysym) ?: "0x" + keysym.toString(16))
             keysyms.add(keysym)
         }
@@ -192,51 +196,4 @@ class InputKeyShortcutSetupActivity : AppCompatActivity() {
         InputService.reloadShortcuts()
     }
 
-    private companion object {
-        /** One entry in the curated trigger-key spinner: its keysym (0 = "None") and label. */
-        private class KeyChoice(val keysym: Long, val labelRes: Int)
-
-        /** Resolves an exact-case XK_ token to a [KeyChoice]; "" -> the "None" entry. */
-        private fun keyChoice(token: String, labelRes: Int) =
-            KeyChoice(
-                if (token.isEmpty()) 0L
-                else requireNotNull(InputKeysyms.keysymFor(token)) { "unknown XK token: $token" },
-                labelRes
-            )
-
-        /**
-         * Curated trigger keys offered in the UI spinner (declaration order = spinner order). Tokens
-         * are X11 XK_ names (exact case) resolved against the generated [InputKeysymTable]; power users
-         * can bind any other key via the Defaults / managed-config chord string.
-         */
-        private val KEY_CHOICES = listOf(
-            keyChoice("", R.string.key_label_none),
-            keyChoice("Home", R.string.key_label_home),
-            keyChoice("End", R.string.key_label_end),
-            keyChoice("Escape", R.string.key_label_esc),
-            keyChoice("Delete", R.string.key_label_del),
-            keyChoice("Insert", R.string.key_label_ins),
-            keyChoice("BackSpace", R.string.key_label_backspace),
-            keyChoice("Page_Up", R.string.key_label_pageup),
-            keyChoice("Page_Down", R.string.key_label_pagedown),
-            keyChoice("Left", R.string.key_label_left),
-            keyChoice("Right", R.string.key_label_right),
-            keyChoice("Up", R.string.key_label_up),
-            keyChoice("Down", R.string.key_label_down),
-            keyChoice("Tab", R.string.key_label_tab),
-            keyChoice("Return", R.string.key_label_enter),
-            keyChoice("F1", R.string.key_label_f1),
-            keyChoice("F2", R.string.key_label_f2),
-            keyChoice("F3", R.string.key_label_f3),
-            keyChoice("F4", R.string.key_label_f4),
-            keyChoice("F5", R.string.key_label_f5),
-            keyChoice("F6", R.string.key_label_f6),
-            keyChoice("F7", R.string.key_label_f7),
-            keyChoice("F8", R.string.key_label_f8),
-            keyChoice("F9", R.string.key_label_f9),
-            keyChoice("F10", R.string.key_label_f10),
-            keyChoice("F11", R.string.key_label_f11),
-            keyChoice("F12", R.string.key_label_f12),
-        )
-    }
 }

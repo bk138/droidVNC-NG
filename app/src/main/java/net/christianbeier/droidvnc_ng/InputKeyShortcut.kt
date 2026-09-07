@@ -22,6 +22,8 @@ package net.christianbeier.droidvnc_ng
  *    prefs key, its UI label and its built-in default chord, so a new action cannot be added without
  *    supplying all three and the callers (InputService, the settings dialog) can iterate the
  *    constants instead of repeating the list.
+ *  - [TriggerKey]: the trigger keys we offer pre-curated with localised labels. A chord
+ *    may name any X11 key (see [Chord]); this is only the curated subset that gets a picker entry.
  *  - [Chord]: ctrl/alt/shift modifier flags plus the RFB/X11 [Chord.keysym] of one trigger key.
  *    Serializes to/from a "+"-joined string such as "Control_L+Alt_L+Delete" or "Escape".
  *  - [Manager]: resolves an incoming (modifier state, trigger keysym) to its [Action], and reports
@@ -54,6 +56,50 @@ internal object InputKeyShortcut {
 
         /** The built-in default chord string for this action, resolved against [defaults]. */
         fun defaultChord(defaults: Defaults): String = defaultOf(defaults)
+    }
+
+    /**
+     * The trigger keys the settings UI offers, in picker order, each with the localized label to show
+     * for it. Deliberately a curated subset: a chord can name any X11 key (see [Chord.fromString]),
+     * so a key that is not listed here can still be bound through defaults.json / managed config --
+     * it just has no picker entry and is shown by its XK name.
+     */
+    enum class TriggerKey(val xkName: String, val labelRes: Int) {
+        HOME("Home", R.string.key_label_home),
+        END("End", R.string.key_label_end),
+        ESCAPE("Escape", R.string.key_label_esc),
+        DELETE("Delete", R.string.key_label_del),
+        INSERT("Insert", R.string.key_label_ins),
+        BACKSPACE("BackSpace", R.string.key_label_backspace),
+        PAGE_UP("Page_Up", R.string.key_label_pageup),
+        PAGE_DOWN("Page_Down", R.string.key_label_pagedown),
+        LEFT("Left", R.string.key_label_left),
+        RIGHT("Right", R.string.key_label_right),
+        UP("Up", R.string.key_label_up),
+        DOWN("Down", R.string.key_label_down),
+        TAB("Tab", R.string.key_label_tab),
+        RETURN("Return", R.string.key_label_enter),
+        F1("F1", R.string.key_label_f1),
+        F2("F2", R.string.key_label_f2),
+        F3("F3", R.string.key_label_f3),
+        F4("F4", R.string.key_label_f4),
+        F5("F5", R.string.key_label_f5),
+        F6("F6", R.string.key_label_f6),
+        F7("F7", R.string.key_label_f7),
+        F8("F8", R.string.key_label_f8),
+        F9("F9", R.string.key_label_f9),
+        F10("F10", R.string.key_label_f10),
+        F11("F11", R.string.key_label_f11),
+        F12("F12", R.string.key_label_f12);
+
+        /** Resolved from [xkName] so the generated table stays the single source of keysym values. */
+        val keysym: Long = requireNotNull(InputKeysyms.keysymFor(xkName)) { "unknown XK token: $xkName" }
+
+        companion object {
+            /** The entry for [keysym], or null when it is not one of the curated keys. */
+            @JvmStatic
+            fun of(keysym: Long): TriggerKey? = entries.firstOrNull { it.keysym == keysym }
+        }
     }
 
     /** Supplies the persisted chord string for each [Action]; consumed by [Manager.from]. */
@@ -90,6 +136,7 @@ internal object InputKeyShortcut {
              * by exact case -- see [InputKeysyms]). Empty / unknown trigger input yields an unassigned
              * chord.
              */
+            @JvmStatic
             fun fromString(s: String?): Chord {
                 var ctrl = false
                 var alt = false
@@ -128,6 +175,13 @@ internal object InputKeyShortcut {
          * wins such a chord (see [from]).
          */
         val conflicts: Set<Chord>,
+        /**
+         * Chords the source config supplied for an action but that yielded no usable trigger -- a
+         * misspelled or unknown key name, or modifiers with no trigger key. An empty string is a
+         * deliberate "no shortcut" and is not reported here. Keyed by action, valued by the string as
+         * given, so the caller can name both in a warning.
+         */
+        val unparsed: Map<Action, String>,
     ) {
 
         /**
@@ -142,15 +196,22 @@ internal object InputKeyShortcut {
              * Builds a manager by asking [source] for each [Action]'s persisted chord string (each a
              * "+"-string; unassigned / empty / unknown-trigger contributes no binding). When two
              * actions resolve to the same assigned chord the first in declaration order keeps it and
-             * the chord is recorded in [conflicts].
+             * the chord is recorded in [conflicts]; a non-blank string that yields no trigger at all
+             * is recorded in [unparsed]. Both are reported rather than logged so this stays free of
+             * Android calls -- the caller decides how to surface them.
              */
             @JvmStatic
             fun from(source: ChordSource): Manager {
                 val bindings = LinkedHashMap<Chord, Action>()
                 val conflicts = LinkedHashSet<Chord>()
+                val unparsed = LinkedHashMap<Action, String>()
                 for (action in Action.entries) {
-                    val chord = Chord.fromString(source.chordFor(action))
+                    val given = source.chordFor(action)
+                    val chord = Chord.fromString(given)
                     if (!chord.isAssigned) {
+                        if (!given.isNullOrBlank()) {
+                            unparsed[action] = given
+                        }
                         continue
                     }
                     if (bindings.containsKey(chord)) {
@@ -159,7 +220,7 @@ internal object InputKeyShortcut {
                         bindings[chord] = action
                     }
                 }
-                return Manager(bindings, conflicts)
+                return Manager(bindings, conflicts, unparsed)
             }
         }
     }
