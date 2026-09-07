@@ -50,6 +50,8 @@
     <string name="main_activity_special_key_reference">À partir d\'une visionneuse VNC, &lt;b&gt;%1$s&lt;/b&gt; déclenche l\'aperçu des «Applications récentes», &lt;b&gt;%2$s&lt;/b&gt; agit comme le bouton Accueil, &lt;b&gt;%3$s&lt;/b&gt; agit comme le bouton Marche/Arrêt, &lt;b&gt;%4$s&lt;/b&gt; agit comme le bouton Retour, &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; modifie le volume audio.</string>
     <string name="main_activity_settings_key_shortcuts">Raccourcis clavier</string>
     <string name="main_activity_settings_key_shortcuts_button">Configurer</string>
+    <string name="main_activity_settings_key_shortcuts_restore">Rétablir les valeurs par défaut</string>
+    <string name="main_activity_settings_key_shortcuts_restore_confirm">Réinitialiser tous les raccourcis clavier avec leurs combinaisons de touches par défaut ?</string>
     <string name="main_activity_settings_chord_recents">Applications récentes</string>
     <string name="main_activity_settings_chord_home">Accueil</string>
     <string name="main_activity_settings_chord_back">Retour</string>

@@ -50,6 +50,8 @@
     <string name="main_activity_special_key_reference">VNC ভিউয়ার থেকে, &lt;b&gt;%1$s&lt;/b&gt; রিসেন্ট অ্যাপস ওভারভিউ ট্রিগার করে, &lt;b&gt;%2$s&lt;/b&gt; হোম বাটনের মতো কাজ করে, &lt;b&gt;%3$s&lt;/b&gt; পাওয়ার বাটনের মতো কাজ করে, &lt;b&gt;%4$s&lt;/b&gt; ব্যাক বাটনের মতো কাজ করে, &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; ভলিউম পরিবর্তন করে।</string>
     <string name="main_activity_settings_key_shortcuts">কীবোর্ড শর্টকাট</string>
     <string name="main_activity_settings_key_shortcuts_button">কনফিগার করুন</string>
+    <string name="main_activity_settings_key_shortcuts_restore">ডিফল্ট পুনরুদ্ধার করুন</string>
+    <string name="main_activity_settings_key_shortcuts_restore_confirm">সমস্ত কীবোর্ড শর্টকাট ডিফল্ট কী সংমিশ্রণে রিসেট করবেন?</string>
     <string name="main_activity_settings_chord_recents">রিসেন্ট অ্যাপস</string>
     <string name="main_activity_settings_chord_home">হোম</string>
     <string name="main_activity_settings_chord_back">ব্যাক</string>

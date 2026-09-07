@@ -51,6 +51,8 @@
     <string name="main_activity_special_key_reference">From a VNC viewer, &lt;b&gt;%1$s&lt;/b&gt; triggers \'Recent Apps\' overview, &lt;b&gt;%2$s&lt;/b&gt; acts as Home button, &lt;b&gt;%3$s&lt;/b&gt; acts as Power button, &lt;b&gt;%4$s&lt;/b&gt; acts as Back button, &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; change audio volume.</string>
     <string name="main_activity_settings_key_shortcuts">Keyboard Shortcuts</string>
     <string name="main_activity_settings_key_shortcuts_button">Configure</string>
+    <string name="main_activity_settings_key_shortcuts_restore">Restore defaults</string>
+    <string name="main_activity_settings_key_shortcuts_restore_confirm">Reset all keyboard shortcuts to their default key combinations?</string>
     <string name="main_activity_settings_chord_recents">Recent apps</string>
     <string name="main_activity_settings_chord_home">Home</string>
     <string name="main_activity_settings_chord_back">Back</string>

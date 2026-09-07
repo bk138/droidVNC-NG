@@ -51,6 +51,8 @@
     <string name="main_activity_special_key_reference">從VNC客戶端，&lt;b&gt;%1$s&lt;/b&gt; 打開 \'最近的app\' 預覽，&lt;b&gt;%2$s&lt;/b&gt; 作為Home鍵，&lt;b&gt;%3$s&lt;/b&gt; 充當電源按鈕，&lt;b&gt;%4$s&lt;/b&gt; 作為返回鍵，&lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; 變更音量。</string>
     <string name="main_activity_settings_key_shortcuts">鍵盤快速鍵</string>
     <string name="main_activity_settings_key_shortcuts_button">設定</string>
+    <string name="main_activity_settings_key_shortcuts_restore">還原預設值</string>
+    <string name="main_activity_settings_key_shortcuts_restore_confirm">將所有鍵盤快速鍵重設為預設組合鍵？</string>
     <string name="main_activity_settings_chord_recents">最近的App</string>
     <string name="main_activity_settings_chord_home">主頁</string>
     <string name="main_activity_settings_chord_back">返回</string>

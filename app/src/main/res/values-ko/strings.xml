@@ -50,6 +50,8 @@
     <string name="main_activity_special_key_reference">VNC 뷰어에서 &lt;b&gt;%1$s&lt;/b&gt;는 최신 앱 개요를, &lt;b&gt;%2$s&lt;/b&gt;은 홈 버튼을, &lt;b&gt;%3$s&lt;/b&gt;는 전원 버튼을, &lt;b&gt;%4$s&lt;/b&gt;는 뒤로 가기 버튼을, &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt;은 음량 조절을 트리거합니다.</string>
     <string name="main_activity_settings_key_shortcuts">키보드 단축키</string>
     <string name="main_activity_settings_key_shortcuts_button">설정</string>
+    <string name="main_activity_settings_key_shortcuts_restore">기본값 복원</string>
+    <string name="main_activity_settings_key_shortcuts_restore_confirm">모든 키보드 단축키를 기본 키 조합으로 재설정하시겠습니까?</string>
     <string name="main_activity_settings_chord_recents">최근 앱</string>
     <string name="main_activity_settings_chord_home">홈</string>
     <string name="main_activity_settings_chord_back">뒤로</string>

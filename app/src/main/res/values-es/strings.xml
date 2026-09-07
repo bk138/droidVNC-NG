@@ -50,6 +50,8 @@
     <string name="main_activity_special_key_reference">Desde un visor VNC, &lt;b&gt;%1$s&lt;/b&gt; activa la vista general de \'Aplicaciones recientes\', &lt;b&gt;%2$s&lt;/b&gt; actúa como botón de Inicio, &lt;b&gt;%3$s&lt;/b&gt; actúa como botón de Encendido, &lt;b&gt;%4$s&lt;/b&gt; actúa como botón Atrás, &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; cambia el volumen del audio.</string>
     <string name="main_activity_settings_key_shortcuts">Atajos de teclado</string>
     <string name="main_activity_settings_key_shortcuts_button">Configurar</string>
+    <string name="main_activity_settings_key_shortcuts_restore">Restaurar valores predeterminados</string>
+    <string name="main_activity_settings_key_shortcuts_restore_confirm">¿Restablecer todos los atajos de teclado a sus combinaciones de teclas predeterminadas?</string>
     <string name="main_activity_settings_chord_recents">Aplicaciones recientes</string>
     <string name="main_activity_settings_chord_home">Inicio</string>
     <string name="main_activity_settings_chord_back">Atrás</string>

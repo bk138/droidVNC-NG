@@ -50,6 +50,8 @@
     <string name="main_activity_special_key_reference">من عارض VNC، يؤدي الضغط على &lt;b&gt;%1$s&lt;/b&gt; إلى تشغيل نظرة عامة على \'التطبيقات الأخيرة\'، ويعمل &lt;b&gt;%2$s&lt;/b&gt; كزر الصفحة الرئيسية، ويعمل &lt;b&gt;%3$s&lt;/b&gt; كزر الطاقة، ويعمل &lt;b&gt;%4$s&lt;/b&gt; كزر الرجوع، ويغير الضغط على &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; مستوى الصوت.</string>
     <string name="main_activity_settings_key_shortcuts">اختصارات لوحة المفاتيح</string>
     <string name="main_activity_settings_key_shortcuts_button">تهيئة</string>
+    <string name="main_activity_settings_key_shortcuts_restore">استعادة الإعدادات الافتراضية</string>
+    <string name="main_activity_settings_key_shortcuts_restore_confirm">إعادة تعيين جميع اختصارات لوحة المفاتيح إلى تركيبات المفاتيح الافتراضية؟</string>
     <string name="main_activity_settings_chord_recents">التطبيقات الأخيرة</string>
     <string name="main_activity_settings_chord_home">الصفحة الرئيسية</string>
     <string name="main_activity_settings_chord_back">رجوع</string>

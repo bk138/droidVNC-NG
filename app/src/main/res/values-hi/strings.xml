@@ -50,6 +50,8 @@
     <string name="main_activity_special_key_reference">VNC व्यूअर से, &lt;b&gt;%1$s&lt;/b&gt; \'हाल के ऐप्स\' अवलोकन को ट्रिगर करता है, &lt;b&gt;%2$s&lt;/b&gt; होम बटन के रूप में कार्य करता है, &lt;b&gt;%3$s&lt;/b&gt; पावर बटन के रूप में कार्य करता है, &lt;b&gt;%4$s&lt;/b&gt; बैक बटन के रूप में कार्य करता है, &lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; ऑडियो वॉल्यूम बदलता है.</string>
     <string name="main_activity_settings_key_shortcuts">कीबोर्ड शॉर्टकट</string>
     <string name="main_activity_settings_key_shortcuts_button">कॉन्फ़िगर करें</string>
+    <string name="main_activity_settings_key_shortcuts_restore">डिफ़ॉल्ट पुनर्स्थापित करें</string>
+    <string name="main_activity_settings_key_shortcuts_restore_confirm">सभी कीबोर्ड शॉर्टकट को उनके डिफ़ॉल्ट कुंजी संयोजनों पर रीसेट करें?</string>
     <string name="main_activity_settings_chord_recents">हाल के ऐप्स</string>
     <string name="main_activity_settings_chord_home">होम</string>
     <string name="main_activity_settings_chord_back">बैक</string>

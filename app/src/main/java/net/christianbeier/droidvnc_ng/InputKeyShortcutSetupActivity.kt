@@ -18,6 +18,7 @@ package net.christianbeier.droidvnc_ng
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
@@ -27,6 +28,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 
@@ -71,7 +73,33 @@ class InputKeyShortcutSetupActivity : AppCompatActivity() {
         }
         setContentView(R.layout.activity_key_shortcut_setup)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        findViewById<Button>(R.id.key_shortcut_restore_defaults).setOnClickListener {
+            // ask first: this discards every chord the user set, and there is no undo
+            AlertDialog.Builder(this)
+                .setMessage(R.string.main_activity_settings_key_shortcuts_restore_confirm)
+                .setPositiveButton(R.string.main_activity_settings_key_shortcuts_restore) { _, _ -> restoreDefaults() }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
         setupRows()
+    }
+
+    /**
+     * Drops every persisted chord so each action falls back to its default -- which is whatever
+     * defaults.json / managed config sets, not necessarily the built-in chord -- then rebuilds the
+     * rows from that.
+     */
+    private fun restoreDefaults() {
+        val editor = PreferenceManager.getDefaultSharedPreferences(this).edit()
+        for (action in InputKeyShortcut.Action.entries) {
+            editor.remove(action.prefKey)
+        }
+        editor.apply()
+        findViewById<LinearLayout>(R.id.key_shortcut_rows).removeAllViews()
+        rows.clear()
+        setupRows()
+        // live-reload the running input service from prefs (a no-op when it is not connected)
+        InputService.reloadShortcuts()
     }
 
     private fun setupRows() {

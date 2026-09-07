@@ -50,6 +50,8 @@
     <string name="main_activity_special_key_reference">从 VNC 查看器中，&lt;b&gt;%1$s&lt;/b&gt; 触发“最近使用的应用程序”概览，&lt;b&gt;%2$s&lt;/b&gt; 充当“主页”按钮，&lt;b&gt;%3$s&lt;/b&gt; 充当“电源”按钮，&lt;b&gt;%4$s&lt;/b&gt; 充当“后退”按钮，&lt;b&gt;%5$s&lt;/b&gt;/&lt;b&gt;%6$s&lt;/b&gt; 更改音量。</string>
     <string name="main_activity_settings_key_shortcuts">键盘快捷键</string>
     <string name="main_activity_settings_key_shortcuts_button">配置</string>
+    <string name="main_activity_settings_key_shortcuts_restore">恢复默认值</string>
+    <string name="main_activity_settings_key_shortcuts_restore_confirm">将所有键盘快捷键重置为默认组合键？</string>
     <string name="main_activity_settings_chord_recents">最近使用的应用</string>
     <string name="main_activity_settings_chord_home">主页</string>
     <string name="main_activity_settings_chord_back">返回</string>

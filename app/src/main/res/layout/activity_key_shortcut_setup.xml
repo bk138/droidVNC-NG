@@ -18,5 +18,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/key_shortcut_restore_defaults"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/main_activity_settings_key_shortcuts_restore"
+            style="@style/MainButtonStyle"
+            />
     </LinearLayout>
 </ScrollView>
