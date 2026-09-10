@@ -506,8 +506,18 @@ public class InputService extends AccessibilityService {
 	 * so the log is the only feedback an administrator gets.
 	 */
 	private static InputKeyShortcut.Manager buildShortcuts(SharedPreferences prefs, Defaults defaults) {
-		InputKeyShortcut.Manager shortcuts = InputKeyShortcut.Manager.from(action ->
-				prefs.getString(action.getPrefKey(), action.defaultChord(defaults)));
+		// ROTATE toggles the portrait-in-landscape workaround, which only produces a usable picture
+		// on the quirky hardware it exists for, so keep it unassigned everywhere else.
+		if (!Utils.hasPortraitInLandscapeQuirk()) {
+			Log.i(TAG, "buildShortcuts: device has no portrait-in-landscape quirk, "
+					+ InputKeyShortcut.Action.ROTATE + " shortcut is off");
+		}
+		InputKeyShortcut.Manager shortcuts = InputKeyShortcut.Manager.from(action -> {
+			if (action == InputKeyShortcut.Action.ROTATE && !Utils.hasPortraitInLandscapeQuirk()) {
+				return "";
+			}
+			return prefs.getString(action.getPrefKey(), action.defaultChord(defaults));
+		});
 		for (Map.Entry<InputKeyShortcut.Action, String> unparsed : shortcuts.getUnparsed().entrySet()) {
 			Log.w(TAG, "buildShortcuts: no usable trigger key in chord \"" + unparsed.getValue()
 					+ "\" for " + unparsed.getKey() + ", so that shortcut is off");
