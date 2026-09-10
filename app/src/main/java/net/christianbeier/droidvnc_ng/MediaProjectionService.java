@@ -208,7 +208,7 @@ public class MediaProjectionService extends Service {
         int scaledHeight = (int) (metrics.heightPixels * scaling);
 
         // only set this by detecting quirky hardware if the user has not set manually
-        if(!mHasPortraitInLandscapeWorkaroundSet && Build.FINGERPRINT.contains("rk3288")  && metrics.widthPixels > 800) {
+        if(!mHasPortraitInLandscapeWorkaroundSet && Utils.hasPortraitInLandscapeQuirk() && metrics.widthPixels > 800) {
             Log.w(TAG, "detected >10in rk3288 applying workaround for portrait-in-landscape quirk");
             mHasPortraitInLandscapeWorkaroundApplied = true;
         }

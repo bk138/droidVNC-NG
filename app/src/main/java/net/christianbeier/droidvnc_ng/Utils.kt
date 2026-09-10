@@ -37,6 +37,15 @@ object Utils {
         return displayMetrics
     }
 
+    /**
+     * Whether this device is the quirky hardware the portrait-in-landscape workaround exists for.
+     * The workaround itself (see MediaProjectionService.togglePortraitInLandscapeWorkaround()) is
+     * hardware-independent, but it only ever produces a usable picture on these devices, so it is
+     * both auto-detected and offered as a shortcut only here.
+     */
+    @JvmStatic
+    fun hasPortraitInLandscapeQuirk(): Boolean = Build.FINGERPRINT.contains("rk3288")
+
     @JvmStatic
     fun getDeviceName(ctx: Context): String {
         return try {
