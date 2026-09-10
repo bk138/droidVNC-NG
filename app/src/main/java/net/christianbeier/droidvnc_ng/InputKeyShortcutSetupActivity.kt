@@ -121,6 +121,12 @@ class InputKeyShortcutSetupActivity : AppCompatActivity() {
         // inflate a row per action and set its initial state with the listeners still detached
         updating = true
         for (action in InputKeyShortcut.Action.entries) {
+            // ROTATE toggles the portrait-in-landscape workaround, which only produces a usable
+            // picture on the quirky hardware it exists for -- InputService keeps it unassigned on
+            // everything else, so offer no row for it there either
+            if (action == InputKeyShortcut.Action.ROTATE && !Utils.hasPortraitInLandscapeQuirk()) {
+                continue
+            }
             val view = inflater.inflate(R.layout.key_shortcut_row, container, false)
             view.findViewById<TextView>(R.id.key_shortcut_label).setText(action.labelRes)
             val row = Row(
@@ -229,8 +235,10 @@ class InputKeyShortcutSetupActivity : AppCompatActivity() {
         // Reject an assigned chord another action already uses: rebuild the manager over the proposed
         // assignment (this row's new value, the rest as-is) and let it flag the duplicate.
         if (chord.isAssigned) {
+            // An action that does not apply to this device gets no row, so look its chord up by
+            // action; firstOrNull yields null if 'a' could not be found.
             val proposed = InputKeyShortcut.Manager.from { a ->
-                if (a == row.action) value else rows[a.ordinal].selected
+                if (a == row.action) value else rows.firstOrNull { it.action == a }?.selected ?: ""
             }
             if (chord in proposed.conflicts) {
                 Toast.makeText(
