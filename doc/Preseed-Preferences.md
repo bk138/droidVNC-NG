@@ -49,6 +49,8 @@ actions leaves only the first working -- both are logged as warnings by InputSer
 **NOTE**: a key bound to a shortcut is consumed and no longer reaches the app on the device, so avoid
 binding keys that get typed.
 
+**NOTE**: `chordRotate` only has an effect on RK3288-based devices with a portrait-in-landscape display quirk; on other hardware the setting is ignored.
+
 ## Via Managed App Restrictions
 If you are using a device owner app, you can also preseed the preferences via [managed app restrictions](https://developer.android.com/work/managed-configurations). The same keys as in the JSON file above can be used.
 
