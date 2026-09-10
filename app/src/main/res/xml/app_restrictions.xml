@@ -110,7 +110,7 @@
 
     <restriction
         android:defaultValue="Control_L+Alt_L+Delete"
-        android:description="@string/settings_chord_description"
+        android:description="@string/settings_chord_rotate_description"
         android:key="chordRotate"
         android:restrictionType="string"
         android:title="@string/main_activity_settings_chord_rotate" />
