@@ -25,6 +25,7 @@ If you have a general question, it's best to [ask in the community chat](https:/
   automatically for text selected in editable text fields or manually by sharing text to droidVNC-NG
   via Android's Share-To functionality.
 * Use keyboard shortcuts to trigger 'Recent Apps' overview, Home, Back, Power, and volume controls.
+* Magnify/zoom the screen with Ctrl plus scroll wheel.
 * Transfer files between an Android device and computer using TightVNC viewer for Windows version 1.3.x.
 * Secure your connection with a password. Note that setting a password is mandatory
   in case you want to access the server using MacOS's built-in Screen Sharing app.
