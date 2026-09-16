@@ -443,7 +443,7 @@ public class InputService extends AccessibilityService {
 	}
 
 	/**
-	 * Executes an {@link Action} resolved from the active chord bindings. All actions go through the
+	 * Executes an {@link InputKeyShortcut.Action} resolved from the active chord bindings. All actions go through the
 	 * accessibility service / AudioManager / MediaProjectionService and reuse the same calls the
 	 * shortcuts used when they were hard-coded.
 	 */
