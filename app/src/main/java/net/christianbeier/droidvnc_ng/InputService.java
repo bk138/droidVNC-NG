@@ -528,10 +528,7 @@ public class InputService extends AccessibilityService {
 				if (inputContext.isKeyCtrlDown) {
 					instance.magnify(inputContext, x, y, true);
 				} else {
-					DisplayMetrics displayMetrics = new DisplayMetrics();
-					WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-					wm.getDefaultDisplay().getRealMetrics(displayMetrics);
-					instance.scroll(inputContext, x, y, -displayMetrics.heightPixels / 2);
+					instance.scroll(inputContext, x, y, true);
 				}
 			}
 
@@ -541,10 +538,7 @@ public class InputService extends AccessibilityService {
 				if (inputContext.isKeyCtrlDown) {
 					instance.magnify(inputContext, x, y, false);
 				} else {
-					DisplayMetrics displayMetrics = new DisplayMetrics();
-					WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-					wm.getDefaultDisplay().getRealMetrics(displayMetrics);
-					instance.scroll(inputContext, x, y, displayMetrics.heightPixels / 2);
+					instance.scroll(inputContext, x, y, false);
 				}
 			}
 		} catch (Exception e) {
@@ -1400,7 +1394,7 @@ public class InputService extends AccessibilityService {
 			dispatchGesture( createClick(inputContext, x, y, ViewConfiguration.getTapTimeout() + ViewConfiguration.getLongPressTimeout()), null, null );
 	}
 
-	private void scroll(InputContext inputContext, int x, int y, int scrollAmount )
+	private void scroll(InputContext inputContext, int x, int y, boolean scrollUp)
 	{
 			/*
 			   Ignore if another gesture is still ongoing. Especially true for scroll events:
@@ -1410,6 +1404,10 @@ public class InputService extends AccessibilityService {
 			 */
 			if(!inputContext.gestureCallback.mCompleted)
 				return;
+
+			// half a screen per wheel click, on the display the client is attached to
+			int displayHeight = Utils.getDisplayMetrics(this, inputContext.getDisplayId()).heightPixels;
+			int scrollAmount = scrollUp ? -displayHeight / 2 : displayHeight / 2;
 
 			inputContext.gestureCallback.mCompleted = false;
 			dispatchGesture(createSwipe(inputContext, x, y, x, y - scrollAmount, ViewConfiguration.getScrollDefaultDelay()), inputContext.gestureCallback, null);
