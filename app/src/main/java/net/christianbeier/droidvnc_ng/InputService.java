@@ -33,7 +33,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
-import android.view.WindowManager;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.ViewConfiguration;
@@ -1421,9 +1420,8 @@ public class InputService extends AccessibilityService {
 			return;
 		}
 
-		DisplayMetrics displayMetrics = new DisplayMetrics();
-		WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-		wm.getDefaultDisplay().getRealMetrics(displayMetrics);
+		// the default display, as that is the only one that can be magnified, see above
+		DisplayMetrics displayMetrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
 		MagnificationController mc = getMagnificationController();
 
 		// current magnification, defaulting to none if it cannot be read
