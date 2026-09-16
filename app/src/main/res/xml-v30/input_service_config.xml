@@ -7,6 +7,7 @@
     android:notificationTimeout="30"
 	android:description="@string/input_a11y_service_description"
 	android:canPerformGestures="true"
+	android:canControlMagnification="true"
 	android:canTakeScreenshot="true"
 	android:canRetrieveWindowContent="true"
     />

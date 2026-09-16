@@ -16,6 +16,7 @@ package net.christianbeier.droidvnc_ng;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
+import android.accessibilityservice.MagnificationConfig;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -37,6 +38,8 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.ViewConfiguration;
 import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.Region;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
@@ -184,6 +187,87 @@ public class InputService extends AccessibilityService {
 	static float scaling;
 	static boolean isInputEnabled;
 	/**
+	 * Magnification state of the default display, cached from a listener so that onPointerEvent()
+	 * does not need an IPC per mouse move.
+	 */
+	private static class MagnificationState {
+		final float scale;
+		final float centerX;
+		final float centerY;
+		/**
+		 * Centre of the magnified region, which is not the display: it excludes the navigation bar
+		 * and a small border. Magnification maps content into this region, so it, and not the
+		 * display centre, is the fixed point of the scaling. 0 until magnification has been active
+		 * once.
+		 */
+		final float regionCenterX;
+		final float regionCenterY;
+
+		MagnificationState(float scale, float centerX, float centerY, float regionCenterX, float regionCenterY) {
+			this.scale = scale;
+			this.centerX = centerX;
+			this.centerY = centerY;
+			this.regionCenterX = regionCenterX;
+			this.regionCenterY = regionCenterY;
+		}
+
+		/**
+		 * A state derived from a listener callback, carrying {@code previous}' region centre forward
+		 * when the callback reports an empty region.
+		 */
+		MagnificationState(MagnificationState previous, Region region, float scale, float centerX, float centerY) {
+			Rect bounds = region.getBounds();
+			this.scale = scale;
+			this.centerX = centerX;
+			this.centerY = centerY;
+			this.regionCenterX = bounds.isEmpty() ? previous.regionCenterX : bounds.exactCenterX();
+			this.regionCenterY = bounds.isEmpty() ? previous.regionCenterY : bounds.exactCenterY();
+		}
+	}
+
+	/**
+	 * volatile: written on the main thread, read on the VNC worker thread. Swapped as a whole so a
+	 * reader never sees a new scale together with a stale centre.
+	 */
+	private volatile MagnificationState mMagnification = new MagnificationState(1.0f, 0, 0, 0, 0);
+	private final MagnificationController.OnMagnificationChangedListener mMagnificationListener =
+			new MagnificationController.OnMagnificationChangedListener() {
+				/**
+				 * Only called directly before API 33, where full screen is the only magnification
+				 * there is.
+				 */
+				@Override
+				public void onMagnificationChanged(@NonNull MagnificationController controller,
+						@NonNull Region region, float scale, float centerX, float centerY) {
+					MagnificationState previous = mMagnification;
+					mMagnification = new MagnificationState(previous, region, scale, centerX, centerY);
+				}
+
+				/**
+				 * What the framework actually dispatches from API 33 on. The default implementation
+				 * forwards full screen changes only, which would leave a stale scale behind when the
+				 * user switches to window magnification.
+				 */
+				@RequiresApi(33)
+				@Override
+				public void onMagnificationChanged(@NonNull MagnificationController controller,
+						@NonNull Region region, @NonNull MagnificationConfig config) {
+					MagnificationState previous = mMagnification;
+					mMagnification = config.getMode() == MagnificationConfig.MAGNIFICATION_MODE_FULLSCREEN
+							? new MagnificationState(previous, region, config.getScale(),
+									config.getCenterX(), config.getCenterY())
+							// window magnification does not scale the screen coordinate space, so as
+							// far as placing the pointer overlay goes there is no magnification
+							: new MagnificationState(previous, region, 1.0f, 0, 0);
+				}
+			};
+	/**
+	 * Whether the magnification currently applied was set from a VNC client, so that disconnecting
+	 * can undo it without touching magnification a local user set up for themselves. Written from
+	 * the VNC worker threads, hence volatile.
+	 */
+	private volatile boolean mMagnifiedByRemote;
+	/**
 	 * Active keyboard shortcut bindings (per-action chord assignments), rebuilt from prefs/defaults
 	 * in onServiceConnected() and live-reloaded from the settings UI via {@link #reloadShortcuts}.
 	 * volatile: written on the main thread (onServiceConnected()/reloadShortcuts()) and read on the
@@ -264,6 +348,9 @@ public class InputService extends AccessibilityService {
 		isInputEnabled = prefs.getBoolean(Constants.PREFS_KEY_INPUT_LAST_ENABLED, !defaults.getViewOnly());
 		scaling = prefs.getFloat(Constants.PREFS_KEY_SERVER_LAST_SCALING, defaults.getScaling());
 		mMainHandler = new Handler(instance.getMainLooper());
+		// onServiceConnected() can run more than once, so do not stack listeners
+		getMagnificationController().removeListener(mMagnificationListener);
+		getMagnificationController().addListener(mMagnificationListener);
 		// (re-)add any InputContext's InputPointerViews
 		for (InputContext inputContext : inputContexts.values()) {
 			inputContext.resetState();
@@ -355,6 +442,14 @@ public class InputService extends AccessibilityService {
 				inputContext.pointerView.post(inputContext::removePointerView);
 			}
 			inputContexts.remove(client);
+			if (inputContexts.isEmpty() && instance != null && instance.mMagnifiedByRemote) {
+				// last client gone, so leave the screen as we found it. The device is often
+				// unattended, with no local user around to zoom back out.
+				instance.mMainHandler.post(() -> {
+					instance.getMagnificationController().reset(false);
+					instance.mMagnifiedByRemote = false;
+				});
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "removeClient: " + e);
 		}
@@ -385,8 +480,18 @@ public class InputService extends AccessibilityService {
 			InputPointerView pointerView = inputContext.pointerView;
 			if (pointerView != null) {
 				// showing pointers is enabled
-				int finalX = x;
-				int finalY = y;
+				int pointerX = x;
+				int pointerY = y;
+				MagnificationState magnification = instance.mMagnification;
+				if (magnification.scale > 1.0f && inputContext.getDisplayId() == Display.DEFAULT_DISPLAY) {
+					// x and y are positions on the magnified screen, but the overlay is placed in
+					// unscaled coordinates and only then magnified along with everything else, so
+					// undo the magnification here to have it drawn under the remote pointer
+					pointerX = (int) (magnification.centerX + (x - magnification.regionCenterX) / magnification.scale);
+					pointerY = (int) (magnification.centerY + (y - magnification.regionCenterY) / magnification.scale);
+				}
+				int finalX = pointerX;
+				int finalY = pointerY;
 				pointerView.post(() -> pointerView.positionView(finalX, finalY));
 			}
 
@@ -420,21 +525,27 @@ public class InputService extends AccessibilityService {
 			// scroll up
 			if ((buttonMask & (1 << 3)) != 0) {
 
-				DisplayMetrics displayMetrics = new DisplayMetrics();
-				WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-				wm.getDefaultDisplay().getRealMetrics(displayMetrics);
-
-				instance.scroll(inputContext, x, y, -displayMetrics.heightPixels / 2);
+				if (inputContext.isKeyCtrlDown) {
+					instance.magnify(inputContext, x, y, true);
+				} else {
+					DisplayMetrics displayMetrics = new DisplayMetrics();
+					WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+					wm.getDefaultDisplay().getRealMetrics(displayMetrics);
+					instance.scroll(inputContext, x, y, -displayMetrics.heightPixels / 2);
+				}
 			}
 
 			// scroll down
 			if ((buttonMask & (1 << 4)) != 0) {
 
-				DisplayMetrics displayMetrics = new DisplayMetrics();
-				WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-				wm.getDefaultDisplay().getRealMetrics(displayMetrics);
-
-				instance.scroll(inputContext, x, y, displayMetrics.heightPixels / 2);
+				if (inputContext.isKeyCtrlDown) {
+					instance.magnify(inputContext, x, y, false);
+				} else {
+					DisplayMetrics displayMetrics = new DisplayMetrics();
+					WindowManager wm = (WindowManager) instance.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+					wm.getDefaultDisplay().getRealMetrics(displayMetrics);
+					instance.scroll(inputContext, x, y, displayMetrics.heightPixels / 2);
+				}
 			}
 		} catch (Exception e) {
 			// instance probably null
@@ -1302,6 +1413,84 @@ public class InputService extends AccessibilityService {
 
 			inputContext.gestureCallback.mCompleted = false;
 			dispatchGesture(createSwipe(inputContext, x, y, x, y - scrollAmount, ViewConfiguration.getScrollDefaultDelay()), inputContext.gestureCallback, null);
+	}
+
+	private void magnify(InputContext inputContext, int x, int y, boolean zoomIn) {
+		if (inputContext.getDisplayId() != Display.DEFAULT_DISPLAY) {
+			// getMagnificationController() is hardwired to the default display and the display
+			// scoped variant is @hide, so there is no way to magnify any other one
+			Log.w(TAG, "magnify: can only magnify the default display, not " + inputContext.getDisplayId());
+			return;
+		}
+
+		DisplayMetrics displayMetrics = new DisplayMetrics();
+		WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+		wm.getDefaultDisplay().getRealMetrics(displayMetrics);
+		MagnificationController mc = getMagnificationController();
+
+		// current magnification, defaulting to none if it cannot be read
+		float fromScale = 1.0f;
+		float fromCenterX = displayMetrics.widthPixels / 2f;
+		float fromCenterY = displayMetrics.heightPixels / 2f;
+		if (Build.VERSION.SDK_INT >= 33) {
+			// null while the service is not connected
+			MagnificationConfig from = mc.getMagnificationConfig();
+			if (from != null) {
+				fromScale = from.getScale();
+				fromCenterX = from.getCenterX();
+				fromCenterY = from.getCenterY();
+			}
+		} else {
+			//noinspection deprecation
+			fromScale = mc.getScale();
+			//noinspection deprecation
+			fromCenterX = mc.getCenterX();
+			//noinspection deprecation
+			fromCenterY = mc.getCenterY();
+		}
+
+		// magnification step per scroll wheel click, desktop browsers use about 10%
+		final float scaleStep = 1.1f;
+		final float maxScale = 8.0f;
+		float toScale = Math.max(1.0f, Math.min(fromScale * (zoomIn ? scaleStep : 1 / scaleStep), maxScale));
+		// magnification maps content into the magnified region rather than the whole display, so
+		// that region's centre is the fixed point the scaling happens around
+		MagnificationState magnification = mMagnification;
+		float regionCenterX = magnification.regionCenterX > 0 ? magnification.regionCenterX : displayMetrics.widthPixels / 2f;
+		float regionCenterY = magnification.regionCenterY > 0 ? magnification.regionCenterY : displayMetrics.heightPixels / 2f;
+		if (fromScale <= 1.0f) {
+			// no meaningful centre is reported while magnification is off
+			fromCenterX = regionCenterX;
+			fromCenterY = regionCenterY;
+		}
+		// zoom around the pointer instead of centring on it: whatever is under the cursor stays
+		// where it is, so the target cannot drift across clicks and the user can retarget simply by
+		// moving the mouse.
+		float toCenterX = fromCenterX + (x - regionCenterX) * (1 / fromScale - 1 / toScale);
+		float toCenterY = fromCenterY + (y - regionCenterY) * (1 / fromScale - 1 / toScale);
+
+		if (toScale <= 1.0f) {
+			// setScale(1.0f) leaves the magnifier activated, which keeps the system's border on
+			// screen; only reset() actually deactivates it
+			mc.reset(false);
+		} else if (Build.VERSION.SDK_INT >= 33) {
+			// always full screen: a remote viewer wants the whole screen bigger, and window
+			// magnification would need its own coordinate transform for the pointer overlay.
+			// scale and centre in one update, so there is no scale-then-pan flicker
+			mc.setMagnificationConfig(new MagnificationConfig.Builder()
+					.setMode(MagnificationConfig.MAGNIFICATION_MODE_FULLSCREEN)
+					.setScale(toScale)
+					.setCenterX(toCenterX)
+					.setCenterY(toCenterY)
+					.build(), false);
+		} else {
+			// this is the right order for pre-API-33 devices
+			//noinspection deprecation
+			mc.setScale(toScale, false);
+			//noinspection deprecation
+			mc.setCenter(toCenterX, toCenterY, false);
+		}
+		mMagnifiedByRemote = toScale > 1.0f;
 	}
 
 	private static GestureDescription createClick(InputContext inputContext,  int x, int y, int duration )
