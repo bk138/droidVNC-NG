@@ -781,7 +781,7 @@ public class MainService extends Service {
             boolean showPointer = !startIntent.getBooleanExtra(EXTRA_VIEW_ONLY, PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(Constants.PREFS_KEY_SETTINGS_VIEW_ONLY, new Defaults(instance).getViewOnly()))
                     && startIntent.getBooleanExtra(EXTRA_SHOW_POINTERS, PreferenceManager.getDefaultSharedPreferences(instance).getBoolean(Constants.PREFS_KEY_SETTINGS_SHOW_POINTERS, new Defaults(instance).getShowPointers()));
             InputService.addClient(client, showPointer);
-            if(!MediaProjectionService.isMediaProjectionEnabled() && InputService.isTakingScreenShots()) {
+            if(!MediaProjectionService.isMediaProjectionEnabled() && InputService.isTakingScreenShots() && !startIntent.getBooleanExtra(MediaProjectionRequestActivity.EXTRA_OMIT_FALLBACK_SCREEN_CAPTURE_DIALOG, false)) {
                 Log.d(TAG, "onClientConnected: in fallback screen capture mode, asking for upgrade");
                 Intent mediaProjectionRequestIntent = new Intent(instance, MediaProjectionRequestActivity.class);
                 mediaProjectionRequestIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
