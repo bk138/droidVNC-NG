@@ -19,7 +19,7 @@
  * 59 Temple Place Suite 330, Boston, MA 02111-1307, USA.
  */
 
-package net.christianbeier.droidvnc_ng;
+package net.christianbeier.droidvnc_ng.server;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -36,6 +36,11 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import net.christianbeier.droidvnc_ng.Constants;
+import net.christianbeier.droidvnc_ng.Defaults;
+import net.christianbeier.droidvnc_ng.MainService;
+import net.christianbeier.droidvnc_ng.R;
 
 public class WriteStorageRequestActivity extends AppCompatActivity {
 

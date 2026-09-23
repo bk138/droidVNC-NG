@@ -1,5 +1,5 @@
 
-package net.christianbeier.droidvnc_ng;
+package net.christianbeier.droidvnc_ng.server;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -16,6 +16,11 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+
+import net.christianbeier.droidvnc_ng.Constants;
+import net.christianbeier.droidvnc_ng.Defaults;
+import net.christianbeier.droidvnc_ng.MainService;
+import net.christianbeier.droidvnc_ng.R;
 
 public class NotificationRequestActivity extends AppCompatActivity {
 

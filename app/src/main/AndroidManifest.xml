@@ -110,12 +110,12 @@
             android:excludeFromRecents="true"
             />
 
-        <activity android:name=".WriteStorageRequestActivity"
+        <activity android:name=".server.WriteStorageRequestActivity"
             android:theme="@style/TransparentTheme"
             android:excludeFromRecents="true"
             />
 
-        <activity android:name=".NotificationRequestActivity"
+        <activity android:name=".server.NotificationRequestActivity"
             android:theme="@style/TransparentTheme"
             android:excludeFromRecents="true"
             />

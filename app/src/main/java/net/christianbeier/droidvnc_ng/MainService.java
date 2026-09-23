@@ -63,6 +63,8 @@ import androidx.core.app.NotificationCompat;
 
 import net.christianbeier.droidvnc_ng.server.ClientList;
 import net.christianbeier.droidvnc_ng.server.MainServicePersistData;
+import net.christianbeier.droidvnc_ng.server.NotificationRequestActivity;
+import net.christianbeier.droidvnc_ng.server.WriteStorageRequestActivity;
 
 import java.io.File;
 import java.net.Inet4Address;
@@ -126,10 +128,10 @@ public class MainService extends Service {
     final static String ACTION_HANDLE_INPUT_RESULT = "action_handle_a11y_result";
     final static String EXTRA_INPUT_RESULT = "result_a11y";
 
-    final static String ACTION_HANDLE_WRITE_STORAGE_RESULT = "action_handle_write_storage_result";
-    final static String EXTRA_WRITE_STORAGE_RESULT = "result_write_storage";
+    public final static String ACTION_HANDLE_WRITE_STORAGE_RESULT = "action_handle_write_storage_result";
+    public final static String EXTRA_WRITE_STORAGE_RESULT = "result_write_storage";
 
-    final static String ACTION_HANDLE_NOTIFICATION_RESULT = "action_handle_notification_result";
+    public final static String ACTION_HANDLE_NOTIFICATION_RESULT = "action_handle_notification_result";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
     final static String EXTRA_MEDIA_PROJECTION_STATE = "state_media_projection";
