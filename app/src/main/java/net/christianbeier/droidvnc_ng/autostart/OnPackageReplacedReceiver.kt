@@ -1,4 +1,4 @@
-package net.christianbeier.droidvnc_ng
+package net.christianbeier.droidvnc_ng.autostart
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -6,6 +6,8 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
+import net.christianbeier.droidvnc_ng.InputService
+import net.christianbeier.droidvnc_ng.MainService
 import net.christianbeier.droidvnc_ng.server.MainServicePersistData
 
 /*

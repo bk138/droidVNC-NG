@@ -20,7 +20,7 @@
  * 59 Temple Place Suite 330, Boston, MA 02111-1307, USA.
  */
 
-package net.christianbeier.droidvnc_ng;
+package net.christianbeier.droidvnc_ng.autostart;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -34,6 +34,11 @@ import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+
+import net.christianbeier.droidvnc_ng.Constants;
+import net.christianbeier.droidvnc_ng.Defaults;
+import net.christianbeier.droidvnc_ng.InputService;
+import net.christianbeier.droidvnc_ng.MainService;
 
 
 public class OnBootReceiver extends BroadcastReceiver {

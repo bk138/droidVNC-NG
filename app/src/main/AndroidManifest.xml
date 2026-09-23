@@ -40,7 +40,7 @@
         <!-- TV: Signal whether the app supports pointer remotes -->
         <meta-data android:name="android.software.leanback.supports_touch" android:value="true"/>
 
-        <receiver android:name=".OnBootReceiver"
+        <receiver android:name=".autostart.OnBootReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -48,7 +48,7 @@
         </receiver>
 
         <receiver
-            android:name=".OnPackageReplacedReceiver"
+            android:name=".autostart.OnPackageReplacedReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />

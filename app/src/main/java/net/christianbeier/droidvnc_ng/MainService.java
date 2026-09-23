@@ -1157,7 +1157,7 @@ public class MainService extends Service {
      * @param context The callers context
      * @param intent The intent to add to
      */
-    static void addFallbackScreenCaptureIfNotAppOp(Context context, Intent intent) {
+    public static void addFallbackScreenCaptureIfNotAppOp(Context context, Intent intent) {
         boolean useFallback = true;
         try {
             // check whether user set PROJECT_MEDIA app op to allow in order to get around the
