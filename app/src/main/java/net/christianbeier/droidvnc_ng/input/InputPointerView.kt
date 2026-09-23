@@ -1,4 +1,4 @@
-package net.christianbeier.droidvnc_ng
+package net.christianbeier.droidvnc_ng.input
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -16,6 +16,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.annotation.UiThread
 import java.lang.IllegalArgumentException
+import net.christianbeier.droidvnc_ng.Utils
 
 /**
  * Create an input pointer view to be used on the specified display

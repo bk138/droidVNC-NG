@@ -63,6 +63,7 @@ import androidx.core.app.NotificationCompat;
 
 import net.christianbeier.droidvnc_ng.capture.mediaprojection.MediaProjectionRequestActivity;
 import net.christianbeier.droidvnc_ng.capture.mediaprojection.MediaProjectionService;
+import net.christianbeier.droidvnc_ng.input.InputRequestActivity;
 import net.christianbeier.droidvnc_ng.server.ClientList;
 import net.christianbeier.droidvnc_ng.server.MainServicePersistData;
 import net.christianbeier.droidvnc_ng.server.NotificationRequestActivity;
@@ -127,8 +128,8 @@ public class MainService extends Service {
     public final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE = "result_code_media_projection_request";
     public final static String EXTRA_MEDIA_PROJECTION_REQUEST_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE = "upgrading_from_no_or_fallback_screen_capture";
 
-    final static String ACTION_HANDLE_INPUT_RESULT = "action_handle_a11y_result";
-    final static String EXTRA_INPUT_RESULT = "result_a11y";
+    public final static String ACTION_HANDLE_INPUT_RESULT = "action_handle_a11y_result";
+    public final static String EXTRA_INPUT_RESULT = "result_a11y";
 
     public final static String ACTION_HANDLE_WRITE_STORAGE_RESULT = "action_handle_write_storage_result";
     public final static String EXTRA_WRITE_STORAGE_RESULT = "result_write_storage";

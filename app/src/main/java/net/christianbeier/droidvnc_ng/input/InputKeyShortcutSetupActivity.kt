@@ -13,7 +13,7 @@
  * Public License for more details.
  */
 
-package net.christianbeier.droidvnc_ng
+package net.christianbeier.droidvnc_ng.input
 
 import android.graphics.Typeface
 import android.os.Build
@@ -33,13 +33,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import net.christianbeier.droidvnc_ng.Defaults
+import net.christianbeier.droidvnc_ng.InputService
+import net.christianbeier.droidvnc_ng.R
+import net.christianbeier.droidvnc_ng.Utils
 
 /**
  * Full-screen settings screen for the configurable keyboard shortcuts (issue #13). It inflates one
  * row per [InputKeyShortcut.Action] -- three modifier checkboxes (Ctrl/Alt/Shift) plus a trigger-key
  * [Spinner] -- and owns their whole lifecycle: loading the persisted chords, offering the
  * [InputKeyShortcut.TriggerKey] entries and their localized labels, rejecting a chord already assigned to another action, persisting a change and live-updating
- * the running [InputService]. It iterates the [InputKeyShortcut.Action] constants rather than listing
+ * the running [net.christianbeier.droidvnc_ng.InputService]. It iterates the [InputKeyShortcut.Action] constants rather than listing
  * the actions here, so the caller only has to start it.
  */
 class InputKeyShortcutSetupActivity : AppCompatActivity() {

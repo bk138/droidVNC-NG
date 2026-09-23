@@ -13,11 +13,11 @@
  * Public License for more details.
  */
 
-package net.christianbeier.droidvnc_ng
+package net.christianbeier.droidvnc_ng.input
 
-import net.christianbeier.droidvnc_ng.InputKeyShortcut.Action
-import net.christianbeier.droidvnc_ng.InputKeyShortcut.Chord
-import net.christianbeier.droidvnc_ng.InputKeyShortcut.Manager
+import net.christianbeier.droidvnc_ng.input.InputKeyShortcut.Action
+import net.christianbeier.droidvnc_ng.input.InputKeyShortcut.Chord
+import net.christianbeier.droidvnc_ng.input.InputKeyShortcut.Manager
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

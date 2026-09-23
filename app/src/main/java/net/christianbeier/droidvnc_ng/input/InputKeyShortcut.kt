@@ -13,7 +13,11 @@
  * Public License for more details.
  */
 
-package net.christianbeier.droidvnc_ng
+package net.christianbeier.droidvnc_ng.input
+
+import net.christianbeier.droidvnc_ng.Constants
+import net.christianbeier.droidvnc_ng.Defaults
+import net.christianbeier.droidvnc_ng.R
 
 /**
  * Configurable VNC keyboard shortcuts (see issue #13), gathered under one type that matches the
@@ -31,8 +35,8 @@ package net.christianbeier.droidvnc_ng
  *
  * Nothing here makes an Android runtime call (no accessibility / root / MediaProjection) -- the
  * caller (InputService) executes the returned [Action] -- so the model stays unit-testable. The
- * per-action metadata does reference app resources ([Constants], R.string, [Defaults]), but only the
- * default-chord lookup ever touches a [Defaults] instance, and the tests don't exercise that path.
+ * per-action metadata does reference app resources ([net.christianbeier.droidvnc_ng.Constants], R.string, [net.christianbeier.droidvnc_ng.Defaults]), but only the
+ * default-chord lookup ever touches a [net.christianbeier.droidvnc_ng.Defaults] instance, and the tests don't exercise that path.
  */
 internal object InputKeyShortcut {
 

@@ -50,6 +50,9 @@ import androidx.annotation.WorkerThread;
 import androidx.preference.PreferenceManager;
 
 import net.christianbeier.droidvnc_ng.capture.mediaprojection.MediaProjectionService;
+import net.christianbeier.droidvnc_ng.input.InputKeyShortcut;
+import net.christianbeier.droidvnc_ng.input.InputKeysymToUnicode;
+import net.christianbeier.droidvnc_ng.input.InputPointerView;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -592,7 +595,7 @@ public class InputService extends AccessibilityService {
 	 * onServiceConnected(). A no-op when the service is not connected -- there is nothing to consult
 	 * the bindings then, and onServiceConnected() rebuilds them from prefs on the next connect.
 	 */
-	static void reloadShortcuts() {
+	public static void reloadShortcuts() {
 		// instance can race to null between here and the dereferences, so snapshot it and let the
 		// deref throw rather than pre-checking; onServiceConnected() rebuilds from prefs anyway.
 		try {

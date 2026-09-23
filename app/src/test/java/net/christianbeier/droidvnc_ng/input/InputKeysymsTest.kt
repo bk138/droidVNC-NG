@@ -13,7 +13,7 @@
  * Public License for more details.
  */
 
-package net.christianbeier.droidvnc_ng
+package net.christianbeier.droidvnc_ng.input
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

@@ -19,7 +19,7 @@
  * 59 Temple Place Suite 330, Boston, MA 02111-1307, USA.
  */
 
-package net.christianbeier.droidvnc_ng
+package net.christianbeier.droidvnc_ng.input
 
 /**
  * Translates RFB keysyms into Unicode code points for text entry.

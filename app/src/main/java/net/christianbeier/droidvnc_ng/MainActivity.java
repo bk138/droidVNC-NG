@@ -83,6 +83,10 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import net.christianbeier.droidvnc_ng.capture.mediaprojection.MediaProjectionRequestActivity;
 import net.christianbeier.droidvnc_ng.capture.mediaprojection.MediaProjectionService;
+import net.christianbeier.droidvnc_ng.input.InputKeyShortcut;
+import net.christianbeier.droidvnc_ng.input.InputKeyShortcutSetupActivity;
+import net.christianbeier.droidvnc_ng.input.InputKeysyms;
+import net.christianbeier.droidvnc_ng.input.InputRequestActivity;
 import net.christianbeier.droidvnc_ng.server.ClientList;
 
 import java.net.NetworkInterface;

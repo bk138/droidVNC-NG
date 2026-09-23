@@ -71,7 +71,7 @@ abstract class GenerateKeysyms extends DefaultTask {
 
     @TaskAction
     void generate() {
-        def pkgDir = new File(outputDir.get().asFile, 'net/christianbeier/droidvnc_ng')
+        def pkgDir = new File(outputDir.get().asFile, 'net/christianbeier/droidvnc_ng/input')
         pkgDir.mkdirs()
         // Parse `#define XK_<Name> 0x<hex>` lines, keeping header order and the first of any
         // duplicate macro name.
@@ -104,7 +104,7 @@ abstract class GenerateKeysyms extends DefaultTask {
 
         def sb = new StringBuilder()
         sb << '/* Generated from libvncserver rfb/keysym.h -- do not edit. */\n'
-        sb << 'package net.christianbeier.droidvnc_ng\n\n'
+        sb << 'package net.christianbeier.droidvnc_ng.input\n\n'
         sb << '/**\n'
         sb << " * Keysym name table generated at build time from libvncserver's rfb/keysym.h, laid out the way\n"
         sb << ' * libxkbcommon\'s ks_tables.h is. [NAMES] is every XK_ name ("XK_" prefix stripped) concatenated\n'
