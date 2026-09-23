@@ -99,7 +99,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MediaProjectionRequestActivity"
+        <activity android:name=".capture.mediaprojection.MediaProjectionRequestActivity"
             android:theme="@style/TransparentTheme"
             android:launchMode="singleTask"
             android:excludeFromRecents="true"

@@ -20,7 +20,7 @@
  * 59 Temple Place Suite 330, Boston, MA 02111-1307, USA.
  */
 
-package net.christianbeier.droidvnc_ng;
+package net.christianbeier.droidvnc_ng.capture.mediaprojection;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -36,13 +36,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import net.christianbeier.droidvnc_ng.Constants;
+import net.christianbeier.droidvnc_ng.Defaults;
+import net.christianbeier.droidvnc_ng.MainService;
+import net.christianbeier.droidvnc_ng.R;
+
 import java.util.Random;
 
 public class MediaProjectionRequestActivity extends AppCompatActivity {
 
     private static final String TAG = "MPRequestActivity";
-    static final String EXTRA_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE = "upgrading_from_no_or_fallback_screen_capture";
-    static final String EXTRA_OMIT_FALLBACK_SCREEN_CAPTURE_DIALOG = "omit_fallback_screen_capture_dialog";
+    public static final String EXTRA_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE = "upgrading_from_no_or_fallback_screen_capture";
+    public static final String EXTRA_OMIT_FALLBACK_SCREEN_CAPTURE_DIALOG = "omit_fallback_screen_capture_dialog";
     private boolean mIsUpgradingFromNoOrFallbackScreenCapture;
     private int mRequestCode;
     private AlertDialog mDialog;

@@ -61,6 +61,7 @@ import android.view.Display;
 
 import androidx.core.app.NotificationCompat;
 
+import net.christianbeier.droidvnc_ng.capture.mediaprojection.MediaProjectionRequestActivity;
 import net.christianbeier.droidvnc_ng.capture.mediaprojection.MediaProjectionService;
 import net.christianbeier.droidvnc_ng.server.ClientList;
 import net.christianbeier.droidvnc_ng.server.MainServicePersistData;
@@ -121,10 +122,10 @@ public class MainService extends Service {
     public static final String EXTRA_CLIENT_CONNECTION_ID = "net.christianbeier.droidvnc_ng.EXTRA_CLIENT_CONNECTION_ID";
     public static final String EXTRA_CLIENT_REQUEST_ID = "net.christianbeier.droidvnc_ng.EXTRA_CLIENT_REQUEST_ID";
 
-    final static String ACTION_HANDLE_MEDIA_PROJECTION_REQUEST_RESULT = "action_handle_media_projection_request_result";
+    public final static String ACTION_HANDLE_MEDIA_PROJECTION_REQUEST_RESULT = "action_handle_media_projection_request_result";
     public final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA = "result_data_media_projection_request";
     public final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE = "result_code_media_projection_request";
-    final static String EXTRA_MEDIA_PROJECTION_REQUEST_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE = "upgrading_from_no_or_fallback_screen_capture";
+    public final static String EXTRA_MEDIA_PROJECTION_REQUEST_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE = "upgrading_from_no_or_fallback_screen_capture";
 
     final static String ACTION_HANDLE_INPUT_RESULT = "action_handle_a11y_result";
     final static String EXTRA_INPUT_RESULT = "result_a11y";
