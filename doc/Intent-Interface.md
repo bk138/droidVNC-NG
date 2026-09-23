@@ -151,7 +151,7 @@ startForegroundService(intent)
 
 For example from Java code:
 
-See [MainActivity.java](../app/src/main/java/net/christianbeier/droidvnc_ng/MainActivity.java).
+See [MainActivity.java](../app/src/main/java/net/christianbeier/droidvnc_ng/ui/MainActivity.java).
 
 ### Stop the server again
 
