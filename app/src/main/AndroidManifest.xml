@@ -91,13 +91,23 @@
         <activity android:name=".ui.MainActivity"
             android:label="@string/main_activity_title"
             android:launchMode="singleTask"
+            android:exported="false" />
+
+        <!--
+            Alias keeps the old .MainActivity component name resolving, so home-screen
+            entries created before the move to 'ui' keep working. See ADR 0005.
+        -->
+        <activity-alias
+            android:name=".MainActivity"
+            android:targetActivity=".ui.MainActivity"
+            android:label="@string/main_activity_title"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
 
         <activity android:name=".capture.mediaprojection.MediaProjectionRequestActivity"
             android:theme="@style/TransparentTheme"
