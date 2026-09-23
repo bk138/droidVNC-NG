@@ -49,6 +49,8 @@ import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
 import androidx.preference.PreferenceManager;
 
+import net.christianbeier.droidvnc_ng.capture.mediaprojection.MediaProjectionService;
+
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Objects;

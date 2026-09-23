@@ -19,7 +19,7 @@
  * 59 Temple Place Suite 330, Boston, MA 02111-1307, USA.
  */
 
-package net.christianbeier.droidvnc_ng;
+package net.christianbeier.droidvnc_ng.capture.mediaprojection;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -45,6 +45,12 @@ import android.view.Display;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+
+import net.christianbeier.droidvnc_ng.Constants;
+import net.christianbeier.droidvnc_ng.Defaults;
+import net.christianbeier.droidvnc_ng.MainService;
+import net.christianbeier.droidvnc_ng.R;
+import net.christianbeier.droidvnc_ng.Utils;
 
 import java.nio.ByteBuffer;
 import java.util.Objects;
@@ -364,11 +370,11 @@ public class MediaProjectionService extends Service {
     /**
      * Get whether Media Projection is currently running.
      */
-    static boolean isMediaProjectionEnabled() {
+    public static boolean isMediaProjectionEnabled() {
         return instance != null && instance.mMediaProjection != null;
     }
 
-    static void togglePortraitInLandscapeWorkaround() {
+    public static void togglePortraitInLandscapeWorkaround() {
         try {
             // set
             instance.mHasPortraitInLandscapeWorkaroundSet = true;

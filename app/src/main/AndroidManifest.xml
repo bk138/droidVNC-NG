@@ -69,7 +69,7 @@
             tools:ignore="ExportedService" />
 
         <service
-            android:name=".MediaProjectionService"
+            android:name=".capture.mediaprojection.MediaProjectionService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />

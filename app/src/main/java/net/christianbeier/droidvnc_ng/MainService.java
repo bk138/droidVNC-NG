@@ -61,6 +61,7 @@ import android.view.Display;
 
 import androidx.core.app.NotificationCompat;
 
+import net.christianbeier.droidvnc_ng.capture.mediaprojection.MediaProjectionService;
 import net.christianbeier.droidvnc_ng.server.ClientList;
 import net.christianbeier.droidvnc_ng.server.MainServicePersistData;
 import net.christianbeier.droidvnc_ng.server.NotificationRequestActivity;
@@ -88,7 +89,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class MainService extends Service {
 
     private static final String TAG = "MainService";
-    static final int NOTIFICATION_ID = 11;
+    public static final int NOTIFICATION_ID = 11;
     public final static String ACTION_START = "net.christianbeier.droidvnc_ng.ACTION_START";
     public final static String ACTION_STOP = "net.christianbeier.droidvnc_ng.ACTION_STOP";
     public static final String ACTION_CONNECT_REVERSE = "net.christianbeier.droidvnc_ng.ACTION_CONNECT_REVERSE";
@@ -121,8 +122,8 @@ public class MainService extends Service {
     public static final String EXTRA_CLIENT_REQUEST_ID = "net.christianbeier.droidvnc_ng.EXTRA_CLIENT_REQUEST_ID";
 
     final static String ACTION_HANDLE_MEDIA_PROJECTION_REQUEST_RESULT = "action_handle_media_projection_request_result";
-    final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA = "result_data_media_projection_request";
-    final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE = "result_code_media_projection_request";
+    public final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_DATA = "result_data_media_projection_request";
+    public final static String EXTRA_MEDIA_PROJECTION_REQUEST_RESULT_CODE = "result_code_media_projection_request";
     final static String EXTRA_MEDIA_PROJECTION_REQUEST_UPGRADING_FROM_NO_OR_FALLBACK_SCREEN_CAPTURE = "upgrading_from_no_or_fallback_screen_capture";
 
     final static String ACTION_HANDLE_INPUT_RESULT = "action_handle_a11y_result";
@@ -133,8 +134,8 @@ public class MainService extends Service {
 
     public final static String ACTION_HANDLE_NOTIFICATION_RESULT = "action_handle_notification_result";
 
-    final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
-    final static String EXTRA_MEDIA_PROJECTION_STATE = "state_media_projection";
+    public final static String ACTION_HANDLE_MEDIA_PROJECTION_RESULT = "action_handle_media_projection_result";
+    public final static String EXTRA_MEDIA_PROJECTION_STATE = "state_media_projection";
 
     private int mResultCode;
     private Intent mResultData;
@@ -286,10 +287,10 @@ public class MainService extends Service {
     private native boolean vncRebindInterface(String interfaceName, int port);
     private native long vncConnectReverse(String host, int port);
     private native long vncConnectRepeater(String host, int port, String repeaterIdentifier);
-    static native boolean vncNewFramebuffer(int width, int height);
-    static native boolean vncUpdateFramebuffer(ByteBuffer buf, int rowStride);
-    static native int vncGetFramebufferWidth();
-    static native int vncGetFramebufferHeight();
+    public static native boolean vncNewFramebuffer(int width, int height);
+    public static native boolean vncUpdateFramebuffer(ByteBuffer buf, int rowStride);
+    public static native int vncGetFramebufferWidth();
+    public static native int vncGetFramebufferHeight();
     static native void vncSendCutText(String text);
     private native String vncGetRemoteHost(long client);
     private native int vncGetDestinationPort(long client);
@@ -966,7 +967,7 @@ public class MainService extends Service {
         }
     }
 
-    static boolean isServerActive() {
+    public static boolean isServerActive() {
         try {
             return instance.vncIsActive();
         } catch (Exception ignored) {
@@ -1143,7 +1144,7 @@ public class MainService extends Service {
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, getNotification(title, text, iconResource, isSilent, action));
     }
 
-    static Notification getCurrentNotification() {
+    public static Notification getCurrentNotification() {
         try {
             return instance.mNotification;
         } catch (Exception ignored) {
