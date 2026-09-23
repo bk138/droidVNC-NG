@@ -68,6 +68,7 @@ import net.christianbeier.droidvnc_ng.server.ClientList;
 import net.christianbeier.droidvnc_ng.server.MainServicePersistData;
 import net.christianbeier.droidvnc_ng.server.NotificationRequestActivity;
 import net.christianbeier.droidvnc_ng.server.WriteStorageRequestActivity;
+import net.christianbeier.droidvnc_ng.ui.MainActivity;
 
 import java.io.File;
 import java.net.Inet4Address;
@@ -293,7 +294,7 @@ public class MainService extends Service {
     public static native boolean vncUpdateFramebuffer(ByteBuffer buf, int rowStride);
     public static native int vncGetFramebufferWidth();
     public static native int vncGetFramebufferHeight();
-    static native void vncSendCutText(String text);
+    public static native void vncSendCutText(String text);
     private native String vncGetRemoteHost(long client);
     private native int vncGetDestinationPort(long client);
     private native String vncGetRepeaterId(long client);
@@ -977,7 +978,7 @@ public class MainService extends Service {
         }
     }
 
-    static int getClientCount() {
+    public static int getClientCount() {
         try {
             return Utils.withLock(instance.mConnectedClientsLock.readLock(), () -> instance.mConnectedClients.size());
         } catch (Exception ignored) {
@@ -989,7 +990,7 @@ public class MainService extends Service {
      * Get IPv4 addresses the server is reachable under.
      * @return A list of strings, each containing one IPv4 address.
      */
-    static ArrayList<String> getIPv4s() {
+    public static ArrayList<String> getIPv4s() {
         String boundIPv4;
         try {
             boundIPv4 = instance.vncGetBoundIPv4();
@@ -1039,7 +1040,7 @@ public class MainService extends Service {
         }
     }
 
-    static int getPort() {
+    public static int getPort() {
         try {
             return Objects.requireNonNull(MainServicePersistData.loadStartIntent(instance)).getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(instance).getInt(Constants.PREFS_KEY_SETTINGS_PORT, instance.mDefaults.getPort()));
         } catch (Exception e) {

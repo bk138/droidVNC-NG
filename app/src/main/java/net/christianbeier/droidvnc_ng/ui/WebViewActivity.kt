@@ -1,4 +1,4 @@
-package net.christianbeier.droidvnc_ng
+package net.christianbeier.droidvnc_ng.ui
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -9,6 +9,7 @@ import android.webkit.WebViewClient
 import android.widget.ProgressBar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import net.christianbeier.droidvnc_ng.R
 
 /*
     Using a WebView activity here since Android TVs usually do not have a browser preinstalled.

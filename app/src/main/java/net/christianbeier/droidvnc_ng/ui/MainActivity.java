@@ -19,7 +19,7 @@
  * 59 Temple Place Suite 330, Boston, MA 02111-1307, USA.
  */
 
-package net.christianbeier.droidvnc_ng;
+package net.christianbeier.droidvnc_ng.ui;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -81,6 +81,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import net.christianbeier.droidvnc_ng.BuildConfig;
+import net.christianbeier.droidvnc_ng.Constants;
+import net.christianbeier.droidvnc_ng.Defaults;
+import net.christianbeier.droidvnc_ng.InputService;
+import net.christianbeier.droidvnc_ng.MainService;
+import net.christianbeier.droidvnc_ng.R;
 import net.christianbeier.droidvnc_ng.capture.mediaprojection.MediaProjectionRequestActivity;
 import net.christianbeier.droidvnc_ng.capture.mediaprojection.MediaProjectionService;
 import net.christianbeier.droidvnc_ng.input.InputKeyShortcut;
