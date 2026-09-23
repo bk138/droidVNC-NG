@@ -61,6 +61,9 @@ import android.view.Display;
 
 import androidx.core.app.NotificationCompat;
 
+import net.christianbeier.droidvnc_ng.server.ClientList;
+import net.christianbeier.droidvnc_ng.server.MainServicePersistData;
+
 import java.io.File;
 import java.net.Inet4Address;
 import java.net.Inet6Address;

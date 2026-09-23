@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
+import net.christianbeier.droidvnc_ng.server.MainServicePersistData
 
 /*
  * Broadcast receiver that's being triggered when the package is replaced/updated.

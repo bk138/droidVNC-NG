@@ -81,6 +81,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import net.christianbeier.droidvnc_ng.server.ClientList;
+
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;

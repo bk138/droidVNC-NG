@@ -1,4 +1,4 @@
-package net.christianbeier.droidvnc_ng
+package net.christianbeier.droidvnc_ng.server
 
 import android.content.Context
 import android.content.Intent
