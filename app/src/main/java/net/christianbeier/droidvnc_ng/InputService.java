@@ -1099,15 +1099,14 @@ public class InputService extends AccessibilityService {
 			 */
 			if ((keysym == 0xff0d || keysym == 0xff8d) && down != 0) {
 				Bundle action = new Bundle();
-				if (Build.VERSION.SDK_INT >= 30 && Objects.requireNonNull(currentFocusNode).getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER)) {
-					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.getId(), action);
-				} else if (Objects.requireNonNull(currentFocusNode).getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)) {
-					Objects.requireNonNull(currentFocusNode).performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.getId(), action);
+				if (currentFocusNode != null && Build.VERSION.SDK_INT >= 30 && currentFocusNode.getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER)) {
+					currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.getId(), action);
 				} else if (Build.VERSION.SDK_INT >= 33) {
-                    // do this after ACTION_IME_ENTER and ACTION_CLICK are tried
-                    instance.performGlobalAction(GLOBAL_ACTION_DPAD_CENTER);
-                }
-            }
+					instance.performGlobalAction(GLOBAL_ACTION_DPAD_CENTER);
+				} else if (currentFocusNode != null && currentFocusNode.getActionList().contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)) {
+					currentFocusNode.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK.getId(), action);
+				}
+			}
 
 			/*
 			    Numpad input (numlock on)
