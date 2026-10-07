@@ -604,12 +604,36 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
     // only comment in when needed
     //__android_log_print(ANDROID_LOG_DEBUG, TAG, "vncUpdateFramebuffer: copy took %.3f ms", (getTime()-t0)*1000);
 
-    /* Lock out client reads. */
+    /* Lock out client reads.
+       Record locked clients in a local list so each locked client is guaranteed to be unlocked
+       even if disconnected and removed from theScreen's client list during the swap (Fixes #372). */
     rfbClientIteratorPtr iterator;
     rfbClientPtr cl;
+    rfbClientPtr stackClients[16];
+    rfbClientPtr *lockedClients = stackClients;
+    int lockedCount = 0;
+    int capacity = 16;
+
     iterator = rfbGetClientIterator(theScreen);
     while ((cl = rfbClientIteratorNext(iterator))) {
         LOCK(cl->sendMutex);
+        if (lockedCount >= capacity) {
+            int newCap = capacity * 2;
+            rfbClientPtr *newArr = (rfbClientPtr *)malloc(newCap * sizeof(rfbClientPtr));
+            if (newArr) {
+                memcpy(newArr, lockedClients, lockedCount * sizeof(rfbClientPtr));
+                if (lockedClients != stackClients) {
+                    free(lockedClients);
+                }
+                lockedClients = newArr;
+                capacity = newCap;
+                lockedClients[lockedCount++] = cl;
+            } else {
+                UNLOCK(cl->sendMutex);
+            }
+        } else {
+            lockedClients[lockedCount++] = cl;
+        }
     }
     rfbReleaseClientIterator(iterator);
 
@@ -618,11 +642,13 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
     theScreen->frameBuffer = backBuffer;
     backBuffer = tmp;
 
-    iterator = rfbGetClientIterator(theScreen);
-    while ((cl = rfbClientIteratorNext(iterator))) {
-        UNLOCK(cl->sendMutex);
+    /* Unlock all clients that were locked */
+    for (int i = 0; i < lockedCount; i++) {
+        UNLOCK(lockedClients[i]->sendMutex);
     }
-    rfbReleaseClientIterator(iterator);
+    if (lockedClients != stackClients) {
+        free(lockedClients);
+    }
 
     rfbMarkRectAsModified(theScreen, 0, 0, theScreen->width, theScreen->height);
 
