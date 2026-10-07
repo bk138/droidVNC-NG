@@ -930,7 +930,18 @@ public class InputService extends AccessibilityService {
 			/*
 				Get current keyboard focus node for input context's display.
 			 */
-			AccessibilityNodeInfo currentFocusNode = instance.mKeyboardFocusNodes.get(inputContext.getDisplayId());
+			AccessibilityNodeInfo currentFocusNode = null;
+			AccessibilityNodeInfo activeRoot = instance.getRootInActiveWindow();
+
+			if (activeRoot != null) {
+				currentFocusNode = activeRoot.findFocus(AccessibilityNodeInfo.FOCUS_INPUT);
+				activeRoot.recycle();
+			}
+
+			if (currentFocusNode == null) {
+				currentFocusNode = instance.mKeyboardFocusNodes.get(inputContext.getDisplayId());
+			}
+
 			// refresh() is important to load the represented view's current text into the node
 			if (currentFocusNode != null) {
 				currentFocusNode.refresh();
