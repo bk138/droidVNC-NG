@@ -13,6 +13,7 @@ An example `defaults.json` with completely new defaults (not all entries need to
 
 ```json
 {
+    "interfaceName": "wlan0",
     "port": 5901,
     "portReverse": 5555,
     "portRepeater": 5556,
