@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <restrictions xmlns:android="http://schemas.android.com/apk/res/android">
     <restriction
+        android:defaultValue=""
+        android:description="@string/settings_interface_description"
+        android:key="interfaceName"
+        android:restrictionType="string"
+        android:title="@string/main_activity_settings_interface" />
+
+    <restriction
         android:defaultValue="5900"
         android:key="port"
         android:restrictionType="integer"
