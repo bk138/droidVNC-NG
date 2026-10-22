@@ -994,8 +994,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
             }
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
+        } catch (SocketException ignored) {
+            // a vanished interface can make isLoopback() fail with ENODEV, don't crash over it,
+            // the spinner is rebuilt on the next network callback anyway
         }
         // add the others
         interfaceNames.addAll(mNetworkInterfaces.values());
