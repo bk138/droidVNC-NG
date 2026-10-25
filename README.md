@@ -168,5 +168,10 @@ turned to off.
 * Starting with Android 16, [app components can opt-out of of accepting input from AccessibilityService](https://android-developers.googleblog.com/2025/12/enhancing-android-security-stop-malware.html),
   so these will not be getting input from droidVNC-NG.
 
+* On Android 7 to 9, typing text into text fields with active autocomplete, most notably the
+  Google search box, may come out in the wrong order, e.g. typing `hallo` yields `ollah`. This is
+  an issue in the respective apps in combination with remote input and only occurs on these
+  Android versions.
+
 
 
