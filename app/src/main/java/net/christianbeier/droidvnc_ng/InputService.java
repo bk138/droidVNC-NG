@@ -929,11 +929,18 @@ public class InputService extends AccessibilityService {
 
 			/*
 				Get current keyboard focus node for input context's display.
+				Prefer a live query: the source node of the last accessibility event can be stale
+				or missing altogether, e.g. when no event has arrived since the service connected,
+				breaking input until then (see #403).
 			 */
-			AccessibilityNodeInfo currentFocusNode = instance.mKeyboardFocusNodes.get(inputContext.getDisplayId());
-			// refresh() is important to load the represented view's current text into the node
-			if (currentFocusNode != null) {
-				currentFocusNode.refresh();
+			AccessibilityNodeInfo currentFocusNode = findFocusedNodeOnDisplay(inputContext.getDisplayId());
+			if (currentFocusNode == null) {
+				// fall back to the source node of the last accessibility event
+				currentFocusNode = instance.mKeyboardFocusNodes.get(inputContext.getDisplayId());
+				// refresh() is important to load the represented view's current text into the node
+				if (currentFocusNode != null) {
+					currentFocusNode.refresh();
+				}
 			}
 
 			/*
@@ -1538,6 +1545,34 @@ public class InputService extends AccessibilityService {
 		action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, cursorPos);
 		action.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, cursorPos);
 		node.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_SELECTION.getId(), action);
+	}
+
+	/**
+	 * Returns the input-focused node on the given display via a live query, i.e. with the view's
+	 * current state loaded, or null if the display or its focused window can not be determined.
+	 * <p>
+	 * The system-level {@link AccessibilityService#findFocus(int)} is not display-specific, so on
+	 * a secondary display this searches the display's windows for the one that has input focus
+	 * there. {@link AccessibilityWindowInfo#isFocused()} reports per-display focus: each display's
+	 * focused window carries the flag (verified against a multi-display API 30 emulator).
+	 */
+	private static AccessibilityNodeInfo findFocusedNodeOnDisplay(int displayId) {
+		if (displayId == Display.DEFAULT_DISPLAY || Build.VERSION.SDK_INT < 30) {
+			// the default display is what the system-level query searches and pre-30, there is
+			// no other display to be input-specific about anyway
+			return instance.findFocus(AccessibilityNodeInfo.FOCUS_INPUT);
+		}
+		for (AccessibilityWindowInfo window : instance.getWindows()) {
+			if (window.getDisplayId() == displayId && window.isFocused()) {
+				AccessibilityNodeInfo root = window.getRoot();
+				if (root != null) {
+					AccessibilityNodeInfo focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT);
+					root.recycle();
+					return focused;
+				}
+			}
+		}
+		return null;
 	}
 
     private static AccessibilityNodeInfo findFocusableNodeFromRoot(int displayId) {
