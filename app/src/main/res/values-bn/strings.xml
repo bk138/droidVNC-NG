@@ -62,6 +62,9 @@
     <string name="main_activity_settings_chord_conflict">%1$s ইতিমধ্যে অন্য একটি অ্যাকশনে বরাদ্দ করা হয়েছে</string>
     <string name="main_activity_about">এটি droidVNC-NG %1$s। মনে রাখবেন droidVNC-NG-তে এখনও নতুন ফিচার যোগ করা হচ্ছে। কোনও সমস্যা বা ফিচার রিকোয়েস্ট https://github.com/bk138/droidVNC-NG/issues-এ রিপোর্ট করুন।</string>
     <string name="main_activity_survey_button">ফিডব্যাক দিন</string>
+    <string name="main_activity_background_usage_restricted_title">ব্যাকগ্রাউন্ড ব্যবহার সীমিত</string>
+    <string name="main_activity_background_usage_restricted_message">droidVNC-NG-এর ব্যাকগ্রাউন্ড ব্যবহার বন্ধ থাকা পর্যন্ত সার্ভার চলতে পারে না। অ্যাপের ব্যাটারি সেটিংসে ব্যাকগ্রাউন্ড ব্যবহার চালু করুন এবং আবার চেষ্টা করুন।</string>
+    <string name="main_activity_background_usage_restricted_open_settings">সেটিংস খুলুন</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">ইনকামিং কানেকশনের জন্য শোনছে না, %1$d ক্লায়েন্ট সংযুক্ত</item>
         <item quantity="other">ইনকামিং কানেকশনের জন্য শোনছে না, %1$d ক্লায়েন্ট সংযুক্ত</item>

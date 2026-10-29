@@ -62,6 +62,9 @@
     <string name="main_activity_settings_chord_conflict">%1$s은(는) 이미 다른 동작에 할당되어 있습니다</string>
     <string name="main_activity_about">이것은 droidVNC-NG %1$s입니다. 아직 droidVNC-NG에 더 많은 기능이 추가되고 있습니다. 문제 및 기능 요청은 https://github.com/bk138/droidVNC-NG/issues에서 신고할 수 있습니다.</string>
     <string name="main_activity_survey_button">피드백 제공</string>
+    <string name="main_activity_background_usage_restricted_title">백그라운드 사용 제한됨</string>
+    <string name="main_activity_background_usage_restricted_message">droidVNC-NG의 백그라운드 사용이 꺼져 있는 동안에는 서버를 실행할 수 없습니다. 앱의 배터리 설정에서 백그라운드 사용을 설정한 후 다시 시도하세요.</string>
+    <string name="main_activity_background_usage_restricted_open_settings">설정 열기</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">들어오는 연결 대기 중 아님, %1$d 클라이언트 연결됨</item>
         <item quantity="other">들어오는 연결 대기 중 아님, %1$d 클라이언트 연결됨</item>

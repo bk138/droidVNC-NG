@@ -97,6 +97,9 @@
     <string name="main_activity_settings_chord_conflict">%1$s is already assigned to another action</string>
     <string name="main_activity_about">This is droidVNC-NG %1$s. Please note that more features are still being added to droidVNC-NG. You can report any issues and feature requests at https://github.com/bk138/droidVNC-NG/issues</string>
     <string name="main_activity_survey_button">Provide Feedback</string>
+    <string name="main_activity_background_usage_restricted_title">Background usage restricted</string>
+    <string name="main_activity_background_usage_restricted_message">The server cannot run while background usage is disabled for droidVNC-NG. Enable background usage in the app\'s battery settings and try again.</string>
+    <string name="main_activity_background_usage_restricted_open_settings">Open settings</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">Not listening for incoming connections, %1$d client connected</item>
         <item quantity="other">Not listening for incoming connections, %1$d clients connected</item>

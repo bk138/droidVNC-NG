@@ -62,6 +62,9 @@
     <string name="main_activity_settings_chord_conflict">%1$s вже призначено іншій дії</string>
     <string name="main_activity_about">Це droidVNC-NG %1$s. Зверніть увагу, що до droidVNC-NG все ще додаються нові функції. Ви можете повідомляти про будь-які проблеми та запити на функції на https://github.com/bk138/droidVNC-NG/issues</string>
     <string name="main_activity_survey_button">Надати відгук</string>
+    <string name="main_activity_background_usage_restricted_title">Фонову роботу обмежено</string>
+    <string name="main_activity_background_usage_restricted_message">Сервер не може працювати, доки фонову роботу droidVNC-NG вимкнено. Увімкніть фонову роботу в налаштуваннях батареї застосунку та спробуйте ще раз.</string>
+    <string name="main_activity_background_usage_restricted_open_settings">Відкрити налаштування</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">Не слухає вхідні з\'єднання, %1$d клієнт під\'єднано</item>
         <item quantity="other">Не слухає вхідні з\'єднання, %1$d клієнти під\'єднано</item>

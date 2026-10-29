@@ -63,6 +63,9 @@
     <string name="main_activity_settings_chord_conflict">%1$s 已指派給其他動作</string>
     <string name="main_activity_about">這是droidVNC-NG%1$s。請注意，更多功能仍在添加到droidVNC-NG中。請報告任何問題和功能請求 https://github.com/bk138/droidVNC-NG/issues</string>
     <string name="main_activity_survey_button">提供回饋</string>
+    <string name="main_activity_background_usage_restricted_title">背景使用受限制</string>
+    <string name="main_activity_background_usage_restricted_message">在 droidVNC-NG 的背景使用被停用期間，伺服器無法執行。請在應用程式的電池設定中啟用背景使用後再試一次。</string>
+    <string name="main_activity_background_usage_restricted_open_settings">開啟設定</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">伺服器未監聽傳入連接，%1$d 個客戶端已連接</item>
         <item quantity="other">伺服器未監聽傳入連接，%1$d 個客戶端已連接</item>

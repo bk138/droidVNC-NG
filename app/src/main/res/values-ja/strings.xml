@@ -62,6 +62,9 @@
     <string name="main_activity_settings_chord_conflict">%1$s は既に別のアクションに割り当てられています</string>
     <string name="main_activity_about">このアプリはdroidVNC-NG %1$sです。 droidVNC-NGにはさらに多くの機能が追加されています。問題や機能要望は https://github.com/bk138/droidVNC-NG/issues で報告できます。</string>
     <string name="main_activity_survey_button">フィードバックを提供する</string>
+    <string name="main_activity_background_usage_restricted_title">バックグラウンド使用が制限中</string>
+    <string name="main_activity_background_usage_restricted_message">droidVNC-NG のバックグラウンド使用が無効になっている間、サーバーは実行できません。アプリのバッテリー設定でバックグラウンド使用を有効にして、もう一度お試しください。</string>
+    <string name="main_activity_background_usage_restricted_open_settings">設定を開く</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">サーバーは受信接続を待機していません。%1$d 台のクライアントが接続されています</item>
         <item quantity="other">サーバーは受信接続を待機していません。%1$d 台のクライアントが接続されています</item>

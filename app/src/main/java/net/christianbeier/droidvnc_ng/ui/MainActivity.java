@@ -22,6 +22,7 @@
 package net.christianbeier.droidvnc_ng.ui;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -634,6 +635,19 @@ public class MainActivity extends AppCompatActivity {
                         mButtonToggle.setEnabled(true);
                         // let focus stay on button
                         mButtonToggle.requestFocus();
+                        // if the app is background-restricted, tell the user why the server did not start
+                        if (Build.VERSION.SDK_INT >= 28
+                                && ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE)).isBackgroundRestricted()) {
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle(R.string.main_activity_background_usage_restricted_title)
+                                    .setMessage(R.string.main_activity_background_usage_restricted_message)
+                                    .setPositiveButton(R.string.main_activity_background_usage_restricted_open_settings, (dialog, which) -> {
+                                        Intent settingsIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getPackageName(), null));
+                                        startActivity(settingsIntent);
+                                    })
+                                    .setNegativeButton(R.string.no, (dialog, which) -> dialog.dismiss())
+                                    .show();
+                        }
                     }
                 }
 

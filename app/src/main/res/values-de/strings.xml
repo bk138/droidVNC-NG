@@ -62,6 +62,9 @@
     <string name="main_activity_settings_chord_conflict">%1$s ist bereits einer anderen Aktion zugewiesen</string>
     <string name="main_activity_about">Dies ist droidVNC-NG %1$s. Bitte beachten Sie, dass zu droidVNC-NG noch weitere Funktionen hinzugefügt werden. Sie können Probleme und Funktionswünsche unter https://github.com/bk138/droidVNC-NG/issues melden.</string>
     <string name="main_activity_survey_button">Feedback Geben</string>
+    <string name="main_activity_background_usage_restricted_title">Hintergrundnutzung eingeschränkt</string>
+    <string name="main_activity_background_usage_restricted_message">Der Server kann nicht laufen, solange die Hintergrundnutzung für droidVNC-NG deaktiviert ist. Aktivieren Sie die Hintergrundnutzung in den Akku-Einstellungen der App und versuchen Sie es erneut.</string>
+    <string name="main_activity_background_usage_restricted_open_settings">Einstellungen öffnen</string>
     <plurals name="main_service_notification_text_not_listening">
         <item quantity="one">Eingehende Verbindungen deaktiviert, %1$d Client verbunden</item>
         <item quantity="other">Eingehende Verbindungen deaktiviert, %1$d Clients verbunden</item>
