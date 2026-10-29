@@ -22,6 +22,7 @@
 package net.christianbeier.droidvnc_ng;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -422,6 +423,33 @@ public class MainService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        /*
+            Background-restricted apps get no foreground service status, but every start delivery here
+            (re-)arms the "must call startForeground()" obligation, which crashes the app on stop
+            or after ~30s. So: refuse to run, answer the caller, stop cleanly.
+         */
+        if (Build.VERSION.SDK_INT >= 28
+                && ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE)).isBackgroundRestricted()) {
+            Log.e(TAG, "onStartCommand: app is battery-restricted, bailing out");
+            // Discharges the obligation armed by the delivering startForegroundService() call,
+            // even though the promotion is refused; without this, the stop below would crash.
+            if (Build.VERSION.SDK_INT >= 29) {
+                startForeground(NOTIFICATION_ID, getNotification(null, null, R.drawable.ic_notification_warn, true, null), ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+            } else {
+                startForeground(NOTIFICATION_ID, getNotification(null, null, R.drawable.ic_notification_warn, true, null));
+            }
+            if (intent != null) {
+                Intent answer = new Intent(intent.getAction());
+                answer.putExtra(EXTRA_REQUEST_ID, intent.getStringExtra(EXTRA_REQUEST_ID));
+                answer.putExtra(EXTRA_REQUEST_SUCCESS, false);
+                sendBroadcastToOthersAndUs(answer);
+            }
+            // stopSelf() so that onDestroy() sends the ACTION_STOP broadcast, letting the UI and
+            // other components know the server went down when it was up before
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+
         if (intent == null) {
             Intent startIntent = MainServicePersistData.loadStartIntent(this);
             if(startIntent != null) {
