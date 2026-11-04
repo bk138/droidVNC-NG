@@ -23,6 +23,10 @@
 #include <android/log.h>
 #include <time.h>
 #include <errno.h>
+#include <stdint.h>
+#include <dlfcn.h>
+#include <pthread.h>
+#include <android/hardware_buffer.h>
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <sys/socket.h>
@@ -637,6 +641,133 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
     rfbMarkRectAsModified(theScreen, 0, 0, theScreen->width, theScreen->height);
 
     return JNI_TRUE;
+}
+
+/*
+  AHardwareBuffer functions. They only exist from API level 26 on and minSdk is lower,
+  so they are looked up at runtime instead of linking against them.
+ */
+static AHardwareBuffer *(*pAHardwareBuffer_fromHardwareBuffer)(JNIEnv *env, jobject hardwareBufferObj);
+static void (*pAHardwareBuffer_describe)(const AHardwareBuffer *buffer, AHardwareBuffer_Desc *outDesc);
+static int (*pAHardwareBuffer_lock)(AHardwareBuffer *buffer, uint64_t usage, int32_t fence, const ARect *rect, void **outVirtualAddress);
+static int (*pAHardwareBuffer_unlock)(AHardwareBuffer *buffer, int32_t *fence);
+static pthread_once_t hardwareBufferFunctionsOnce = PTHREAD_ONCE_INIT;
+
+static void loadHardwareBufferFunctions(void)
+{
+    // libandroid.so stays loaded for the process lifetime anyway, so the handle is never closed
+    void *lib = dlopen("libandroid.so", RTLD_NOW);
+    if(lib) {
+        pAHardwareBuffer_fromHardwareBuffer = dlsym(lib, "AHardwareBuffer_fromHardwareBuffer");
+        pAHardwareBuffer_describe = dlsym(lib, "AHardwareBuffer_describe");
+        pAHardwareBuffer_lock = dlsym(lib, "AHardwareBuffer_lock");
+        pAHardwareBuffer_unlock = dlsym(lib, "AHardwareBuffer_unlock");
+    }
+    if(pAHardwareBuffer_fromHardwareBuffer && pAHardwareBuffer_describe && pAHardwareBuffer_lock && pAHardwareBuffer_unlock)
+        logcat_info("loadHardwareBufferFunctions: AHardwareBuffer API available");
+    else
+        logcat_err("loadHardwareBufferFunctions: AHardwareBuffer API not available: %s", dlerror());
+}
+
+// error codes of vncCopyHardwareBuffer(), keep in sync with MediaProjectionService
+#define COPY_ERROR_UNAVAILABLE -1 // no AHardwareBuffer API
+#define COPY_ERROR_ARGUMENTS   -2 // invalid arguments, retrying will not help
+#define COPY_ERROR_FORMAT      -3 // buffer format we cannot convert
+#define COPY_ERROR_GEOMETRY    -4 // buffer smaller than requested or with an unexpected layout
+#define COPY_ERROR_LOCK        -5 // buffer could not be locked for CPU reading
+
+// AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM, same value as HAL_PIXEL_FORMAT_BGRA_8888, is not part of the public NDK API
+#define AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM_PRIVATE 5
+
+static unsigned int copyFailureCount;
+
+// log the first failure and then only every 1000th one to not flood logcat
+static void logCopyFailure(const char *format, ...)
+{
+    if(copyFailureCount++ % 1000 != 0)
+        return;
+    va_list args;
+    va_start(args, format);
+    __android_log_vprint(ANDROID_LOG_WARN, TAG, format, args);
+    va_end(args);
+}
+
+JNIEXPORT jint JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncCopyHardwareBuffer(JNIEnv *env, jobject __unused thiz, jobject hardwareBuffer, jobject dest, jint width, jint height)
+{
+    pthread_once(&hardwareBufferFunctionsOnce, loadHardwareBufferFunctions);
+    if(!pAHardwareBuffer_fromHardwareBuffer || !pAHardwareBuffer_describe || !pAHardwareBuffer_lock || !pAHardwareBuffer_unlock)
+        return COPY_ERROR_UNAVAILABLE;
+
+    uint8_t *destBuf = (*env)->GetDirectBufferAddress(env, dest);
+    jlong destSize = (*env)->GetDirectBufferCapacity(env, dest);
+    if(!hardwareBuffer || !destBuf || width <= 0 || height <= 0 || destSize < (jlong)width * height * 4) {
+        logCopyFailure("vncCopyHardwareBuffer: invalid arguments: %dx%d into %lld bytes", width, height, (long long)destSize);
+        return COPY_ERROR_ARGUMENTS;
+    }
+
+    // does not acquire a reference, the buffer is kept alive by the Java HardwareBuffer during this call
+    AHardwareBuffer *buffer = pAHardwareBuffer_fromHardwareBuffer(env, hardwareBuffer);
+    if(!buffer) {
+        logCopyFailure("vncCopyHardwareBuffer: no AHardwareBuffer for HardwareBuffer");
+        return COPY_ERROR_ARGUMENTS;
+    }
+
+    AHardwareBuffer_Desc desc;
+    memset(&desc, 0, sizeof(desc));
+    pAHardwareBuffer_describe(buffer, &desc);
+
+    // only formats whose memory layout we know, notably not IMPLEMENTATION_DEFINED (0x22)
+    if(desc.format != AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM
+       && desc.format != AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM
+       && desc.format != AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM_PRIVATE) {
+        logCopyFailure("vncCopyHardwareBuffer: unsupported format 0x%x (%ux%u, usage 0x%llx)",
+                       desc.format, desc.width, desc.height, (unsigned long long)desc.usage);
+        return COPY_ERROR_FORMAT;
+    }
+
+    // row stride is in pixels, never assume it equals the width. The mapping covers stride * height pixels.
+    uint64_t srcRowStride = (uint64_t)desc.stride * 4;
+    if(desc.layers != 1 || desc.width < (uint32_t)width || desc.height < (uint32_t)height || desc.stride < desc.width
+       || srcRowStride * desc.height > SIZE_MAX) {
+        logCopyFailure("vncCopyHardwareBuffer: unexpected buffer %ux%u, stride %u, layers %u for %dx%d",
+                       desc.width, desc.height, desc.stride, desc.layers, width, height);
+        return COPY_ERROR_GEOMETRY;
+    }
+
+    // no fence to wait on, there is no public API to get the image's one below API 33
+    void *src = NULL;
+    int res = pAHardwareBuffer_lock(buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, NULL, &src);
+    if(res != 0 || !src) {
+        if(res == 0)
+            pAHardwareBuffer_unlock(buffer, NULL);
+        logCopyFailure("vncCopyHardwareBuffer: lock failed with %d (format 0x%x, usage 0x%llx)",
+                       res, desc.format, (unsigned long long)desc.usage);
+        return COPY_ERROR_LOCK;
+    }
+
+    // copy row by row, skipping padding, swapping red and blue for BGRA_8888
+    size_t destRowSize = (size_t)width * 4;
+    for(int y = 0; y < height; y++) {
+        const uint8_t *srcRow = (const uint8_t *)src + (size_t)y * (size_t)srcRowStride;
+        uint8_t *destRow = destBuf + (size_t)y * destRowSize;
+        if(desc.format == AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM_PRIVATE) {
+            for(int x = 0; x < width; x++) {
+                destRow[4 * x + 0] = srcRow[4 * x + 2];
+                destRow[4 * x + 1] = srcRow[4 * x + 1];
+                destRow[4 * x + 2] = srcRow[4 * x + 0];
+                destRow[4 * x + 3] = srcRow[4 * x + 3];
+            }
+        } else {
+            memcpy(destRow, srcRow, destRowSize);
+        }
+    }
+
+    // NULL fence: blocks until unlocking is complete
+    res = pAHardwareBuffer_unlock(buffer, NULL);
+    if(res != 0)
+        logCopyFailure("vncCopyHardwareBuffer: unlock failed with %d", res);
+
+    return (jint)desc.format;
 }
 
 JNIEXPORT jint JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncGetFramebufferWidth(__unused JNIEnv *env, jobject __unused thiz)

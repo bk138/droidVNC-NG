@@ -34,6 +34,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
+import android.hardware.HardwareBuffer;
 import android.net.ConnectivityManager;
 import android.net.LinkAddress;
 import android.net.LinkProperties;
@@ -51,6 +52,7 @@ import android.os.PowerManager;
 import androidx.annotation.AnyThread;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.IntentSanitizer;
@@ -293,6 +295,12 @@ public class MainService extends Service {
     private native long vncConnectRepeater(String host, int port, String repeaterIdentifier);
     public static native boolean vncNewFramebuffer(int width, int height);
     public static native boolean vncUpdateFramebuffer(ByteBuffer buf, int rowStride);
+    /**
+     * Copies width x height pixels of a CPU-readable RGBA_8888, RGBX_8888 or BGRA_8888 HardwareBuffer
+     * into dest as contiguous RGBA_8888. Returns the buffer's format on success, a negative error code otherwise.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static native int vncCopyHardwareBuffer(HardwareBuffer buffer, ByteBuffer dest, int width, int height);
     public static native int vncGetFramebufferWidth();
     public static native int vncGetFramebufferHeight();
     public static native void vncSendCutText(String text);
