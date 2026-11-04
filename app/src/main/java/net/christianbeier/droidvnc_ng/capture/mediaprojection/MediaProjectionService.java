@@ -263,8 +263,14 @@ public class MediaProjectionService extends Service {
 
                     // croppedBuffer is contiguous (no padding), so rowStride = width * 4 bytes per pixel
                     MainService.vncUpdateFramebuffer(croppedBuffer, scaledWidth * 4);
-                } catch (Exception e) {
-                    handleImageAvailableException(e);
+                } catch (UnsupportedOperationException e) {
+                    // producer delivers another format than RGBA_8888, e.g. on Android-x86
+                    if (e.getMessage() != null && e.getMessage().contains("doesn't match the ImageReader's configured buffer format")) {
+                        Log.w(TAG, "onImageAvailable: producer buffer format does not match ImageReader, stopping", e);
+                        // our MediaProjection.Callback's onStop() then tells MainService to use a fallback
+                        stopScreenCapture();
+                    }
+                } catch (Exception ignored) {
                 }
             }, null);
 
@@ -311,8 +317,14 @@ public class MediaProjectionService extends Service {
                 buffer.rewind();
 
                 MainService.vncUpdateFramebuffer(buffer, rowStride);
-            } catch (Exception e) {
-                handleImageAvailableException(e);
+            } catch (UnsupportedOperationException e) {
+                // producer delivers another format than RGBA_8888, e.g. on Android-x86
+                if (e.getMessage() != null && e.getMessage().contains("doesn't match the ImageReader's configured buffer format")) {
+                    Log.w(TAG, "onImageAvailable: producer buffer format does not match ImageReader, stopping", e);
+                    // our MediaProjection.Callback's onStop() then tells MainService to use a fallback
+                    stopScreenCapture();
+                }
+            } catch (Exception ignored) {
             }
         }, null);
 
@@ -358,31 +370,6 @@ public class MediaProjectionService extends Service {
             mMediaProjection.stop();
             mMediaProjection = null;
         }
-    }
-
-    /*
-        Some producers, e.g. on Android-x86, deliver buffers in a format other than the
-        ImageReader's RGBA_8888, making acquireLatestImage() throw on every frame. Stop
-        MediaProjection in this case so that MainService can use a fallback.
-     */
-    private void handleImageAvailableException(Exception e) {
-        if (!isBufferFormatMismatch(e) || mMediaProjection == null)
-            return;
-
-        Log.w(TAG, "onImageAvailable: producer buffer format does not match ImageReader, stopping", e);
-        // we tell MainService ourselves, so don't get called back for our own stop
-        mMediaProjection.unregisterCallback(mMediaProjectionCallback);
-        stopScreenCapture();
-        if (MainService.isServerActive()) {
-            // tell MainService, it will take care of stopping us and maybe use a fallback
-            postResult(false);
-        }
-    }
-
-    private static boolean isBufferFormatMismatch(Exception e) {
-        return e instanceof UnsupportedOperationException
-                && e.getMessage() != null
-                && e.getMessage().contains("doesn't match the ImageReader's configured buffer format");
     }
 
     private void postResult(boolean isMediaProjectionEnabled) {
