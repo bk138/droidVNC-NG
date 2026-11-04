@@ -263,7 +263,8 @@ public class MediaProjectionService extends Service {
 
                     // croppedBuffer is contiguous (no padding), so rowStride = width * 4 bytes per pixel
                     MainService.vncUpdateFramebuffer(croppedBuffer, scaledWidth * 4);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    handleImageAvailableException(e);
                 }
             }, null);
 
@@ -310,7 +311,8 @@ public class MediaProjectionService extends Service {
                 buffer.rewind();
 
                 MainService.vncUpdateFramebuffer(buffer, rowStride);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                handleImageAvailableException(e);
             }
         }, null);
 
@@ -356,6 +358,31 @@ public class MediaProjectionService extends Service {
             mMediaProjection.stop();
             mMediaProjection = null;
         }
+    }
+
+    /*
+        Some producers, e.g. on Android-x86, deliver buffers in a format other than the
+        ImageReader's RGBA_8888, making acquireLatestImage() throw on every frame. Stop
+        MediaProjection in this case so that MainService can use a fallback.
+     */
+    private void handleImageAvailableException(Exception e) {
+        if (!isBufferFormatMismatch(e) || mMediaProjection == null)
+            return;
+
+        Log.w(TAG, "onImageAvailable: producer buffer format does not match ImageReader, stopping", e);
+        // we tell MainService ourselves, so don't get called back for our own stop
+        mMediaProjection.unregisterCallback(mMediaProjectionCallback);
+        stopScreenCapture();
+        if (MainService.isServerActive()) {
+            // tell MainService, it will take care of stopping us and maybe use a fallback
+            postResult(false);
+        }
+    }
+
+    private static boolean isBufferFormatMismatch(Exception e) {
+        return e instanceof UnsupportedOperationException
+                && e.getMessage() != null
+                && e.getMessage().contains("doesn't match the ImageReader's configured buffer format");
     }
 
     private void postResult(boolean isMediaProjectionEnabled) {
