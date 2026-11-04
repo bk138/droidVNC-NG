@@ -29,7 +29,10 @@ import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
+import android.hardware.HardwareBuffer;
+import android.hardware.SyncFence;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.Image;
@@ -37,12 +40,15 @@ import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
@@ -52,7 +58,9 @@ import net.christianbeier.droidvnc_ng.MainService;
 import net.christianbeier.droidvnc_ng.R;
 import net.christianbeier.droidvnc_ng.Utils;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Duration;
 import java.util.Objects;
 
 public class MediaProjectionService extends Service {
@@ -61,6 +69,15 @@ public class MediaProjectionService extends Service {
 
     // log the first capture failure and then only every Nth one to not flood logcat
     private static final int CAPTURE_FAILURE_LOG_INTERVAL = 1000;
+    // part of the message of the UnsupportedOperationException ImageReader throws (API 29 to 35 at least)
+    // when the producer's buffer format does not match the RGBA_8888 we asked for
+    private static final String FORMAT_MISMATCH_MESSAGE = "doesn't match the ImageReader's configured buffer format";
+    // give up on the opaque ImageReader after this many consecutive images that could not be copied
+    private static final int OPAQUE_READER_MAX_CONSECUTIVE_FAILURES = 30;
+    private static final long OPAQUE_READER_FENCE_TIMEOUT_MS = 100;
+    // error codes of MainService.vncCopyHardwareBuffer(), keep in sync with droidvnc-ng.c
+    private static final int COPY_ERROR_UNAVAILABLE = -1;
+    private static final int COPY_ERROR_ARGUMENTS = -2;
 
     private int mResultCode;
     private Intent mResultData;
@@ -69,12 +86,25 @@ public class MediaProjectionService extends Service {
     private MediaProjection mMediaProjection;
     private MediaProjection.Callback mMediaProjectionCallback;
     private MediaProjectionManager mMediaProjectionManager;
+    private Handler mMainHandler;
 
     private boolean mHasPortraitInLandscapeWorkaroundApplied;
     private boolean mHasPortraitInLandscapeWorkaroundSet;
 
+    /*
+        Capture diagnostics and opaque ImageReader state. If the producer hands out buffers in another
+        format than the RGBA_8888 requested (seen with BGRA_8888 on Bliss OS 12 in VirtualBox), the
+        RGBA_8888 ImageReader rejects every one of them. We then switch once to an opaque
+        (ImageFormat.PRIVATE) ImageReader, which accepts any format, and copy its buffers natively.
+        If that does not work either, we stop MediaProjection so MainService uses the fallback.
+     */
     private int mCaptureFailureCount;
     private boolean mHasLoggedImageLayout;
+    private boolean mUseOpaqueReader;
+    private boolean mOpaqueReaderFailed;
+    private int mOpaqueReaderConsecutiveFailures;
+    private int mOpaqueReaderLastBufferFormat;
+    private ByteBuffer mOpaqueReaderFrame;
 
     private static MediaProjectionService instance;
 
@@ -89,6 +119,8 @@ public class MediaProjectionService extends Service {
         Log.d(TAG, "onCreate");
 
         instance = this;
+
+        mMainHandler = new Handler(Looper.getMainLooper());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             /*
@@ -167,6 +199,8 @@ public class MediaProjectionService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
 
+        mMainHandler.removeCallbacksAndMessages(null);
+
         stopScreenCapture();
 
         instance = null;
@@ -212,7 +246,11 @@ public class MediaProjectionService extends Service {
             mImageReader.close();
         }
 
+        // the reader created below keeps its kind for its whole lifetime
+        final boolean useOpaqueReader = mUseOpaqueReader;
         mHasLoggedImageLayout = false;
+        mOpaqueReaderConsecutiveFailures = 0;
+        mOpaqueReaderLastBufferFormat = 0;
 
         final DisplayMetrics metrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
 
@@ -236,20 +274,31 @@ public class MediaProjectionService extends Service {
             final int quirkyLandscapeWidth = (int)((float)scaledHeight/portraitInsideLandscapeScaleFactor);
             final int quirkyLandscapeHeight = (int)((float)scaledWidth/portraitInsideLandscapeScaleFactor);
 
-            mImageReader = ImageReader.newInstance(quirkyLandscapeWidth, quirkyLandscapeHeight, PixelFormat.RGBA_8888, 2);
+            mImageReader = newImageReader(quirkyLandscapeWidth, quirkyLandscapeHeight, useOpaqueReader);
             mImageReader.setOnImageAvailableListener(imageReader -> {
                 try (Image image = imageReader.acquireLatestImage()) {
 
                     if (image == null)
                         return;
 
-                    if (!checkImageLayout(image, quirkyLandscapeWidth, quirkyLandscapeHeight))
-                        return;
-
-                    final Image.Plane[] planes = image.getPlanes();
-                    final ByteBuffer buffer = planes[0].getBuffer();
-                    int pixelStride = planes[0].getPixelStride();
-                    int rowStride = planes[0].getRowStride();
+                    final ByteBuffer buffer;
+                    final int pixelStride;
+                    final int rowStride;
+                    if (useOpaqueReader) {
+                        // contiguous RGBA_8888 copy of the image, so rowStride = width * 4 bytes per pixel
+                        buffer = copyOpaqueImage(image, quirkyLandscapeWidth, quirkyLandscapeHeight);
+                        if (buffer == null)
+                            return;
+                        pixelStride = 4;
+                        rowStride = quirkyLandscapeWidth * 4;
+                    } else {
+                        if (!checkImageLayout(image, quirkyLandscapeWidth, quirkyLandscapeHeight))
+                            return;
+                        final Image.Plane[] planes = image.getPlanes();
+                        buffer = planes[0].getBuffer();
+                        pixelStride = planes[0].getPixelStride();
+                        rowStride = planes[0].getRowStride();
+                    }
                     int rowPadding = rowStride - pixelStride * quirkyLandscapeWidth;
                     int w = quirkyLandscapeWidth + rowPadding / pixelStride;
 
@@ -275,7 +324,7 @@ public class MediaProjectionService extends Service {
                     // croppedBuffer is contiguous (no padding), so rowStride = width * 4 bytes per pixel
                     MainService.vncUpdateFramebuffer(croppedBuffer, scaledWidth * 4);
                 } catch (Exception e) {
-                    logCaptureFailure("failed to process image", e);
+                    handleCaptureException(e, useOpaqueReader);
                 }
             }, null);
 
@@ -304,19 +353,28 @@ public class MediaProjectionService extends Service {
         /*
             This is the default behaviour.
          */
-        mImageReader = ImageReader.newInstance(scaledWidth, scaledHeight, PixelFormat.RGBA_8888, 2);
+        mImageReader = newImageReader(scaledWidth, scaledHeight, useOpaqueReader);
         mImageReader.setOnImageAvailableListener(imageReader -> {
             try (Image image = imageReader.acquireLatestImage()) {
 
                 if (image == null)
                     return;
 
-                if (!checkImageLayout(image, scaledWidth, scaledHeight))
-                    return;
-
-                final Image.Plane[] planes = image.getPlanes();
-                final ByteBuffer buffer = planes[0].getBuffer();
-                int rowStride = planes[0].getRowStride();
+                final ByteBuffer buffer;
+                final int rowStride;
+                if (useOpaqueReader) {
+                    // contiguous RGBA_8888 copy of the image, so rowStride = width * 4 bytes per pixel
+                    buffer = copyOpaqueImage(image, scaledWidth, scaledHeight);
+                    if (buffer == null)
+                        return;
+                    rowStride = scaledWidth * 4;
+                } else {
+                    if (!checkImageLayout(image, scaledWidth, scaledHeight))
+                        return;
+                    final Image.Plane[] planes = image.getPlanes();
+                    buffer = planes[0].getBuffer();
+                    rowStride = planes[0].getRowStride();
+                }
 
                 // if needed, set up a new VNC framebuffer that matches the actual image dimensions
                 if (scaledWidth != MainService.vncGetFramebufferWidth() || scaledHeight != MainService.vncGetFramebufferHeight())
@@ -326,7 +384,7 @@ public class MediaProjectionService extends Service {
 
                 MainService.vncUpdateFramebuffer(buffer, rowStride);
             } catch (Exception e) {
-                logCaptureFailure("failed to process image", e);
+                handleCaptureException(e, useOpaqueReader);
             }
         }, null);
 
@@ -352,6 +410,18 @@ public class MediaProjectionService extends Service {
     }
 
     /**
+     * Creates the ImageReader the virtual display renders into: the original RGBA_8888 one or, if
+     * requested and possible, an opaque one whose buffers are CPU-readable for vncCopyHardwareBuffer().
+     * Opaque ImageReaders do not check the producer's buffer format.
+     */
+    private static ImageReader newImageReader(int width, int height, boolean opaque) {
+        if (opaque && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return ImageReader.newInstance(width, height, ImageFormat.PRIVATE, 2, HardwareBuffer.USAGE_CPU_READ_OFTEN);
+        }
+        return ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2);
+    }
+
+    /**
      * Checks an RGBA_8888 image's plane before its pixels get copied: the copy reads width * 4 bytes
      * from each of height rows that are rowStride bytes apart.
      */
@@ -373,6 +443,109 @@ public class MediaProjectionService extends Service {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Copies an opaque image's buffer into a contiguous RGBA_8888 buffer of width x height.
+     * @return that buffer, valid until the next call, or null if the image could not be copied.
+     */
+    private ByteBuffer copyOpaqueImage(Image image, int width, int height) {
+        // wait until the producer has finished writing the buffer. No public API for this below API 33.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !awaitImageFence(image))
+            return null;
+
+        final int frameSize = width * height * 4;
+        if (mOpaqueReaderFrame == null || mOpaqueReaderFrame.capacity() != frameSize) {
+            mOpaqueReaderFrame = ByteBuffer.allocateDirect(frameSize);
+        }
+
+        int result;
+        try (HardwareBuffer hardwareBuffer = image.getHardwareBuffer()) {
+            result = hardwareBuffer != null ? MainService.vncCopyHardwareBuffer(hardwareBuffer, mOpaqueReaderFrame, width, height) : COPY_ERROR_ARGUMENTS;
+        }
+
+        if (result < 0) {
+            mOpaqueReaderConsecutiveFailures++;
+            logCaptureFailure("opaque reader: could not copy image, error " + result, null);
+            // no AHardwareBuffer API or a call that can never work is not worth retrying
+            if (result == COPY_ERROR_UNAVAILABLE || result == COPY_ERROR_ARGUMENTS
+                    || mOpaqueReaderConsecutiveFailures >= OPAQUE_READER_MAX_CONSECUTIVE_FAILURES) {
+                fallBackFromOpaqueReader("error " + result + " after " + mOpaqueReaderConsecutiveFailures + " consecutive failure(s)");
+            }
+            return null;
+        }
+
+        mOpaqueReaderConsecutiveFailures = 0;
+        if (result != mOpaqueReaderLastBufferFormat) {
+            Log.i(TAG, "copyOpaqueImage: buffer format now 0x" + Integer.toHexString(result) + ", " + width + "x" + height);
+            mOpaqueReaderLastBufferFormat = result;
+        }
+        return mOpaqueReaderFrame;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    private boolean awaitImageFence(Image image) {
+        try (SyncFence fence = image.getFence()) {
+            if (fence.isValid() && !fence.await(Duration.ofMillis(OPAQUE_READER_FENCE_TIMEOUT_MS))) {
+                logCaptureFailure("opaque reader: timed out waiting for buffer fence", null);
+                return false;
+            }
+            return true;
+        } catch (IOException e) {
+            logCaptureFailure("opaque reader: could not get buffer fence", e);
+            return false;
+        }
+    }
+
+    private void handleCaptureException(Exception e, boolean usingOpaqueReader) {
+        if (!usingOpaqueReader
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                && e instanceof UnsupportedOperationException
+                && e.getMessage() != null && e.getMessage().contains(FORMAT_MISMATCH_MESSAGE)) {
+            switchToOpaqueReader(e);
+            return;
+        }
+        logCaptureFailure("failed to process image", e);
+    }
+
+    /**
+     * Replaces the RGBA_8888 ImageReader by an opaque one, at most once per service lifetime.
+     */
+    private void switchToOpaqueReader(Exception e) {
+        if (mUseOpaqueReader || mOpaqueReaderFailed) {
+            // already done or given up; the old reader's pending images are of no interest
+            return;
+        }
+        Log.w(TAG, "switchToOpaqueReader: " + e.getMessage() + " Switching to an opaque ImageReader.");
+        mUseOpaqueReader = true;
+        // do not replace the reader from within its own listener
+        mMainHandler.post(() -> {
+            if (mMediaProjection != null)
+                startScreenCapture();
+        });
+    }
+
+    /**
+     * Gives up on MediaProjection when the opaque ImageReader does not work either, so that MainService
+     * uses the fallback screen capture, like when MediaProjection is stopped by the user or system.
+     */
+    private void fallBackFromOpaqueReader(String reason) {
+        if (mOpaqueReaderFailed) {
+            return;
+        }
+        mOpaqueReaderFailed = true;
+        Log.e(TAG, "fallBackFromOpaqueReader: opaque ImageReader unusable (" + reason + "), stopping MediaProjection");
+        mMainHandler.post(() -> {
+            if (mMediaProjection == null)
+                return;
+            // we tell MainService ourselves, so keep the callback from doing it a second time
+            mMediaProjection.unregisterCallback(mMediaProjectionCallback);
+            stopScreenCapture();
+            if (MainService.isServerActive()) {
+                // tell MainService, it will take care of stopping us and use a fallback
+                postResult(false);
+            }
+        });
     }
 
     private void logCaptureFailure(String message, Exception e) {
