@@ -585,6 +585,17 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
     if(!theScreen || !theScreen->frameBuffer || !backBuffer || !cBuf || bufSize < 0)
         return JNI_FALSE;
 
+    int rowSize = theScreen->width * 4; // pixelStride is always 4 for us
+
+    // refuse sources we would read past the end of, logging only every so often
+    if(rowStride < rowSize || bufSize < (jlong)rowStride * (theScreen->height - 1) + rowSize) {
+        static unsigned int rejectedCount;
+        if(rejectedCount++ % 1000 == 0)
+            __android_log_print(ANDROID_LOG_WARN, TAG, "vncUpdateFramebuffer: rejected buffer of %lld bytes with rowStride %d for %dx%d framebuffer (%u time(s) so far)",
+                                (long long)bufSize, rowStride, theScreen->width, theScreen->height, rejectedCount);
+        return JNI_FALSE;
+    }
+
     /*
       Copy new frame to back buffer.
     */
@@ -594,7 +605,6 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncU
     // Copy row by row, skipping padding bytes
     char *src = (char *)cBuf;
     char *dest = backBuffer;
-    int rowSize = theScreen->width * 4; // pixelStride is always 4 for us
     for(int y = 0; y < theScreen->height; y++) {
         memcpy(dest, src, rowSize);
         src += rowStride;
