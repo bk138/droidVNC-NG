@@ -59,6 +59,9 @@ public class MediaProjectionService extends Service {
 
     private static final String TAG = "MediaProjectionService";
 
+    // log the first capture failure and then only every Nth one to not flood logcat
+    private static final int CAPTURE_FAILURE_LOG_INTERVAL = 1000;
+
     private int mResultCode;
     private Intent mResultData;
     private ImageReader mImageReader;
@@ -69,6 +72,9 @@ public class MediaProjectionService extends Service {
 
     private boolean mHasPortraitInLandscapeWorkaroundApplied;
     private boolean mHasPortraitInLandscapeWorkaroundSet;
+
+    private int mCaptureFailureCount;
+    private boolean mHasLoggedImageLayout;
 
     private static MediaProjectionService instance;
 
@@ -206,6 +212,8 @@ public class MediaProjectionService extends Service {
             mImageReader.close();
         }
 
+        mHasLoggedImageLayout = false;
+
         final DisplayMetrics metrics = Utils.getDisplayMetrics(this, Display.DEFAULT_DISPLAY);
 
         // apply selected scaling
@@ -233,6 +241,9 @@ public class MediaProjectionService extends Service {
                 try (Image image = imageReader.acquireLatestImage()) {
 
                     if (image == null)
+                        return;
+
+                    if (!checkImageLayout(image, quirkyLandscapeWidth, quirkyLandscapeHeight))
                         return;
 
                     final Image.Plane[] planes = image.getPlanes();
@@ -263,7 +274,8 @@ public class MediaProjectionService extends Service {
 
                     // croppedBuffer is contiguous (no padding), so rowStride = width * 4 bytes per pixel
                     MainService.vncUpdateFramebuffer(croppedBuffer, scaledWidth * 4);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    logCaptureFailure("failed to process image", e);
                 }
             }, null);
 
@@ -299,6 +311,9 @@ public class MediaProjectionService extends Service {
                 if (image == null)
                     return;
 
+                if (!checkImageLayout(image, scaledWidth, scaledHeight))
+                    return;
+
                 final Image.Plane[] planes = image.getPlanes();
                 final ByteBuffer buffer = planes[0].getBuffer();
                 int rowStride = planes[0].getRowStride();
@@ -310,7 +325,8 @@ public class MediaProjectionService extends Service {
                 buffer.rewind();
 
                 MainService.vncUpdateFramebuffer(buffer, rowStride);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                logCaptureFailure("failed to process image", e);
             }
         }, null);
 
@@ -333,6 +349,35 @@ public class MediaProjectionService extends Service {
 
         // tell MainService that MediaProjection is up
         postResult(true);
+    }
+
+    /**
+     * Checks an RGBA_8888 image's plane before its pixels get copied: the copy reads width * 4 bytes
+     * from each of height rows that are rowStride bytes apart.
+     */
+    private boolean checkImageLayout(Image image, int width, int height) {
+        final Image.Plane plane = image.getPlanes()[0];
+        final int pixelStride = plane.getPixelStride();
+        final int rowStride = plane.getRowStride();
+        final long capacity = plane.getBuffer().capacity();
+
+        if (!mHasLoggedImageLayout) {
+            Log.i(TAG, "checkImageLayout: image " + image.getWidth() + "x" + image.getHeight() + " (expected " + width + "x" + height + ")"
+                    + ", pixelStride " + pixelStride + ", rowStride " + rowStride + ", capacity " + capacity);
+            mHasLoggedImageLayout = true;
+        }
+
+        if (pixelStride != 4 || rowStride < width * 4 || capacity < (long) rowStride * (height - 1) + width * 4L) {
+            logCaptureFailure("unexpected image layout for " + width + "x" + height + ": pixelStride " + pixelStride
+                    + ", rowStride " + rowStride + ", capacity " + capacity, null);
+            return false;
+        }
+        return true;
+    }
+
+    private void logCaptureFailure(String message, Exception e) {
+        if (mCaptureFailureCount++ % CAPTURE_FAILURE_LOG_INTERVAL == 0)
+            Log.w(TAG, "capture: " + message + " (" + mCaptureFailureCount + " failure(s) so far)", e);
     }
 
     private void stopScreenCapture() {
