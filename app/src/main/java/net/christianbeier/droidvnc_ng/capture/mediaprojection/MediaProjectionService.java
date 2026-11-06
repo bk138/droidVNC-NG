@@ -265,11 +265,11 @@ public class MediaProjectionService extends Service {
                     MainService.vncUpdateFramebuffer(croppedBuffer, scaledWidth * 4);
                 } catch (UnsupportedOperationException e) {
                     // producer delivers another format than RGBA_8888, e.g. on Android-x86
-                    if (e.getMessage() != null && e.getMessage().contains("doesn't match the ImageReader's configured buffer format")) {
-                        Log.w(TAG, "onImageAvailable: producer buffer format does not match ImageReader, stopping", e);
-                        // our MediaProjection.Callback's onStop() then tells MainService to use a fallback
-                        stopScreenCapture();
-                    }
+                    Log.w(TAG, "onImageAvailable: producer buffer format does not match ImageReader, stopping", e);
+                    // keeps the next images from hitting this again
+                    stopScreenCapture();
+                    // tell MainService, it will take care of stopping us and maybe use a fallback
+                    postResult(false);
                 } catch (Exception ignored) {
                 }
             }, null);
@@ -319,11 +319,11 @@ public class MediaProjectionService extends Service {
                 MainService.vncUpdateFramebuffer(buffer, rowStride);
             } catch (UnsupportedOperationException e) {
                 // producer delivers another format than RGBA_8888, e.g. on Android-x86
-                if (e.getMessage() != null && e.getMessage().contains("doesn't match the ImageReader's configured buffer format")) {
-                    Log.w(TAG, "onImageAvailable: producer buffer format does not match ImageReader, stopping", e);
-                    // our MediaProjection.Callback's onStop() then tells MainService to use a fallback
-                    stopScreenCapture();
-                }
+                Log.w(TAG, "onImageAvailable: producer buffer format does not match ImageReader, stopping", e);
+                // keeps the next images from hitting this again
+                stopScreenCapture();
+                // tell MainService, it will take care of stopping us and maybe use a fallback
+                postResult(false);
             } catch (Exception ignored) {
             }
         }, null);
