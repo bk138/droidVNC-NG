@@ -263,6 +263,13 @@ public class MediaProjectionService extends Service {
 
                     // croppedBuffer is contiguous (no padding), so rowStride = width * 4 bytes per pixel
                     MainService.vncUpdateFramebuffer(croppedBuffer, scaledWidth * 4);
+                } catch (UnsupportedOperationException e) {
+                    // producer delivers another format than RGBA_8888, e.g. on Android-x86
+                    Log.e(TAG, "onImageAvailable: producer buffer format does not match ImageReader, stopping", e);
+                    // keeps the next images from hitting this again
+                    stopScreenCapture();
+                    // tell MainService, it will take care of stopping us and maybe use a fallback
+                    postResult(false);
                 } catch (Exception ignored) {
                 }
             }, null);
@@ -310,6 +317,13 @@ public class MediaProjectionService extends Service {
                 buffer.rewind();
 
                 MainService.vncUpdateFramebuffer(buffer, rowStride);
+            } catch (UnsupportedOperationException e) {
+                // producer delivers another format than RGBA_8888, e.g. on Android-x86
+                Log.e(TAG, "onImageAvailable: producer buffer format does not match ImageReader, stopping", e);
+                // keeps the next images from hitting this again
+                stopScreenCapture();
+                // tell MainService, it will take care of stopping us and maybe use a fallback
+                postResult(false);
             } catch (Exception ignored) {
             }
         }, null);
