@@ -410,6 +410,19 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
         return JNI_FALSE;
     }
 
+    if(desktopname) { // string arg to GetStringUTFChars() must not be NULL
+        const char *cDesktopName = (*env)->GetStringUTFChars(env, desktopname, NULL);
+        if(!cDesktopName) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed getting desktop name from JNI");
+            theScreen->desktopName = strdup("Android"); // vncStopServer() must have something to correctly free()
+            Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
+            return JNI_FALSE;
+        }
+        theScreen->desktopName = strdup(cDesktopName);
+        (*env)->ReleaseStringUTFChars(env, desktopname, cDesktopName);
+    } else
+        theScreen->desktopName = strdup("Android");
+
     theScreen->frameBuffer=(char*)calloc(width * height * 4, 1);
     backBuffer = (char*)calloc(width * height * 4, 1);
     if(!theScreen->frameBuffer || !backBuffer) {
@@ -441,19 +454,6 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     theScreen->cursor = NULL;
     // needed to allow multiple dragging actions at once
     theScreen->deferPtrUpdateTime = 0;
-
-    if(desktopname) { // string arg to GetStringUTFChars() must not be NULL
-        const char *cDesktopName = (*env)->GetStringUTFChars(env, desktopname, NULL);
-        if(!cDesktopName) {
-            __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed getting desktop name from JNI");
-            theScreen->desktopName = strdup("Android"); // vncStopServer() must have something to correctly free()
-            Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
-            return JNI_FALSE;
-        }
-        theScreen->desktopName = strdup(cDesktopName);
-        (*env)->ReleaseStringUTFChars(env, desktopname, cDesktopName);
-    } else
-        theScreen->desktopName = strdup("Android");
 
     if(password && (*env)->GetStringLength(env, password)) { // string arg to GetStringUTFChars() must not be NULL and also do not set an empty password
         char **passwordList = malloc(sizeof(char **) * 2);
