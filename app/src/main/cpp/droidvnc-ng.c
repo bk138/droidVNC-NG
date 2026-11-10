@@ -456,7 +456,7 @@ JNIEXPORT jboolean JNICALL Java_net_christianbeier_droidvnc_1ng_MainService_vncS
     theScreen->deferPtrUpdateTime = 0;
 
     if(password && (*env)->GetStringLength(env, password)) { // string arg to GetStringUTFChars() must not be NULL and also do not set an empty password
-        char **passwordList = malloc(sizeof(char **) * 2);
+        char **passwordList = calloc(2, sizeof(char **));
         if(!passwordList) {
             __android_log_print(ANDROID_LOG_ERROR, TAG, "vncStartServer: failed allocating password list");
             Java_net_christianbeier_droidvnc_1ng_MainService_vncStopServer(env, thiz);
