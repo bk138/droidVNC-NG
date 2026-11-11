@@ -28,6 +28,10 @@ class OnPackageReplacedReceiver : BroadcastReceiver() {
                 // Instead of reading settings like OnBootReceiver does, we use the persisted start
                 // Intent here as the service could have been started via the Intent Interface.
                 val intent = MainServicePersistData.loadStartIntent(context)
+                if (intent == null) {
+                    Log.w(TAG, "onReceive: server was running before, but no start intent persisted, not restarting")
+                    return
+                }
 
                 // Unattended start needs InputService on Android 11 and newer, both for the activity starts from MainService
                 // (could be reworked) but most importantly for fallback screen capture
@@ -44,7 +48,7 @@ class OnPackageReplacedReceiver : BroadcastReceiver() {
                     }
                 } else {
                     // start immediately
-                    ContextCompat.startForegroundService(context.applicationContext, intent!!)
+                    ContextCompat.startForegroundService(context.applicationContext, intent)
                 }
             } else {
                 Log.i(TAG, "onReceive: server was not running before, not restarting")
