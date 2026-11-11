@@ -1164,7 +1164,11 @@ public class MainService extends Service {
         }
 
         // notification text
-        int port = Objects.requireNonNull(MainServicePersistData.loadStartIntent(this)).getIntExtra(EXTRA_PORT, PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort()));
+        int port = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREFS_KEY_SETTINGS_PORT, mDefaults.getPort());
+        Intent startIntent = MainServicePersistData.loadStartIntent(this);
+        if (startIntent != null) {
+            port = startIntent.getIntExtra(EXTRA_PORT, port);
+        }
         int clientCount = Utils.withLock(instance.mConnectedClientsLock.readLock(), () -> instance.mConnectedClients.size());
         String text = getResources().getQuantityString(
                 port < 0 ? R.plurals.main_service_notification_text_not_listening : R.plurals.main_service_notification_text_listening,
