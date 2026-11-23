@@ -98,24 +98,35 @@ static int set_listener_addresses(rfbScreenInfoPtr screen, const char *iface_nam
 
     __android_log_print(ANDROID_LOG_INFO, TAG, "set_listener_addresses: resolving IPs for interface: %s", iface_name);
     struct ifaddrs *ifaddr, *ifa;
+    const size_t iface_name_len = strlen(iface_name);
+    const int matchAliases = strchr(iface_name, ':') == NULL;
     int foundIpv4 = 0;
+    int exactIpv4 = 0;
     int bestIpv6Prio = -1;  /* Track best IPv6 priority for this interface */
+#ifdef LIBVNCSERVER_IPv6
+    int exactIpv6 = 0;
+#endif
     if (getifaddrs(&ifaddr) != 0) {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "set_listener_addresses: getifaddrs failed for interface %s: %s", iface_name, strerror(errno));
         return -1;
     }
     for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
-        if (ifa->ifa_addr == NULL)
+        if (!ifa->ifa_addr || !ifa->ifa_name ||
+            strncmp(ifa->ifa_name, iface_name, iface_name_len) != 0)
             continue;
-        if (strcmp(ifa->ifa_name, iface_name) == 0) {
-            if (ifa->ifa_addr->sa_family == AF_INET) {
+        const char suffix = ifa->ifa_name[iface_name_len];
+        const int exact = suffix == '\0';
+        /* getifaddrs() can report addresses under a label such as tun0:1. */
+        if (exact || (matchAliases && suffix == ':')) {
+            if (ifa->ifa_addr->sa_family == AF_INET && (exact || !exactIpv4)) {
                 struct sockaddr_in *sa = (struct sockaddr_in *)ifa->ifa_addr;
                 screen->listenInterface = sa->sin_addr.s_addr;
                 __android_log_print(ANDROID_LOG_INFO, TAG, "set_listener_addresses: resolved interface %s to IPv4 %s", iface_name, inet_ntoa(sa->sin_addr));
                 foundIpv4 = 1;
+                exactIpv4 = exact;
             }
 #ifdef LIBVNCSERVER_IPv6
-            if (ifa->ifa_addr->sa_family == AF_INET6) {
+            if (ifa->ifa_addr->sa_family == AF_INET6 && (exact || !exactIpv6)) {
                 struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *)ifa->ifa_addr;
                 const uint8_t *addr = sa6->sin6_addr.s6_addr;
                 int prio = -1;  /* -1 = skip this address */
@@ -137,13 +148,14 @@ static int set_listener_addresses(rfbScreenInfoPtr screen, const char *iface_nam
 
                 if (prio < 0) continue;  /* Skip unwanted address types */
 
-                if (prio > bestIpv6Prio) {
+                if ((exact && !exactIpv6) || prio > bestIpv6Prio) {
                     /* Found a better IPv6 address */
                     char ipv6Addr[INET6_ADDRSTRLEN];
                     inet_ntop(AF_INET6, &(sa6->sin6_addr), ipv6Addr, INET6_ADDRSTRLEN);
                     free(screen->listen6Interface);  /* Free previous best */
                     screen->listen6Interface = strdup(ipv6Addr);
                     bestIpv6Prio = prio;
+                    exactIpv6 = exact;
                     __android_log_print(ANDROID_LOG_INFO, TAG, "set_listener_addresses: resolved interface %s to IPv6 %s with prio %d", iface_name, ipv6Addr, prio);
                 }
             }
